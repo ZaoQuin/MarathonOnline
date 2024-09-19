@@ -57,8 +57,13 @@ dependencies {
 
     implementation(libs.play.services.location)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
 
     implementation(libs.androidx.viewpager2)
+
+    implementation(libs.circleimageview)
+
+
 }

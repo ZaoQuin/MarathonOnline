@@ -1,8 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.MarathonOnline" parent="Theme.MaterialComponents">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <style name="Base.Theme.MarathonOnline" parent="Theme.MaterialComponents.DayNight.NoActionBar.Bridge">
     </style>
 
     <style name="Theme.MarathonOnline" parent="Base.Theme.MarathonOnline" />

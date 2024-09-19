@@ -1,13 +1,13 @@
-package com.university.marathononline
+package com.university.marathononline.leaderBoard
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.university.marathononline.R
 
-class NotifyFragment : Fragment() {
-
+class LeaderBoardFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -17,6 +17,6 @@ class NotifyFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_notify, container, false)
+        return inflater.inflate(R.layout.fragment_leader_board, container, false)
     }
 }

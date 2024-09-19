@@ -23,7 +23,7 @@
             android:layout_gravity="bottom"
             app:fabCradleMargin="20dp"
             app:fabCradleVerticalOffset="10dp"
-            app:fabCradleRoundedCornerRadius="20dp"
+            app:fabCradleRoundedCornerRadius="50dp"
             tools:ignore="BottomAppBar">
 
                 <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -40,8 +40,9 @@
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btnRecord"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:contentDescription="TODO"
             android:src="@drawable/ic_run"
             android:scaleType="center"
             android:padding="0dp"

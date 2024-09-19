@@ -11,22 +11,22 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
-    private lateinit var adapter: MainTabAdapter
+    private lateinit var adapter: MainPagerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        adapter = MainTabAdapter(this)
+        adapter = MainPagerAdapter(this)
 
         setUpViewPager()
         setUpBottomNavView()
 
-        viewModel.selectedPage.observe(this, Observer { tab ->
-            binding.viewPager2.currentItem = tab
+        viewModel.selectedPage.observe(this, Observer { page ->
+            binding.viewPager2.currentItem = page
             binding.bottomNavView.menu
-                .getItem(if (tab < 2) tab else tab + 1).isChecked = true
+                .getItem(if (page < 2) page else page + 1).isChecked = true
         })
     }
 
@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.tabHome -> viewModel.onNavOptionSelected(0)
                 R.id.tabLeaderBoard -> viewModel.onNavOptionSelected(1)
                 R.id.tabNotify -> viewModel.onNavOptionSelected(2)
-                R.id.tabSetting -> viewModel.onNavOptionSelected(3)
+                R.id.tabProfile -> viewModel.onNavOptionSelected(3)
                 else -> false
             }
         }
