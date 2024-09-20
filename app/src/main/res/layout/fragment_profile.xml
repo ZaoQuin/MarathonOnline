@@ -174,7 +174,7 @@
                 android:orientation="vertical"
                 android:layout_margin="@dimen/_15sdp"
                 android:padding="@dimen/_10sdp"
-                android:background="@drawable/background_light_grey">
+                android:background="@drawable/background_light_grey_radius_12sdp">
 
 
                 <com.google.android.material.tabs.TabLayout

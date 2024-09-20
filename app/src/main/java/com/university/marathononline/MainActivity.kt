@@ -47,6 +47,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setUpViewPager() {
         binding.viewPager2.adapter = adapter
+
         binding.viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 viewModel.onPageSelected(position)

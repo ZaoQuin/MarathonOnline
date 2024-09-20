@@ -64,6 +64,4 @@ dependencies {
     implementation(libs.androidx.viewpager2)
 
     implementation(libs.circleimageview)
-
-
 }
