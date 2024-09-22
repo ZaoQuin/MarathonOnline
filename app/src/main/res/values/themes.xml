@@ -4,4 +4,10 @@
     </style>
 
     <style name="Theme.MarathonOnline" parent="Base.Theme.MarathonOnline" />
+    <style name="VerticalProgressBar" parent="Widget.AppCompat.ProgressBar">
+        <item name="android:layout_width">10dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:indeterminate">false</item>
+        <item name="android:max">100</item>
+    </style>
 </resources>
