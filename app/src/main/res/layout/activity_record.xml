@@ -1,0 +1,149 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#EBEBEB">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
+            android:paddingTop="@dimen/_10sdp"
+            android:paddingStart="@dimen/_10sdp"
+            android:paddingEnd="@dimen/_10sdp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100 km"
+                android:textSize="@dimen/_20sdp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_2ssp"
+                android:text="Quãng đường"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Tên cuộc thi"
+                android:gravity="end"
+                android:textSize="@dimen/_15sdp"/>
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
+            android:layout_marginBottom="@dimen/_10sdp"
+            android:background="@drawable/background_radius_45sdp_white"
+            android:clipChildren="true">
+
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="@dimen/_15sdp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/_5sdp"
+                        android:layout_weight="1"
+                        android:background="@drawable/background_radius_12sdp_light_green"
+                        android:gravity="center"
+                        android:padding="@dimen/_5sdp"
+                        android:text="10 km"
+                        android:textSize="@dimen/_13ssp"
+                        app:drawableStartCompat="@drawable/ic_distance" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/_5sdp"
+                        android:layout_weight="1"
+                        android:background="@drawable/background_radius_12sdp_light_green"
+                        android:gravity="center"
+                        android:padding="@dimen/_5sdp"
+                        android:text="00:00:00"
+                        android:textSize="@dimen/_13ssp"
+                        app:drawableStartCompat="@drawable/ic_time" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/background_radius_12sdp_light_green"
+                        android:gravity="center"
+                        android:padding="@dimen/_5sdp"
+                        android:text="10 km/h"
+                        android:textSize="@dimen/_13ssp"
+                        app:drawableStartCompat="@drawable/ic_speed" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="@dimen/_300sdp"
+                android:layout_height="@dimen/_10sdp"
+                android:layout_gravity="start"
+                android:layout_marginTop="@dimen/_100sdp"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:max="100"
+                android:progress="10"
+                android:rotation="270"
+                android:translationX="-180dp"
+                android:translationY="@dimen/_100sdp"/>
+
+            <ImageButton
+                android:layout_width="@dimen/_50sdp"
+                android:layout_height="@dimen/_50sdp"
+                android:background="@drawable/button_circle"
+                android:layout_gravity="center_horizontal|bottom"
+                android:layout_margin="@dimen/_10sdp"
+                android:src="@drawable/ic_play"
+                android:scaleType="centerInside"
+                android:padding="@dimen/_10sdp"
+                android:paddingStart="@dimen/_13sdp"/>
+
+<!--            <ImageButton-->
+<!--                android:layout_width="@dimen/_50sdp"-->
+<!--                android:layout_height="@dimen/_50sdp"-->
+<!--                android:background="@drawable/button_circle"-->
+<!--                android:layout_gravity="center_horizontal|bottom"-->
+<!--                android:layout_margin="@dimen/_10sdp"-->
+<!--                android:src="@drawable/ic_stop"-->
+<!--                android:scaleType="centerInside"-->
+<!--                android:padding="@dimen/_15sdp"/>-->
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+</layout>
