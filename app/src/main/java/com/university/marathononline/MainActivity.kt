@@ -23,6 +23,10 @@ class MainActivity : AppCompatActivity() {
         setUpViewPager()
         setUpBottomNavView()
 
+        observe()
+    }
+
+    private fun observe() {
         viewModel.selectedPage.observe(this, Observer { page ->
             binding.viewPager2.currentItem = page
             binding.bottomNavView.menu
