@@ -2,7 +2,7 @@ package com.university.marathononline.entity
 
 import java.util.Date
 
-data class Event(
+data class Contest(
     val id: Long,
     val title: String,
     val startDate: Date,

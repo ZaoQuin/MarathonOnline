@@ -1,4 +1,4 @@
-package com.university.marathononline.home
+package com.university.marathononline.contest
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -6,12 +6,12 @@ import androidx.lifecycle.ViewModel
 import com.university.marathononline.entity.Contest
 import java.util.Date
 
-class HomeViewModel: ViewModel() {
-    private val _events = MutableLiveData<List<Contest>>()
-    val events: LiveData<List<Contest>> get() = _events
+class ContestViewModel: ViewModel() {
+    private val _contests = MutableLiveData<List<Contest>>()
+    val contests: LiveData<List<Contest>> get() = _contests
 
     init {
-        _events.value = listOf(
+        _contests.value = listOf(
             Contest(1,
                 "Cuộc thi 1",
                 Date(),
