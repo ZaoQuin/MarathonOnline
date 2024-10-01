@@ -1,9 +1,11 @@
 package com.university.marathononline.contest.adapter
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.university.marathononline.contest.contestDetails.ContestDetailsActivity
 import com.university.marathononline.databinding.ItemContestBinding
 import com.university.marathononline.entity.Contest
 import com.university.marathononline.utils.DateUtils
@@ -17,6 +19,11 @@ class ContestAdapter (private var contests: List<Contest>): RecyclerView.Adapter
             binding.raceEndDateTextView.text = DateUtils.getFormattedDate(item.endDate)
             binding.countMembersText.text = "0"
             binding.registrationFee.text = item.registrationFee.toString()
+
+            binding.contestCardView.setOnClickListener{
+                val intent = Intent(binding.root.context, ContestDetailsActivity::class.java)
+                binding.root.context.startActivity(intent)
+            }
         }
     }
 

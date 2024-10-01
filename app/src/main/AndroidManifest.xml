@@ -16,6 +16,9 @@
             android:name=".login.LoginActivity"
             android:exported="false" />
         <activity
+            android:name=".contest.contestDetails.ContestDetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".record.RecordActivity"
             android:exported="false" />
         <activity
