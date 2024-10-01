@@ -6,9 +6,9 @@
         android:title="Trang chủ"
         android:icon="@drawable/ic_home"/>
 
-    <item android:id="@+id/tabLeaderBoard"
-        android:title="Xếp hạng"
-        android:icon="@drawable/ic_leader_board"/>
+    <item android:id="@+id/tabContest"
+        android:title="Giải đấu"
+        android:icon="@drawable/ic_contest"/>
 
     <item android:id="@+id/tabNone"
         android:title=""

@@ -11,9 +11,10 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
+import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.university.marathononline.databinding.FragmentHomeBinding
-import com.university.marathononline.entity.Event
+import com.university.marathononline.entity.Contest
 import com.university.marathononline.home.adapter.EventAdapter
 import kotlin.math.abs
 
@@ -28,8 +29,10 @@ class HomeFragment : Fragment() {
     private val runnable = object : Runnable {
         override fun run() {
             if (binding.viewPager2.adapter != null && adapter.itemCount > 0) {
-                currentPage = (currentPage + 1) % adapter.itemCount
-                binding.viewPager2.setCurrentItem(currentPage, true)
+                if (binding.tabLayout.selectedTabPosition == currentPage) {
+                    currentPage = (currentPage + 1) % adapter.itemCount
+                    binding.viewPager2.setCurrentItem(currentPage, true)
+                }
             }
             handler.postDelayed(this, 3000)
         }
@@ -62,13 +65,25 @@ class HomeFragment : Fragment() {
         setUpTabLayout()
         setUpTransformer()
 
-        handler.postDelayed(runnable, 5000)
+        handler.postDelayed(runnable, 3000)
     }
 
     private fun setUpTabLayout() {
-        TabLayoutMediator(binding.tabLayout, binding.viewPager2) {tab, position ->
+        TabLayoutMediator(binding.tabLayout, binding.viewPager2) { _, _ -> {}}.attach()
 
-        }.attach()
+        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                tab?.let {
+                    if (it.position != binding.viewPager2.currentItem) {
+                        binding.viewPager2.setCurrentItem(it.position, true)
+                        currentPage = it.position
+                    }
+                }
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+        })
     }
 
     private fun setUpTransformer() {
@@ -82,7 +97,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun observes() {
-        viewModel.events.observe(viewLifecycleOwner) { events: List<Event>? ->
+        viewModel.events.observe(viewLifecycleOwner) { events: List<Contest>? ->
             adapter.updateData(events)
             currentPage = 0
         }

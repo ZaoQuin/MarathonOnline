@@ -25,15 +25,6 @@
                 android:layout_height="match_parent"
                 android:textAlignment="center">
 
-                <ImageButton
-                    android:id="@+id/image_button"
-                    android:layout_width="@dimen/_20sdp"
-                    android:layout_height="@dimen/_20sdp"
-                    android:layout_gravity="right"
-                    android:background="?attr/selectableItemBackground"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/ic_search" />
-
             </Toolbar>
 
             <TextView
@@ -58,7 +49,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Sự Kiện"
+                    android:text="Sự Kiện Mới:"
                     android:textSize="@dimen/_16ssp"
                     android:textStyle="bold" />
 

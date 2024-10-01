@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavView.setOnItemSelectedListener { options ->
             when (options.itemId) {
                 R.id.tabHome -> viewModel.onNavOptionSelected(0)
-                R.id.tabLeaderBoard -> viewModel.onNavOptionSelected(1)
+                R.id.tabContest -> viewModel.onNavOptionSelected(1)
                 R.id.tabNotify -> viewModel.onNavOptionSelected(2)
                 R.id.tabProfile -> viewModel.onNavOptionSelected(3)
                 else -> false

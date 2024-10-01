@@ -5,14 +5,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.university.marathononline.databinding.ItemEventBinding
-import com.university.marathononline.entity.Event
+import com.university.marathononline.databinding.ItemContestBinding
+import com.university.marathononline.entity.Contest
 import com.university.marathononline.utils.DateUtils
 
-class EventAdapter(private var events: List<Event>, private val viewPager2: ViewPager2) :
+class EventAdapter(private var events: List<Contest>, private val viewPager2: ViewPager2) :
     RecyclerView.Adapter<EventAdapter.ViewHolder>() {
-    class ViewHolder(private val binding: ItemEventBinding): RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: Event) {
+    class ViewHolder(private val binding: ItemContestBinding): RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: Contest) {
             binding.raceNameTextView.text = item.title
             binding.raceStartDateTextView.text = DateUtils.getFormattedDate(item.startDate)
             binding.raceEndDateTextView.text = DateUtils.getFormattedDate(item.endDate)
@@ -22,7 +22,9 @@ class EventAdapter(private var events: List<Event>, private val viewPager2: View
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = ItemEventBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemContestBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val contestCardView = binding.contestCardView
+        contestCardView.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
         return ViewHolder(binding)
     }
 
@@ -33,10 +35,12 @@ class EventAdapter(private var events: List<Event>, private val viewPager2: View
         }
     }
 
-    override fun getItemCount(): Int = events.size
+    override fun getItemCount(): Int = 5
+
+    fun getEvents(): List<Contest> = events
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(newEvents: List<Event>?) {
+    fun updateData(newEvents: List<Contest>?) {
         if(newEvents != null){
             events = newEvents
             notifyDataSetChanged()
