@@ -1,4 +1,4 @@
-package com.university.marathononline
+package com.university.marathononline.login
 
 import com.university.marathononline.entity.User
 import android.annotation.SuppressLint
@@ -10,10 +10,11 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.university.marathononline.MainActivity
+import com.university.marathononline.R
 import com.university.marathononline.databinding.ActivityLoginBinding
 
 class LoginActivity : AppCompatActivity() {
@@ -53,10 +54,12 @@ class LoginActivity : AppCompatActivity() {
                     isPasswordVisible = !isPasswordVisible
                     if (isPasswordVisible) {
                         passwordEditText.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                        passwordEditText.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.password_visible_off_icon, 0)
+                        passwordEditText.setCompoundDrawablesWithIntrinsicBounds(0, 0,
+                            R.drawable.password_visible_off_icon, 0)
                     } else {
                         passwordEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                        passwordEditText.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.password_icon, 0)
+                        passwordEditText.setCompoundDrawablesWithIntrinsicBounds(0, 0,
+                            R.drawable.password_icon, 0)
                     }
                     passwordEditText.setSelection(passwordEditText.text.length)
                     return@setOnTouchListener true
@@ -66,17 +69,14 @@ class LoginActivity : AppCompatActivity() {
         }
 
         loginButton.setOnClickListener {
-            // Lấy thông tin tên đăng nhập và mật khẩu từ EditText
             val usernameInput = usernameEditText.text.toString()
             val passwordInput = passwordEditText.text.toString()
 
-            // Kiểm tra thông tin đăng nhập
             if (usernameInput == user.username && passwordInput == user.password) {
-                // Tạo Intent để chuyển đến MainActivity
                 val intent = Intent(this, MainActivity::class.java)
                 intent.putExtra("mockData", "This is some mock data")
                 startActivity(intent)
-                finish() // Kết thúc LoginActivity
+                finish()
             } else {
                 Toast.makeText(this, "Invalid credentials. Please try again.", Toast.LENGTH_SHORT).show()
             }

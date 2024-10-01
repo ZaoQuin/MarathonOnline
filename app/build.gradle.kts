@@ -64,5 +64,5 @@ dependencies {
     implementation(libs.androidx.viewpager2)
 
     implementation(libs.circleimageview)
-    implementation("com.airbnb.android:lottie:6.1.0")
+    implementation(libs.lottie)
 }
