@@ -1,6 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.MarathonOnline" parent="Theme.MaterialComponents.DayNight.NoActionBar.Bridge">
+        <item name="android:textColor">@color/text_color</item>
     </style>
 
     <style name="Theme.MarathonOnline" parent="Base.Theme.MarathonOnline" />

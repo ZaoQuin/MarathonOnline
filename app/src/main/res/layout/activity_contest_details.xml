@@ -27,6 +27,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageButton
+                    android:id="@+id/button_back"
                     android:layout_width="@dimen/_20sdp"
                     android:layout_height="@dimen/_20sdp"
                     android:background="@android:color/transparent"
@@ -40,7 +41,8 @@
                     android:layout_gravity="center"
                     android:text="Chi tiết"
                     android:textSize="@dimen/_18sdp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="@color/black"/>
 
             </Toolbar>
 
@@ -53,7 +55,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:paddingBottom="@dimen/_100sdp">
 
 
                     <ImageView
@@ -65,23 +68,26 @@
                     <com.google.android.material.tabs.TabLayout
                         android:id="@+id/tabLayout"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"/>
 <!--                        android:visibility="@{viewModel.selectTab != null? View.VISIBLE: View.GONE}"/>-->
 
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/_5sdp"
                         android:orientation="vertical"
-                        android:padding="@dimen/_10sdp">
+                        android:padding="@dimen/_10sdp"
+                        android:layout_marginBottom="@dimen/_10sdp"
+                        android:background="@color/white">
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Tên cuộc thi"
                             android:textSize="@dimen/_20sdp"
-                            android:textStyle="bold" />
+                            android:textStyle="bold"
+                            android:textColor="@color/dark_main_color"/>
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -152,7 +158,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="@dimen/_10sdp">
+                        android:padding="@dimen/_10sdp"
+                        android:layout_marginBottom="@dimen/_10sdp"
+                        android:background="@color/white">
 
                         <TextView
                             android:id="@+id/section_details"
@@ -168,7 +176,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="@dimen/_10sdp">
+                        android:padding="@dimen/_10sdp"
+                        android:layout_marginBottom="@dimen/_10sdp"
+                        android:background="@color/white">
 
                         <TextView
                             android:id="@+id/section_regulations"
@@ -184,7 +194,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="@dimen/_10sdp">
+                        android:padding="@dimen/_10sdp"
+                        android:layout_marginBottom="@dimen/_10sdp"
+                        android:background="@color/white">
 
                         <TextView
                             android:id="@+id/section_rewards"
@@ -200,7 +212,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="@dimen/_10sdp">
+                        android:padding="@dimen/_10sdp"
+                        android:background="@color/white">
 
                         <TextView
                             android:id="@+id/section_organizational"
@@ -258,7 +271,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:background="@drawable/btn_radius"
-                    android:text="Đăng ký ngay" />
+                    android:text="Đăng ký ngay"
+                    android:textColor="@color/white"/>
 
             </LinearLayout>
         </com.google.android.material.bottomnavigation.BottomNavigationView>

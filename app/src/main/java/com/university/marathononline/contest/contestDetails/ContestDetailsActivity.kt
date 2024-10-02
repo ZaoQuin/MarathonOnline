@@ -21,6 +21,13 @@ class ContestDetailsActivity : AppCompatActivity() {
 
         setUpTabLayout()
         setUpScrollView()
+        setUpBackButton()
+    }
+
+    private fun setUpBackButton() {
+        binding.buttonBack.setOnClickListener {
+            finish()
+        }
     }
 
     private fun setUpScrollView() {
