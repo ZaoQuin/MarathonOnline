@@ -26,19 +26,7 @@ class ContestDetailsActivity : AppCompatActivity() {
 
     private fun setUpBackButton() {
         binding.buttonBack.setOnClickListener {
-            val previousPage = intent.getStringExtra("previous_page")
-
-            when (previousPage) {
-                "contest_fragment" -> {
-                    finish()
-                }
-                "home_fragment" -> {
-                    finish()
-                }
-                else -> {
-                    super.onBackPressed()
-                }
-            }
+            finish()
         }
     }
 

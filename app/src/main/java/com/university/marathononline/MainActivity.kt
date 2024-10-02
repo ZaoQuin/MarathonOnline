@@ -1,12 +1,15 @@
 package com.university.marathononline
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
+import com.university.marathononline.contest.contestDetails.ContestDetailsActivity
 import com.university.marathononline.databinding.ActivityMainBinding
+import com.university.marathononline.record.RecordActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,9 +30,17 @@ class MainActivity : AppCompatActivity() {
 
         setUpViewPager()
         setUpBottomNavView()
+        setUpRecordButton()
         setUpAnimation()
 
         observe()
+    }
+
+    private fun setUpRecordButton() {
+        binding.btnRecord.setOnClickListener{
+            val intent = Intent(binding.root.context, RecordActivity::class.java)
+            binding.root.context.startActivity(intent)
+        }
     }
 
     private fun setUpAnimation() {

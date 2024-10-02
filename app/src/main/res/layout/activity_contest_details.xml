@@ -41,7 +41,8 @@
                     android:layout_gravity="center"
                     android:text="Chi tiết"
                     android:textSize="@dimen/_18sdp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="@color/black"/>
 
             </Toolbar>
 
