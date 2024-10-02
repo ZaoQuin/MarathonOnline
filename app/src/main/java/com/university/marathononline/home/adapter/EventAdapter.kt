@@ -23,7 +23,6 @@ class EventAdapter(private var events: List<Contest>, private val viewPager2: Vi
 
             binding.contestCardView.setOnClickListener{
                 val intent = Intent(binding.root.context, ContestDetailsActivity::class.java)
-                intent.putExtra("previous_page", "home_fragment")
                 binding.root.context.startActivity(intent)
             }
         }

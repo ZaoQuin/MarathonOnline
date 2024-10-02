@@ -1,5 +1,6 @@
 package com.university.marathononline.contest
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -8,8 +9,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.university.marathononline.contest.adapter.ContestAdapter
+import com.university.marathononline.contest.contestDetails.ContestDetailsActivity
 import com.university.marathononline.databinding.FragmentContestBinding
 import com.university.marathononline.entity.Contest
+import com.university.marathononline.search.SearchActivity
+import com.university.marathononline.search.SearchViewModel
 
 class ContestFragment : Fragment() {
 
@@ -32,14 +36,27 @@ class ContestFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.contests.layoutManager = LinearLayoutManager(requireContext())
-        adapter = ContestAdapter(emptyList())
-        binding.contests.adapter = adapter
+
+        setAdapter()
+        setSearchButton()
 
         observe()
     }
 
+    private fun setAdapter() {
+        adapter = ContestAdapter(emptyList())
+        binding.contests.adapter = adapter
+    }
+
+    private fun setSearchButton() {
+        binding.btnSearch.setOnClickListener{
+            val intent = Intent(binding.root.context, SearchActivity::class.java)
+            binding.root.context.startActivity(intent)
+        }
+    }
+
     private fun observe() {
-        viewModel.contests.observe(viewLifecycleOwner) { contests: List<Contest>->
+        viewModel.contests.observe(viewLifecycleOwner) { contests: List<Contest> ->
             adapter.updateData(contests)
         }
     }
