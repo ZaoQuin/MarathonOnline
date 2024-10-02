@@ -7,22 +7,39 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@drawable/background_light_grey_radius_12sdp"
+        android:padding="@dimen/_10sdp">
 
         <Toolbar
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="@dimen/_5sdp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cá nhân"
+                android:textStyle="bold"
+                android:textSize="@dimen/_18ssp"
+                android:textColor="@color/black"/>
 
             <ImageButton
                 android:id="@+id/image_button"
-                android:layout_width="@dimen/_20sdp"
-                android:layout_height="@dimen/_20sdp"
+                android:layout_width="@dimen/_25sdp"
+                android:layout_height="@dimen/_25sdp"
                 android:layout_gravity="right"
                 android:layout_margin="@dimen/_10sdp"
                 android:background="?attr/selectableItemBackground"
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_setting" />
 
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:src="@drawable/example_avatar"
+                android:layout_gravity="right"
+                app:civ_border_width="2dp"/>
         </Toolbar>
 
 
@@ -33,40 +50,12 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:layout_width="@dimen/_70sdp"
-                android:layout_height="@dimen/_70sdp"
-                android:src="@drawable/example_avatar" />
-
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:clickable="true"
-                android:gravity="center"
-                android:layout_margin="@dimen/_5sdp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/_2sdp"
-                    android:text="Quỳnh Giao" />
-
-                <ImageView
-                    android:layout_width="@dimen/_12sdp"
-                    android:layout_height="@dimen/_12sdp"
-                    android:src="@drawable/ic_right"/>
-
-            </LinearLayout>
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingStart="@dimen/_25sdp"
                 android:paddingEnd="@dimen/_25sdp"
-                android:layout_marginTop="@dimen/_20sdp"
                 android:gravity="center">
 
                 <LinearLayout
@@ -82,7 +71,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:drawableTop="@drawable/ic_distance"
-                        android:drawableTint="@color/black"
                         android:text="100 km"
                         android:textSize="@dimen/_20ssp" />
 
@@ -91,7 +79,6 @@
                         android:layout_height="wrap_content"
                         android:text="Quãng đường"
                         android:textAlignment="center"
-                        android:textColor="@color/black"
                         android:textStyle="bold" />
 
 
@@ -118,8 +105,7 @@
                         android:layout_height="wrap_content"
                         android:text="Cuộc thi"
                         android:textAlignment="center"
-                        android:textStyle="bold"
-                        android:textColor="@color/black"/>
+                        android:textStyle="bold"/>
 
                 </LinearLayout>
 

@@ -16,6 +16,7 @@
             android:layout_height="match_parent"
             android:layout_above="@+id/bottomAppBar"/>
 
+
         <com.google.android.material.bottomappbar.BottomAppBar
             android:id="@+id/bottomAppBar"
             android:layout_width="match_parent"
@@ -39,12 +40,14 @@
 
         </com.google.android.material.bottomappbar.BottomAppBar>
 
-
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btnRecord"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_run"
-            app:layout_anchor="@id/bottomAppBar" />
+            app:layout_anchor="@id/bottomAppBar"
+            android:backgroundTint="@color/main_color"
+            app:borderWidth="0dp"/>
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

@@ -35,7 +35,8 @@
                 android:layout_height="wrap_content"
                 android:text="Tên cuộc thi"
                 android:textSize="25dp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/dark_main_color"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -176,7 +177,8 @@
                     android:paddingStart="@dimen/_15sdp"
                     android:paddingEnd="@dimen/_15sdp"
                     android:text="Xem chi tiết"
-                    android:textColor="@color/white"/>
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/dark_main_color"/>
 
             </LinearLayout>
 

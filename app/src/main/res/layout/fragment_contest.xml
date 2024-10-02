@@ -7,50 +7,51 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@drawable/background_light_grey_radius_12sdp"
+        android:padding="@dimen/_10sdp">
 
         <Toolbar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:padding="@dimen/_10sdp"
-            android:paddingStart="@dimen/_20sdp"
-            android:paddingEnd="@dimen/_20sdp"
-            android:background="@color/white">
+            android:padding="@dimen/_5sdp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Giải Đấu"
-                android:textSize="@dimen/_18sdp"
+                android:text="Giải đấu"
                 android:textStyle="bold"
+                android:textSize="@dimen/_18ssp"
+                android:textColor="@color/black"
                 android:layout_gravity="center"/>
 
             <ImageButton
                 android:id="@+id/image_button"
                 android:layout_width="@dimen/_20sdp"
                 android:layout_height="@dimen/_20sdp"
-                android:layout_gravity="end"
+                android:layout_gravity="right"
+                android:layout_margin="@dimen/_10sdp"
                 android:background="?attr/selectableItemBackground"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_search"
-                android:layout_margin="0dp"/>
+                android:src="@drawable/ic_search" />
 
         </Toolbar>
 
         <LinearLayout
-            android:paddingStart="@dimen/_20sdp"
-            android:paddingEnd="@dimen/_20sdp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent">
+            android:layout_height="match_parent"
+            android:background="@drawable/background_radius_12sdp_light_green"
+            android:layout_marginTop="@dimen/_3sdp"
+            android:layout_marginStart="@dimen/_3sdp">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/contests"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:paddingBottom="@dimen/_80sdp"/>
+                android:paddingTop="@dimen/_10sdp"
+                android:paddingBottom="@dimen/_80sdp"
+                android:clipToPadding="false"/>
 
         </LinearLayout>
 

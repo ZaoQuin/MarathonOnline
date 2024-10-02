@@ -14,15 +14,17 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/_10sdp"
             android:orientation="vertical"
-            android:background="@drawable/background_radius_12sdp_light_green"
-            android:padding="@dimen/_5sdp">
+            android:background="@drawable/background_radius_12sdp_white"
+            android:padding="@dimen/_10sdp">
 
             <TextView
+                android:id="@+id/time_stamp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Thời gian"/>
 
             <TextView
+                android:id="@+id/title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Tiêu đề"
@@ -30,11 +32,11 @@
                 android:textSize="@dimen/_15sdp"/>
 
             <TextView
+                android:id="@+id/content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Nội dung"
                 android:textSize="@dimen/_13sdp"/>
-
 
         </LinearLayout>
 
