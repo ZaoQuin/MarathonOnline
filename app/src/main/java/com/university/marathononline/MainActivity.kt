@@ -1,6 +1,7 @@
 package com.university.marathononline
 
 import android.os.Bundle
+import android.os.Handler
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -13,6 +14,10 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
     private lateinit var adapter: MainPagerAdapter
 
+    private var handlerAnimation = Handler()
+    private var statusAnimation = false
+    private lateinit var runnable: Runnable
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -22,8 +27,41 @@ class MainActivity : AppCompatActivity() {
 
         setUpViewPager()
         setUpBottomNavView()
+        setUpAnimation()
 
         observe()
+    }
+
+    private fun setUpAnimation() {
+        runnable = object : Runnable {
+            val animation = binding.animationBtnRecord
+            val animation2 = binding.animation2BtnRecord
+
+            override fun run() {
+                binding.animationBtnRecord.animate().scaleX(2f).scaleY(2f).alpha(0f)
+                    .setDuration(1000)
+                    .withEndAction {
+                        animation.scaleX = 1f
+                        animation.scaleY = 1f
+                        animation.alpha = 1f
+                    }
+                binding.animation2BtnRecord.animate().scaleX(2f).scaleY(2f).alpha(0f)
+                    .setDuration(700)
+                    .withEndAction {
+                        animation2.scaleX = 1f
+                        animation2.scaleY = 1f
+                        animation2.alpha = 1f
+                    }
+
+                handlerAnimation.postDelayed(this, 1500)
+            }
+        }
+
+        startPulse()
+    }
+
+    private fun startPulse() {
+        handlerAnimation.post(runnable)
     }
 
     private fun observe() {
