@@ -2,6 +2,8 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.MarathonOnline" parent="Theme.MaterialComponents.DayNight.NoActionBar.Bridge">
         <item name="android:textColor">@color/text_color</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Theme.MarathonOnline" parent="Base.Theme.MarathonOnline" />

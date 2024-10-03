@@ -4,20 +4,11 @@ import com.university.marathononline.entity.User
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.text.InputType
-import android.view.MotionEvent
-import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.university.marathononline.MainActivity
-import com.university.marathononline.R
 import com.university.marathononline.databinding.ActivityLoginBinding
-import com.university.marathononline.databinding.ActivityMainBinding
-import com.university.marathononline.record.RecordActivity
+import java.util.Date
 
 class LoginActivity : AppCompatActivity() {
 
@@ -29,6 +20,7 @@ class LoginActivity : AppCompatActivity() {
         id = 1L,
         fullName = "Nguyen Van A",
         phoneNumber = "0123456789",
+        birthday = Date(),
         email = "nguyenvana@example.com",
         gender = "Male",
         username = "nguyenvana",

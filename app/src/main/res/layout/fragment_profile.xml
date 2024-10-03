@@ -4,6 +4,7 @@
 
     <data></data>
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -24,17 +25,8 @@
                 android:textSize="@dimen/_18ssp"
                 android:textColor="@color/black"/>
 
-            <ImageButton
-                android:id="@+id/image_button"
-                android:layout_width="@dimen/_25sdp"
-                android:layout_height="@dimen/_25sdp"
-                android:layout_gravity="right"
-                android:layout_margin="@dimen/_10sdp"
-                android:background="?attr/selectableItemBackground"
-                android:scaleType="centerInside"
-                android:src="@drawable/ic_setting" />
-
             <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/information_button"
                 android:layout_width="@dimen/_30sdp"
                 android:layout_height="@dimen/_30sdp"
                 android:src="@drawable/example_avatar"
@@ -43,11 +35,15 @@
         </Toolbar>
 
 
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clickable="true"
-            android:gravity="center"
             android:orientation="vertical">
 
             <LinearLayout
@@ -56,23 +52,23 @@
                 android:orientation="horizontal"
                 android:paddingStart="@dimen/_25sdp"
                 android:paddingEnd="@dimen/_25sdp"
-                android:gravity="center">
+                android:gravity="center_horizontal|top">
 
                 <LinearLayout
-                    android:layout_width="@dimen/_100sdp"
-                    android:layout_height="@dimen/_120sdp"
+                    android:layout_width="@dimen/_80sdp"
+                    android:layout_height="@dimen/_100sdp"
                     android:layout_marginEnd="@dimen/_5sdp"
                     android:background="@drawable/background_radius_12sdp_light_green"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="@dimen/_7sdp">
+                    android:padding="@dimen/_5sdp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:drawableTop="@drawable/ic_distance"
                         android:text="100 km"
-                        android:textSize="@dimen/_20ssp"
+                        android:textSize="@dimen/_15ssp"
                         android:textColor="@color/white"/>
 
                     <TextView
@@ -87,7 +83,7 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="@dimen/_100sdp"
+                    android:layout_width="@dimen/_80sdp"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:gravity="center"
@@ -100,7 +96,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="10"
-                        android:textSize="@dimen/_20ssp"
+                        android:textSize="@dimen/_15ssp"
                         android:textColor="@color/white"/>
 
                     <TextView
@@ -117,11 +113,11 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_margin="@dimen/_15sdp"
                 android:padding="@dimen/_10sdp"
-                android:background="@drawable/background_light_grey_radius_12sdp">
+                android:background="@android:color/transparent">
 
 
                 <com.google.android.material.tabs.TabLayout
@@ -134,12 +130,17 @@
                 <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/view_pager2"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@id/tab_layout"/>
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/tab_layout"
+                    android:paddingBottom="@dimen/_60sdp"/>
 
             </LinearLayout>
 
         </LinearLayout>
 
+        </ScrollView>
+
     </LinearLayout>
+
+
 </layout>

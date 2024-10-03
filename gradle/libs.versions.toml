@@ -2,21 +2,19 @@
 agp = "8.6.0"
 circleimageview = "3.1.0"
 fragmentKtx = "1.8.3"
-kenburnsview = "1.0.7"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
-library = "1.0.1"
 lifecycleViewmodelKtx = "2.8.5"
 lottie = "6.1.0"
 material = "1.12.0"
 activity = "1.9.2"
 constraintlayout = "2.1.4"
 materialVersion = "1.3.0-alpha03"
-picasso = "2.7182"
+mpandroidchart = "v3.1.0"
 playServicesLocation = "21.3.0"
 sdpAndroid = "1.0.6"
 sspAndroid = "1.0.6"
@@ -33,14 +31,12 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-kenburnsview = { module = "com.flaviofaria:kenburnsview", version.ref = "kenburnsview" }
-library = { module = "com.skyfishjy.ripplebackground:library", version.ref = "library" }
 lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 material-v130alpha03 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
-picasso = { module = "com.squereup.picasso:picasso", version.ref = "picasso" }
+mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 sdp-android = { module = "com.intuit.sdp:sdp-android", version.ref = "sdpAndroid" }
 ssp-android = { module = "com.intuit.ssp:ssp-android", version.ref = "sspAndroid" }

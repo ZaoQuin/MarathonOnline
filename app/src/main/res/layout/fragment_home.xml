@@ -40,7 +40,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Quỳnh Giao"
-                    android:textSize="@dimen/_30sdp"
+                    android:textSize="@dimen/_27sdp"
                     android:textStyle="bold"
                     android:textColor="@color/light_main_color"
                     android:layout_marginBottom="@dimen/_10sdp"/>

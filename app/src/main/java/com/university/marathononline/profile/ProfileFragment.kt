@@ -1,13 +1,14 @@
 package com.university.marathononline.profile
 
+import android.content.Intent
 import android.os.Bundle
-import android.provider.ContactsContract.Profile
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.tabs.TabLayoutMediator
+import com.university.marathononline.profile.information.InformationActivity
 import com.university.marathononline.databinding.FragmentProfileBinding
 import com.university.marathononline.profile.adapter.ProfilePagerAdapter
 
@@ -29,8 +30,16 @@ class ProfileFragment : Fragment() {
 
         setUpViewPager()
         setUpTabLayout()
+        setUpButton()
 
         return binding.root
+    }
+
+    private fun setUpButton() {
+        binding.informationButton.setOnClickListener{
+            val intent = Intent(binding.root.context, InformationActivity::class.java)
+            binding.root.context.startActivity(intent)
+        }
     }
 
     private fun setUpTabLayout() {
@@ -43,7 +52,7 @@ class ProfileFragment : Fragment() {
         return when (position){
             1 -> "Tháng"
             2 -> "Năm"
-            else -> "Ngày"
+            else -> "Tuần"
         }
     }
 
