@@ -22,7 +22,6 @@ class ContestAdapter (private var contests: List<Contest>): RecyclerView.Adapter
 
             binding.contestCardView.setOnClickListener {
                 val intent = Intent(binding.root.context, ContestDetailsActivity::class.java)
-                intent.putExtra("previous_page", "contest_fragment")
                 binding.root.context.startActivity(intent)
             }
         }

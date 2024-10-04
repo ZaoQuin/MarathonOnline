@@ -65,4 +65,8 @@ dependencies {
 
     implementation(libs.circleimageview)
     implementation(libs.lottie)
+
+    implementation(libs.mpandroidchart)
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
 }

@@ -1,5 +1,6 @@
 package com.university.marathononline.profile.statistics
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
@@ -15,12 +17,14 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.university.marathononline.R
-import com.university.marathononline.databinding.FragmentYearlyStatisticsBinding
+import com.university.marathononline.databinding.FragmentWeeklyStatisticsBinding
+import com.university.marathononline.profile.components.DatePickerBottomSheetFragment
+import com.university.marathononline.utils.DateUtils
 
-class YearlyStatisticsFragment : Fragment() {
+class WeeklyStatisticsFragment : Fragment() {
 
-    private lateinit var binding: FragmentYearlyStatisticsBinding
-    private val viewModel: MonthlyStatisticsViewModel by activityViewModels()
+    private lateinit var binding: FragmentWeeklyStatisticsBinding
+    private val viewModel: WeeklyStatisticsViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,12 +34,16 @@ class YearlyStatisticsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentYearlyStatisticsBinding.inflate(inflater, container, false)
+        binding = FragmentWeeklyStatisticsBinding.inflate(inflater, container, false)
+
+        initUI()
+
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    private fun initUI() {
+        binding.filterText.text = DateUtils.getCurrentDate()
+        binding.filterButton.setOnClickListener { showDatePickerBottomSheet() }
 
         setUpBarChart()
     }
@@ -66,10 +74,13 @@ class YearlyStatisticsFragment : Fragment() {
         barEntriesList = ArrayList()
 
 
-
-        for (i in 1..12) {
-            barEntriesList.add(BarEntry(i.toFloat(), (i * 2).toFloat()))
-        }
+        barEntriesList.add(BarEntry(1f,1f))
+        barEntriesList.add(BarEntry(2f,2f))
+        barEntriesList.add(BarEntry(3f,3f))
+        barEntriesList.add(BarEntry(4f,4f))
+        barEntriesList.add(BarEntry(5f,5f))
+        barEntriesList.add(BarEntry(6f,6f))
+        barEntriesList.add(BarEntry(7f,7f))
 
         barDataSet = BarDataSet(barEntriesList, "Quãng đường")
         barData = BarData(barDataSet)
@@ -82,5 +93,14 @@ class YearlyStatisticsFragment : Fragment() {
         barDataSet.setColors(resources.getColor(R.color.light_main_color))
         barDataSet.valueTextSize = 16f
         barChart.description.isEnabled = false
+    }
+
+    private fun showDatePickerBottomSheet() {
+        val bottomSheet = DatePickerBottomSheetFragment {selectedDate ->
+            binding.filterText.text = DateUtils.getFormattedDate(selectedDate)
+            viewModel.filterDataByWeek(selectedDate)
+        }
+
+        bottomSheet.show(parentFragmentManager, bottomSheet.tag)
     }
 }

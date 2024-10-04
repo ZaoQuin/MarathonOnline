@@ -18,9 +18,18 @@ class LeaderBoardViewModel: ViewModel() {
     init {
         // Dữ liệu mẫu cho User
         _users.value = listOf(
-            User(1, "Nguyễn Văn A", "0123456789", "a@example.com", "Nam", "userA", "passwordA"),
-            User(2, "Trần Thị B", "0987654321", "b@example.com", "Nữ", "userB", "passwordB"),
-            User(3, "Lê Văn C", "0112233445", "c@example.com", "Nam", "userC", "passwordC")
+            User(
+                1,
+                "Nguyễn Văn A",
+                "0123456789",
+                Date(),
+                "a@example.com",
+                "Nam",
+                "userA",
+                "passwordA"
+            ),
+            User(2, "Trần Thị B", "0987654321", Date(), "b@example.com", "Nữ", "userB", "passwordB"),
+            User(3, "Lê Văn C", "0112233445", Date(), "c@example.com", "Nam", "userC", "passwordC")
         )
 
         // Dữ liệu mẫu cho EventHistory
