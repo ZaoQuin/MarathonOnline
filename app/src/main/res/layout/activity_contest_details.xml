@@ -6,7 +6,7 @@
         <import type="android.view.View"/>
         <variable
             name="viewModel"
-            type="com.university.marathononline.contest.contestDetails.ContestDetailsViewModel" />
+            type="com.university.marathononline.ui.viewModel.ContestDetailsViewModel" />
 
     </data>
 
