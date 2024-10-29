@@ -69,4 +69,6 @@ dependencies {
     implementation(libs.mpandroidchart)
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
 }

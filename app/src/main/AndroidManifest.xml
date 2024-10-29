@@ -13,25 +13,25 @@
         android:theme="@style/Theme.MarathonOnline"
         tools:targetApi="31" >
         <activity
-            android:name=".register.RegisterActivity"
+            android:name=".ui.view.RegisterActivity"
             android:exported="false" />
         <activity
-            android:name=".profile.information.InformationActivity"
+            android:name=".ui.view.InformationActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.view.MainActivity"
             android:exported="false" />
         <activity
-            android:name=".contest.contestDetails.ContestDetailsActivity"
+            android:name=".ui.view.ContestDetailsActivity"
             android:exported="false" />
         <activity
-            android:name=".record.RecordActivity"
+            android:name=".ui.view.RecordActivity"
             android:exported="false" />
         <activity
-            android:name=".search.SearchActivity"
+            android:name=".ui.view.SearchActivity"
             android:exported="false" />
         <activity
-            android:name=".login.LoginActivity"
+            android:name=".ui.view.LoginActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
