@@ -5,10 +5,22 @@ import java.util.Date
 data class User(
     val id: Long,
     val fullName: String,
-    val phoneNumber: String,
-    val birthday: Date,
     val email: String,
-    val gender: String,
+    val phoneNumber: String,
+    val gender: EGender,
+    val birthday: Date,
+    val address: String,
     val username: String,
-    val password: String
+    val role: ERole,
+    val refreshToken: String,
+    val isVerified: Boolean,
+    val avatarUrl: String
 )
+
+enum class EGender(val value: String) {
+    MALE("Nam"), FEMALE("Nữ")
+}
+
+enum class ERole{
+    RUNNER, ORGANIZER, ADMIN
+}

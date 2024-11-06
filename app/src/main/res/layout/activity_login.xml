@@ -4,16 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <!--        <variable-->
-        <!--            name="viewModel"-->
-        <!--            type="" />-->
     </data>
 
     <RelativeLayout
         android:id="@+id/login"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.view.LoginActivity">
+        tools:context=".ui.view.activity.LoginActivity">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -57,6 +54,7 @@
             android:layout_marginBottom="-20dp">
 
             <LinearLayout
+                android:id="@+id/content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -86,12 +84,11 @@
                     android:textStyle="bold"/>
 
                 <EditText
-                    android:id="@+id/usernameEditText"
+                    android:id="@+id/emailEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
                     android:drawableEnd="@drawable/done_icon"/>
-                <!--                    android:text="@={viewModel.username}"/>-->
 
                 <View android:layout_width="wrap_content" android:layout_height="20dp"/>
 
@@ -108,7 +105,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
                     android:drawableEnd="@drawable/password_icon"/>
-                <!--                    android:text="@={viewModel.password}"/>-->
+<!--                    android:text="@={viewModel.password}"/>-->
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -137,7 +134,8 @@
                     android:text="Login"
                     android:textColor="@android:color/white"
                     app:backgroundTint="@color/my_secondary"
-                    app:cornerRadius="32dp" />
+                    app:cornerRadius="32dp"/>
+
                 <View android:layout_width="wrap_content" android:layout_height="10dp"/>
 
                 <LinearLayout
@@ -197,6 +195,11 @@
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
+        
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
     </RelativeLayout>
 </layout>

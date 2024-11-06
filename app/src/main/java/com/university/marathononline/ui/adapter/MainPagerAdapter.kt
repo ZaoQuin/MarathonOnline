@@ -3,10 +3,10 @@ package com.university.marathononline.ui.adapter
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.university.marathononline.ui.view.ContestFragment
-import com.university.marathononline.ui.view.HomeFragment
-import com.university.marathononline.ui.view.NotifyFragment
-import com.university.marathononline.ui.view.ProfileFragment
+import com.university.marathononline.ui.view.fragment.ContestFragment
+import com.university.marathononline.ui.view.fragment.HomeFragment
+import com.university.marathononline.ui.view.fragment.NotifyFragment
+import com.university.marathononline.ui.view.fragment.ProfileFragment
 
 class MainPagerAdapter(fragment: FragmentActivity): FragmentStateAdapter(fragment) {
     override fun getItemCount(): Int = 4
