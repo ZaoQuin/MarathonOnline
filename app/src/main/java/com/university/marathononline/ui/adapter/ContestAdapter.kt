@@ -5,7 +5,7 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.university.marathononline.ui.view.ContestDetailsActivity
+import com.university.marathononline.ui.view.activity.ContestDetailsActivity
 import com.university.marathononline.databinding.ItemContestBinding
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.utils.DateUtils

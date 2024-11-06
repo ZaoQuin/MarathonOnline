@@ -58,6 +58,8 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.fragment.ktx)
+
+    // ViewModel & LiveData
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
 
@@ -69,6 +71,17 @@ dependencies {
     implementation(libs.mpandroidchart)
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
+    // Retrofit & GSON
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+
+    implementation(libs.logging.interceptor)
+
+    // Android Navigation Architecture
+    implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.navigation.fragment)
+
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
+
+    implementation("androidx.datastore:datastore-preferences:1.0.0-alpha01")
 }

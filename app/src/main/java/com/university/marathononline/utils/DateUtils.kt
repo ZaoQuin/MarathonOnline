@@ -19,7 +19,7 @@ object DateUtils {
     }
 
     fun getFormattedDate(date: Date): String {
-        val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("vi", "VN"))
+        val dateFormat = SimpleDateFormat("dd MMMM, yyyy", Locale("vi", "VN"))
         return dateFormat.format(date)
     }
 }
