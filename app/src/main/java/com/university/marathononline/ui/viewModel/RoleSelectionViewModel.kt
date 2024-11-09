@@ -1,0 +1,25 @@
+package com.university.marathononline.ui.viewModel
+
+import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.university.marathononline.base.BaseViewModel
+import com.university.marathononline.data.models.ERole
+import com.university.marathononline.data.repository.UserRepository
+
+class RoleSelectionViewModel(
+    private val repository: UserRepository
+): BaseViewModel(repository) {
+    private val _role: MutableLiveData<ERole> = MutableLiveData()
+    val role: LiveData<ERole> get() = _role
+
+    fun selectedRole(role: ERole){
+        try {
+            _role.value = role
+            Log.d("RoleSelectionViewModel", "Selected role: ${_role.value}")
+
+        } catch (e: IllegalArgumentException) {
+            Log.e("RoleSelectionViewModel", "Invalid role: $role")
+        }
+    }
+}

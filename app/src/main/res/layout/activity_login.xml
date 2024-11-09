@@ -27,7 +27,7 @@
             android:padding="28dp">
 
             <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/animationView"
+                android:id="@+id/progressBar"
                 android:layout_width="200dp"
                 android:layout_height="200dp"
                 app:lottie_rawRes="@raw/run"
@@ -35,9 +35,10 @@
                 app:lottie_loop="true"/>
 
             <TextView
+                android:id="@+id/appName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="GO MAP"
+                android:text="Marathon Online"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-medium"
                 android:textSize="32sp"
@@ -63,7 +64,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Welcome"
+                    android:text="Chào Mừng Bạn!"
                     android:textColor="@color/dark_main_color"
                     android:textSize="32sp"
                     android:textStyle="bold"/>
@@ -71,7 +72,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Please login with your information"
+                    android:text="Vui lòng điền thông tin đăng nhập"
                     android:alpha="0.7"/>
 
                 <View android:layout_width="wrap_content" android:layout_height="30dp"/>
@@ -79,7 +80,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Email Address"
+                    android:text="Địa Chỉ Email"
                     android:alpha="0.7"
                     android:textStyle="bold"/>
 
@@ -95,7 +96,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Password"
+                    android:text="Mật Khẩu"
                     android:alpha="0.7"
                     android:textStyle="bold"/>
 
@@ -114,13 +115,13 @@
                     <CheckBox
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Remember me"
+                        android:text="Nhớ Mật Khẩu"
                         android:layout_centerVertical="true"
                         android:alpha="0.7"/>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="I forgot my password"
+                        android:text="Quên Mật Khẩu"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"/>
                 </RelativeLayout>
@@ -131,7 +132,7 @@
                     android:id="@+id/loginButton"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
-                    android:text="Login"
+                    android:text="Đăng nhập"
                     android:textColor="@android:color/white"
                     app:backgroundTint="@color/my_secondary"
                     app:cornerRadius="32dp"/>
@@ -148,14 +149,14 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Don't have an account?"
+                        android:text="Bạn không có tài khoản?"
                         android:textColor="@color/my_secondary"/>
 
                     <TextView
+                        android:id="@+id/signUpText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/signUpText"
-                        android:text=" Sign up"
+                        android:text=" Đăng ký"
                         android:textColor="@color/my_secondary"
                         android:clickable="true"
                         android:focusable="true"/>
@@ -165,7 +166,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Or login with"
+                    android:text="Hoặc đăng nhập với"
                     android:layout_gravity="center"
                     android:alpha="0.7"/>
 
@@ -195,11 +196,6 @@
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
-        
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
 
     </RelativeLayout>
 </layout>

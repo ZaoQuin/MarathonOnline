@@ -3,7 +3,6 @@ package com.university.marathononline.ui.view.activity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -27,6 +26,12 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding, AuthRep
 
         binding.progressBar.visible(false)
         binding.loginButton.enable(false)
+        binding.appName.visible(true)
+
+        binding.signUpText.setOnClickListener{
+            Log.d("LoginActivity", "Register button clicked")
+            startNewActivity(RoleSelectionActivity::class.java, true)
+        }
 
         binding.loginButton.setOnClickListener {
             Log.d("LoginActivity", "Login button clicked")
@@ -45,6 +50,7 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding, AuthRep
     private fun setUpObserve() {
         viewModel.loginResponse.observe(this, Observer {
             binding.progressBar.visible(false)
+            binding.appName.visible(true)
             when(it){
                 is Resource.Success -> {
                     lifecycleScope.launch {
@@ -53,6 +59,7 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding, AuthRep
                     }
                 }
                 is Resource.Loading -> {
+                    binding.appName.visible(false)
                     binding.progressBar.visible(true)
                 }
                 is Resource.Failure -> handleApiError(it, getActivityRepository())

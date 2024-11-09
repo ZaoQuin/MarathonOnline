@@ -2,15 +2,12 @@ package com.university.marathononline.ui.view.activity
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.AuthRepository
-import com.university.marathononline.data.response.UserPreferences
 import com.university.marathononline.databinding.ActivityInformationBinding
 import com.university.marathononline.ui.viewModel.InformationViewModel
 import com.university.marathononline.utils.DateUtils
@@ -64,7 +61,7 @@ class InformationActivity : BaseActivity<InformationViewModel, ActivityInformati
             genderText.text = user.gender.value
             birthdayText.text = DateUtils.getFormattedDate(user.birthday)
             emailText.text = user.email
-            phonenumberText.text = user.phoneNumber
+            phoneNumberText.text = user.phoneNumber
         }
     }
 

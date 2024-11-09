@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <RelativeLayout
+        android:id="@+id/register"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.view.activity.RegisterBasicInformationActivity"
+        android:background="@color/main_color">
+
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            app:cardCornerRadius="28dp"
+            android:layout_marginBottom="-20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="28dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Đăng Ký"
+                    android:textColor="@color/dark_main_color"
+                    android:textSize="32sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bạn là ai?"
+                    android:alpha="0.7"/>
+
+                <View android:layout_width="wrap_content" android:layout_height="10dp"/>
+
+                <RadioGroup
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    
+                    <RadioButton
+                        android:id="@+id/runnerRole"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:button="@android:color/transparent"
+                        android:text="VẬN ĐỘNG VIÊN"
+                        android:textColor="@drawable/radio_text_selector"
+                        android:background="@drawable/radio_selector"
+                        android:padding="@dimen/_12sdp"
+                        android:layout_margin="@dimen/_2sdp"
+                        android:gravity="center"/>
+
+                    <RadioButton
+                        android:id="@+id/organizerRole"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:button="@android:color/transparent"
+                        android:text="NHÀ TỔ CHỨC"
+                        android:textColor="@drawable/radio_text_selector"
+                        android:background="@drawable/radio_selector"
+                        android:padding="@dimen/_12sdp"
+                        android:layout_margin="@dimen/_2sdp"
+                        android:gravity="center"/>
+
+                    
+                </RadioGroup>
+
+                <View android:layout_width="wrap_content" android:layout_height="10dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/continueButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="Tiếp tục"
+                    android:textColor="@android:color/white"
+                    app:backgroundTint="@color/my_secondary"
+                    app:cornerRadius="32dp" />
+
+                <View android:layout_width="wrap_content" android:layout_height="10dp"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_gravity="center"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Bạn đã có tài khoản? "
+                        android:textColor="@color/my_secondary"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/loginText"
+                        android:text="Đăng nhập"
+                        android:textColor="@color/my_secondary"
+                        android:clickable="true"
+                        android:focusable="true"/>
+                </LinearLayout>
+                <View android:layout_width="wrap_content" android:layout_height="15dp"/>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </RelativeLayout>
+</layout>
