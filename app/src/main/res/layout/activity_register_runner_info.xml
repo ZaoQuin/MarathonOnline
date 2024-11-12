@@ -70,6 +70,7 @@
                 <EditText
                     android:id="@+id/usernameText"
                     android:layout_width="match_parent"
+                    android:imeOptions="actionNext"
                     android:layout_height="wrap_content"
                     android:drawableEnd="@drawable/done_icon"/>
 
@@ -93,7 +94,7 @@
                     android:id="@+id/phoneNumberText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textEmailAddress"
+                    android:imeOptions="actionNext"
                     android:drawableEnd="@drawable/done_icon"/>
 
                 <TextView

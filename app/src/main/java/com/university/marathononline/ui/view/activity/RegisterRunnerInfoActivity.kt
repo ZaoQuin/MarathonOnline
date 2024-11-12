@@ -2,8 +2,8 @@ package com.university.marathononline.ui.view.activity
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.widget.Toast
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import com.university.marathononline.R
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.data.api.Resource
@@ -13,6 +13,7 @@ import com.university.marathononline.data.repository.UserRepository
 import com.university.marathononline.databinding.ActivityRegisterRunnerInfoBinding
 import com.university.marathononline.ui.viewModel.RegisterViewModel
 import com.university.marathononline.utils.*
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class RegisterRunnerInfoActivity : BaseActivity<RegisterViewModel, ActivityRegisterRunnerInfoBinding, UserRepository>() {
@@ -37,14 +38,19 @@ class RegisterRunnerInfoActivity : BaseActivity<RegisterViewModel, ActivityRegis
     }
 
     private fun setUpObserve() {
+
         viewModel.registerResponse.observe(this, Observer {
             binding.progressBar.visible(false)
+            binding.registerButton.enable(true)
 
             when(it){
                 is Resource.Success -> {
-                    Toast.makeText(this, "Register Completed", Toast.LENGTH_SHORT)
+                    lifecycleScope.launch {
+                        startNewActivity(SignUpSuccessActivity::class.java, true)
+                    }
                 }
                 is Resource.Loading -> {
+                    binding.registerButton.enable(false)
                     binding.progressBar.visible(true)
                 }
                 is Resource.Failure -> handleApiError(it)
@@ -127,9 +133,9 @@ class RegisterRunnerInfoActivity : BaseActivity<RegisterViewModel, ActivityRegis
     private fun validateFields(): Boolean {
         val errorMessage = getMessage(R.string.error_field_required)
         binding.apply {
-            return usernameText.checkEmpty(usernameErrorText, errorMessage) ||
-                    addressText.checkEmpty(addressErrorText, errorMessage) ||
-                    phoneNumberText.checkEmpty(phoneNumberErrorText, errorMessage)
+            return !usernameText.isEmpty(usernameErrorText, errorMessage) ||
+                    !addressText.isEmpty(addressErrorText, errorMessage) ||
+                    !phoneNumberText.isEmpty(phoneNumberErrorText, errorMessage)
         }
     }
 

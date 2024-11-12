@@ -91,6 +91,13 @@
                     android:inputType="textEmailAddress"
                     android:drawableEnd="@drawable/done_icon"/>
 
+                <TextView
+                    android:id="@+id/emailErrorText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/_10ssp"
+                    android:textColor="@android:color/holo_red_dark"/>
+
                 <View android:layout_width="wrap_content" android:layout_height="20dp"/>
 
                 <TextView
@@ -106,7 +113,13 @@
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
                     android:drawableEnd="@drawable/password_icon"/>
-<!--                    android:text="@={viewModel.password}"/>-->
+
+                <TextView
+                    android:id="@+id/passwordErrorText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/_10ssp"
+                    android:textColor="@android:color/holo_red_dark"/>
 
                 <RelativeLayout
                     android:layout_width="match_parent"

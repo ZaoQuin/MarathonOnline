@@ -3,73 +3,109 @@ package com.university.marathononline.ui.view.activity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import androidx.core.widget.addTextChangedListener
-import androidx.lifecycle.Observer
+import android.widget.EditText
+import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
+import com.university.marathononline.R
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.repository.AuthRepository
+import com.university.marathononline.data.response.AuthResponse
 import com.university.marathononline.databinding.ActivityLoginBinding
 import com.university.marathononline.ui.viewModel.LoginViewModel
-import com.university.marathononline.utils.enable
-import com.university.marathononline.utils.handleApiError
-import com.university.marathononline.utils.startNewActivity
-import com.university.marathononline.utils.visible
+import com.university.marathononline.utils.*
 import kotlinx.coroutines.launch
 
 class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding, AuthRepository>() {
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        binding.progressBar.visible(false)
-        binding.loginButton.enable(false)
-        binding.appName.visible(true)
-
-        binding.signUpText.setOnClickListener{
-            Log.d("LoginActivity", "Register button clicked")
-            startNewActivity(RoleSelectionActivity::class.java, true)
-        }
-
-        binding.loginButton.setOnClickListener {
-            Log.d("LoginActivity", "Login button clicked")
-            viewModel.login(binding.emailEditText.text.toString(),
-                binding.passwordEditText.text.toString())
-        }
-
-        binding.emailEditText.addTextChangedListener {
-            val email = binding.emailEditText.text.toString().trim()
-            binding.loginButton.enable(email.isNotEmpty() && it.toString().isNotEmpty())
-        }
-
+        initializeUI()
         setUpObserve()
     }
 
-    private fun setUpObserve() {
-        viewModel.loginResponse.observe(this, Observer {
-            binding.progressBar.visible(false)
-            binding.appName.visible(true)
-            when(it){
-                is Resource.Success -> {
-                    lifecycleScope.launch {
-                        viewModel.saveAuthToken(it.value.accessToken)
-                        startNewActivity(MainActivity::class.java)
-                    }
-                }
-                is Resource.Loading -> {
-                    binding.appName.visible(false)
-                    binding.progressBar.visible(true)
-                }
-                is Resource.Failure -> handleApiError(it, getActivityRepository())
+    private fun initializeUI() {
+        binding.apply {
+            progressBar.visible(false)
+            appName.visible(true)
+
+            emailEditText.setOnFocusChangeListener { _, hasFocus ->
+                if (!hasFocus) emailEditText.validateEmail()
             }
-        })
+
+            passwordEditText.setOnFocusChangeListener { _, hasFocus ->
+                if (!hasFocus) passwordEditText.validatePassword()
+            }
+
+            signUpText.setOnClickListener { navigateToRegister() }
+
+            loginButton.setOnClickListener { onLoginButtonClick() }
+        }
+    }
+
+    private fun onLoginButtonClick() {
+        if (!validateFields()) return
+        viewModel.login(binding.emailEditText.text.toString(), binding.passwordEditText.text.toString())
+    }
+
+    private fun setUpObserve() {
+        viewModel.loginResponse.observe(this) { handleLoginResponse(it) }
+    }
+
+    private fun handleLoginResponse(response: Resource<AuthResponse>) {
+        binding.apply {
+            progressBar.visible(response is Resource.Loading)
+            appName.visible(response !is Resource.Loading)
+            loginButton.enable(response !is Resource.Loading)
+        }
+
+        when (response) {
+            is Resource.Success -> onLoginSuccess(response.value)
+            is Resource.Failure -> handleApiError(response, getActivityRepository())
+            else -> Unit
+        }
+    }
+
+    private fun onLoginSuccess(authResponse: AuthResponse) {
+        lifecycleScope.launch {
+            viewModel.saveAuthenticatedUser(authResponse)
+            startNewActivity(SplashRedirectActivity::class.java, true)
+        }
+    }
+
+    private fun validateFields(): Boolean {
+        val errorMessage = getMessage(R.string.error_field_required)
+
+        binding.apply {
+            return emailEditText.validateField(emailErrorText, errorMessage) &&
+                    passwordEditText.validateField(passwordErrorText, errorMessage)
+        }
+    }
+
+    private fun navigateToRegister() {
+        Log.d("LoginActivity", "Register button clicked")
+        startNewActivity(RoleSelectionActivity::class.java, true)
+    }
+
+    private fun EditText.validateEmail() {
+        binding.emailErrorText.text = if (isValidEmail(text.toString())) {
+            setDoneIconColor(this)
+            null
+        } else {
+            getMessage(R.string.error_invalid_email)
+        }
+    }
+
+    private fun EditText.validatePassword() {
+        this.isEmpty(binding.passwordErrorText, getMessage(R.string.error_field_required))
+    }
+
+    private fun EditText.validateField(errorTextView: TextView, errorMessage: String): Boolean {
+        return !this.isEmpty(errorTextView, errorMessage)
     }
 
     override fun getViewModel() = LoginViewModel::class.java
-
     override fun getActivityBinding(inflater: LayoutInflater) = ActivityLoginBinding.inflate(inflater)
-
-    override fun getActivityRepository(): AuthRepository = AuthRepository(retrofitInstance.buildApi(AuthApiService::class.java), userPreferences)
+    override fun getActivityRepository() = AuthRepository(retrofitInstance.buildApi(AuthApiService::class.java), userPreferences)
 }

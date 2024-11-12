@@ -71,6 +71,7 @@
                     android:id="@+id/usernameText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
                     android:drawableEnd="@drawable/done_icon"/>
                 <TextView
                     android:id="@+id/usernameErrorText"
@@ -92,6 +93,7 @@
                     android:id="@+id/phoneNumberText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
                     android:drawableEnd="@drawable/done_icon"/>
 
                 <TextView
@@ -114,6 +116,7 @@
                     android:id="@+id/addressText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
                     android:drawableEnd="@drawable/done_icon"/>
 
                 <TextView

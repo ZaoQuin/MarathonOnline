@@ -3,18 +3,14 @@ package com.university.marathononline.ui.view.activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.asLiveData
 import androidx.viewpager2.widget.ViewPager2
 import com.university.marathononline.ui.adapter.MainPagerAdapter
 import com.university.marathononline.R
-import com.university.marathononline.data.response.UserPreferences
 import com.university.marathononline.databinding.ActivityMainBinding
 import com.university.marathononline.ui.viewModel.MainViewModel
-import com.university.marathononline.utils.startNewActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,15 +28,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         adapter = MainPagerAdapter(this)
-
-        val userPreferences = UserPreferences(this)
-        userPreferences.authToken.asLiveData().observe(this, Observer{
-            if(it == null)
-                startNewActivity(LoginActivity::class.java)
-            else {
-                Log.d("MainActivity", "Logged with token: ${it.toString()}")
-            }
-        })
 
         setUpViewPager()
         setUpBottomNavView()

@@ -3,11 +3,9 @@ package com.university.marathononline.utils
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.text.InputType
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
-import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -17,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.university.marathononline.R
 import com.university.marathononline.base.BaseActivity
+import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.request.RefreshTokenRequest
@@ -86,12 +85,25 @@ fun <T> Fragment.handleApiError(
     retry: (() -> Unit)? = null
 ) {
     when{
-        failure.errorCode == 401 -> handleUnauthorizedError(repository)
-        failure.isNetworkError -> requireView().snackbar("Please check your internet connection", retry)
-
+        failure.errorCode == 401 -> {
+                handleUnauthorizedError(repository, retry)
+        }
+        failure.errorCode == 403 -> {
+            requireView().snackbar("You don't have permission to access this resource.")
+        }
+        failure.errorCode == 500 -> {
+            requireView().snackbar("Something went wrong on the server, please try again later.")
+        }
+        failure.isNetworkError -> {
+            requireView().snackbar("Please check your internet connection", retry)
+        }
         else -> {
-            val error = failure.errorBody?.string().toString()
-            requireView().snackbar(error)
+            val errorMessage = failure.errorBody?.string().orEmpty()
+            if (errorMessage.isNotBlank()) {
+                requireView().snackbar(errorMessage)
+            } else {
+                requireView().snackbar("An unknown error occurred.")
+            }
         }
     }
 }
@@ -103,23 +115,37 @@ fun <T> AppCompatActivity.handleApiError(
 ) {
     when{
         failure.errorCode == 401 -> {
-            if(this is LoginActivity){
+            if (this is LoginActivity) {
                 window.decorView.snackbar("You've entered incorrect email or password")
             } else {
-                handleUnauthorizedError(repository)
+                handleUnauthorizedError(repository, retry)
             }
         }
-        failure.isNetworkError -> window.decorView.snackbar("Please check your internet connection", retry)
-
+        failure.errorCode == 403 -> {
+            window.decorView.snackbar("You don't have permission to access this resource.")
+        }
+        failure.errorCode == 500 -> {
+            window.decorView.snackbar("Something went wrong on the server, please try again later.")
+        }
+        failure.isNetworkError -> {
+            window.decorView.snackbar("Please check your internet connection", retry)
+        }
         else -> {
-            val error = failure.errorBody?.string().toString()
-            window.decorView.snackbar(error)
+            val errorMessage = failure.errorBody?.string().orEmpty()
+            if (errorMessage.isNotBlank()) {
+                window.decorView.snackbar(errorMessage)
+            } else {
+                window.decorView.snackbar("An unknown error occurred.")
+            }
         }
     }
 }
 
 
-private fun Fragment.handleUnauthorizedError(repository: AuthRepository?) {
+private fun Fragment.handleUnauthorizedError(
+    repository: AuthRepository?,
+    retry: (() -> Unit)?
+) {
     lifecycleScope.launch {
         val userResult = repository?.getUser()
         if (userResult is Resource.Success) {
@@ -130,6 +156,8 @@ private fun Fragment.handleUnauthorizedError(repository: AuthRepository?) {
                 val newToken = refreshResult.value.token
                 repository.saveAuthToken(newToken)
                 requireView().snackbar("Token refreshed successfully")
+
+                retry?.invoke()
             } else {
                 logout()
                 requireView().snackbar("Failed to refresh token")
@@ -141,7 +169,10 @@ private fun Fragment.handleUnauthorizedError(repository: AuthRepository?) {
     }
 }
 
-private fun AppCompatActivity.handleUnauthorizedError(repository: AuthRepository?) {
+private fun AppCompatActivity.handleUnauthorizedError(
+    repository: AuthRepository?,
+    retry: (() -> Unit)?
+) {
     lifecycleScope.launch {
         val userResult = repository?.getUser()
         if (userResult is Resource.Success) {
@@ -152,6 +183,8 @@ private fun AppCompatActivity.handleUnauthorizedError(repository: AuthRepository
                 val newToken = refreshResult.value.token
                 repository.saveAuthToken(newToken)
                 window.decorView.snackbar("Token refreshed successfully")
+
+                retry?.invoke()
             } else {
                 logout()
                 window.decorView.snackbar("Failed to refresh token")
@@ -164,7 +197,7 @@ private fun AppCompatActivity.handleUnauthorizedError(repository: AuthRepository
 }
 
 private fun Fragment.logout() {
-    (this as BaseActivity<*, *, *>).logout()
+    (this as BaseFragment<*, *, *>).logout()
 }
 
 
@@ -187,32 +220,8 @@ fun isValidPhoneNumber(phoneNumber: String): Boolean {
 fun  AppCompatActivity.setDoneIconColor(editText: EditText) {
     val doneIcon = editText.compoundDrawablesRelative[2]
     doneIcon?.let {
-        DrawableCompat.setTint(it,  ContextCompat.getColor(this, R.color.main_color))
+        DrawableCompat.setTint(it, ContextCompat.getColor(this, R.color.main_color))
         editText.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, it, null)
-    }
-}
-
-fun AppCompatActivity.togglePasswordVisibility(editText: EditText) {
-    editText.setOnClickListener {
-        val drawableEnd = 2
-
-        val drawable = editText.compoundDrawables[drawableEnd]
-        if (drawable != null && editText.drawableState.contains(android.R.attr.state_pressed)) {
-            val currentInputType = editText.inputType
-
-            if (currentInputType == InputType.TYPE_TEXT_VARIATION_PASSWORD) {
-                editText.inputType = InputType.TYPE_CLASS_TEXT
-                editText.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                    null, null, ContextCompat.getDrawable(editText.context, R.drawable.password_icon), null
-                )
-            } else {
-                editText.inputType = InputType.TYPE_TEXT_VARIATION_PASSWORD
-                editText.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                    null, null, ContextCompat.getDrawable(editText.context, R.drawable.password_visible_off_icon), null
-                )
-            }
-            editText.setSelection(editText.text.length)
-        }
     }
 }
 
@@ -224,18 +233,18 @@ fun Fragment.getMessage(id: Int): String{
     return ContextCompat.getString(requireContext(), id)
 }
 
-fun EditText.checkEmpty(errorTextView: TextView, errorMessage: String): Boolean {
+fun EditText.isEmpty(errorTextView: TextView, errorMessage: String): Boolean {
     return if (text.toString().trim().isEmpty()) {
         errorTextView.text = errorMessage
-        false
+        true
     } else {
         errorTextView.text = null
-        true
+        false
     }
 }
 
 fun AppCompatActivity.validateNormalEditText(text: EditText, error: TextView){
-    if (!text.checkEmpty(error, getMessage(R.string.error_field_required))) {
+    if (!text.isEmpty(error, getMessage(R.string.error_field_required))) {
         setDoneIconColor(text)
     }
 }

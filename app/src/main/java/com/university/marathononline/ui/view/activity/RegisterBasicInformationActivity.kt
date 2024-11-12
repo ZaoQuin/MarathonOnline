@@ -47,10 +47,10 @@ class RegisterBasicInformationActivity : BaseActivity<RegisterBasicInformationVi
     private fun validateFields(): Boolean {
         val errorMessage = getMessage(R.string.error_field_required)
         binding.apply {
-        return fullnameText.checkEmpty(fullnameErrorText, errorMessage) ||
-                emailText.checkEmpty(emailErrorText, errorMessage) ||
-                passwordText.checkEmpty(passwordErrorText, errorMessage) ||
-                confirmPasswordText.checkEmpty(confirmErrorPasswordText, errorMessage)
+        return  !fullnameText.isEmpty(fullnameErrorText, errorMessage) ||
+                !emailText.isEmpty(emailErrorText, errorMessage) ||
+                !passwordText.isEmpty(passwordErrorText, errorMessage) ||
+                !confirmPasswordText.isEmpty(confirmErrorPasswordText, errorMessage)
         }
     }
 

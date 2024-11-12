@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "651774560435",
+    "project_id": "marathononline-a0f00",
+    "storage_bucket": "marathononline-a0f00.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:651774560435:android:12df97049470ff140088c6",
+        "android_client_info": {
+          "package_name": "com.university.marathononline"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVWwKGLQ4s8C1E2nTqjAUO6Mq8WlBkMvE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

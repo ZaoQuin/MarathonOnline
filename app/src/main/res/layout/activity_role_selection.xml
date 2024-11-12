@@ -109,6 +109,7 @@
                         android:textColor="@color/my_secondary"
                         android:clickable="true"
                         android:focusable="true"/>
+
                 </LinearLayout>
                 <View android:layout_width="wrap_content" android:layout_height="15dp"/>
 

@@ -4,6 +4,7 @@ import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.request.AuthRequest
 import com.university.marathononline.data.request.RefreshTokenRequest
 import com.university.marathononline.base.BaseRepository
+import com.university.marathononline.data.response.AuthResponse
 import com.university.marathononline.data.response.UserPreferences
 
 class AuthRepository(
@@ -15,6 +16,10 @@ class AuthRepository(
         api.getUser()
     }
 
+    suspend fun verifyAccount() = safeApiCall {
+        api.verifyAccount()
+    }
+
     suspend fun authenticate(authRequest: AuthRequest) = safeApiCall {
         api.authenticate(authRequest)
     }
@@ -23,11 +28,18 @@ class AuthRepository(
         api.refreshAccessToken(refreshRequest)
     }
 
-    suspend fun logout() = safeApiCall {
-        api.logout()
+    suspend fun saveAuthenticatedUser(authResponse: AuthResponse) {
+        preferences.saveAuthToken(authResponse.accessToken)
+        preferences.saveRoleUser(authResponse.role)
+        preferences.saveStatusUser(authResponse.isVerified)
     }
 
-    suspend fun saveAuthToken(token: String){
-        preferences.saveAuthToken(token)
+    suspend fun saveAuthToken(newToken: String) {
+        preferences.saveAuthToken(newToken)
+    }
+
+    suspend fun updateStatusUser(verify: Boolean) {
+        preferences.clearStatusUser(verify)
+        preferences.saveStatusUser(verify)
     }
 }

@@ -61,7 +61,6 @@
                     android:id="@+id/fullnameText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textEmailAddress"
                     android:drawableEnd="@drawable/done_icon"/>
 
                 <TextView

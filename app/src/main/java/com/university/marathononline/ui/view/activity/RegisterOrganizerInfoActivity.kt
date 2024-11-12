@@ -1,7 +1,6 @@
 package com.university.marathononline.ui.view.activity
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.widget.Toast
 import androidx.lifecycle.Observer
 import com.university.marathononline.R
 import com.university.marathononline.base.BaseActivity
@@ -38,7 +37,7 @@ class RegisterOrganizerInfoActivity : BaseActivity<RegisterViewModel, ActivityRe
 
             when(it){
                 is Resource.Success -> {
-                    Toast.makeText(this, "Register Completed", Toast.LENGTH_SHORT)
+                    startNewActivity(SignUpSuccessActivity::class.java, true)
                 }
                 is Resource.Loading -> {
                     binding.progressBar.visible(true)
@@ -110,9 +109,9 @@ class RegisterOrganizerInfoActivity : BaseActivity<RegisterViewModel, ActivityRe
     private fun validateFields(): Boolean {
         val errorMessage = getMessage(R.string.error_field_required)
         binding.apply {
-            return usernameText.checkEmpty(usernameErrorText, errorMessage) ||
-                    addressText.checkEmpty(addressErrorText, errorMessage) ||
-                    phoneNumberText.checkEmpty(phoneNumberErrorText, errorMessage)
+            return !usernameText.isEmpty(usernameErrorText, errorMessage) ||
+                    !addressText.isEmpty(addressErrorText, errorMessage) ||
+                    !phoneNumberText.isEmpty(phoneNumberErrorText, errorMessage)
         }
 
     }
