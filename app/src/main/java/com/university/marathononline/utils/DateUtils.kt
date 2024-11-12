@@ -7,6 +7,7 @@ import java.util.Locale
 object DateUtils {
     const val DAY_IN_MILLIS = 24 * 60 * 60 * 100
     private const val DATE_FORMAT = "dd MMMM yyyy";
+    private const val DATE_FORMAT_BD = "d M yyyy";
 
     fun getDaysBetween(startDate: Long, endDate: Long): Long {
         val diffInMillis = endDate - startDate
@@ -19,7 +20,36 @@ object DateUtils {
     }
 
     fun getFormattedDate(date: Date): String {
-        val dateFormat = SimpleDateFormat("dd MMMM, yyyy", Locale("vi", "VN"))
+        val dateFormat = SimpleDateFormat(DATE_FORMAT, Locale("vi", "VN"))
         return dateFormat.format(date)
+    }
+
+    fun convertStringToDate(day: String, month: String, year: String): Date? {
+        return try {
+            val formattedDay = String.format("%02d", day.toInt())
+            val formattedMonth = String.format("%02d", month.toInt())
+
+            val dateString = "$year-$formattedMonth-$formattedDay"
+
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            dateFormat.parse(dateString)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun convertToDateString(day: Int, month: Int, year: Int): String? {
+        return try {
+            val formattedDay = String.format("%02d", day.toInt())
+            val formattedMonth = String.format("%02d", month.toInt())
+
+            val dateString = "$year-$formattedMonth-$formattedDay"
+
+            dateString
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 }

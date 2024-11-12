@@ -6,15 +6,25 @@ import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.UserRepository
 import com.university.marathononline.ui.viewModel.InformationViewModel
 import com.university.marathononline.ui.viewModel.LoginViewModel
+import com.university.marathononline.ui.viewModel.OtpVerificationViewModel
+import com.university.marathononline.ui.viewModel.RegisterBasicInformationViewModel
+import com.university.marathononline.ui.viewModel.RegisterViewModel
+import com.university.marathononline.ui.viewModel.RoleSelectionViewModel
+import com.university.marathononline.ui.viewModel.SplashRedirectViewModel
 
 class ViewModelFactory(
-    private val repository: BaseRepository
+    private val repository: BaseRepository,
 ): ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when{
+            modelClass.isAssignableFrom(SplashRedirectViewModel::class.java) -> SplashRedirectViewModel(repository as AuthRepository) as T
             modelClass.isAssignableFrom(LoginViewModel::class.java) -> LoginViewModel(repository as AuthRepository) as T
+            modelClass.isAssignableFrom(OtpVerificationViewModel::class.java) -> OtpVerificationViewModel(repository as AuthRepository) as T
             modelClass.isAssignableFrom(InformationViewModel::class.java) -> InformationViewModel(repository as AuthRepository) as T
+            modelClass.isAssignableFrom(RoleSelectionViewModel::class.java) -> RoleSelectionViewModel(repository as UserRepository) as T
+            modelClass.isAssignableFrom(RegisterBasicInformationViewModel::class.java) -> RegisterBasicInformationViewModel(repository as UserRepository) as T
+            modelClass.isAssignableFrom(RegisterViewModel::class.java) -> RegisterViewModel(repository as UserRepository) as T
             else -> throw IllegalArgumentException("ViewModelClass Not Found")
         }
     }

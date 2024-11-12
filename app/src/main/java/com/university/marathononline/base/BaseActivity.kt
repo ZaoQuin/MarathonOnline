@@ -3,14 +3,13 @@ package com.university.marathononline.base
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import com.university.marathononline.data.api.RetrofitInstance
 import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.response.UserPreferences
-import com.university.marathononline.ui.view.activity.MainActivity
+import com.university.marathononline.ui.view.activity.SplashRedirectActivity
 import com.university.marathononline.utils.startNewActivity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -46,7 +45,7 @@ abstract class BaseActivity<VM: BaseViewModel, B: ViewBinding, R: BaseRepository
         val authToken = userPreferences.authToken.first()
         val api = retrofitInstance.buildApi(AuthApiService::class.java, authToken)
         viewModel.logout(api)
-        userPreferences.clearAuthToken()
-        startNewActivity(MainActivity::class.java)
+        userPreferences.clearAuth()
+        startNewActivity(SplashRedirectActivity::class.java, true)
     }
 }

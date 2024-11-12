@@ -1,5 +1,6 @@
 package com.university.marathononline.data.models
 
+import java.io.Serializable
 import java.util.Date
 
 data class User(
@@ -15,12 +16,12 @@ data class User(
     val refreshToken: String,
     val isVerified: Boolean,
     val avatarUrl: String
-)
+): Serializable
 
 enum class EGender(val value: String) {
     MALE("Nam"), FEMALE("Nữ")
 }
 
-enum class ERole{
-    RUNNER, ORGANIZER, ADMIN
+enum class ERole(val value: String){
+    RUNNER("Vận dộnng viên"), ORGANIZER("Nhà tổ chức"), ADMIN("Quản trị")
 }

@@ -1,5 +1,13 @@
 <resources>
     <string name="app_name">MarathonOnline</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="error_invalid_email">Email không hợp lệ</string>
+    <string name="error_invalid_phone_number">Số điện thoại không hợp lệ</string>
+    <string name="error_password_mismatch">Mật khẩu không khớp</string>
+    <string name="error_field_required">Trường này là bắt buộc</string>
+    <string name="error_otp_required">Vui lòng nhập mã OTP</string>
+    <string name="error_invalid_otp">Mã không đúng</string>
+    <string name="otp_resent">Đã gửi lại mã OTP</string>
+    <string name="otp_sent_to_email">\"OTP đã được gửi đến %1$s, vui lòng kiểm tra email của bạn và nhập mã OTP vào bên dưới.\"</string>
 </resources>
