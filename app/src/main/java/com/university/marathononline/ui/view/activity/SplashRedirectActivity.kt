@@ -29,7 +29,6 @@ class SplashRedirectActivity : BaseActivity<SplashRedirectViewModel, ActivitySpl
 
     private fun observeAuthToken() {
         lifecycleScope.launch {
-            // Lấy authToken và isVerified một cách đồng bộ hơn, không delay
             val token = userPreferences.authToken.firstOrNull()
             if (token == null) {
                 startNewActivity(LoginActivity::class.java, true)
@@ -41,7 +40,6 @@ class SplashRedirectActivity : BaseActivity<SplashRedirectViewModel, ActivitySpl
                     else -> startNewActivity(MainActivity::class.java, true)
                 }
             }
-            // Đảm bảo các công việc được xử lý sau khi giao diện đã sẵn sàng
         }
     }
 

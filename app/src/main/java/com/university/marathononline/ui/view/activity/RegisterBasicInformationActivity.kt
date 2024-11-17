@@ -3,8 +3,10 @@ package com.university.marathononline.ui.view.activity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import androidx.lifecycle.Observer
 import com.university.marathononline.R
 import com.university.marathononline.base.BaseActivity
+import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.user.UserApiService
 import com.university.marathononline.data.models.ERole
 import com.university.marathononline.data.repository.UserRepository
@@ -23,20 +25,37 @@ class RegisterBasicInformationActivity : BaseActivity<RegisterBasicInformationVi
         }
 
         initializeUI()
+        setUpObserve()
+    }
+
+    private fun setUpObserve() {
+        viewModel.checkEmailResponse.observe(this, Observer {
+            binding.progressBar.visible(it == Resource.Loading)
+            when(it){
+                is Resource.Success -> {
+                    if(!it.value.exists) {
+                        binding.emailErrorText.text = null
+                        navigateToNextActivityBasedOnRole()
+                    }
+                    else
+                        binding.emailErrorText.text = getMessage(R.string.exist_email)
+                }
+                is Resource.Loading -> {}
+                is Resource.Failure -> handleApiError(it)
+            }
+        })
     }
 
     private fun initializeUI() {
         binding.apply {
+            progressBar.visible(false)
+
             fullnameText.setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus)  validateNormalEditText(fullnameText, fullnameErrorText)
             }
 
             emailText.setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus) validateEmail()
-            }
-
-            confirmPasswordText.setOnFocusChangeListener { _, hasFocus ->
-                if (!hasFocus) validatePasswordConfirmation()
             }
 
             continueButton.setOnClickListener { onContinueButtonClick() }
@@ -55,9 +74,12 @@ class RegisterBasicInformationActivity : BaseActivity<RegisterBasicInformationVi
     }
 
     private fun onContinueButtonClick(){
-        if(!validateFields())
-            return
+        if (!validatePasswordConfirmation() || !validateFields()) return
+        viewModel.setEmail(binding.emailText.text.toString())
+        viewModel.checkEmail()
+    }
 
+    private fun navigateToNextActivityBasedOnRole() {
         viewModel.role.value?.let {
             val nextActivity = if (it == ERole.RUNNER) {
                 RegisterRunnerInfoActivity::class.java
@@ -73,10 +95,12 @@ class RegisterBasicInformationActivity : BaseActivity<RegisterBasicInformationVi
         }
     }
 
+
     private fun validateEmail(){
         binding.apply {
+            val email = emailText.text.toString()
             val errorMessage =
-                if (isValidEmail(emailText.text.toString())) {
+                if (isValidEmail(email)) {
                     setDoneIconColor(emailText)
                     null
                 }
@@ -84,9 +108,10 @@ class RegisterBasicInformationActivity : BaseActivity<RegisterBasicInformationVi
                     getMessage(R.string.error_invalid_email)
             emailErrorText.text = errorMessage
         }
+
     }
 
-    private fun validatePasswordConfirmation(){
+    private fun validatePasswordConfirmation(): Boolean{
         binding.apply {
             val errorMessage =
                 if(passwordText.text.toString()!=confirmPasswordText.text.toString())
@@ -95,6 +120,7 @@ class RegisterBasicInformationActivity : BaseActivity<RegisterBasicInformationVi
                     null
             confirmErrorPasswordText.text = errorMessage
             passwordErrorText.text = errorMessage
+            return errorMessage == null
         }
     }
 

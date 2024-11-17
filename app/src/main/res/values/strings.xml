@@ -10,4 +10,7 @@
     <string name="error_invalid_otp">Mã không đúng</string>
     <string name="otp_resent">Đã gửi lại mã OTP</string>
     <string name="otp_sent_to_email">\"OTP đã được gửi đến %1$s, vui lòng kiểm tra email của bạn và nhập mã OTP vào bên dưới.\"</string>
+    <string name="password_update_success">Cập nhật mật khẩu thành công!</string>
+    <string name="resend_otp">Gửi lại mã</string>
+    <string name="exist_email">Đã tồn tại tài khoản với email này.</string>
 </resources>

@@ -18,9 +18,7 @@ class OtpVerificationViewModel(
     private val repository: AuthRepository
 ): BaseViewModel(repository) {
     private val _originOtp: MutableLiveData<String> = MutableLiveData()
-    val originOtp: LiveData<String> get() = _originOtp
     private val _otp: MutableLiveData<String> = MutableLiveData()
-    val otp: LiveData<String> get() = _otp
     private val _user: MutableLiveData<Resource<User>> = MutableLiveData()
     val user: LiveData<Resource<User>> get() = _user
     private val _email: MutableLiveData<String> = MutableLiveData()

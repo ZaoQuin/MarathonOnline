@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.UserRepository
+import com.university.marathononline.ui.viewModel.ForgetPasswordViewModel
 import com.university.marathononline.ui.viewModel.InformationViewModel
 import com.university.marathononline.ui.viewModel.LoginViewModel
 import com.university.marathononline.ui.viewModel.OtpVerificationViewModel
@@ -21,6 +22,7 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(SplashRedirectViewModel::class.java) -> SplashRedirectViewModel(repository as AuthRepository) as T
             modelClass.isAssignableFrom(LoginViewModel::class.java) -> LoginViewModel(repository as AuthRepository) as T
             modelClass.isAssignableFrom(OtpVerificationViewModel::class.java) -> OtpVerificationViewModel(repository as AuthRepository) as T
+            modelClass.isAssignableFrom(ForgetPasswordViewModel::class.java) -> ForgetPasswordViewModel(repository as UserRepository) as T
             modelClass.isAssignableFrom(InformationViewModel::class.java) -> InformationViewModel(repository as AuthRepository) as T
             modelClass.isAssignableFrom(RoleSelectionViewModel::class.java) -> RoleSelectionViewModel(repository as UserRepository) as T
             modelClass.isAssignableFrom(RegisterBasicInformationViewModel::class.java) -> RegisterBasicInformationViewModel(repository as UserRepository) as T

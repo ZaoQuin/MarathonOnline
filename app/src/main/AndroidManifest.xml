@@ -16,7 +16,9 @@
         android:theme="@style/Theme.MarathonOnline"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-
+        <activity
+            android:name=".ui.view.activity.ForgetPasswordActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.view.activity.SignUpSuccessActivity"
             android:exported="false" />

@@ -2,7 +2,9 @@ package com.university.marathononline.data.repository
 
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.user.UserApiService
+import com.university.marathononline.data.request.CheckEmailRequest
 import com.university.marathononline.data.request.CreateUserRequest
+import com.university.marathononline.data.request.UpdatePasswordRequest
 
 class UserRepository (
     private val api: UserApiService
@@ -18,5 +20,13 @@ class UserRepository (
 
     suspend fun getUsers() = safeApiCall {
         api.getUsers()
+    }
+
+    suspend fun checkEmail(email: CheckEmailRequest) = safeApiCall {
+        api.checkMail(email)
+    }
+
+    suspend fun updatePassword(updateRequest: UpdatePasswordRequest) = safeApiCall {
+        api.updatePassword(updateRequest)
     }
 }
