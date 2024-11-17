@@ -41,7 +41,13 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding, AuthRep
             signUpText.setOnClickListener { navigateToRegister() }
 
             loginButton.setOnClickListener { onLoginButtonClick() }
+
+            forgetPasswordText.setOnClickListener{ navigateToForgetPassword() }
         }
+    }
+
+    private fun navigateToForgetPassword() {
+        startNewActivity(ForgetPasswordActivity::class.java)
     }
 
     private fun onLoginButtonClick() {

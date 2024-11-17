@@ -1,7 +1,8 @@
 package com.university.marathononline.data.api.user
 
-import com.university.marathononline.data.models.User
-import com.university.marathononline.data.request.CreateUserRequest
+import com.university.marathononline.data.models.*
+import com.university.marathononline.data.request.*
+import com.university.marathononline.data.response.*
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -17,4 +18,10 @@ interface UserApiService {
 
     @GET("/api/v1/user/{id}")
     suspend fun getUser(@Path("id") id: Long): User
+
+    @POST("/api/v1/user/check-email")
+    suspend fun checkMail(@Body email: CheckEmailRequest): CheckEmailResponse
+
+    @POST("/api/v1/user/update-password")
+    suspend fun updatePassword(@Body email: UpdatePasswordRequest): UpdatePasswordResponse
 }

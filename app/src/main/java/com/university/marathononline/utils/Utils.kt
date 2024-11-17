@@ -122,6 +122,7 @@ fun <T> AppCompatActivity.handleApiError(
             }
         }
         failure.errorCode == 403 -> {
+            failure.getErrorMessage()
             window.decorView.snackbar("You don't have permission to access this resource.")
         }
         failure.errorCode == 500 -> {
