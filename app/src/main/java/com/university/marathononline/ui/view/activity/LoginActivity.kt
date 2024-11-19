@@ -21,12 +21,15 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding, AuthRep
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        viewModel.getLoginInfo()
+        
         initializeUI()
         setUpObserve()
     }
 
     private fun initializeUI() {
-        binding.apply {
+        binding.apply {            
             progressBar.visible(false)
             appName.visible(true)
 
@@ -52,11 +55,26 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding, AuthRep
 
     private fun onLoginButtonClick() {
         if (!validateFields()) return
-        viewModel.login(binding.emailEditText.text.toString(), binding.passwordEditText.text.toString())
+        binding.apply {
+            val email = emailEditText.text.toString()
+            val password = passwordEditText.text.toString()
+            viewModel.login(email, password)
+            if(remeberMe.isChecked)
+                viewModel.saveLoginInfo(email, password)
+            else
+                viewModel.clearLoginInfo()
+        }
     }
 
     private fun setUpObserve() {
         viewModel.loginResponse.observe(this) { handleLoginResponse(it) }
+        viewModel.loginInfo.observe(this) { loginInfo ->
+            binding.apply {
+                emailEditText.setText(loginInfo.email)
+                passwordEditText.setText(loginInfo.password)
+                remeberMe.isChecked = loginInfo.remember
+            }
+        }
     }
 
     private fun handleLoginResponse(response: Resource<AuthResponse>) {

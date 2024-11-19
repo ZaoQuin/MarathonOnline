@@ -3,6 +3,8 @@ package com.university.marathononline.utils
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
@@ -21,6 +23,9 @@ import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.request.RefreshTokenRequest
 import com.university.marathononline.ui.view.activity.LoginActivity
 import kotlinx.coroutines.launch
+import java.security.KeyStore
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
 
 fun Activity.finishAndGoBack() {
     finish()
@@ -255,4 +260,30 @@ fun adapterSpinner(min: Int, max: Int, context: Context):  ArrayAdapter<String>{
     val adapter = ArrayAdapter(context, R.layout.spinner_item, arrange)
     adapter.setDropDownViewResource(R.layout.spinner_dropdown_item )
     return adapter
+}
+
+fun createOrGetKey(): SecretKey {
+    val keyStore = KeyStore.getInstance("AndroidKeyStore")
+    keyStore.load(null)
+
+    val existingKey = keyStore.getKey(KEY_ALIAS, null) as? SecretKey
+    if (existingKey != null) {
+        return existingKey
+    }
+
+    val keyGenerator = KeyGenerator.getInstance(
+        KeyProperties.KEY_ALGORITHM_AES,
+        "AndroidKeyStore"
+    )
+
+    val keyGenParameterSpec = KeyGenParameterSpec.Builder(
+        KEY_ALIAS,
+        KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+    )
+        .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+        .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+        .build()
+
+    keyGenerator.init(keyGenParameterSpec)
+    return keyGenerator.generateKey()
 }
