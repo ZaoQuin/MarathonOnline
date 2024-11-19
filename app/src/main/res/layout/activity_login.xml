@@ -126,6 +126,7 @@
                     android:layout_height="wrap_content">
 
                     <CheckBox
+                        android:id="@+id/remeberMe"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Nhớ Mật Khẩu"
