@@ -2,6 +2,7 @@ package com.university.marathononline.data.repository
 
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.user.UserApiService
+import com.university.marathononline.data.models.User
 import com.university.marathononline.data.request.CheckEmailRequest
 import com.university.marathononline.data.request.CreateUserRequest
 import com.university.marathononline.data.request.UpdatePasswordRequest
@@ -12,6 +13,10 @@ class UserRepository (
 
     suspend fun createUser(newUser: CreateUserRequest) = safeApiCall {
         api.createUser(newUser)
+    }
+
+    suspend fun updateUser(user: User) = safeApiCall {
+        api.updateUser(user)
     }
 
     suspend fun getUser(uid: Long) = safeApiCall {

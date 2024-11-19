@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.UserRepository
+import com.university.marathononline.ui.viewModel.EditInformationViewModel
 import com.university.marathononline.ui.viewModel.ForgetPasswordViewModel
 import com.university.marathononline.ui.viewModel.InformationViewModel
 import com.university.marathononline.ui.viewModel.LoginViewModel
@@ -27,6 +28,7 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(RoleSelectionViewModel::class.java) -> RoleSelectionViewModel(repository as UserRepository) as T
             modelClass.isAssignableFrom(RegisterBasicInformationViewModel::class.java) -> RegisterBasicInformationViewModel(repository as UserRepository) as T
             modelClass.isAssignableFrom(RegisterViewModel::class.java) -> RegisterViewModel(repository as UserRepository) as T
+            modelClass.isAssignableFrom(EditInformationViewModel::class.java) -> EditInformationViewModel(repository as UserRepository) as T
             else -> throw IllegalArgumentException("ViewModelClass Not Found")
         }
     }

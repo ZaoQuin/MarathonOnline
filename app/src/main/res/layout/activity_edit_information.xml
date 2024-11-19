@@ -1,0 +1,212 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/_5sdp"
+            android:background="@color/white">
+
+            <ImageButton
+                android:id="@+id/button_back"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:background="@android:color/transparent"
+                android:padding="0dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_left"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chỉnh sửa thông tin"
+                android:textStyle="bold"
+                android:textSize="@dimen/_18ssp"
+                android:textColor="@color/black"
+                android:layout_gravity="center"/>
+
+            <ImageButton
+                android:id="@+id/save_button"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:background="@android:color/transparent"
+                android:padding="0dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_save"
+                android:layout_gravity="end"
+                android:layout_marginEnd="@dimen/_10sdp"/>
+        </Toolbar>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/_20sdp">
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/_20sdp">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/avatarImage"
+                    android:layout_width="@dimen/_80sdp"
+                    android:layout_height="@dimen/_80sdp"
+                    android:src="@drawable/example_avatar"
+                    app:civ_border_width="3dp"
+                    app:civ_border_color="@color/black"
+                    android:layout_centerHorizontal="true"/>
+
+                <ImageButton
+                    android:id="@+id/edit_avatar_button"
+                    android:layout_width="@dimen/_80sdp"
+                    android:layout_height="@dimen/_80sdp"
+                    android:layout_centerInParent="true"
+                    android:layout_alignBottom="@id/avatarImage"
+                    android:background="@android:color/transparent"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_camera"/>
+            </RelativeLayout>
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/_20sdp"
+            android:background="@color/white"
+            android:layout_marginBottom="@dimen/_7sdp">
+
+            <EditText
+                android:id="@+id/fullNameEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Họ và tên"
+                android:layout_marginBottom="@dimen/_10sdp"/>
+
+            <TextView
+                android:id="@+id/fullnameErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
+
+            <EditText
+                android:id="@+id/phoneNumberEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Số điện thoại"/>
+
+            <TextView
+                android:id="@+id/phoneNumberErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Giới tính"
+                android:alpha="0.7"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:textStyle="bold"/>
+
+            <RadioGroup
+                android:id="@+id/genderGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_gravity="center">
+
+                <RadioButton
+                    android:id="@+id/radioMale"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Nam"
+                    android:textSize="16sp"
+                    android:textColor="@color/dark_main_color"
+                    android:buttonTint="@color/my_secondary"
+                    android:padding="10dp"
+                    android:layout_marginEnd="15dp"
+                    android:checked="true"/>
+
+                <RadioButton
+                    android:id="@+id/radioFemale"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Nữ"
+                    android:textSize="16sp"
+                    android:textColor="@color/dark_main_color"
+                    android:buttonTint="@color/my_secondary"
+                    android:padding="10dp"
+                    android:layout_marginStart="15dp"/>
+            </RadioGroup>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ngày sinh"
+                android:alpha="0.7"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:textStyle="bold"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Spinner
+                    android:id="@+id/spinnerDay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_centerHorizontal="true"/>
+
+                <Spinner
+                    android:id="@+id/spinnerMonth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_centerHorizontal="true"/>
+
+                <Spinner
+                    android:id="@+id/spinnerYear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_centerHorizontal="true"/>
+
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/addressText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Địa chỉ"
+                android:layout_marginBottom="@dimen/_10sdp"/>
+
+            <TextView
+                android:id="@+id/addressErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>

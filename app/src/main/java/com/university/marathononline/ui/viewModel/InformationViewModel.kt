@@ -13,11 +13,17 @@ class InformationViewModel(
     private val repository: AuthRepository
 ): BaseViewModel(repository) {
 
-    private val _user: MutableLiveData<Resource<User>> = MutableLiveData()
-    val user: LiveData<Resource<User>> get() = _user
+    private val _user: MutableLiveData<User> = MutableLiveData()
+    val user: LiveData<User> get() = _user
+    private val _getUser: MutableLiveData<Resource<User>> = MutableLiveData()
+    val getUser: LiveData<Resource<User>> get() = _getUser
+
+    fun setUser(user: User){
+        _user.value = user
+    }
 
     fun getUser() = viewModelScope.launch {
-        _user.value = Resource.Loading
-        _user.value = repository.getUser()
+        _getUser.value = Resource.Loading
+        _getUser.value = repository.getUser()
     }
 }

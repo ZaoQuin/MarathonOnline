@@ -19,6 +19,7 @@ import com.university.marathononline.R
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.data.api.Resource
+import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.request.RefreshTokenRequest
 import com.university.marathononline.ui.view.activity.LoginActivity
@@ -54,6 +55,7 @@ fun <A : Activity> Activity.startNewActivity(
             is Float -> intent.putExtra(key, value)
             is Double -> intent.putExtra(key, value)
             is Long -> intent.putExtra(key, value)
+            is User -> intent.putExtra(key, value)
             else -> throw IllegalArgumentException("Unsupported data type")
         }
     }

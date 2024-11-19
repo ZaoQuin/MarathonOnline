@@ -52,4 +52,17 @@ object DateUtils {
             null
         }
     }
+
+    fun convertToDayMonthYear(dateString: String): Triple<Int, Int, Int>? {
+        return try {
+            val parts = dateString.split("-")
+            val year = parts[0].toInt()
+            val month = parts[1].toInt()
+            val day = parts[2].toInt()
+            Triple(day, month, year)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
 }

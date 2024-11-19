@@ -6,12 +6,16 @@ import com.university.marathononline.data.response.*
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface UserApiService {
 
     @POST("/api/v1/user")
     suspend fun createUser(@Body newUser: CreateUserRequest): User
+
+    @PUT("/api/v1/user")
+    suspend fun updateUser(@Body newUser: User): User
 
     @GET("/api/v1/user")
     suspend fun getUsers(): List<User>
