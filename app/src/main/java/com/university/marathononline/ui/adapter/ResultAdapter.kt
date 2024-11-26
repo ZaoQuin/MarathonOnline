@@ -13,7 +13,7 @@ class ResultAdapter (private var results: List<Contest>): RecyclerView.Adapter<R
     class ViewHolder(private val binding: ItemResultBinding): RecyclerView.ViewHolder(binding.root){
 
         fun bind(item: Contest){
-            binding.name.text = item.title
+            binding.name.text = item.name
             binding.organizerName.text = "Tên tổ chức"
 
             binding.showDetailsBtn.setOnClickListener {

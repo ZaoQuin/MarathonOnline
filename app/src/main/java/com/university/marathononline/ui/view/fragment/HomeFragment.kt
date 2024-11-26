@@ -3,56 +3,47 @@ package com.university.marathononline.ui.view.fragment
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.university.marathononline.base.BaseFragment
+import com.university.marathononline.data.api.contest.ContestApiService
 import com.university.marathononline.databinding.FragmentHomeBinding
 import com.university.marathononline.data.models.Contest
+import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.ui.viewModel.HomeViewModel
 import com.university.marathononline.ui.adapter.EventAdapter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import kotlin.math.abs
 
-class HomeFragment : Fragment() {
+class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding, ContestRepository>() {
 
-    private lateinit var binding: FragmentHomeBinding
-    private val viewModel: HomeViewModel by activityViewModels()
     private lateinit var adapter: EventAdapter
     private val handler = Handler(Looper.getMainLooper())
     private var currentPage = 0
 
     private val runnable = object : Runnable {
         override fun run() {
-            if (binding.viewPager2.adapter != null && adapter.itemCount > 0) {
-                if (binding.tabLayout.selectedTabPosition == currentPage) {
-                    currentPage = (currentPage + 1) % adapter.itemCount
-                    binding.viewPager2.setCurrentItem(currentPage, true)
-                }
+            val itemCount = adapter.itemCount
+            if (itemCount > 0) {
+                currentPage = (currentPage + 1) % itemCount
+                binding.viewPager2.setCurrentItem(currentPage, true)
             }
             handler.postDelayed(this, 3000)
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentHomeBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+        binding.userFullNameText.text = runBlocking { userPreferences.fullName.first() }
 
         adapter = EventAdapter(emptyList(), binding.viewPager2)
         binding.viewPager2.adapter = adapter
@@ -107,5 +98,18 @@ class HomeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         handler.removeCallbacks(runnable)
+    }
+
+    override fun getViewModel() = HomeViewModel::class.java
+
+    override fun getFragmentBinding(
+        inflater: LayoutInflater,
+        container: ViewGroup?
+    ) = FragmentHomeBinding.inflate(inflater, container, false)
+
+    override fun getFragmentRepository() : ContestRepository {
+        val token = runBlocking { userPreferences.authToken.first() }
+        val api = retrofitInstance.buildApi(ContestApiService::class.java, token)
+        return ContestRepository(api)
     }
 }

@@ -1,6 +1,5 @@
 package com.university.marathononline.data.repository
 
-import androidx.lifecycle.viewModelScope
 import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.request.AuthRequest
 import com.university.marathononline.data.request.RefreshTokenRequest
