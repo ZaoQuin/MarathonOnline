@@ -1,5 +1,6 @@
 package com.university.marathononline.data.models
 
+import java.io.Serializable
 import java.time.LocalDateTime
 
 data class Rule(
@@ -9,4 +10,4 @@ data class Rule(
     var description: String,
     var updateDate: LocalDateTime,
     var contestId: Long
-)
+): Serializable

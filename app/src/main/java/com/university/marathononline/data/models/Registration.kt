@@ -1,5 +1,6 @@
 package com.university.marathononline.data.models
 
+import java.io.Serializable
 import java.time.LocalDateTime
 
 data class Registration(
@@ -12,7 +13,7 @@ data class Registration(
     var raceResults: List<Race>,
     var rewards: List<Reward>? = null,
     var status: ERegistrationStatus? = null
-)
+): Serializable
 
 enum class ERegistrationStatus {
     PENDING, COMPLETED, REJECTED, CANCELLED

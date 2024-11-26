@@ -17,6 +17,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".ui.view.activity.ChangePasswordActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.view.activity.EditInformationActivity"
             android:exported="false" />
         <activity
@@ -29,7 +32,7 @@
             android:name=".ui.view.activity.RegisterOrganizerInfoActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.view.activity.ChangePasswordWithOTPActivity"
+            android:name=".ui.view.activity.VerifyOTPActivity"
             android:exported="false" />
         <activity
             android:name=".ui.view.activity.RegisterRunnerInfoActivity"

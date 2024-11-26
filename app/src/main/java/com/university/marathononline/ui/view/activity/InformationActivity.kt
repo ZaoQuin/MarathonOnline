@@ -10,8 +10,7 @@ import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.databinding.ActivityInformationBinding
 import com.university.marathononline.ui.viewModel.InformationViewModel
-import com.university.marathononline.utils.DateUtils
-import com.university.marathononline.utils.KEY_FULL_NAME
+import com.university.marathononline.utils.KEY_EMAIL
 import com.university.marathononline.utils.KEY_USER
 import com.university.marathononline.utils.enable
 import com.university.marathononline.utils.handleApiError
@@ -21,7 +20,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
 class InformationActivity : BaseActivity<InformationViewModel, ActivityInformationBinding, AuthRepository>(){
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +49,22 @@ class InformationActivity : BaseActivity<InformationViewModel, ActivityInformati
                         )
                     )
             }
+
+            deleteButton.setOnClickListener{
+
+            }
+
+            changePasswordButton.setOnClickListener{
+                val user = viewModel.user.value
+
+                if(user!=null)
+                    startNewActivity(ChangePasswordActivity::class.java,
+                        mapOf(
+                            KEY_EMAIL to user.email
+                        )
+                    )
+            }
+
         }
     }
 
@@ -62,8 +76,8 @@ class InformationActivity : BaseActivity<InformationViewModel, ActivityInformati
                     binding.editButton.enable(true)
                     viewModel.setUser(it.value)
                 }
-                is Resource.Loading -> {}
                 is Resource.Failure -> handleApiError(it, getActivityRepository())
+                else -> Unit
             }
         })
 

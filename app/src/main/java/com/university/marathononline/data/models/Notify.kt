@@ -1,5 +1,6 @@
 package com.university.marathononline.data.models
 
+import java.io.Serializable
 import java.util.Date
 
 data class Notify(
@@ -7,4 +8,4 @@ data class Notify(
     val title: String,
     val content: String,
     val timeStamp: Date
-)
+): Serializable

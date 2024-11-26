@@ -1,5 +1,6 @@
 package com.university.marathononline.data.models
 
+import java.io.Serializable
 import java.time.LocalDateTime
 
 data class Notification(
@@ -11,7 +12,7 @@ data class Notification(
     var createAt: LocalDateTime,
     var isRead: Boolean,
     var type: ENotificationType
-)
+): Serializable
 
 enum class ENotificationType {
     REWARD, NEW_NOTIFICATION

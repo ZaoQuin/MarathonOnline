@@ -10,14 +10,14 @@ import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.repository.AuthRepository
-import com.university.marathononline.databinding.ActivityChangePasswordWithOtpBinding
-import com.university.marathononline.ui.viewModel.ChangePasswordWithOTPViewModel
+import com.university.marathononline.databinding.ActivityVerifyOtpBinding
+import com.university.marathononline.ui.viewModel.VerifyOTPViewModel
 import com.university.marathononline.utils.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-class ChangePasswordWithOTPActivity : BaseActivity<ChangePasswordWithOTPViewModel, ActivityChangePasswordWithOtpBinding, AuthRepository>(){
+class VerifyOTPActivity : BaseActivity<VerifyOTPViewModel, ActivityVerifyOtpBinding, AuthRepository>(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.getUser()
@@ -30,7 +30,7 @@ class ChangePasswordWithOTPActivity : BaseActivity<ChangePasswordWithOTPViewMode
             progressBar.visible(false)
             verifyOtpButton.enable(false)
 
-            viewModel.user.observe(this@ChangePasswordWithOTPActivity) { resource ->
+            viewModel.user.observe(this@VerifyOTPActivity) { resource ->
                 progressBar.visible(resource is Resource.Loading)
                 when (resource) {
                     is Resource.Success -> {
@@ -47,11 +47,11 @@ class ChangePasswordWithOTPActivity : BaseActivity<ChangePasswordWithOTPViewMode
                 }
             }
 
-            viewModel.verifyResponse.observe(this@ChangePasswordWithOTPActivity) { resource ->
+            viewModel.verifyResponse.observe(this@VerifyOTPActivity) { resource ->
                 progressBar.visible(resource is Resource.Loading)
                 when (resource) {
                     is Resource.Success -> {
-                        Toast.makeText(this@ChangePasswordWithOTPActivity, resource.value.fullName, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@VerifyOTPActivity, resource.value.fullName, Toast.LENGTH_SHORT).show()
                         lifecycleScope.launch {
                             viewModel.saveStatusUser(resource.value.isVerified)
                             startNewActivity(SplashRedirectActivity::class.java, true)
@@ -131,9 +131,9 @@ class ChangePasswordWithOTPActivity : BaseActivity<ChangePasswordWithOTPViewMode
         }
     }
 
-    override fun getViewModel() = ChangePasswordWithOTPViewModel::class.java
+    override fun getViewModel() = VerifyOTPViewModel::class.java
 
-    override fun getActivityBinding(inflater: LayoutInflater) = ActivityChangePasswordWithOtpBinding.inflate(inflater)
+    override fun getActivityBinding(inflater: LayoutInflater) = ActivityVerifyOtpBinding.inflate(inflater)
 
     override fun getActivityRepository(): AuthRepository {
         val token = runBlocking { userPreferences.authToken.first() }
