@@ -14,11 +14,11 @@ class ContestAdapter (private var contests: List<Contest>): RecyclerView.Adapter
     class ViewHolder(private val binding: ItemContestBinding): RecyclerView.ViewHolder(binding.root){
 
         fun bind(item: Contest){
-            binding.raceNameTextView.text = item.title
-            binding.raceStartDateTextView.text = DateUtils.getFormattedDate(item.startDate)
-            binding.raceEndDateTextView.text = DateUtils.getFormattedDate(item.endDate)
+            binding.raceNameTextView.text = item.name
+            binding.raceStartDateTextView.text = item.startDate?.let { DateUtils.getFormattedDate(it) }
+            binding.raceEndDateTextView.text = item.endDate?.let { DateUtils.getFormattedDate(it) }
             binding.countMembersText.text = "0"
-            binding.registrationFee.text = item.registrationFee.toString()
+            binding.registrationFee.text = item.fee.toString()
 
             binding.contestCardView.setOnClickListener {
                 val intent = Intent(binding.root.context, ContestDetailsActivity::class.java)

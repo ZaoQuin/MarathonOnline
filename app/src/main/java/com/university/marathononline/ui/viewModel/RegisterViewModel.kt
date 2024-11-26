@@ -1,15 +1,10 @@
 package com.university.marathononline.ui.viewModel
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.distinctUntilChanged
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
-import com.university.marathononline.data.models.EGender
-import com.university.marathononline.data.models.ERole
-import com.university.marathononline.data.models.User
+import com.university.marathononline.data.models.*
 import com.university.marathononline.data.repository.UserRepository
 import com.university.marathononline.data.request.CreateUserRequest
 import kotlinx.coroutines.launch
@@ -47,7 +42,6 @@ class RegisterViewModel(
                 password.value.toString(),
                 ERole.RUNNER
             )
-            Log.d("RegisterRunnerInfoViewModel", "Register user with: ${request}")
             _registerResponse.value = repository.createUser(request)
         }
     }
@@ -65,11 +59,8 @@ class RegisterViewModel(
     }
 
     fun selectedGender(role: EGender) {
-
         try {
             _gender.value = role
-            Log.d("RoleSelectionViewModel", "Selected role: ${_gender.value}")
-
         } catch (e: IllegalArgumentException) {
             Log.e("RoleSelectionViewModel", "Invalid role: $role")
         }

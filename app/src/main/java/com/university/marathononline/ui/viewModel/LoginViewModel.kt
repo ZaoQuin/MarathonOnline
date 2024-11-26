@@ -1,6 +1,5 @@
 package com.university.marathononline.ui.viewModel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
@@ -24,12 +23,7 @@ class LoginViewModel(
     fun login(email: String, password: String) {
         viewModelScope.launch {
             _loginResponse.value = Resource.Loading
-            _loginResponse.value = repository.authenticate(
-                AuthRequest(
-                    email.trim(),
-                    password.trim()
-                )
-            )
+            _loginResponse.value = repository.authenticate(AuthRequest(email, password))
         }
     }
 

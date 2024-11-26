@@ -188,6 +188,7 @@
             android:orientation="vertical">
 
             <Button
+                android:id="@+id/deleteButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Xóa tài khoản"
@@ -197,6 +198,7 @@
                 android:layout_marginBottom="@dimen/_5sdp"/>
 
             <Button
+                android:id="@+id/changePasswordButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Đổi mật khẩu"

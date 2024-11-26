@@ -1,6 +1,8 @@
 package com.university.marathononline.utils
 
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
@@ -22,6 +24,11 @@ object DateUtils {
     fun getFormattedDate(date: Date): String {
         val dateFormat = SimpleDateFormat(DATE_FORMAT, Locale("vi", "VN"))
         return dateFormat.format(date)
+    }
+
+    fun getFormattedDate(dateTime: LocalDateTime): String {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss") // Định dạng bạn muốn
+        return dateTime.format(formatter)
     }
 
     fun convertStringToDate(day: String, month: String, year: String): Date? {
@@ -47,6 +54,19 @@ object DateUtils {
             val dateString = "$year-$formattedMonth-$formattedDay"
 
             dateString
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun convertToDayMonthYear(dateString: String): Triple<Int, Int, Int>? {
+        return try {
+            val parts = dateString.split("-")
+            val year = parts[0].toInt()
+            val month = parts[1].toInt()
+            val day = parts[2].toInt()
+            Triple(day, month, year)
         } catch (e: Exception) {
             e.printStackTrace()
             null

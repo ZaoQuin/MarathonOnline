@@ -14,12 +14,8 @@ class RoleSelectionViewModel(
     val role: LiveData<ERole> get() = _role
 
     fun selectedRole(role: ERole){
-        try {
-            _role.value = role
-            Log.d("RoleSelectionViewModel", "Selected role: ${_role.value}")
-
-        } catch (e: IllegalArgumentException) {
-            Log.e("RoleSelectionViewModel", "Invalid role: $role")
-        }
+        _role.value = role
     }
+
+    fun isRoleSelected() = _role.value != null
 }

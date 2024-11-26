@@ -6,6 +6,7 @@ import androidx.datastore.preferences.Preferences
 import androidx.datastore.preferences.createDataStore
 import androidx.datastore.preferences.edit
 import androidx.datastore.preferences.preferencesKey
+import androidx.datastore.preferences.preferencesOf
 import androidx.datastore.preferences.remove
 import com.university.marathononline.data.models.ERole
 import com.university.marathononline.utils.*
@@ -54,12 +55,20 @@ class UserPreferences(
             }
         }
 
-
     val isVerified: Flow<Boolean?>
         get() = dataStore.data.map { preferences ->
             preferences[KEY_AUTH_STATUS_PRE]
         }
 
+    val isDeleted: Flow<Boolean?>
+        get() = dataStore.data.map { preferences ->
+            preferences[KEY_AUTH_DELETED_PRE]
+        }
+
+    val fullName: Flow<String?>
+        get() = dataStore.data.map { preferences ->
+            preferences[KEY_AUTH_FULL_NAME_PRE]
+        }
 
     val email: Flow<String?>
         get() = dataStore.data.map { preferences ->
@@ -97,10 +106,35 @@ class UserPreferences(
         }
     }
 
+    suspend fun saveFullName(fullName: String) {
+        dataStore.edit {
+                preferences ->
+            preferences[KEY_AUTH_FULL_NAME_PRE] = fullName
+        }
+    }
+
     suspend fun saveStatusUser(verified: Boolean) {
         dataStore.edit {
                 preferences ->
             preferences[KEY_AUTH_STATUS_PRE] = verified
+        }
+    }
+
+    suspend fun saveDeleted(isDeleted: Boolean){
+        dataStore.edit {
+                preferences ->
+            preferences[KEY_AUTH_DELETED_PRE] = isDeleted
+        }
+    }
+
+    suspend fun saveAuthenticated(fullName: String, accessToken: String, role: ERole, isVerified: Boolean, isDeleted: Boolean){
+        dataStore.edit {
+            preferences ->
+            preferences[KEY_AUTH_FULL_NAME_PRE] = fullName
+            preferences[KEY_AUTH_TOKEN_PRE] = accessToken
+            preferences[KEY_AUTH_ROLE_PRE] = role.name
+            preferences[KEY_AUTH_STATUS_PRE] = isVerified
+            preferences[KEY_AUTH_DELETED_PRE] = isDeleted
         }
     }
 
@@ -120,6 +154,7 @@ class UserPreferences(
             preferences.remove(KEY_AUTH_TOKEN_PRE)
             preferences.remove(KEY_AUTH_ROLE_PRE)
             preferences.remove(KEY_AUTH_STATUS_PRE)
+            preferences.remove(KEY_AUTH_FULL_NAME_PRE)
         }
     }
 
@@ -138,11 +173,23 @@ class UserPreferences(
         }
     }
 
+    suspend fun clearAuthenticated() {
+        dataStore.edit { preferences ->
+            preferences.remove(KEY_AUTH_FULL_NAME_PRE)
+            preferences.remove(KEY_AUTH_TOKEN_PRE)
+            preferences.remove(KEY_AUTH_ROLE_PRE)
+            preferences.remove(KEY_AUTH_STATUS_PRE)
+            preferences.remove(KEY_AUTH_DELETED_PRE)
+        }
+    }
+
     companion object{
         private val KEY_AUTH_TOKEN_PRE = preferencesKey<String>(KEY_AUTH_TOKEN)
         private val KEY_AUTH_ROLE_PRE = preferencesKey<String>(KEY_AUTH_ROLE)
         private val KEY_AUTH_STATUS_PRE = preferencesKey<Boolean>(KEY_AUTH_STATUS)
+        private val KEY_AUTH_DELETED_PRE = preferencesKey<Boolean>(KEY_AUTH_DELETED)
         private val KEY_AUTH_EMAIL_PRE = preferencesKey<String>(KEY_EMAIL)
+        private val KEY_AUTH_FULL_NAME_PRE = preferencesKey<String>(KEY_FULL_NAME)
         private val KEY_AUTH_PASSWORD_PRE = preferencesKey<String>(KEY_PASSWORD)
         private val KEY_AUTH_PASSWORD_IV_PRE = preferencesKey<String>(KEY_PASSWORD_IV)
         private val KEY_AUTH_REMEMBER = preferencesKey<Boolean>(KEY_REMEMBER_ME)

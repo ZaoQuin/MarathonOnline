@@ -10,46 +10,86 @@ import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.databinding.ActivityInformationBinding
 import com.university.marathononline.ui.viewModel.InformationViewModel
-import com.university.marathononline.utils.DateUtils
+import com.university.marathononline.utils.KEY_EMAIL
+import com.university.marathononline.utils.KEY_USER
+import com.university.marathononline.utils.enable
 import com.university.marathononline.utils.handleApiError
+import com.university.marathononline.utils.startNewActivity
 import com.university.marathononline.utils.visible
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
 class InformationActivity : BaseActivity<InformationViewModel, ActivityInformationBinding, AuthRepository>(){
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding.progressBar.visible(false)
-
         viewModel.getUser()
 
-        binding.buttonBack.setOnClickListener {
-            finish()
-        }
-
-        binding.buttonLogout.setOnClickListener {
-            logout()
-        }
-
+        initializeUI()
         setUpObserve()
     }
 
+    private fun initializeUI() {
+        binding.apply {
+            progressBar.visible(false)
+            editButton.enable(false)
+
+            buttonBack.setOnClickListener{ finish() }
+
+            buttonLogout.setOnClickListener{ logout() }
+
+            editButton.setOnClickListener{
+                val user = viewModel.user.value
+
+                if(user!=null)
+                    startNewActivity(EditInformationActivity::class.java,
+                        mapOf(
+                            KEY_USER to user
+                        )
+                    )
+            }
+
+            deleteButton.setOnClickListener {
+                val user = viewModel.user.value
+
+                if(user!=null)
+                    startNewActivity(DeleteUserAccountActivity::class.java,
+                        mapOf(
+                            KEY_EMAIL to user.email
+                        )
+                    )
+            }
+
+            changePasswordButton.setOnClickListener{
+                val user = viewModel.user.value
+
+                if(user!=null)
+                    startNewActivity(ChangePasswordActivity::class.java,
+                        mapOf(
+                            KEY_EMAIL to user.email
+                        )
+                    )
+            }
+
+        }
+    }
+
     private fun setUpObserve() {
-        viewModel.user.observe(this, Observer {
+        viewModel.getUser.observe(this, Observer {
+            binding.progressBar.visible(it == Resource.Loading)
             when(it) {
                 is Resource.Success -> {
-                    binding.progressBar.visible(false)
-                    updateUI(it.value)
-                }
-                is Resource.Loading -> {
-                    binding.progressBar.visible(true)
-
+                    binding.editButton.enable(true)
+                    viewModel.setUser(it.value)
                 }
                 is Resource.Failure -> handleApiError(it, getActivityRepository())
+                else -> Unit
             }
+        })
+
+        viewModel.user.observe(this, Observer {
+            updateUI(it)
         })
     }
 
@@ -59,7 +99,7 @@ class InformationActivity : BaseActivity<InformationViewModel, ActivityInformati
             usernameText.text = "@" + user.username
             addressText.text = user.address
             genderText.text = user.gender.value
-            birthdayText.text = DateUtils.getFormattedDate(user.birthday)
+            birthdayText.text = user.birthday
             emailText.text = user.email
             phoneNumberText.text = user.phoneNumber
         }

@@ -27,6 +27,11 @@ class SplashRedirectActivity : BaseActivity<SplashRedirectViewModel, ActivitySpl
         observeAuthToken()
     }
 
+    override fun onResume() {
+        super.onResume()
+        observeAuthToken()
+    }
+
     private fun observeAuthToken() {
         lifecycleScope.launch {
             val token = userPreferences.authToken.firstOrNull()
@@ -34,21 +39,11 @@ class SplashRedirectActivity : BaseActivity<SplashRedirectViewModel, ActivitySpl
                 startNewActivity(LoginActivity::class.java, true)
             } else {
                 val isVerified = userPreferences.isVerified.firstOrNull()
+                val isDeleted = userPreferences.isDeleted.firstOrNull()
                 when {
+                    isDeleted == true -> startNewActivity(AccountDeletedActivity::class.java, true)
                     isVerified == null -> startNewActivity(LoginActivity::class.java, true)
-                    !isVerified -> startNewActivity(OtpVerificationActivity::class.java)
-                    else -> startNewActivity(MainActivity::class.java, true)
-                }
-            }
-        }
-    }
-
-    private fun observeUserVerification(token: String) {
-        lifecycleScope.launchWhenStarted {
-            userPreferences.isVerified.collect { isVerified ->
-                when {
-                    isVerified == null -> startNewActivity(LoginActivity::class.java, true)
-                    !isVerified -> startNewActivity(OtpVerificationActivity::class.java)
+                    !isVerified -> startNewActivity(VerifyOTPActivity::class.java)
                     else -> startNewActivity(MainActivity::class.java, true)
                 }
             }

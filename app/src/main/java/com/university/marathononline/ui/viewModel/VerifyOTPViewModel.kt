@@ -14,7 +14,7 @@ import papaya.`in`.sendmail.SendMail
 import kotlin.random.Random
 import kotlin.random.nextInt
 
-class OtpVerificationViewModel(
+class VerifyOTPViewModel(
     private val repository: AuthRepository
 ): BaseViewModel(repository) {
     private val _originOtp: MutableLiveData<String> = MutableLiveData()
