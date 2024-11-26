@@ -1,6 +1,5 @@
 package com.university.marathononline.ui.viewModel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -34,11 +33,6 @@ class RegisterBasicInformationViewModel(
     }
 
     fun selectedRole(role: ERole){
-        try {
-            _role.value = role
-            Log.d("RegisterBasicInformationViewModel", "Selected role: ${_role.value}")
-        } catch (e: IllegalArgumentException) {
-            Log.e("RoleSelectionViewModel", "Invalid role: $role")
-        }
+        _role.value = role
     }
 }

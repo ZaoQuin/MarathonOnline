@@ -35,6 +35,7 @@ class AuthRepository(
         preferences.saveAuthToken(authResponse.accessToken)
         preferences.saveRoleUser(authResponse.role)
         preferences.saveStatusUser(authResponse.isVerified)
+        preferences.saveFullName(authResponse.fullName)
     }
 
     suspend fun saveAuthToken(newToken: String) {

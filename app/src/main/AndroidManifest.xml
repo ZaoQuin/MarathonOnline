@@ -29,7 +29,7 @@
             android:name=".ui.view.activity.RegisterOrganizerInfoActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.view.activity.OtpVerificationActivity"
+            android:name=".ui.view.activity.ChangePasswordWithOTPActivity"
             android:exported="false" />
         <activity
             android:name=".ui.view.activity.RegisterRunnerInfoActivity"

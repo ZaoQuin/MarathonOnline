@@ -1,15 +1,13 @@
 package com.university.marathononline.ui.view.activity
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
-import android.widget.EditText
-import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
-import com.university.marathononline.R
+import com.university.marathononline.R.string.*
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.auth.AuthApiService
+import com.university.marathononline.data.models.LoginInfo
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.response.AuthResponse
 import com.university.marathononline.databinding.ActivityLoginBinding
@@ -21,59 +19,53 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding, AuthRep
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
         viewModel.getLoginInfo()
-        
         initializeUI()
         setUpObserve()
     }
 
     private fun initializeUI() {
-        binding.apply {            
+        binding.apply {
             progressBar.visible(false)
             appName.visible(true)
-
-            emailEditText.setOnFocusChangeListener { _, hasFocus ->
-                if (!hasFocus) emailEditText.validateEmail()
-            }
-
-            passwordEditText.setOnFocusChangeListener { _, hasFocus ->
-                if (!hasFocus) passwordEditText.validatePassword()
-            }
-
-            signUpText.setOnClickListener { navigateToRegister() }
-
-            loginButton.setOnClickListener { onLoginButtonClick() }
-
-            forgetPasswordText.setOnClickListener{ navigateToForgetPassword() }
         }
+
+        setupClickListeners()
     }
 
-    private fun navigateToForgetPassword() {
-        startNewActivity(ForgetPasswordActivity::class.java)
+    private fun setUpObserve() {
+        viewModel.loginResponse.observe(this) { handleLoginResponse(it) }
+
+        viewModel.loginInfo.observe(this) { loginInfo -> updateLoginFields(loginInfo) }
+    }
+
+    private fun setupClickListeners() {
+        binding.apply {
+            signUpText.setOnClickListener { navigateToRegister() }
+            loginButton.setOnClickListener { onLoginButtonClick() }
+            forgetPasswordText.setOnClickListener{ navigateToForgetPassword() }
+        }
     }
 
     private fun onLoginButtonClick() {
         if (!validateFields()) return
         binding.apply {
-            val email = emailEditText.text.toString()
-            val password = passwordEditText.text.toString()
+            val email = emailEditText.getString()
+            val password = passwordEditText.getString()
             viewModel.login(email, password)
-            if(remeberMe.isChecked)
+            if (remeberMe.isChecked) {
                 viewModel.saveLoginInfo(email, password)
-            else
+            } else {
                 viewModel.clearLoginInfo()
+            }
         }
     }
 
-    private fun setUpObserve() {
-        viewModel.loginResponse.observe(this) { handleLoginResponse(it) }
-        viewModel.loginInfo.observe(this) { loginInfo ->
-            binding.apply {
-                emailEditText.setText(loginInfo.email)
-                passwordEditText.setText(loginInfo.password)
-                remeberMe.isChecked = loginInfo.remember
-            }
+    private fun updateLoginFields(loginInfo: LoginInfo){
+        binding.apply {
+            emailEditText.setText(loginInfo.email)
+            passwordEditText.setText(loginInfo.password)
+            remeberMe.isChecked = loginInfo.remember
         }
     }
 
@@ -99,34 +91,24 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding, AuthRep
     }
 
     private fun validateFields(): Boolean {
-        val errorMessage = getMessage(R.string.error_field_required)
-
+        val errorMessage = getMessage(error_field_required)
         binding.apply {
-            return emailEditText.validateField(emailErrorText, errorMessage) &&
-                    passwordEditText.validateField(passwordErrorText, errorMessage)
+            val fields = listOf(
+                emailEditText to emailErrorText,
+                passwordEditText to passwordErrorText
+            )
+            return emailEditText.isEmail( emailErrorText, getString(error_invalid_email))
+                    && passwordEditText.isValidPassword( passwordErrorText, getString(error_invalid_password))
+                    && fields.any { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }
         }
+    }
+
+    private fun navigateToForgetPassword() {
+        startNewActivity(ForgetPasswordActivity::class.java)
     }
 
     private fun navigateToRegister() {
-        Log.d("LoginActivity", "Register button clicked")
         startNewActivity(RoleSelectionActivity::class.java, true)
-    }
-
-    private fun EditText.validateEmail() {
-        binding.emailErrorText.text = if (isValidEmail(text.toString())) {
-            setDoneIconColor(this)
-            null
-        } else {
-            getMessage(R.string.error_invalid_email)
-        }
-    }
-
-    private fun EditText.validatePassword() {
-        this.isEmpty(binding.passwordErrorText, getMessage(R.string.error_field_required))
-    }
-
-    private fun EditText.validateField(errorTextView: TextView, errorMessage: String): Boolean {
-        return !this.isEmpty(errorTextView, errorMessage)
     }
 
     override fun getViewModel() = LoginViewModel::class.java

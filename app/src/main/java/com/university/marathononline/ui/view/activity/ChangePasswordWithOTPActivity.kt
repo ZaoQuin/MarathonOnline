@@ -1,24 +1,23 @@
 package com.university.marathononline.ui.view.activity
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
-import com.university.marathononline.R
+import com.university.marathononline.R.string.*
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.repository.AuthRepository
-import com.university.marathononline.databinding.ActivityOtpVerificationBinding
-import com.university.marathononline.ui.viewModel.OtpVerificationViewModel
+import com.university.marathononline.databinding.ActivityChangePasswordWithOtpBinding
+import com.university.marathononline.ui.viewModel.ChangePasswordWithOTPViewModel
 import com.university.marathononline.utils.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-class OtpVerificationActivity : BaseActivity<OtpVerificationViewModel, ActivityOtpVerificationBinding, AuthRepository>(){
+class ChangePasswordWithOTPActivity : BaseActivity<ChangePasswordWithOTPViewModel, ActivityChangePasswordWithOtpBinding, AuthRepository>(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.getUser()
@@ -31,14 +30,14 @@ class OtpVerificationActivity : BaseActivity<OtpVerificationViewModel, ActivityO
             progressBar.visible(false)
             verifyOtpButton.enable(false)
 
-            viewModel.user.observe(this@OtpVerificationActivity) { resource ->
+            viewModel.user.observe(this@ChangePasswordWithOTPActivity) { resource ->
                 progressBar.visible(resource is Resource.Loading)
                 when (resource) {
                     is Resource.Success -> {
                         lifecycleScope.launch {
                             viewModel.setEmail(resource.value.email)
                             otpDescription.text =
-                                getString(R.string.otp_sent_to_email, resource.value.email)
+                                getString(otp_sent_to_email, resource.value.email)
                             viewModel.random()
                         }
                     }
@@ -48,18 +47,17 @@ class OtpVerificationActivity : BaseActivity<OtpVerificationViewModel, ActivityO
                 }
             }
 
-            viewModel.verifyResponse.observe(this@OtpVerificationActivity) { resource ->
+            viewModel.verifyResponse.observe(this@ChangePasswordWithOTPActivity) { resource ->
                 progressBar.visible(resource is Resource.Loading)
                 when (resource) {
                     is Resource.Success -> {
-                        Toast.makeText(this@OtpVerificationActivity, resource.value.fullName, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@ChangePasswordWithOTPActivity, resource.value.fullName, Toast.LENGTH_SHORT).show()
                         lifecycleScope.launch {
                             viewModel.saveStatusUser(resource.value.isVerified)
                             startNewActivity(SplashRedirectActivity::class.java, true)
                         }
                     }
                     is Resource.Failure -> {
-                        Log.d("OtpVerificationActivity", resource.getErrorMessage())
                         handleApiError(resource, getActivityRepository())
                     }
                     else -> {  }
@@ -95,45 +93,47 @@ class OtpVerificationActivity : BaseActivity<OtpVerificationViewModel, ActivityO
 
     private fun resendOtp() {
         viewModel.random()
-        Toast.makeText(this, getString(R.string.otp_resent), Toast.LENGTH_LONG).show()
+        Toast.makeText(this, getString(otp_resent), Toast.LENGTH_LONG).show()
     }
 
     private fun onVerifyOtpButtonClick() = with(binding) {
         viewModel.setOTP(
-            otpDigit1.text.toString(),
-            otpDigit2.text.toString(),
-            otpDigit3.text.toString(),
-            otpDigit4.text.toString(),
-            otpDigit5.text.toString(),
-            otpDigit6.text.toString())
-        val errorMessage =
-            if
-                (!viewModel.isOtpValid()) getString(R.string.error_invalid_otp)
-            else {
-                null
-            }
-        otpErrorText.text = errorMessage
-        if (errorMessage == null)
-            viewModel.verifyAccount()
-    }
+            otpDigit1.getString(),
+            otpDigit2.getString(),
+            otpDigit3.getString(),
+            otpDigit4.getString(),
+            otpDigit5.getString(),
+            otpDigit6.getString())
+        val errorMessage = if (viewModel.isOtpValid()) {
+            null
+        } else {
+            getString(error_invalid_otp)
+        }
 
-    private fun validateFields(): Boolean {
-        val errorMessage = getString(R.string.error_otp_required)
-        return with(binding) {
-            listOf(
-                otpDigit1.isEmpty(otpErrorText, errorMessage),
-                otpDigit2.isEmpty(otpErrorText, errorMessage),
-                otpDigit3.isEmpty(otpErrorText, errorMessage),
-                otpDigit4.isEmpty(otpErrorText, errorMessage),
-                otpDigit5.isEmpty(otpErrorText, errorMessage),
-                otpDigit6.isEmpty(otpErrorText, errorMessage)
-            ).all { !it }
+        otpErrorText.text = errorMessage
+        if (errorMessage == null) {
+            viewModel.verifyAccount()
         }
     }
 
-    override fun getViewModel() = OtpVerificationViewModel::class.java
+    private fun validateFields(): Boolean {
+        val errorMessage = getMessage(error_field_required)
+        binding.apply {
+            val fields = listOf(
+                otpDigit1 to otpErrorText,
+                otpDigit2 to otpErrorText,
+                otpDigit3 to otpErrorText,
+                otpDigit4 to otpErrorText,
+                otpDigit5 to otpErrorText,
+                otpDigit6 to otpErrorText,
+            )
+            return fields.any { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }
+        }
+    }
 
-    override fun getActivityBinding(inflater: LayoutInflater) = ActivityOtpVerificationBinding.inflate(inflater)
+    override fun getViewModel() = ChangePasswordWithOTPViewModel::class.java
+
+    override fun getActivityBinding(inflater: LayoutInflater) = ActivityChangePasswordWithOtpBinding.inflate(inflater)
 
     override fun getActivityRepository(): AuthRepository {
         val token = runBlocking { userPreferences.authToken.first() }

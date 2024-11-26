@@ -54,12 +54,15 @@ class UserPreferences(
             }
         }
 
-
     val isVerified: Flow<Boolean?>
         get() = dataStore.data.map { preferences ->
             preferences[KEY_AUTH_STATUS_PRE]
         }
 
+    val fullName: Flow<String?>
+        get() = dataStore.data.map { preferences ->
+            preferences[KEY_AUTH_FULL_NAME_PRE]
+        }
 
     val email: Flow<String?>
         get() = dataStore.data.map { preferences ->
@@ -97,6 +100,13 @@ class UserPreferences(
         }
     }
 
+    suspend fun saveFullName(fullName: String) {
+        dataStore.edit {
+                preferences ->
+            preferences[KEY_AUTH_FULL_NAME_PRE] = fullName
+        }
+    }
+
     suspend fun saveStatusUser(verified: Boolean) {
         dataStore.edit {
                 preferences ->
@@ -120,6 +130,7 @@ class UserPreferences(
             preferences.remove(KEY_AUTH_TOKEN_PRE)
             preferences.remove(KEY_AUTH_ROLE_PRE)
             preferences.remove(KEY_AUTH_STATUS_PRE)
+            preferences.remove(KEY_AUTH_FULL_NAME_PRE)
         }
     }
 
@@ -143,6 +154,7 @@ class UserPreferences(
         private val KEY_AUTH_ROLE_PRE = preferencesKey<String>(KEY_AUTH_ROLE)
         private val KEY_AUTH_STATUS_PRE = preferencesKey<Boolean>(KEY_AUTH_STATUS)
         private val KEY_AUTH_EMAIL_PRE = preferencesKey<String>(KEY_EMAIL)
+        private val KEY_AUTH_FULL_NAME_PRE = preferencesKey<String>(KEY_FULL_NAME)
         private val KEY_AUTH_PASSWORD_PRE = preferencesKey<String>(KEY_PASSWORD)
         private val KEY_AUTH_PASSWORD_IV_PRE = preferencesKey<String>(KEY_PASSWORD_IV)
         private val KEY_AUTH_REMEMBER = preferencesKey<Boolean>(KEY_REMEMBER_ME)

@@ -1,15 +1,16 @@
 package com.university.marathononline.ui.view.activity
 
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import androidx.lifecycle.Observer
-import com.university.marathononline.R
+import com.university.marathononline.R.string.*
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.user.UserApiService
 import com.university.marathononline.data.models.ERole
 import com.university.marathononline.data.repository.UserRepository
+import com.university.marathononline.data.response.CheckEmailResponse
 import com.university.marathononline.databinding.ActivityRegisterBasicInformationBinding
 import com.university.marathononline.ui.viewModel.RegisterBasicInformationViewModel
 import com.university.marathononline.utils.*
@@ -18,109 +19,94 @@ class RegisterBasicInformationActivity : BaseActivity<RegisterBasicInformationVi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        intent.getStringExtra(KEY_ROLE)?.let {
-            viewModel.selectedRole(ERole.valueOf(it))
-            Log.d("RegisterBasicInformationActivity", it)
-        }
-
+        handleIntentExtras(intent)
         initializeUI()
         setUpObserve()
+    }
+
+    private fun handleIntentExtras(intent: Intent) {
+        intent.apply {
+            viewModel.apply {
+                getStringExtra(KEY_ROLE)?.let { selectedRole(ERole.valueOf(it)) }
+            }
+        }
     }
 
     private fun setUpObserve() {
         viewModel.checkEmailResponse.observe(this, Observer {
             binding.progressBar.visible(it == Resource.Loading)
-            when(it){
-                is Resource.Success -> {
-                    if(!it.value.exists) {
-                        binding.emailErrorText.text = null
-                        navigateToNextActivityBasedOnRole()
-                    }
-                    else
-                        binding.emailErrorText.text = getMessage(R.string.exist_email)
-                }
-                is Resource.Loading -> {}
-                is Resource.Failure -> handleApiError(it)
-            }
+            handleEmailResponse(it)
         })
     }
 
+    private fun handleEmailResponse(resource: Resource<CheckEmailResponse>){
+        when(resource) {
+            is Resource.Success -> {
+                if (!resource.value.exists) {
+                    binding.emailErrorText.text = null
+                    navigateToNextActivityBasedOnRole()
+                } else {
+                    binding.emailErrorText.text = getMessage(exist_email)
+                }
+            }
+            is Resource.Failure -> handleApiError(resource)
+            else -> Unit
+        }
+    }
+
     private fun initializeUI() {
+        binding.progressBar.visible(false)
+        setupClickListeners()
+    }
+
+    private fun setupClickListeners(){
         binding.apply {
-            progressBar.visible(false)
-
-            fullnameText.setOnFocusChangeListener { _, hasFocus ->
-                if (!hasFocus)  validateNormalEditText(fullnameText, fullnameErrorText)
-            }
-
-            emailText.setOnFocusChangeListener { _, hasFocus ->
-                if (!hasFocus) validateEmail()
-            }
-
             continueButton.setOnClickListener { onContinueButtonClick() }
             buttonBack.setOnClickListener { finishAndGoBack() }
         }
     }
 
     private fun validateFields(): Boolean {
-        val errorMessage = getMessage(R.string.error_field_required)
+        val errorMessage = getMessage(error_field_required)
         binding.apply {
-        return  !fullnameText.isEmpty(fullnameErrorText, errorMessage) ||
-                !emailText.isEmpty(emailErrorText, errorMessage) ||
-                !passwordText.isEmpty(passwordErrorText, errorMessage) ||
-                !confirmPasswordText.isEmpty(confirmErrorPasswordText, errorMessage)
+            val fields = listOf(
+                fullnameText to fullnameErrorText,
+                emailText to emailErrorText,
+                passwordText to passwordErrorText,
+                confirmPasswordText to confirmErrorPasswordText
+            )
+            return isMatch(passwordText, confirmPasswordText,
+                passwordErrorText, confirmErrorPasswordText,
+                getString(error_password_mismatch))
+                    && emailText.isEmail( emailErrorText, getString(error_invalid_email))
+                    && passwordText.isValidPassword( passwordErrorText, getString(error_invalid_password))
+                    && fields.any { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }
         }
+
     }
 
     private fun onContinueButtonClick(){
-        if (!validatePasswordConfirmation() || !validateFields()) return
-        viewModel.setEmail(binding.emailText.text.toString())
+        if (!validateFields()) return
+        viewModel.setEmail(binding.emailText.getString())
         viewModel.checkEmail()
     }
 
     private fun navigateToNextActivityBasedOnRole() {
         viewModel.role.value?.let {
-            val nextActivity = if (it == ERole.RUNNER) {
-                RegisterRunnerInfoActivity::class.java
-            } else {
-                RegisterOrganizerInfoActivity::class.java
-            }
-            startNewActivity(nextActivity,
-                mapOf(
-                    KEY_FULL_NAME to binding.fullnameText.text.toString(),
-                    KEY_EMAIL to binding.emailText.text.toString(),
-                    KEY_PASSWORD to binding.passwordText.text.toString()
-                ))
-        }
-    }
-
-
-    private fun validateEmail(){
-        binding.apply {
-            val email = emailText.text.toString()
-            val errorMessage =
-                if (isValidEmail(email)) {
-                    setDoneIconColor(emailText)
-                    null
+            val nextActivity =
+                if (it == ERole.RUNNER) {
+                    RegisterRunnerInfoActivity::class.java
+                } else {
+                    RegisterOrganizerInfoActivity::class.java
                 }
-                else
-                    getMessage(R.string.error_invalid_email)
-            emailErrorText.text = errorMessage
-        }
-
-    }
-
-    private fun validatePasswordConfirmation(): Boolean{
-        binding.apply {
-            val errorMessage =
-                if(passwordText.text.toString()!=confirmPasswordText.text.toString())
-                    getMessage(R.string.error_password_mismatch)
-                else
-                    null
-            confirmErrorPasswordText.text = errorMessage
-            passwordErrorText.text = errorMessage
-            return errorMessage == null
+            binding.apply {
+                startNewActivity(nextActivity,
+                    mapOf(
+                        KEY_FULL_NAME to fullnameText.getString(),
+                        KEY_EMAIL to emailText.getString(),
+                        KEY_PASSWORD to passwordText.getString()
+                    ))
+            }
         }
     }
 

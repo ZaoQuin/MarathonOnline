@@ -1,9 +1,10 @@
 package com.university.marathononline.ui.view.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.lifecycle.Observer
-import com.university.marathononline.R
+import com.university.marathononline.R.string.*
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.user.UserApiService
@@ -12,13 +13,7 @@ import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.UserRepository
 import com.university.marathononline.databinding.ActivityEditInformationBinding
 import com.university.marathononline.ui.viewModel.EditInformationViewModel
-import com.university.marathononline.utils.DateUtils
-import com.university.marathononline.utils.KEY_USER
-import com.university.marathononline.utils.adapterSpinner
-import com.university.marathononline.utils.getMessage
-import com.university.marathononline.utils.handleApiError
-import com.university.marathononline.utils.isEmpty
-import com.university.marathononline.utils.startNewActivity
+import com.university.marathononline.utils.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import java.util.Calendar
@@ -26,11 +21,17 @@ import java.util.Calendar
 class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityEditInformationBinding, UserRepository>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        (intent.getSerializableExtra(KEY_USER) as? User)?.let { viewModel.setUser(it) }
-
+        handleIntentExtras(intent)
         initializeUI()
         setUpObserve()
+    }
+
+    private fun handleIntentExtras(intent: Intent) {
+        intent.apply {
+            viewModel.apply {
+                (getSerializableExtra(KEY_USER) as? User)?.let { setUser(it) }
+            }
+        }
     }
 
     private fun setUpObserve() {
@@ -39,14 +40,18 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
         })
 
         viewModel.updateResponse.observe(this, Observer {
-            when(it){
-                is Resource.Success -> {
-                    startNewActivity(InformationActivity::class.java, true)
-                }
-                is Resource.Loading -> {}
-                is Resource.Failure -> handleApiError(it)
-            }
+            handleUpdateResponse(it)
         })
+    }
+
+    private fun handleUpdateResponse(resource: Resource<User>){
+        when(resource){
+            is Resource.Success -> {
+                startNewActivity(InformationActivity::class.java, true)
+            }
+            is Resource.Failure -> handleApiError(resource)
+            else -> Unit
+        }
     }
 
     private fun updateUI(user: User) {
@@ -56,12 +61,17 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
             addressText.setText(user.address)
             radioMale.isChecked = user.gender == EGender.MALE
             radioFemale.isChecked = user.gender == EGender.FEMALE
-            val (day, month, year) = DateUtils.convertToDayMonthYear(user.birthday)!!
-            val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-            binding.spinnerDay.setSelection(day - 1)
-            binding.spinnerMonth.setSelection(month - 1)
-            binding.spinnerYear.setSelection(currentYear - year)
+            setBirthday(user.birthday)
         }
+    }
+
+    private fun setBirthday(birthday: String) {
+        val (day, month, year) = DateUtils.convertToDayMonthYear(birthday) ?: return
+        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+
+        binding.spinnerDay.setSelection(day - 1)
+        binding.spinnerMonth.setSelection(month - 1)
+        binding.spinnerYear.setSelection(currentYear - year)
     }
 
     private fun initializeUI() {
@@ -78,9 +88,14 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
                     viewModel.selectedGender(role)
                 }
             }
+        }
 
+        setupClickListeners()
+    }
+
+    private fun setupClickListeners(){
+        binding.apply {
             buttonBack.setOnClickListener{ finish() }
-
             saveButton.setOnClickListener { onSaveButtonCLick() }
         }
     }
@@ -91,9 +106,9 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
 
         binding.apply {
             DateUtils.convertToDateString(
-                spinnerDay.selectedItem.toString().toInt(),
-                spinnerMonth.selectedItem.toString().toInt(),
-                spinnerYear.selectedItem.toString().toInt()
+                spinnerDay.getIntegerSelectedItem(),
+                spinnerMonth.getIntegerSelectedItem(),
+                spinnerYear.getIntegerSelectedItem()
             )?.let {
                 viewModel.updateUser(
                     fullNameEditText.text.toString(),
@@ -107,17 +122,23 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
 
     private fun setupDateOfBirthSpinners(){
         val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-        binding.spinnerDay.adapter = adapterSpinner(1, 31, this)
-        binding.spinnerMonth.adapter = adapterSpinner(1, 12, this)
-        binding.spinnerYear.adapter = adapterSpinner(1900, currentYear, this)
+        val context = this
+        binding.apply {
+            binding.spinnerDay.adapter = adapterSpinner(1, 31, context)
+            binding.spinnerMonth.adapter = adapterSpinner(1, 12, context)
+            binding.spinnerYear.adapter = adapterSpinner(1900, currentYear, context)
+        }
     }
 
     private fun validateFields(): Boolean {
-        val errorMessage = getMessage(R.string.error_field_required)
+        val errorMessage = getMessage(error_field_required)
         binding.apply {
-            return !fullNameEditText.isEmpty(fullnameErrorText, errorMessage) ||
-                    !phoneNumberEditText.isEmpty(phoneNumberEditText, errorMessage) ||
-                    !addressText.isEmpty(addressErrorText, errorMessage)
+            val fields = listOf(
+                fullNameEditText to fullnameErrorText,
+                phoneNumberEditText to phoneNumberEditText,
+                addressText to addressErrorText
+            )
+            return fields.any { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }
         }
     }
 

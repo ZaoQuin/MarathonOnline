@@ -14,9 +14,8 @@ import com.university.marathononline.utils.*
 class RoleSelectionActivity : BaseActivity<RoleSelectionViewModel, ActivityRoleSelectionBinding, UserRepository>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         initializeUI()
-        setUpObsever()
+        setUpObserver()
     }
 
     private fun initializeUI(){
@@ -49,9 +48,9 @@ class RoleSelectionActivity : BaseActivity<RoleSelectionViewModel, ActivityRoleS
         }
     }
 
-    private fun setUpObsever() {
+    private fun setUpObserver() {
         viewModel.role.observe(this, Observer {
-            binding.continueButton.enable(true)
+            binding.continueButton.enable(viewModel.isRoleSelected())
         })
     }
 

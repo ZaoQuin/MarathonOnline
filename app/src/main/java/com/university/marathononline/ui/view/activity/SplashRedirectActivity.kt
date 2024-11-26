@@ -36,7 +36,7 @@ class SplashRedirectActivity : BaseActivity<SplashRedirectViewModel, ActivitySpl
                 val isVerified = userPreferences.isVerified.firstOrNull()
                 when {
                     isVerified == null -> startNewActivity(LoginActivity::class.java, true)
-                    !isVerified -> startNewActivity(OtpVerificationActivity::class.java)
+                    !isVerified -> startNewActivity(ChangePasswordWithOTPActivity::class.java)
                     else -> startNewActivity(MainActivity::class.java, true)
                 }
             }
@@ -48,7 +48,7 @@ class SplashRedirectActivity : BaseActivity<SplashRedirectViewModel, ActivitySpl
             userPreferences.isVerified.collect { isVerified ->
                 when {
                     isVerified == null -> startNewActivity(LoginActivity::class.java, true)
-                    !isVerified -> startNewActivity(OtpVerificationActivity::class.java)
+                    !isVerified -> startNewActivity(ChangePasswordWithOTPActivity::class.java)
                     else -> startNewActivity(MainActivity::class.java, true)
                 }
             }
