@@ -50,8 +50,15 @@ class InformationActivity : BaseActivity<InformationViewModel, ActivityInformati
                     )
             }
 
-            deleteButton.setOnClickListener{
+            deleteButton.setOnClickListener {
+                val user = viewModel.user.value
 
+                if(user!=null)
+                    startNewActivity(DeleteUserAccountActivity::class.java,
+                        mapOf(
+                            KEY_EMAIL to user.email
+                        )
+                    )
             }
 
             changePasswordButton.setOnClickListener{

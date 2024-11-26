@@ -30,11 +30,16 @@ class AuthRepository(
         api.refreshAccessToken(refreshRequest)
     }
 
+    suspend fun deleteAccount() = safeApiCall {
+        api.deleteAccount()
+    }
+
     suspend fun saveAuthenticatedUser(authResponse: AuthResponse) {
-        preferences.saveAuthToken(authResponse.accessToken)
-        preferences.saveRoleUser(authResponse.role)
-        preferences.saveStatusUser(authResponse.isVerified)
-        preferences.saveFullName(authResponse.fullName)
+        preferences.saveAuthenticated(authResponse.fullName,
+            authResponse.accessToken,
+            authResponse.role,
+            authResponse.isVerified,
+            authResponse.isDeleted)
     }
 
     suspend fun saveAuthToken(newToken: String) {
@@ -59,5 +64,9 @@ class AuthRepository(
 
     suspend fun clearLoginInfo() {
         preferences.clearLoginInfo()
+    }
+
+    suspend fun clearAuthenticated() {
+        preferences.clearAuthenticated()
     }
 }

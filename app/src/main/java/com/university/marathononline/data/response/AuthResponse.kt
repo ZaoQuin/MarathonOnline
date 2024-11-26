@@ -7,5 +7,6 @@ data class AuthResponse(
     val accessToken: String,
     val refreshToken: String,
     val role: ERole,
-    val isVerified: Boolean
+    val isVerified: Boolean,
+    val isDeleted: Boolean
 )

@@ -7,23 +7,14 @@ import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import com.university.marathononline.R
+import com.university.marathononline.R.string.*
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.user.UserApiService
-import com.university.marathononline.data.models.ERole
 import com.university.marathononline.data.repository.UserRepository
 import com.university.marathononline.databinding.ActivityChangePasswordBinding
 import com.university.marathononline.ui.viewModel.ChangePasswordViewModel
-import com.university.marathononline.utils.KEY_EMAIL
-import com.university.marathononline.utils.KEY_ROLE
-import com.university.marathononline.utils.enable
-import com.university.marathononline.utils.finishAndGoBack
-import com.university.marathononline.utils.getMessage
-import com.university.marathononline.utils.handleApiError
-import com.university.marathononline.utils.isEmpty
-import com.university.marathononline.utils.startNewActivity
-import com.university.marathononline.utils.visible
+import com.university.marathononline.utils.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -51,17 +42,17 @@ class ChangePasswordActivity :
                     if (it.value.status) showSuccessToastAndNavigate()
                     else Toast.makeText(this, it.value.message, Toast.LENGTH_SHORT).show()
                 }
-                is Resource.Loading -> {}
                 is Resource.Failure -> {
                     it.getErrorMessage()
                     handleApiError(it)
                 }
+                else -> Unit
             }
         })
     }
 
     private fun showSuccessToastAndNavigate() {
-        Toast.makeText(this, getMessage(R.string.password_update_success), Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getMessage(password_update_success), Toast.LENGTH_SHORT).show()
         lifecycleScope.launch {
             delay(2000)
             startNewActivity(LoginActivity::class.java)
@@ -96,7 +87,7 @@ class ChangePasswordActivity :
 
         val errorMessage =
             if(!viewModel.isOtpValid())
-                getMessage(R.string.error_invalid_otp)
+                getMessage(error_invalid_otp)
             else {
                 viewModel.setPassword(password)
                 viewModel.updatePassword()
@@ -111,12 +102,12 @@ class ChangePasswordActivity :
             listOf(otpEditLabel, otpEditText, passwordLabel, passwordEditText, confirmPasswordLabel, confirmPasswordEditText, resetPasswordButton)
                 .forEach { it.visible(true) }
             emailEditText.enable(false)
-            sendOTPButton.text = getMessage(R.string.resend_otp)
+            sendOTPButton.text = getMessage(resend_otp)
         }
     }
 
     private fun validateFields(): Boolean {
-        val errorMessage = getMessage(R.string.error_field_required)
+        val errorMessage = getMessage(error_field_required)
         binding.apply {
             return  !passwordEditText.isEmpty(passwordErrorText, errorMessage) ||
                     !confirmPasswordEditText.isEmpty(confirmPasswordEditText, errorMessage) ||
@@ -131,7 +122,7 @@ class ChangePasswordActivity :
 
             val errorMessage =
                 if (password != confirmPassword)
-                    getMessage(R.string.error_password_mismatch)
+                    getMessage(error_password_mismatch)
                 else
                     null
             confirmPasswordErrorText.text = errorMessage

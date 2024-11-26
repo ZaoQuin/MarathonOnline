@@ -23,8 +23,6 @@ class SplashRedirectActivity : BaseActivity<SplashRedirectViewModel, ActivitySpl
         }
     }
 
-
-
     private fun setupObserve() {
         observeAuthToken()
     }
@@ -41,7 +39,9 @@ class SplashRedirectActivity : BaseActivity<SplashRedirectViewModel, ActivitySpl
                 startNewActivity(LoginActivity::class.java, true)
             } else {
                 val isVerified = userPreferences.isVerified.firstOrNull()
+                val isDeleted = userPreferences.isDeleted.firstOrNull()
                 when {
+                    isDeleted == true -> startNewActivity(AccountDeletedActivity::class.java, true)
                     isVerified == null -> startNewActivity(LoginActivity::class.java, true)
                     !isVerified -> startNewActivity(VerifyOTPActivity::class.java)
                     else -> startNewActivity(MainActivity::class.java, true)

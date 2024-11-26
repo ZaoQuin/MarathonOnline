@@ -6,7 +6,9 @@ import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.data.repository.UserRepository
 import com.university.marathononline.ui.view.activity.ChangePasswordActivity
+import com.university.marathononline.ui.viewModel.AccountDeletedViewModel
 import com.university.marathononline.ui.viewModel.ChangePasswordViewModel
+import com.university.marathononline.ui.viewModel.DeleteUserAccountViewModel
 import com.university.marathononline.ui.viewModel.EditInformationViewModel
 import com.university.marathononline.ui.viewModel.ForgetPasswordViewModel
 import com.university.marathononline.ui.viewModel.InformationViewModel
@@ -34,6 +36,8 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(RegisterViewModel::class.java) -> RegisterViewModel(repository as UserRepository) as T
             modelClass.isAssignableFrom(EditInformationViewModel::class.java) -> EditInformationViewModel(repository as UserRepository) as T
             modelClass.isAssignableFrom(ChangePasswordViewModel::class.java) -> ChangePasswordViewModel(repository as UserRepository) as T
+            modelClass.isAssignableFrom(DeleteUserAccountViewModel::class.java) -> DeleteUserAccountViewModel(repository as AuthRepository) as T
+            modelClass.isAssignableFrom(AccountDeletedViewModel::class.java) -> AccountDeletedViewModel(repository as AuthRepository) as T
             modelClass.isAssignableFrom(HomeViewModel::class.java) -> HomeViewModel(repository as ContestRepository) as T
             else -> throw IllegalArgumentException("ViewModelClass Not Found")
         }
