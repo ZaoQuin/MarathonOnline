@@ -8,15 +8,19 @@ import com.university.marathononline.data.models.EContestStatus
 import com.university.marathononline.data.repository.ContestRepository
 import java.math.BigDecimal
 import java.time.LocalDateTime
-import java.util.Date
 
 class HomeViewModel(
     private val repository: ContestRepository
-): BaseViewModel(repository) {
+) : BaseViewModel(repository) {
+
     private val _events = MutableLiveData<List<Contest>>()
     val events: LiveData<List<Contest>> get() = _events
 
     init {
+        loadEvents()
+    }
+
+    private fun loadEvents() {
         _events.value = listOf(
             Contest(
                 id = 1,

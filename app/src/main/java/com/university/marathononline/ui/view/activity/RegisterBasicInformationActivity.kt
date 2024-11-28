@@ -15,7 +15,7 @@ import com.university.marathononline.databinding.ActivityRegisterBasicInformatio
 import com.university.marathononline.ui.viewModel.RegisterBasicInformationViewModel
 import com.university.marathononline.utils.*
 
-class RegisterBasicInformationActivity : BaseActivity<RegisterBasicInformationViewModel, ActivityRegisterBasicInformationBinding, UserRepository>() {
+class RegisterBasicInformationActivity : BaseActivity<RegisterBasicInformationViewModel, ActivityRegisterBasicInformationBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,5 +114,5 @@ class RegisterBasicInformationActivity : BaseActivity<RegisterBasicInformationVi
 
     override fun getActivityBinding(inflater: LayoutInflater) = ActivityRegisterBasicInformationBinding.inflate(inflater)
 
-    override fun getActivityRepository() = UserRepository(retrofitInstance.buildApi(UserApiService::class.java))
+    override fun getActivityRepositories() = listOf( UserRepository(retrofitInstance.buildApi(UserApiService::class.java)) )
 }

@@ -15,7 +15,7 @@ import com.university.marathononline.ui.viewModel.LoginViewModel
 import com.university.marathononline.utils.*
 import kotlinx.coroutines.launch
 
-class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding, AuthRepository>() {
+class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,7 +78,7 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding, AuthRep
 
         when (response) {
             is Resource.Success -> onLoginSuccess(response.value)
-            is Resource.Failure -> handleApiError(response, getActivityRepository())
+            is Resource.Failure -> handleApiError(response)
             else -> Unit
         }
     }
@@ -113,5 +113,5 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding, AuthRep
 
     override fun getViewModel() = LoginViewModel::class.java
     override fun getActivityBinding(inflater: LayoutInflater) = ActivityLoginBinding.inflate(inflater)
-    override fun getActivityRepository() = AuthRepository(retrofitInstance.buildApi(AuthApiService::class.java), userPreferences)
+    override fun getActivityRepositories() = listOf( AuthRepository(retrofitInstance.buildApi(AuthApiService::class.java), userPreferences))
 }

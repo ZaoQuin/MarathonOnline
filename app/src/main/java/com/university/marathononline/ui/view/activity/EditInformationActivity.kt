@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import androidx.lifecycle.Observer
 import com.university.marathononline.R.string.*
 import com.university.marathononline.base.BaseActivity
+import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.user.UserApiService
 import com.university.marathononline.data.models.EGender
@@ -18,7 +19,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import java.util.Calendar
 
-class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityEditInformationBinding, UserRepository>() {
+class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityEditInformationBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleIntentExtras(intent)
@@ -146,9 +147,9 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
 
     override fun getActivityBinding(inflater: LayoutInflater) = ActivityEditInformationBinding.inflate(inflater)
 
-    override fun getActivityRepository(): UserRepository {
+    override fun getActivityRepositories(): List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
         val api = retrofitInstance.buildApi(UserApiService::class.java, token)
-        return UserRepository(api)
+        return listOf(UserRepository(api))
     }
 }

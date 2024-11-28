@@ -7,6 +7,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import com.university.marathononline.R.string.*
 import com.university.marathononline.base.BaseActivity
+import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.repository.AuthRepository
@@ -17,7 +18,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-class VerifyOTPActivity : BaseActivity<VerifyOTPViewModel, ActivityVerifyOtpBinding, AuthRepository>(){
+class VerifyOTPActivity : BaseActivity<VerifyOTPViewModel, ActivityVerifyOtpBinding>(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.getUser()
@@ -42,7 +43,7 @@ class VerifyOTPActivity : BaseActivity<VerifyOTPViewModel, ActivityVerifyOtpBind
                         }
                     }
                     is Resource.Failure ->
-                        handleApiError(resource, getActivityRepository())
+                        handleApiError(resource)
                     else -> {  }
                 }
             }
@@ -58,7 +59,7 @@ class VerifyOTPActivity : BaseActivity<VerifyOTPViewModel, ActivityVerifyOtpBind
                         }
                     }
                     is Resource.Failure -> {
-                        handleApiError(resource, getActivityRepository())
+                        handleApiError(resource)
                     }
                     else -> {  }
                 }
@@ -135,9 +136,9 @@ class VerifyOTPActivity : BaseActivity<VerifyOTPViewModel, ActivityVerifyOtpBind
 
     override fun getActivityBinding(inflater: LayoutInflater) = ActivityVerifyOtpBinding.inflate(inflater)
 
-    override fun getActivityRepository(): AuthRepository {
+    override fun getActivityRepositories(): List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
         val api = retrofitInstance.buildApi(AuthApiService::class.java, token)
-        return AuthRepository(api, userPreferences)
+        return listOf(AuthRepository(api, userPreferences))
     }
 }

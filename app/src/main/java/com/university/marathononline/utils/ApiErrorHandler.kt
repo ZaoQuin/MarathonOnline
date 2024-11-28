@@ -107,10 +107,10 @@ private fun AppCompatActivity.handleUnauthorizedError(
 }
 
 private fun Fragment.logout() {
-    (this as BaseFragment<*, *, *>).logout()
+    (this as BaseFragment<*, *>).logout()
 }
 
 
 private fun AppCompatActivity.logout() {
-    (this as BaseActivity<*, *, *>).logout()
+    (this as BaseActivity<*, *>).logout()
 }

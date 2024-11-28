@@ -6,4 +6,8 @@ import com.university.marathononline.data.api.contest.ContestApiService
 class ContestRepository(
     private val api: ContestApiService
 ): BaseRepository(){
+
+    suspend fun getContest() = safeApiCall {
+        api.getContests()
+    }
 }

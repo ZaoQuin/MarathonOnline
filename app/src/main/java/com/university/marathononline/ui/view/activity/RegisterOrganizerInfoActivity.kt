@@ -13,7 +13,7 @@ import com.university.marathononline.databinding.ActivityRegisterOrganizerInfoBi
 import com.university.marathononline.ui.viewModel.RegisterViewModel
 import com.university.marathononline.utils.*
 
-class RegisterOrganizerInfoActivity : BaseActivity<RegisterViewModel, ActivityRegisterOrganizerInfoBinding, UserRepository>() {
+class RegisterOrganizerInfoActivity : BaseActivity<RegisterViewModel, ActivityRegisterOrganizerInfoBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleIntentExtras(intent)
@@ -109,5 +109,5 @@ class RegisterOrganizerInfoActivity : BaseActivity<RegisterViewModel, ActivityRe
 
     override fun getActivityBinding(inflater: LayoutInflater) = ActivityRegisterOrganizerInfoBinding.inflate(inflater)
 
-    override fun getActivityRepository() = UserRepository(retrofitInstance.buildApi(UserApiService::class.java))
+    override fun getActivityRepositories() = listOf(UserRepository(retrofitInstance.buildApi(UserApiService::class.java)))
 }

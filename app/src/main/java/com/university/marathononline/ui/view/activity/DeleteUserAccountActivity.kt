@@ -12,6 +12,7 @@ import com.university.marathononline.R.string.error_field_required
 import com.university.marathononline.R.string.password_update_success
 import com.university.marathononline.R.string.resend_otp
 import com.university.marathononline.base.BaseActivity
+import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.repository.AuthRepository
@@ -31,7 +32,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class DeleteUserAccountActivity :
-    BaseActivity<DeleteUserAccountViewModel, ActivityDeleteUserAccountBinding, AuthRepository>() {
+    BaseActivity<DeleteUserAccountViewModel, ActivityDeleteUserAccountBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleIntentExtras(intent)
@@ -117,9 +118,9 @@ class DeleteUserAccountActivity :
 
     override fun getActivityBinding(inflater: LayoutInflater) = ActivityDeleteUserAccountBinding.inflate(inflater)
 
-    override fun getActivityRepository() : AuthRepository {
+    override fun getActivityRepositories() : List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
         val api = retrofitInstance.buildApi(AuthApiService::class.java, token)
-        return AuthRepository(api, userPreferences)
+        return listOf( AuthRepository(api, userPreferences))
     }
 }

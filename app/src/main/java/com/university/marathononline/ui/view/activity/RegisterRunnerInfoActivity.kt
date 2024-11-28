@@ -17,7 +17,7 @@ import com.university.marathononline.ui.viewModel.RegisterViewModel
 import com.university.marathononline.utils.*
 import java.util.Calendar
 
-class RegisterRunnerInfoActivity : BaseActivity<RegisterViewModel, ActivityRegisterRunnerInfoBinding, UserRepository>() {
+class RegisterRunnerInfoActivity : BaseActivity<RegisterViewModel, ActivityRegisterRunnerInfoBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleIntentExtras(intent)
@@ -147,5 +147,5 @@ class RegisterRunnerInfoActivity : BaseActivity<RegisterViewModel, ActivityRegis
 
     override fun getActivityBinding(inflater: LayoutInflater) = ActivityRegisterRunnerInfoBinding.inflate(inflater)
 
-    override fun getActivityRepository() = UserRepository(retrofitInstance.buildApi(UserApiService::class.java))
+    override fun getActivityRepositories() = listOf(UserRepository(retrofitInstance.buildApi(UserApiService::class.java)))
 }

@@ -19,7 +19,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class ChangePasswordActivity :
-    BaseActivity<ChangePasswordViewModel, ActivityChangePasswordBinding, UserRepository>() {
+    BaseActivity<ChangePasswordViewModel, ActivityChangePasswordBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleIntentExtras(intent)
@@ -135,5 +135,5 @@ class ChangePasswordActivity :
 
     override fun getActivityBinding(inflater: LayoutInflater) = ActivityChangePasswordBinding.inflate(inflater)
 
-    override fun getActivityRepository() = UserRepository(retrofitInstance.buildApi(UserApiService::class.java))
+    override fun getActivityRepositories() = listOf( UserRepository(retrofitInstance.buildApi(UserApiService::class.java)))
 }

@@ -15,7 +15,7 @@ import com.university.marathononline.ui.viewModel.ForgetPasswordViewModel
 import com.university.marathononline.utils.*
 import kotlinx.coroutines.*
 
-class ForgetPasswordActivity: BaseActivity<ForgetPasswordViewModel, ActivityForgetPasswordBinding, UserRepository>() {
+class ForgetPasswordActivity: BaseActivity<ForgetPasswordViewModel, ActivityForgetPasswordBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initializeUI()
@@ -140,5 +140,5 @@ class ForgetPasswordActivity: BaseActivity<ForgetPasswordViewModel, ActivityForg
 
     override fun getActivityBinding(inflater: LayoutInflater) = ActivityForgetPasswordBinding.inflate(inflater)
 
-    override fun getActivityRepository() = UserRepository(retrofitInstance.buildApi(UserApiService::class.java))
+    override fun getActivityRepositories() = listOf( UserRepository(retrofitInstance.buildApi(UserApiService::class.java)))
 }
