@@ -7,7 +7,7 @@ import kotlinx.coroutines.launch
 
 class AccountDeletedViewModel(
     private val repository: AuthRepository
-): BaseViewModel(repository) {
+): BaseViewModel(listOf(repository)) {
     fun clearAuthenticated() {
         viewModelScope.launch {
             repository.clearAuthenticated()

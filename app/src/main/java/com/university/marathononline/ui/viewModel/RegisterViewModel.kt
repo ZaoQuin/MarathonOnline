@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 class RegisterViewModel(
     private val repository: UserRepository
-): BaseViewModel(repository) {
+): BaseViewModel(listOf(repository)) {
 
     private val _fullName: MutableLiveData<String> = MutableLiveData()
     val fullName: LiveData<String> get() = _fullName

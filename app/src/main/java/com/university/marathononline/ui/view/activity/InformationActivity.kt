@@ -14,9 +14,9 @@ import com.university.marathononline.ui.viewModel.InformationViewModel
 import com.university.marathononline.utils.KEY_EMAIL
 import com.university.marathononline.utils.KEY_USER
 import com.university.marathononline.utils.enable
-import com.university.marathononline.utils.handleApiError
 import com.university.marathononline.utils.startNewActivity
 import com.university.marathononline.utils.visible
+import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 

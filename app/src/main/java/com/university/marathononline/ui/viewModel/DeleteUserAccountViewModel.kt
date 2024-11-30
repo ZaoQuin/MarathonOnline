@@ -16,7 +16,7 @@ import kotlin.random.nextInt
 
 class DeleteUserAccountViewModel (
     private val repository: AuthRepository
-): BaseViewModel(repository)  {
+): BaseViewModel(listOf(repository))  {
     private val _email: MutableLiveData<String> = MutableLiveData()
     val email: LiveData<String> get() = _email
 

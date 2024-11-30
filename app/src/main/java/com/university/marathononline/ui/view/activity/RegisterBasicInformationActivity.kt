@@ -14,6 +14,7 @@ import com.university.marathononline.data.response.CheckEmailResponse
 import com.university.marathononline.databinding.ActivityRegisterBasicInformationBinding
 import com.university.marathononline.ui.viewModel.RegisterBasicInformationViewModel
 import com.university.marathononline.utils.*
+import handleApiError
 
 class RegisterBasicInformationActivity : BaseActivity<RegisterBasicInformationViewModel, ActivityRegisterBasicInformationBinding>() {
 

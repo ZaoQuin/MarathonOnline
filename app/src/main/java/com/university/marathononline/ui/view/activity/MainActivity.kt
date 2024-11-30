@@ -11,6 +11,7 @@ import com.university.marathononline.ui.adapter.MainPagerAdapter
 import com.university.marathononline.R
 import com.university.marathononline.databinding.ActivityMainBinding
 import com.university.marathononline.ui.viewModel.MainViewModel
+import com.university.marathononline.utils.startNewActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -39,8 +40,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setUpRecordButton() {
         binding.btnRecord.setOnClickListener{
-            val intent = Intent(binding.root.context, RecordActivity::class.java)
-            binding.root.context.startActivity(intent)
+            startNewActivity(RecordActivity::class.java)
         }
     }
 

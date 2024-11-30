@@ -2,6 +2,8 @@ package com.university.marathononline.utils
 
 import android.content.Intent
 
+const val ACTIVITY_RECOGNITION_REQUEST_CODE = 100
+
 const val NO_BACK_STACK_FLAGS = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
 const val EMAIL="marathononlineute@gmail.com"
 const val SENDER_PASS="jlhtwexvmcmmpart"

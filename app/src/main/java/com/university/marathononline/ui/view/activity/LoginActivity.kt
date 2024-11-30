@@ -13,6 +13,7 @@ import com.university.marathononline.data.response.AuthResponse
 import com.university.marathononline.databinding.ActivityLoginBinding
 import com.university.marathononline.ui.viewModel.LoginViewModel
 import com.university.marathononline.utils.*
+import handleApiError
 import kotlinx.coroutines.launch
 
 class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding>() {

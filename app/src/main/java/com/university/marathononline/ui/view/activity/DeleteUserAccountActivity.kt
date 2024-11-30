@@ -1,6 +1,5 @@
 package com.university.marathononline.ui.view.activity
 
-import android.accounts.Account
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -22,10 +21,10 @@ import com.university.marathononline.utils.KEY_EMAIL
 import com.university.marathononline.utils.enable
 import com.university.marathononline.utils.finishAndGoBack
 import com.university.marathononline.utils.getMessage
-import com.university.marathononline.utils.handleApiError
 import com.university.marathononline.utils.isEmpty
 import com.university.marathononline.utils.startNewActivity
 import com.university.marathononline.utils.visible
+import handleApiError
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch

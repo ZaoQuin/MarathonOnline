@@ -12,6 +12,7 @@ import com.university.marathononline.data.repository.UserRepository
 import com.university.marathononline.databinding.ActivityRegisterOrganizerInfoBinding
 import com.university.marathononline.ui.viewModel.RegisterViewModel
 import com.university.marathononline.utils.*
+import handleApiError
 
 class RegisterOrganizerInfoActivity : BaseActivity<RegisterViewModel, ActivityRegisterOrganizerInfoBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {

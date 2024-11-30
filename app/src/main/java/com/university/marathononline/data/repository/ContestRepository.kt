@@ -7,7 +7,11 @@ class ContestRepository(
     private val api: ContestApiService
 ): BaseRepository(){
 
-    suspend fun getContest() = safeApiCall {
+    suspend fun getContests() = safeApiCall {
         api.getContests()
+    }
+
+    suspend fun getHomeContests() = safeApiCall {
+        api.getHomeContests()
     }
 }

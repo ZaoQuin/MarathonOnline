@@ -3,9 +3,11 @@ package com.university.marathononline.ui.view.fragment
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
@@ -13,11 +15,13 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
+import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.contest.ContestApiService
 import com.university.marathononline.databinding.FragmentHomeBinding
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.ui.viewModel.HomeViewModel
 import com.university.marathononline.ui.adapter.EventAdapter
+import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlin.math.abs
@@ -43,6 +47,7 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.userFullNameText.text = runBlocking { userPreferences.fullName.first() }
+        viewModel.getActiveContests()
 
         setupAdapter()
         setupViewPager2()
@@ -96,9 +101,22 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
     }
 
     private fun observeViewModel() {
-        viewModel.events.observe(viewLifecycleOwner) { events ->
-            adapter.updateData(events)
-            currentPage = 0
+        viewModel.contests.observe(viewLifecycleOwner) {
+            Log.d("ContestFragment", it.toString())
+            when(it){
+                is Resource.Success -> {
+                    if (it.value.contests.isEmpty()) {
+                        Toast.makeText(requireContext(), "No active contests found.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        adapter.updateData(it.value.contests)
+                    }
+                }
+                is Resource.Failure -> {
+                    handleApiError(it)
+                    it.fetchErrorMessage()
+                }
+                else -> Unit
+            }
         }
     }
 

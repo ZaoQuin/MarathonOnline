@@ -15,6 +15,7 @@ import com.university.marathononline.data.repository.UserRepository
 import com.university.marathononline.databinding.ActivityEditInformationBinding
 import com.university.marathononline.ui.viewModel.EditInformationViewModel
 import com.university.marathononline.utils.*
+import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import java.util.Calendar

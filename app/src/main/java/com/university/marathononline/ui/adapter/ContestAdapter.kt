@@ -8,15 +8,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.university.marathononline.ui.view.activity.ContestDetailsActivity
 import com.university.marathononline.databinding.ItemContestBinding
 import com.university.marathononline.data.models.Contest
-import com.university.marathononline.utils.DateUtils
 
 class ContestAdapter (private var contests: List<Contest>): RecyclerView.Adapter<ContestAdapter.ViewHolder>(){
     class ViewHolder(private val binding: ItemContestBinding): RecyclerView.ViewHolder(binding.root){
 
         fun bind(item: Contest){
             binding.raceNameTextView.text = item.name
-            binding.raceStartDateTextView.text = item.startDate?.let { DateUtils.getFormattedDate(it) }
-            binding.raceEndDateTextView.text = item.endDate?.let { DateUtils.getFormattedDate(it) }
+            binding.raceStartDateTextView.text = item.startDate
+            binding.raceEndDateTextView.text = item.endDate
             binding.countMembersText.text = "0"
             binding.registrationFee.text = item.fee.toString()
 

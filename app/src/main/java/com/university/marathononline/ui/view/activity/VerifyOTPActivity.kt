@@ -14,6 +14,7 @@ import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.databinding.ActivityVerifyOtpBinding
 import com.university.marathononline.ui.viewModel.VerifyOTPViewModel
 import com.university.marathononline.utils.*
+import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking

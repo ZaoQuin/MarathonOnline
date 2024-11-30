@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class EditInformationViewModel(
     private val repository: UserRepository
-): BaseViewModel(repository) {
+): BaseViewModel(listOf(repository)) {
     private val _user: MutableLiveData<User> = MutableLiveData()
     val user: LiveData<User> get() = _user
 

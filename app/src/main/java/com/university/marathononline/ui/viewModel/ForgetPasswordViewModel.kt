@@ -20,7 +20,7 @@ import kotlin.random.nextInt
 
 class ForgetPasswordViewModel(
     private val repository: UserRepository
-): BaseViewModel(repository) {
+): BaseViewModel(listOf(repository)) {
     private val _email: MutableLiveData<String> = MutableLiveData()
     val email: LiveData<String> get() = _email
     private val _checkEmailResponse: MutableLiveData<Resource<CheckEmailResponse>> = MutableLiveData()

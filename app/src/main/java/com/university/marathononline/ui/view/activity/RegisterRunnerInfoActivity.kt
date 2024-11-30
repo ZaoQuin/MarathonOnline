@@ -15,6 +15,7 @@ import com.university.marathononline.data.repository.UserRepository
 import com.university.marathononline.databinding.ActivityRegisterRunnerInfoBinding
 import com.university.marathononline.ui.viewModel.RegisterViewModel
 import com.university.marathononline.utils.*
+import handleApiError
 import java.util.Calendar
 
 class RegisterRunnerInfoActivity : BaseActivity<RegisterViewModel, ActivityRegisterRunnerInfoBinding>() {

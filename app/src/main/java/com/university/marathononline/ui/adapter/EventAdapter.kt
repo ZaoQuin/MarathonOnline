@@ -5,27 +5,18 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
 import com.university.marathononline.ui.view.activity.ContestDetailsActivity
 import com.university.marathononline.databinding.ItemContestBinding
 import com.university.marathononline.data.models.Contest
-import com.university.marathononline.utils.DateUtils
 
 class EventAdapter(private var events: List<Contest>) :
     RecyclerView.Adapter<EventAdapter.ViewHolder>() {
 
-//    private val runnable = Runnable {
-//        if (events.isNotEmpty()) {
-//            val nextItem = (viewPager2.currentItem + 1) % events.size
-//            viewPager2.setCurrentItem(nextItem, true)
-//        }
-//    }
-
     class ViewHolder(private val binding: ItemContestBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(item: Contest) {
             binding.raceNameTextView.text = item.name
-            binding.raceStartDateTextView.text = item.startDate?.let { DateUtils.getFormattedDate(it) }
-            binding.raceEndDateTextView.text = item.endDate?.let { DateUtils.getFormattedDate(it) }
+            binding.raceStartDateTextView.text = item.startDate
+            binding.raceEndDateTextView.text = item.endDate
             binding.countMembersText.text = "0"
             binding.registrationFee.text = item.fee.toString()
 

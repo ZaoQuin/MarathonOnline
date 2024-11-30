@@ -4,9 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.data.repository.RaceRepository
+import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.data.repository.UserRepository
 import com.university.marathononline.ui.viewModel.AccountDeletedViewModel
 import com.university.marathononline.ui.viewModel.ChangePasswordViewModel
+import com.university.marathononline.ui.viewModel.ContestViewModel
 import com.university.marathononline.ui.viewModel.DeleteUserAccountViewModel
 import com.university.marathononline.ui.viewModel.EditInformationViewModel
 import com.university.marathononline.ui.viewModel.ForgetPasswordViewModel
@@ -14,6 +17,7 @@ import com.university.marathononline.ui.viewModel.InformationViewModel
 import com.university.marathononline.ui.viewModel.LoginViewModel
 import com.university.marathononline.ui.viewModel.VerifyOTPViewModel
 import com.university.marathononline.ui.viewModel.HomeViewModel
+import com.university.marathononline.ui.viewModel.RecordViewModel
 import com.university.marathononline.ui.viewModel.RegisterBasicInformationViewModel
 import com.university.marathononline.ui.viewModel.RegisterViewModel
 import com.university.marathononline.ui.viewModel.RoleSelectionViewModel
@@ -42,6 +46,9 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(DeleteUserAccountViewModel::class.java) -> DeleteUserAccountViewModel(findRepository(AuthRepository::class.java)) as T
             modelClass.isAssignableFrom(AccountDeletedViewModel::class.java) -> AccountDeletedViewModel(findRepository(AuthRepository::class.java)) as T
             modelClass.isAssignableFrom(HomeViewModel::class.java) -> HomeViewModel(findRepository(ContestRepository::class.java)) as T
+            modelClass.isAssignableFrom(ContestViewModel::class.java) -> ContestViewModel(findRepository(ContestRepository::class.java)) as T
+            modelClass.isAssignableFrom(RecordViewModel::class.java) -> RecordViewModel(findRepository(RegistrationRepository::class.java),
+                                                                                        findRepository(RaceRepository::class.java)) as T
             else -> throw IllegalArgumentException("ViewModelClass Not Found")
         }
     }

@@ -5,5 +5,5 @@ import com.university.marathononline.data.repository.AuthRepository
 
 class SplashRedirectViewModel(
     private val repository: AuthRepository
-): BaseViewModel(repository) {
+): BaseViewModel(listOf(repository)) {
 }

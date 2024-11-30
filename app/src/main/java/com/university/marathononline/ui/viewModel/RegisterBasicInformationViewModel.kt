@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class RegisterBasicInformationViewModel(
     private val repository: UserRepository
-): BaseViewModel(repository) {
+): BaseViewModel(listOf(repository)) {
     private val _role: MutableLiveData<ERole> = MutableLiveData()
     val role: LiveData<ERole> get() = _role
     private val _email: MutableLiveData<String> = MutableLiveData()
