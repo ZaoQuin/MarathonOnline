@@ -3,26 +3,30 @@ package com.university.marathononline.ui.view.fragment
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.university.marathononline.base.BaseFragment
+import com.university.marathononline.base.BaseRepository
+import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.contest.ContestApiService
 import com.university.marathononline.databinding.FragmentHomeBinding
-import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.ui.viewModel.HomeViewModel
 import com.university.marathononline.ui.adapter.EventAdapter
+import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlin.math.abs
 
-class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding, ContestRepository>() {
+class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
 
     private lateinit var adapter: EventAdapter
     private val handler = Handler(Looper.getMainLooper())
@@ -42,26 +46,44 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding, ContestRep
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
         binding.userFullNameText.text = runBlocking { userPreferences.fullName.first() }
+        viewModel.getActiveContests()
 
-        adapter = EventAdapter(emptyList(), binding.viewPager2)
-        binding.viewPager2.adapter = adapter
-        binding.viewPager2.offscreenPageLimit = 3
-
-        binding.viewPager2.clipToPadding = false
-        binding.viewPager2.clipChildren = false
-        binding.viewPager2.getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
-
-        observes()
-        setUpTabLayout()
-        setUpTransformer()
+        setupAdapter()
+        setupViewPager2()
+        setupTabLayout()
+        observeViewModel()
 
         handler.postDelayed(runnable, 3000)
     }
 
-    private fun setUpTabLayout() {
-        TabLayoutMediator(binding.tabLayout, binding.viewPager2) { _, _ -> {}}.attach()
+    private fun setupAdapter() {
+        adapter = EventAdapter(emptyList())
+        binding.viewPager2.adapter = adapter
+    }
+
+    private fun setupViewPager2() {
+        binding.viewPager2.apply {
+            offscreenPageLimit = 3
+            clipToPadding = false
+            clipChildren = false
+            getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+            setPageTransformer(createCompositePageTransformer())
+        }
+    }
+
+    private fun createCompositePageTransformer(): CompositePageTransformer {
+        return CompositePageTransformer().apply {
+            addTransformer(MarginPageTransformer(40))
+            addTransformer { page, position ->
+                val scaleFactor = 1 - abs(position)
+                page.scaleY = 0.85f + scaleFactor * 0.15f
+            }
+        }
+    }
+
+    private fun setupTabLayout() {
+        TabLayoutMediator(binding.tabLayout, binding.viewPager2) { _, _ -> }.attach()
 
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
@@ -78,20 +100,23 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding, ContestRep
         })
     }
 
-    private fun setUpTransformer() {
-        val transformer = CompositePageTransformer()
-        transformer.addTransformer(MarginPageTransformer(40))
-        transformer.addTransformer { page, position ->
-            val r = 1 - abs(position)
-            page.scaleY = 0.85f + r * 0.15f
-        }
-        binding.viewPager2.setPageTransformer(transformer)
-    }
-
-    private fun observes() {
-        viewModel.events.observe(viewLifecycleOwner) { events: List<Contest>? ->
-            adapter.updateData(events)
-            currentPage = 0
+    private fun observeViewModel() {
+        viewModel.contests.observe(viewLifecycleOwner) {
+            Log.d("ContestFragment", it.toString())
+            when(it){
+                is Resource.Success -> {
+                    if (it.value.contests.isEmpty()) {
+                        Toast.makeText(requireContext(), "No active contests found.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        adapter.updateData(it.value.contests)
+                    }
+                }
+                is Resource.Failure -> {
+                    handleApiError(it)
+                    it.fetchErrorMessage()
+                }
+                else -> Unit
+            }
         }
     }
 
@@ -102,14 +127,12 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding, ContestRep
 
     override fun getViewModel() = HomeViewModel::class.java
 
-    override fun getFragmentBinding(
-        inflater: LayoutInflater,
-        container: ViewGroup?
-    ) = FragmentHomeBinding.inflate(inflater, container, false)
+    override fun getFragmentBinding(inflater: LayoutInflater, container: ViewGroup?) =
+        FragmentHomeBinding.inflate(inflater, container, false)
 
-    override fun getFragmentRepository() : ContestRepository {
+    override fun getFragmentRepositories(): List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
         val api = retrofitInstance.buildApi(ContestApiService::class.java, token)
-        return ContestRepository(api)
+        return listOf(ContestRepository(api))
     }
 }

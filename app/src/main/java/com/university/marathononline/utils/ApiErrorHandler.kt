@@ -1,5 +1,4 @@
-package com.university.marathononline.utils
-
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -17,15 +16,15 @@ fun <T> Fragment.handleApiError(
 ) {
     when {
         failure.errorCode == 401 -> handleUnauthorizedError(repository, retry)
-        failure.errorCode == 403 -> requireView().snackBar("You don't have permission to access this resource.")
-        failure.errorCode == 500 -> requireView().snackBar("Something went wrong on the server, please try again later.")
-        failure.isNetworkError -> requireView().snackBar("Please check your internet connection", retry)
+        failure.errorCode == 403 -> showToast("You don't have permission to access this resource.")
+        failure.errorCode == 500 -> showToast("Something went wrong on the server, please try again later.")
+        failure.isNetworkError -> showToast("Please check your internet connection")
         else -> {
             val errorMessage = failure.errorBody?.string().orEmpty()
             if (errorMessage.isNotBlank()) {
-                requireView().snackBar(errorMessage)
+                showToast(errorMessage)
             } else {
-                requireView().snackBar("An unknown error occurred.")
+                showToast("An unknown error occurred.")
             }
         }
     }
@@ -38,15 +37,15 @@ fun <T> AppCompatActivity.handleApiError(
 ) {
     when {
         failure.errorCode == 401 -> handleUnauthorizedError(repository, retry)
-        failure.errorCode == 403 -> window.decorView.snackBar("You don't have permission to access this resource.")
-        failure.errorCode == 500 -> window.decorView.snackBar("Something went wrong on the server, please try again later.")
-        failure.isNetworkError -> window.decorView.snackBar("Please check your internet connection", retry)
+        failure.errorCode == 403 -> showToast("You don't have permission to access this resource.")
+        failure.errorCode == 500 -> showToast("Something went wrong on the server, please try again later.")
+        failure.isNetworkError -> showToast("Please check your internet connection")
         else -> {
             val errorMessage = failure.errorBody?.string().orEmpty()
             if (errorMessage.isNotBlank()) {
-                window.decorView.snackBar(errorMessage)
+                showToast(errorMessage)
             } else {
-                window.decorView.snackBar("An unknown error occurred.")
+                showToast("An unknown error occurred.")
             }
         }
     }
@@ -65,16 +64,16 @@ private fun Fragment.handleUnauthorizedError(
             if (refreshResult is Resource.Success) {
                 val newToken = refreshResult.value.token
                 repository.saveAuthToken(newToken)
-                requireView().snackBar("Token refreshed successfully")
+                showToast("Token refreshed successfully")
 
                 retry?.invoke()
             } else {
                 logout()
-                requireView().snackBar("Failed to refresh token")
+                showToast("Failed to refresh token")
             }
         } else {
             logout()
-            requireView().snackBar("Unable to get user data")
+            showToast("Unable to get user data")
         }
     }
 }
@@ -92,25 +91,32 @@ private fun AppCompatActivity.handleUnauthorizedError(
             if (refreshResult is Resource.Success) {
                 val newToken = refreshResult.value.token
                 repository.saveAuthToken(newToken)
-                window.decorView.snackBar("Token refreshed successfully")
+                showToast("Token refreshed successfully")
 
                 retry?.invoke()
             } else {
                 logout()
-                window.decorView.snackBar("Failed to refresh token")
+                showToast("Failed to refresh token")
             }
         } else {
             logout()
-            window.decorView.snackBar("Unable to get user data")
+            showToast("Unable to get user data")
         }
     }
 }
 
 private fun Fragment.logout() {
-    (this as BaseFragment<*, *, *>).logout()
+    (this as BaseFragment<*, *>).logout()
 }
 
-
 private fun AppCompatActivity.logout() {
-    (this as BaseActivity<*, *, *>).logout()
+    (this as BaseActivity<*, *>).logout()
+}
+
+private fun Fragment.showToast(message: String) {
+    Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+}
+
+private fun AppCompatActivity.showToast(message: String) {
+    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
 }

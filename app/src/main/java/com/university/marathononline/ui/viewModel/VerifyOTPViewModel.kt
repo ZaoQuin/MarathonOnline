@@ -16,7 +16,7 @@ import kotlin.random.nextInt
 
 class VerifyOTPViewModel(
     private val repository: AuthRepository
-): BaseViewModel(repository) {
+): BaseViewModel(listOf(repository)) {
     private val _originOtp: MutableLiveData<String> = MutableLiveData()
     private val _otp: MutableLiveData<String> = MutableLiveData()
     private val _user: MutableLiveData<Resource<User>> = MutableLiveData()

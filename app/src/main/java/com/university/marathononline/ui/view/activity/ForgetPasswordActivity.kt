@@ -1,7 +1,6 @@
 package com.university.marathononline.ui.view.activity
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.lifecycle.*
@@ -13,9 +12,10 @@ import com.university.marathononline.data.repository.UserRepository
 import com.university.marathononline.databinding.ActivityForgetPasswordBinding
 import com.university.marathononline.ui.viewModel.ForgetPasswordViewModel
 import com.university.marathononline.utils.*
+import handleApiError
 import kotlinx.coroutines.*
 
-class ForgetPasswordActivity: BaseActivity<ForgetPasswordViewModel, ActivityForgetPasswordBinding, UserRepository>() {
+class ForgetPasswordActivity: BaseActivity<ForgetPasswordViewModel, ActivityForgetPasswordBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initializeUI()
@@ -37,7 +37,7 @@ class ForgetPasswordActivity: BaseActivity<ForgetPasswordViewModel, ActivityForg
                 }
                 is Resource.Loading -> {}
                 is Resource.Failure -> {
-                    it.getErrorMessage()
+                    it.fetchErrorMessage()
                     handleApiError(it)
                 }
             }
@@ -52,7 +52,7 @@ class ForgetPasswordActivity: BaseActivity<ForgetPasswordViewModel, ActivityForg
                 }
                 is Resource.Loading -> {}
                 is Resource.Failure -> {
-                    it.getErrorMessage()
+                    it.fetchErrorMessage()
                     handleApiError(it)
                 }
             }
@@ -140,5 +140,5 @@ class ForgetPasswordActivity: BaseActivity<ForgetPasswordViewModel, ActivityForg
 
     override fun getActivityBinding(inflater: LayoutInflater) = ActivityForgetPasswordBinding.inflate(inflater)
 
-    override fun getActivityRepository() = UserRepository(retrofitInstance.buildApi(UserApiService::class.java))
+    override fun getActivityRepositories() = listOf( UserRepository(retrofitInstance.buildApi(UserApiService::class.java)))
 }

@@ -13,15 +13,15 @@ data class Contest(
     var name: String? = null,
     var description: String? = null,
     var distance: Double? = null,
-    var startDate: LocalDateTime? = null,
-    var endDate: LocalDateTime? = null,
+    var startDate: String? = null,
+    var endDate: String? = null,
     var fee: BigDecimal? = null,
     var maxMembers: Int? = null,
     var status: EContestStatus? = null,
-    var createDate: LocalDateTime? = null,
-    var registrationDeadline: LocalDateTime? = null
+    var createDate: String? = null,
+    var registrationDeadline: String? = null
 ): Serializable
 
 enum class EContestStatus {
-    PENDING, ONGOING, FINISHED, CANCELLED, NOT_APPROVAL, DELETED
+    PENDING, ACTIVE, FINISHED, CANCELLED, NOT_APPROVAL, DELETED
 }

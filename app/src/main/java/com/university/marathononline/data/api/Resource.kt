@@ -1,5 +1,6 @@
 package com.university.marathononline.data.api
 
+import android.util.Log
 import okhttp3.ResponseBody
 import java.io.IOException
 
@@ -8,19 +9,20 @@ sealed class Resource<out T> {
     data class Failure<out T>(
         val isNetworkError: Boolean,
         val errorCode: Int?,
-        val errorBody: ResponseBody?
+        val errorBody: ResponseBody?,
+        val errorMessage: String? = null
     ) : Resource<T>() {
 
-        fun getErrorMessage(): String {
+        fun fetchErrorMessage(): String {
             return try {
-                val errorMessage = errorBody?.string()?.takeIf { it.isNotBlank() }
+                val parsedMessage = errorBody?.string()?.takeIf { it.isNotBlank() }
                     ?: "Unknown error occurred."
 
-                if (errorMessage == "Unknown error occurred.") {
+                if (parsedMessage == "Unknown error occurred.") {
                     logUnknownError()
                 }
 
-                errorMessage
+                parsedMessage
             } catch (e: IOException) {
                 logIOExceptionError(e)
                 "Error reading response body."
@@ -28,17 +30,19 @@ sealed class Resource<out T> {
         }
 
         private fun logUnknownError() {
-            println("Error: The response body is empty or null.")
-            println("Error Code: $errorCode")
-            println("Is Network Error: $isNetworkError")
+            Log.e("ResourceError", "Error: The response body is empty or null.")
+            Log.e("ResourceError", "Error Code: $errorCode")
+            Log.e("ResourceError", "Is Network Error: $isNetworkError")
         }
 
         private fun logIOExceptionError(e: IOException) {
-            println("IOException: ${e.message}")
-            println("Error Code: $errorCode")
-            println("Is Network Error: $isNetworkError")
+            Log.e("ResourceError", "IOException: ${e.message}")
+            Log.e("ResourceError", "Error Code: $errorCode")
+            Log.e("ResourceError", "Is Network Error: $isNetworkError")
+            Log.e("ResourceError", "Error Message: $errorMessage")
         }
     }
+
 
 
     object Loading: Resource<Nothing> ()

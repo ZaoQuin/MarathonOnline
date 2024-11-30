@@ -1,6 +1,5 @@
 package com.university.marathononline.ui.view.activity
 
-import android.accounts.Account
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -12,6 +11,7 @@ import com.university.marathononline.R.string.error_field_required
 import com.university.marathononline.R.string.password_update_success
 import com.university.marathononline.R.string.resend_otp
 import com.university.marathononline.base.BaseActivity
+import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.repository.AuthRepository
@@ -21,17 +21,17 @@ import com.university.marathononline.utils.KEY_EMAIL
 import com.university.marathononline.utils.enable
 import com.university.marathononline.utils.finishAndGoBack
 import com.university.marathononline.utils.getMessage
-import com.university.marathononline.utils.handleApiError
 import com.university.marathononline.utils.isEmpty
 import com.university.marathononline.utils.startNewActivity
 import com.university.marathononline.utils.visible
+import handleApiError
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class DeleteUserAccountActivity :
-    BaseActivity<DeleteUserAccountViewModel, ActivityDeleteUserAccountBinding, AuthRepository>() {
+    BaseActivity<DeleteUserAccountViewModel, ActivityDeleteUserAccountBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleIntentExtras(intent)
@@ -117,9 +117,9 @@ class DeleteUserAccountActivity :
 
     override fun getActivityBinding(inflater: LayoutInflater) = ActivityDeleteUserAccountBinding.inflate(inflater)
 
-    override fun getActivityRepository() : AuthRepository {
+    override fun getActivityRepositories() : List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
         val api = retrofitInstance.buildApi(AuthApiService::class.java, token)
-        return AuthRepository(api, userPreferences)
+        return listOf( AuthRepository(api, userPreferences))
     }
 }

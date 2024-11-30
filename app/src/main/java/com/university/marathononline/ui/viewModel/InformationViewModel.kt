@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 class InformationViewModel(
     private val repository: AuthRepository
-): BaseViewModel(repository) {
+): BaseViewModel(listOf(repository)) {
 
     private val _user: MutableLiveData<User> = MutableLiveData()
     val user: LiveData<User> get() = _user

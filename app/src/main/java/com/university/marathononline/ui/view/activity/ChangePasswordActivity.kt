@@ -15,11 +15,12 @@ import com.university.marathononline.data.repository.UserRepository
 import com.university.marathononline.databinding.ActivityChangePasswordBinding
 import com.university.marathononline.ui.viewModel.ChangePasswordViewModel
 import com.university.marathononline.utils.*
+import handleApiError
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class ChangePasswordActivity :
-    BaseActivity<ChangePasswordViewModel, ActivityChangePasswordBinding, UserRepository>() {
+    BaseActivity<ChangePasswordViewModel, ActivityChangePasswordBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleIntentExtras(intent)
@@ -43,7 +44,7 @@ class ChangePasswordActivity :
                     else Toast.makeText(this, it.value.message, Toast.LENGTH_SHORT).show()
                 }
                 is Resource.Failure -> {
-                    it.getErrorMessage()
+                    it.fetchErrorMessage()
                     handleApiError(it)
                 }
                 else -> Unit
@@ -135,5 +136,5 @@ class ChangePasswordActivity :
 
     override fun getActivityBinding(inflater: LayoutInflater) = ActivityChangePasswordBinding.inflate(inflater)
 
-    override fun getActivityRepository() = UserRepository(retrofitInstance.buildApi(UserApiService::class.java))
+    override fun getActivityRepositories() = listOf( UserRepository(retrofitInstance.buildApi(UserApiService::class.java)))
 }

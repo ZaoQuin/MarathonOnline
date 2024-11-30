@@ -11,7 +11,7 @@ import com.university.marathononline.databinding.ActivityRoleSelectionBinding
 import com.university.marathononline.ui.viewModel.RoleSelectionViewModel
 import com.university.marathononline.utils.*
 
-class RoleSelectionActivity : BaseActivity<RoleSelectionViewModel, ActivityRoleSelectionBinding, UserRepository>() {
+class RoleSelectionActivity : BaseActivity<RoleSelectionViewModel, ActivityRoleSelectionBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initializeUI()
@@ -58,5 +58,5 @@ class RoleSelectionActivity : BaseActivity<RoleSelectionViewModel, ActivityRoleS
 
     override fun getActivityBinding(inflater: LayoutInflater) = ActivityRoleSelectionBinding.inflate(inflater)
 
-    override fun getActivityRepository() = UserRepository(retrofitInstance.buildApi(UserApiService::class.java))
+    override fun getActivityRepositories() = listOf(UserRepository(retrofitInstance.buildApi(UserApiService::class.java)))
 }

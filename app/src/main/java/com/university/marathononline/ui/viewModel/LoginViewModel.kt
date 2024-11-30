@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 
 class LoginViewModel(
     private val repository: AuthRepository
-): BaseViewModel(repository) {
+): BaseViewModel(listOf(repository)) {
     private val _loginResponse: MutableLiveData<Resource<AuthResponse>> = MutableLiveData()
     val loginResponse: LiveData<Resource<AuthResponse>> get() = _loginResponse.distinctUntilChanged()
     private val _loginInfo: MutableLiveData<LoginInfo> = MutableLiveData()

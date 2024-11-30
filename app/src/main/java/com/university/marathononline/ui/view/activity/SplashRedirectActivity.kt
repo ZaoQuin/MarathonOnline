@@ -13,7 +13,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
-class SplashRedirectActivity : BaseActivity<SplashRedirectViewModel, ActivitySplashRedirectBinding, AuthRepository>() {
+class SplashRedirectActivity : BaseActivity<SplashRedirectViewModel, ActivitySplashRedirectBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -54,6 +54,6 @@ class SplashRedirectActivity : BaseActivity<SplashRedirectViewModel, ActivitySpl
 
     override fun getActivityBinding(inflater: LayoutInflater) = ActivitySplashRedirectBinding.inflate(inflater)
 
-    override fun getActivityRepository() = AuthRepository(retrofitInstance.buildApi(AuthApiService::class.java, ""), userPreferences)
+    override fun getActivityRepositories() = listOf(AuthRepository(retrofitInstance.buildApi(AuthApiService::class.java, ""), userPreferences))
 
 }

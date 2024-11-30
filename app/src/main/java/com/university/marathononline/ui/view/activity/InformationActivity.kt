@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.lifecycle.Observer
 import com.university.marathononline.base.BaseActivity
+import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.models.User
@@ -13,13 +14,13 @@ import com.university.marathononline.ui.viewModel.InformationViewModel
 import com.university.marathononline.utils.KEY_EMAIL
 import com.university.marathononline.utils.KEY_USER
 import com.university.marathononline.utils.enable
-import com.university.marathononline.utils.handleApiError
 import com.university.marathononline.utils.startNewActivity
 import com.university.marathononline.utils.visible
+import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
-class InformationActivity : BaseActivity<InformationViewModel, ActivityInformationBinding, AuthRepository>(){
+class InformationActivity : BaseActivity<InformationViewModel, ActivityInformationBinding>(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,7 +84,7 @@ class InformationActivity : BaseActivity<InformationViewModel, ActivityInformati
                     binding.editButton.enable(true)
                     viewModel.setUser(it.value)
                 }
-                is Resource.Failure -> handleApiError(it, getActivityRepository())
+                is Resource.Failure -> handleApiError(it)
                 else -> Unit
             }
         })
@@ -109,9 +110,9 @@ class InformationActivity : BaseActivity<InformationViewModel, ActivityInformati
 
     override fun getActivityBinding(inflater: LayoutInflater) = ActivityInformationBinding.inflate(inflater)
 
-    override fun getActivityRepository(): AuthRepository {
+    override fun getActivityRepositories(): List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
         val api = retrofitInstance.buildApi(AuthApiService::class.java, token)
-        return AuthRepository(api, userPreferences)
+        return listOf(AuthRepository(api, userPreferences))
     }
 }

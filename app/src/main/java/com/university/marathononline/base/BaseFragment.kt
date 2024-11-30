@@ -16,7 +16,7 @@ import com.university.marathononline.utils.startNewActivity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-abstract class BaseFragment<VM: BaseViewModel, B: ViewBinding, R: BaseRepository>: Fragment(){
+abstract class BaseFragment<VM: BaseViewModel, B: ViewBinding>: Fragment(){
 
     protected lateinit var userPreferences: UserPreferences
     protected lateinit var binding: B
@@ -30,7 +30,7 @@ abstract class BaseFragment<VM: BaseViewModel, B: ViewBinding, R: BaseRepository
     ): View? {
         userPreferences = UserPreferences(requireContext())
         binding = getFragmentBinding(inflater, container)
-        val factory = ViewModelFactory(getFragmentRepository())
+        val factory = ViewModelFactory(getFragmentRepositories())
         viewModel = ViewModelProvider(this, factory)[getViewModel()]
 
         lifecycleScope.launch {
@@ -44,7 +44,7 @@ abstract class BaseFragment<VM: BaseViewModel, B: ViewBinding, R: BaseRepository
 
     abstract fun getFragmentBinding(inflater: LayoutInflater, container: ViewGroup?): B
 
-    abstract fun getFragmentRepository(): R
+    abstract fun getFragmentRepositories(): List<BaseRepository>
 
     fun logout() = lifecycleScope.launch {
         val authToken = userPreferences.authToken.first()

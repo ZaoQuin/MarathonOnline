@@ -14,7 +14,7 @@ import com.university.marathononline.utils.startNewActivity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-abstract class BaseActivity<VM: BaseViewModel, B: ViewBinding, R: BaseRepository>: AppCompatActivity() {
+abstract class BaseActivity<VM: BaseViewModel, B: ViewBinding>: AppCompatActivity() {
 
     protected lateinit var userPreferences: UserPreferences
     protected lateinit var binding: B
@@ -25,7 +25,7 @@ abstract class BaseActivity<VM: BaseViewModel, B: ViewBinding, R: BaseRepository
         super.onCreate(savedInstanceState)
         userPreferences = UserPreferences(this)
         binding = getActivityBinding(layoutInflater)
-        val factory = ViewModelFactory(getActivityRepository())
+        val factory = ViewModelFactory(getActivityRepositories())
         viewModel = ViewModelProvider(this, factory)[getViewModel()]
 
         lifecycleScope.launch {
@@ -39,7 +39,7 @@ abstract class BaseActivity<VM: BaseViewModel, B: ViewBinding, R: BaseRepository
 
     abstract fun getActivityBinding(inflater: LayoutInflater): B
 
-    abstract fun getActivityRepository(): R
+    abstract fun getActivityRepositories(): List<BaseRepository>
 
     fun logout() = lifecycleScope.launch {
         val authToken = userPreferences.authToken.first()

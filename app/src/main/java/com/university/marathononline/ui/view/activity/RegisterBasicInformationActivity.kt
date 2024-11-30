@@ -14,8 +14,9 @@ import com.university.marathononline.data.response.CheckEmailResponse
 import com.university.marathononline.databinding.ActivityRegisterBasicInformationBinding
 import com.university.marathononline.ui.viewModel.RegisterBasicInformationViewModel
 import com.university.marathononline.utils.*
+import handleApiError
 
-class RegisterBasicInformationActivity : BaseActivity<RegisterBasicInformationViewModel, ActivityRegisterBasicInformationBinding, UserRepository>() {
+class RegisterBasicInformationActivity : BaseActivity<RegisterBasicInformationViewModel, ActivityRegisterBasicInformationBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,5 +115,5 @@ class RegisterBasicInformationActivity : BaseActivity<RegisterBasicInformationVi
 
     override fun getActivityBinding(inflater: LayoutInflater) = ActivityRegisterBasicInformationBinding.inflate(inflater)
 
-    override fun getActivityRepository() = UserRepository(retrofitInstance.buildApi(UserApiService::class.java))
+    override fun getActivityRepositories() = listOf( UserRepository(retrofitInstance.buildApi(UserApiService::class.java)) )
 }
