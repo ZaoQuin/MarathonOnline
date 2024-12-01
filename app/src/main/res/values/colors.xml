@@ -17,5 +17,9 @@
     <color name="main_color">#70c404</color>
     <color name="light_main_color">#b0dba6</color>
     <color name="dark_main_color">#446f21</color>
+    <color name="gray">#7E7E7E</color>
+    <color name="light_gray">#ededed</color>
+    <color name="red">#FF0000</color>
+    <color name="light_red">#FF4C40</color>
 
 </resources>

@@ -5,12 +5,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.university.marathononline.databinding.ItemLeaderBoardBinding
-import com.university.marathononline.data.models.EventHistory
-import com.university.marathononline.data.models.User
+import com.university.marathononline.data.models.ContestHistory
 
-class LeaderBoardAdapter (private val eventHistories: List<EventHistory>, private val users: List<User>) : RecyclerView.Adapter<LeaderBoardAdapter.ViewHolder>(){
-
-    private val userMap = users.associateBy { it.id }
+class LeaderBoardAdapter (private val eventHistories: List<ContestHistory>) : RecyclerView.Adapter<LeaderBoardAdapter.ViewHolder>(){
 
     class ViewHolder(private val binding: ItemLeaderBoardBinding): RecyclerView.ViewHolder(binding.root) {
         @SuppressLint("SetTextI18n")
@@ -30,9 +27,9 @@ class LeaderBoardAdapter (private val eventHistories: List<EventHistory>, privat
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val eventHistory = eventHistories[position]
-        val user = userMap[eventHistory.userId]
+        val user = eventHistory.user
         val distance = eventHistory.raceResults.sumOf { it.distance.toDouble() } ?: 0.0
 
-        holder.bind(distance, user?.fullName ?: "Unknown", position)
+        holder.bind(distance, user.fullName ?: "Unknown", position)
     }
 }

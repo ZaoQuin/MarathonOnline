@@ -19,8 +19,8 @@ import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.contest.ContestApiService
 import com.university.marathononline.databinding.FragmentHomeBinding
 import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.ui.adapter.ContestAdapter
 import com.university.marathononline.ui.viewModel.HomeViewModel
-import com.university.marathononline.ui.adapter.EventAdapter
 import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -28,7 +28,7 @@ import kotlin.math.abs
 
 class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
 
-    private lateinit var adapter: EventAdapter
+    private lateinit var adapter: ContestAdapter
     private val handler = Handler(Looper.getMainLooper())
     private var currentPage = 0
 
@@ -58,7 +58,7 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
     }
 
     private fun setupAdapter() {
-        adapter = EventAdapter(emptyList())
+        adapter = ContestAdapter(emptyList())
         binding.viewPager2.adapter = adapter
     }
 
