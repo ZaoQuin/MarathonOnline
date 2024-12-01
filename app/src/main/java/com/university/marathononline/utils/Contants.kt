@@ -10,6 +10,7 @@ const val SENDER_PASS="jlhtwexvmcmmpart"
 const val KEY_ALIAS = "MyAppKeyAlias"
 
 const val KEY_USER = "user"
+const val KEY_CONTEST = "contest"
 
 const val KEY_ROLE = "role"
 const val KEY_FULL_NAME = "fullName"

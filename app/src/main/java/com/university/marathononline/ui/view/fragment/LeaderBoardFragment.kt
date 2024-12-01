@@ -40,8 +40,8 @@ class LeaderBoardFragment : Fragment() {
 
     private fun observe() {
         viewModel.eventHistories.observe(viewLifecycleOwner, Observer { eventHistories ->
-            viewModel.users.observe(viewLifecycleOwner, Observer { users ->
-                adapter = LeaderBoardAdapter(eventHistories, users)
+            viewModel.users.observe(viewLifecycleOwner, Observer {
+                adapter = LeaderBoardAdapter(eventHistories)
                 binding.leaderBoards.adapter = adapter
             })
         })

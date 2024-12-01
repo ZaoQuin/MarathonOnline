@@ -1,27 +1,31 @@
 package com.university.marathononline.ui.adapter
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.university.marathononline.ui.view.activity.ContestDetailsActivity
 import com.university.marathononline.databinding.ItemContestBinding
 import com.university.marathononline.data.models.Contest
+import com.university.marathononline.utils.KEY_CONTEST
+import com.university.marathononline.utils.startNewActivity
 
 class ContestAdapter (private var contests: List<Contest>): RecyclerView.Adapter<ContestAdapter.ViewHolder>(){
     class ViewHolder(private val binding: ItemContestBinding): RecyclerView.ViewHolder(binding.root){
 
         fun bind(item: Contest){
-            binding.raceNameTextView.text = item.name
-            binding.raceStartDateTextView.text = item.startDate
-            binding.raceEndDateTextView.text = item.endDate
-            binding.countMembersText.text = "0"
-            binding.registrationFee.text = item.fee.toString()
+            binding.apply {
+                raceNameTextView.text = item.name
+                raceStartDateTextView.text = item.startDate
+                raceEndDateTextView.text = item.endDate
+                countMembersText.text = "0"
+                registrationFee.text = item.fee.toString()
 
-            binding.contestCardView.setOnClickListener {
-                val intent = Intent(binding.root.context, ContestDetailsActivity::class.java)
-                binding.root.context.startActivity(intent)
+                contestCardView.setOnClickListener{
+                    it.context.startNewActivity(ContestDetailsActivity::class.java,
+                        mapOf( KEY_CONTEST to item)
+                        )
+                }
             }
         }
     }

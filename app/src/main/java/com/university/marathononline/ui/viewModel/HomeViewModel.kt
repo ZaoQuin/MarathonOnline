@@ -20,12 +20,7 @@ class HomeViewModel(
     fun getActiveContests(){
         viewModelScope.launch {
             _contests.value = Resource.Loading
-            try {
-                _contests.value = repository.getHomeContests()
-                Log.d("HomeViewModel", "Successfully fetched home contests: ${_contests.value}")
-            } catch (e: Exception) {
-                Log.e("HomeViewModel", "Error fetching home contests", e)
-            }
+            _contests.value = repository.getHomeContests()
         }
     }
 }

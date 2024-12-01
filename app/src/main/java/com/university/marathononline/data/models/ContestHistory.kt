@@ -2,9 +2,9 @@ package com.university.marathononline.data.models
 
 import java.io.Serializable
 
-data class EventHistory(
+data class ContestHistory(
     val id: Long,
-    val userId: Long,
-    val eventId: Long,
+    val user: User,
+    val contest: Contest,
     val raceResults: List<RaceResult>
 ): Serializable

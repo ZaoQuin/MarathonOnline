@@ -1,27 +1,135 @@
 package com.university.marathononline.ui.view.activity
 
+import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.LayoutInflater
 import android.view.View
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
+import com.university.marathononline.base.BaseActivity
+import com.university.marathononline.base.BaseRepository
+import com.university.marathononline.data.api.contest.ContestApiService
+import com.university.marathononline.data.models.Contest
+import com.university.marathononline.data.models.EContestStatus
+import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.ui.viewModel.ContestDetailsViewModel
 import com.university.marathononline.databinding.ActivityContestDetailsBinding
+import com.university.marathononline.ui.adapter.RewardAdapter
+import com.university.marathononline.ui.adapter.RuleAdapter
+import com.university.marathononline.utils.KEY_CONTEST
+import com.university.marathononline.utils.visible
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
-class ContestDetailsActivity : AppCompatActivity() {
+class ContestDetailsActivity :
+    BaseActivity<ContestDetailsViewModel, ActivityContestDetailsBinding>() {
 
-    private lateinit var binding: ActivityContestDetailsBinding
-    private val viewModel: ContestDetailsViewModel by viewModels()
+    private lateinit var ruleAdapter: RuleAdapter
+    private lateinit var rewardAdapter: RewardAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        handleIntentExtras(intent)
 
-        binding = ActivityContestDetailsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        initializeUI()
+        setRuleAdapter()
+        setRewardAdapter()
+        setUpObserve()
+    }
 
+    private fun setUpObserve() {
+        viewModel.rules.observe(this) {
+            ruleAdapter.updateData(it)
+        }
+        viewModel.rewardGroup.observe(this) {
+            rewardAdapter.updateData(it)
+        }
+        viewModel.deadlineTime.observe(this) {
+            viewModel.startCountdown()
+        }
+        viewModel.remainingTime.observe(this) { time ->
+            val timeParts = time.split(":")
+            binding.apply {
+                daysTextView.text = timeParts[0]
+                hoursTextView.text = timeParts[1]
+                minutesTextView.text = timeParts[2]
+                secondsTextView.text = timeParts[3]
+            }
+        }
+    }
+
+    private fun setRewardAdapter() {
+        binding.rewards.layoutManager = LinearLayoutManager(this)
+        rewardAdapter = RewardAdapter(emptyList())
+        binding.rewards.adapter = rewardAdapter
+    }
+
+    private fun setRuleAdapter() {
+        binding.rules.layoutManager = LinearLayoutManager(this)
+        ruleAdapter = RuleAdapter(emptyList())
+        binding.rules.adapter = ruleAdapter
+    }
+
+    private fun initializeUI() {
+        setUpData()
         setUpTabLayout()
         setUpScrollView()
         setUpBackButton()
+
+        binding.apply {
+            btnRegisterContest.setOnClickListener {
+
+            }
+        }
+    }
+
+    private fun setUpData() {
+        viewModel.contest.value?.let {
+            binding.apply {
+                contestName.text = it.name
+                startDate.text = it.startDate
+                endDate.text = it.endDate
+                contentDetails.text = it.description
+                feeRegister.text = it.fee.toString()
+                organizationalName.text = it.organizer?.fullName
+                emailOrganizer.text = it.organizer?.email
+                sectionLeaderBoard.visible(it.status != EContestStatus.PENDING)
+            }
+        }
+    }
+
+    private fun handleIntentExtras(intent: Intent) {
+        intent.apply {
+            viewModel.apply {
+                (getSerializableExtra(KEY_CONTEST) as? Contest)?.let {
+                    setContest(it)
+                    it.rules?.let { it1 ->
+                        setRules(it1)
+                    }
+                    it.rewards?.let { it1 ->
+                        setRewardGroups(it1)
+                    }
+                    it.registrationDeadline?.let { it2 ->
+                        setDeadlineTime(it2)
+                    }
+                }
+            }
+        }
+    }
+
+    override fun getViewModel() = ContestDetailsViewModel::class.java
+
+    override fun getActivityBinding(inflater: LayoutInflater) =
+        ActivityContestDetailsBinding.inflate(inflater)
+
+    override fun getActivityRepositories(): List<BaseRepository> {
+        val token = runBlocking { userPreferences.authToken.first() }
+        val api = retrofitInstance.buildApi(ContestApiService::class.java, token)
+        return listOf(
+            ContestRepository(api)
+        )
     }
 
     private fun setUpBackButton() {
@@ -30,51 +138,103 @@ class ContestDetailsActivity : AppCompatActivity() {
         }
     }
 
+
+    var isTabSelected = false
+
     private fun setUpScrollView() {
         binding.scrollView.viewTreeObserver.addOnScrollChangedListener {
-            val scrollY = binding.scrollView.scrollY
-            val sectionDetailsTop = getTopRelativeToParent(binding.sectionDetails)
-            val rewardsTop = getTopRelativeToParent(binding.sectionRewards)
-            val regulationsTop = getTopRelativeToParent(binding.sectionRegulations)
-            val organizationalTop = getTopRelativeToParent(binding.sectionOrganizational)
+            if (!isTabSelected) {
+                binding.apply {
+                    val scrollY = scrollView.scrollY
+                    val sectionDetailsTop = getTopRelativeToParent(sectionDetails)
+                    val deadlineTop = getTopRelativeToParent(sectionDeadline)
+                    val rewardsTop = getTopRelativeToParent(sectionRewards)
+                    val rulesTop = getTopRelativeToParent(sectionRules)
+                    val organizationalTop = getTopRelativeToParent(sectionOrganizational)
+                    val sectionLeaderBoardTop = getTopRelativeToParent(sectionLeaderBoard)
 
-            when {
-                scrollY >= organizationalTop -> {
-                    viewModel.selectTab(3)
-                }
-                scrollY >= regulationsTop -> {
-                    viewModel.selectTab(2)
-                }
-                scrollY >= rewardsTop -> {
-                    viewModel.selectTab(1)
-                }
-                scrollY >= sectionDetailsTop -> {
-                    viewModel.selectTab(0)
+                    when {
+                        scrollY >= organizationalTop -> {
+                            tabLayout.selectTab(tabLayout.getTabAt(5))
+                            tabLayout.visible(true)
+                        }
+
+                        scrollY >= sectionLeaderBoardTop -> {
+                            tabLayout.selectTab(tabLayout.getTabAt(4))
+                            tabLayout.visible(true)
+                        }
+
+                        scrollY >= rulesTop -> {
+                            tabLayout.selectTab(tabLayout.getTabAt(3))
+                            tabLayout.visible(true)
+                        }
+
+                        scrollY >= rewardsTop -> {
+                            tabLayout.selectTab(tabLayout.getTabAt(2))
+                            tabLayout.visible(true)
+                        }
+
+                        scrollY >= deadlineTop -> {
+                            tabLayout.selectTab(tabLayout.getTabAt(1))
+                            tabLayout.visible(true)
+                        }
+
+                        scrollY >= sectionDetailsTop -> {
+                            tabLayout.selectTab(tabLayout.getTabAt(0))
+                            tabLayout.visible(true)
+                        }
+
+                        else -> {
+                            tabLayout.visible(false)
+                        }
+                    }
                 }
             }
         }
     }
 
     private fun getTopRelativeToParent(view: View): Int {
-        val location = IntArray(2)
-        view.getLocationOnScreen(location)
-        return location[1] - binding.scrollView.top
+        var offset = 0
+        var v: View? = view
+        while (v != null && v != binding.scrollView) {
+            offset += v.top
+            v = v.parent as? View
+        }
+        return offset
     }
 
     private fun setUpTabLayout() {
-        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                viewModel.selectTab(tab?.position ?: 0)
-                when (tab?.position) {
-                    0 -> binding.scrollView.smoothScrollTo(0, binding.sectionDetails.top)
-                    1 -> binding.scrollView.smoothScrollTo(0, binding.sectionRewards.top)
-                    2 -> binding.scrollView.smoothScrollTo(0, binding.sectionRegulations.top)
-                    3 -> binding.scrollView.smoothScrollTo(0, binding.sectionOrganizational.top)
-                }
-            }
+        binding.apply {
+            tabLayout.visible(false)
+            tabLayout.addTab(tabLayout.newTab().setText(sectionDetailsTitle.text))
+            tabLayout.addTab(tabLayout.newTab().setText(sectionDeadlineTitle.text))
+            tabLayout.addTab(tabLayout.newTab().setText(sectionRewardsTitle.text))
+            tabLayout.addTab(tabLayout.newTab().setText(sectionRulesTitle.text))
+            tabLayout.addTab(tabLayout.newTab().setText(sectionLeaderBoardTitle.text))
+            tabLayout.addTab(tabLayout.newTab().setText(sectionOrganizationalTitle.text))
 
-            override fun onTabUnselected(tab: TabLayout.Tab?) {}
-            override fun onTabReselected(tab: TabLayout.Tab?) {}
-        })
+            tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab?) {
+                    isTabSelected = true
+                    when (tab?.position) {
+                        0 -> scrollView.smoothScrollTo(0, sectionDetails.top)
+                        1 -> scrollView.smoothScrollTo(0, sectionDeadline.top)
+                        2 -> scrollView.smoothScrollTo(0, sectionRewards.top)
+                        3 -> scrollView.smoothScrollTo(0, sectionRules.top)
+                        4 -> scrollView.smoothScrollTo(0, sectionLeaderBoard.top)
+                        5 -> scrollView.smoothScrollTo(0, sectionOrganizational.top)
+                    }
+
+                    handler.postDelayed({
+                        isTabSelected = false
+                    }, 500)
+                }
+
+                override fun onTabUnselected(tab: TabLayout.Tab?) {}
+                override fun onTabReselected(tab: TabLayout.Tab?) {}
+            })
+        }
     }
+
+    private val handler = Handler(Looper.getMainLooper())
 }
