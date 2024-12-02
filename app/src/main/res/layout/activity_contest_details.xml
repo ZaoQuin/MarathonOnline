@@ -355,12 +355,13 @@
                             android:layout_height="wrap_content"
                             android:orientation="vertical">
 
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/rewards"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content" />
                         </LinearLayout>
                     </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rewards"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
 
                     <LinearLayout
                         android:id="@+id/section_rules"

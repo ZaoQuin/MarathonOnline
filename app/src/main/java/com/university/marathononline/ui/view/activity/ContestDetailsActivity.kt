@@ -13,12 +13,14 @@ import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.contest.ContestApiService
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.EContestStatus
+import com.university.marathononline.data.models.Payment
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.ui.viewModel.ContestDetailsViewModel
 import com.university.marathononline.databinding.ActivityContestDetailsBinding
 import com.university.marathononline.ui.adapter.RewardAdapter
 import com.university.marathononline.ui.adapter.RuleAdapter
 import com.university.marathononline.utils.KEY_CONTEST
+import com.university.marathononline.utils.startNewActivity
 import com.university.marathononline.utils.visible
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -80,7 +82,11 @@ class ContestDetailsActivity :
 
         binding.apply {
             btnRegisterContest.setOnClickListener {
-
+                viewModel.contest.value?.let {
+                    startNewActivity(PaymentConfirmationActivity::class.java,
+                        mapOf( KEY_CONTEST to it)
+                    )
+                }
             }
         }
     }
