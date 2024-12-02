@@ -9,7 +9,7 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 object RetrofitInstance {
-    private const val BASE_URL = "http://192.168.1.165:8080"
+    private const val BASE_URL = "http://172.168.98.166:8080"
 
     fun <Api> buildApi(
         api: Class <Api>,

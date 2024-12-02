@@ -88,4 +88,7 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.0.0-alpha01")
 
     implementation("com.github.1902shubh:SendMail:1.0.0")
+
+    // MOMO
+    implementation ("com.github.momo-wallet:mobile-sdk:1.0.7")
 }

@@ -1,0 +1,355 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <!-- Declare any necessary variables here -->
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/light_main_color">
+
+        <!-- Toolbar Section -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:background="@color/white"
+            android:elevation="4dp">
+
+            <ImageButton
+                android:id="@+id/button_back"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_left"
+                android:contentDescription="Back Button"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Xác nhận thông tin"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toEndOf="@id/button_back"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Content Section -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="16dp"
+            android:background="@color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:showDividers="middle">
+
+                <!-- User Information Section -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardElevation="4dp"
+                    app:cardCornerRadius="8dp"
+                    android:layout_marginBottom="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <!-- Full Name -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="Tên:"
+                                android:textSize="16sp"
+                                android:textColor="@color/dark_main_color"
+                                android:layout_weight="1"
+                                android:gravity="start" />
+
+                            <TextView
+                                android:id="@+id/tvFullName"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="Nguyễn Văn A"
+                                android:textSize="16sp"
+                                android:textColor="@color/dark_main_color"
+                                android:layout_weight="2"
+                                android:gravity="end" />
+                        </LinearLayout>
+
+                        <!-- Gender -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="Giới tính:"
+                                android:textSize="16sp"
+                                android:textColor="@color/dark_main_color"
+                                android:layout_weight="1"
+                                android:gravity="start" />
+
+                            <TextView
+                                android:id="@+id/tvUserGender"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="Nam"
+                                android:textSize="16sp"
+                                android:textColor="@color/dark_main_color"
+                                android:layout_weight="2"
+                                android:gravity="end" />
+                        </LinearLayout>
+
+                        <!-- Address -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="Địa chỉ:"
+                                android:textSize="16sp"
+                                android:textColor="@color/dark_main_color"
+                                android:layout_weight="1"
+                                android:gravity="start" />
+
+                            <TextView
+                                android:id="@+id/tvUserAddress"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="Hà Nội"
+                                android:textSize="16sp"
+                                android:textColor="@color/dark_main_color"
+                                android:layout_weight="2"
+                                android:gravity="end" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Contest Information Section -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardElevation="4dp"
+                    app:cardCornerRadius="8dp"
+                    android:layout_marginBottom="@dimen/_10sdp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <!-- Contest Name -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="Cuộc thi:"
+                                android:textSize="18sp"
+                                android:textColor="@color/main_color"
+                                android:layout_weight="1"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvContestName"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="Marathon 42km"
+                                android:textSize="18sp"
+                                android:textColor="@color/main_color"
+                                android:layout_weight="2"
+                                android:textStyle="bold"
+                                android:gravity="end" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="Nhà tổ chức:"
+                                android:textSize="16sp"
+                                android:textColor="@color/dark_main_color"
+                                android:layout_weight="1"
+                                android:gravity="start" />
+
+                            <TextView
+                                android:id="@+id/tvtOrganizerName"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="Nhà tổ chức"
+                                android:textSize="16sp"
+                                android:textColor="@color/dark_main_color"
+                                android:layout_weight="2"
+                                android:gravity="end" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:textSize="16sp"
+                                android:textColor="@color/dark_main_color"
+                                android:layout_weight="1"
+                                android:gravity="start" />
+
+                            <TextView
+                                android:id="@+id/tvtOrganizerUsername"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="'@'username"
+                                android:textSize="16sp"
+                                android:textColor="@color/dark_main_color"
+                                android:layout_weight="2"
+                                android:gravity="end" />
+                        </LinearLayout>
+
+                        <!-- Contest Distance -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="Khoảng cách:"
+                                android:textSize="16sp"
+                                android:textColor="@color/dark_main_color"
+                                android:layout_weight="1"
+                                android:gravity="start" />
+
+                            <TextView
+                                android:id="@+id/tvContestDistance"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="42 km"
+                                android:textSize="16sp"
+                                android:textColor="@color/dark_main_color"
+                                android:layout_weight="2"
+                                android:gravity="end" />
+                        </LinearLayout>
+
+                        <!-- Contest Fee -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="Phí tham gia:"
+                                android:textSize="16sp"
+                                android:textColor="@color/dark_main_color"
+                                android:layout_weight="1"
+                                android:gravity="start" />
+
+                            <TextView
+                                android:id="@+id/tvContestFee"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="500.000 VNĐ"
+                                android:textSize="16sp"
+                                android:textColor="@color/dark_main_color"
+                                android:layout_weight="2"
+                                android:gravity="end" />
+                        </LinearLayout>
+
+                        <!-- Contest Date -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="Ngày Đăng Ký:"
+                                android:textSize="16sp"
+                                android:textColor="@color/dark_main_color"
+                                android:layout_weight="1"
+                                android:gravity="start" />
+
+                            <TextView
+                                android:id="@+id/tvRegisterDate"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="12/12/2024"
+                                android:textSize="16sp"
+                                android:textColor="@color/dark_main_color"
+                                android:layout_weight="2"
+                                android:gravity="end" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+        </ScrollView>
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_75sdp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/white"
+            android:paddingStart="@dimen/_10sdp"
+            android:paddingEnd="@dimen/_10sdp">
+
+                <Button
+                    android:id="@+id/btnPayment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@drawable/btn_radius"
+                    android:text="Xác nhận thanh toán"
+                    android:textColor="@color/white" />
+
+        </com.google.android.material.bottomnavigation.BottomNavigationView>
+
+    </LinearLayout>
+</layout>

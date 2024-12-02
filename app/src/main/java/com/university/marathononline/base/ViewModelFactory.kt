@@ -18,6 +18,7 @@ import com.university.marathononline.ui.viewModel.InformationViewModel
 import com.university.marathononline.ui.viewModel.LoginViewModel
 import com.university.marathononline.ui.viewModel.VerifyOTPViewModel
 import com.university.marathononline.ui.viewModel.HomeViewModel
+import com.university.marathononline.ui.viewModel.PaymentConfirmationViewModel
 import com.university.marathononline.ui.viewModel.RecordViewModel
 import com.university.marathononline.ui.viewModel.RegisterBasicInformationViewModel
 import com.university.marathononline.ui.viewModel.RegisterViewModel
@@ -51,6 +52,7 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(RecordViewModel::class.java) -> RecordViewModel(findRepository(RegistrationRepository::class.java),
                                                                                         findRepository(RaceRepository::class.java)) as T
             modelClass.isAssignableFrom(ContestDetailsViewModel::class.java) -> ContestDetailsViewModel(findRepository(ContestRepository::class.java)) as T
+            modelClass.isAssignableFrom(PaymentConfirmationViewModel::class.java) -> PaymentConfirmationViewModel(findRepository(AuthRepository::class.java)) as T
             else -> throw IllegalArgumentException("ViewModelClass Not Found")
         }
     }
