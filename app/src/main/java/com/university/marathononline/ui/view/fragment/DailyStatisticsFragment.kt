@@ -1,73 +1,95 @@
 package com.university.marathononline.ui.view.fragment
 
-import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.highlight.Highlight
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.university.marathononline.R
-import com.university.marathononline.data.models.User
+import com.university.marathononline.base.BaseFragment
+import com.university.marathononline.base.BaseRepository
+import com.university.marathononline.data.api.race.RaceApiService
+import com.university.marathononline.data.models.Race
 import com.university.marathononline.databinding.FragmentDailyStatisticsBinding
 import com.university.marathononline.ui.viewModel.DailyStatisticsViewModel
 import com.university.marathononline.ui.components.DatePickerBottomSheetFragment
 import com.university.marathononline.utils.DateUtils
-import java.io.Serializable
-import java.text.SimpleDateFormat
+import com.university.marathononline.data.repository.RaceRepository
+import com.university.marathononline.utils.KEY_RACES
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import java.util.Date
-import java.util.Locale
 
-class DailyStatisticsFragment : Fragment() {
+class DailyStatisticsFragment : BaseFragment<DailyStatisticsViewModel, FragmentDailyStatisticsBinding>() {
 
-    private lateinit var binding: FragmentDailyStatisticsBinding
-    private val viewModel: DailyStatisticsViewModel by activityViewModels()
+    override fun getViewModel(): Class<DailyStatisticsViewModel> = DailyStatisticsViewModel::class.java
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun getFragmentBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentDailyStatisticsBinding {
+        return FragmentDailyStatisticsBinding.inflate(inflater, container, false)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentDailyStatisticsBinding.inflate(inflater, container, false)
+    override fun getFragmentRepositories():  List<BaseRepository> {
+        val token = runBlocking { userPreferences.authToken.first() }
+        val api = retrofitInstance.buildApi(RaceApiService::class.java, token)
+        return listOf(RaceRepository(api))
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        (arguments?.getSerializable(KEY_RACES) as? List<Race>)?.let { viewModel.setRaces(it) }
 
         initUI()
+        observeViewModel()
+    }
 
-        return binding.root
+    private fun observeViewModel() {
+        viewModel.races.observe(viewLifecycleOwner){
+            viewModel.filterDataByDay(Date())
+        }
+
+        viewModel.distance.observe(viewLifecycleOwner){
+            binding.tvDistance.text = viewModel.distance.value.toString()
+        }
+
+        viewModel.timeTaken.observe(viewLifecycleOwner){
+            binding.tvTime.text = viewModel.timeTaken.value.toString()
+        }
+
+        viewModel.avgSpeed.observe(viewLifecycleOwner){
+            binding.tvSpeed.text = viewModel.avgSpeed.value.toString()
+        }
+
+        viewModel.steps.observe(viewLifecycleOwner){
+            binding.tvSteps.text = viewModel.steps.value.toString()
+        }
+
+        viewModel.dataLineChart.observe(viewLifecycleOwner){
+            viewModel.dataLineChart.value?.let { it1 ->
+                setUpLineChart(it1)
+                Log.d("DailyStatisticsFragment", it1.toString())
+            }
+        }
     }
 
     private fun initUI() {
         binding.filterText.text = DateUtils.getCurrentDate()
         binding.filterButton.setOnClickListener { showDatePickerBottomSheet() }
-
-        setUpLineChart()
     }
 
-    private fun setUpLineChart() {
+    private fun setUpLineChart(races: List<Race>) {
         binding.apply {
-            // Configure X and Y axes for the Line Chart
             val xAxis = lineChart.xAxis
             val leftAxis = lineChart.axisLeft
             val rightAxis = lineChart.axisRight
 
             xAxis.apply {
                 position = XAxis.XAxisPosition.BOTTOM
-                setLabelCount(3, true)  // Three time blocks: Morning, Afternoon, Evening
+                setLabelCount(3, true)
                 textColor = ContextCompat.getColor(requireContext(), R.color.text_color)
                 gridColor = ContextCompat.getColor(requireContext(), R.color.light_gray)
                 axisLineColor = ContextCompat.getColor(requireContext(), R.color.dark_main_color)
@@ -77,18 +99,27 @@ class DailyStatisticsFragment : Fragment() {
                 textColor = ContextCompat.getColor(requireContext(), R.color.text_color)
                 gridColor = ContextCompat.getColor(requireContext(), R.color.light_gray)
                 axisLineColor = ContextCompat.getColor(requireContext(), R.color.dark_main_color)
+                axisMinimum = 0f
             }
 
             rightAxis.isEnabled = false
 
-            // Prepare data for line chart with morning, afternoon, evening time blocks
-            val entries = ArrayList<Entry>()
-            // Example: Adding dummy data for each time block
-            entries.add(Entry(0f, 2f)) // Morning
-            entries.add(Entry(1f, 3f)) // Afternoon
-            entries.add(Entry(2f, 1f)) // Evening
+            val hourlyDistances = mutableMapOf<Int, Double>()
 
-            val dataSet = LineDataSet(entries, "Lượt chạy")
+            races.forEach { race ->
+                val raceTime = DateUtils.convertStringToLocalDateTime(race.timestamp)
+                val hour = raceTime.hour
+
+                hourlyDistances[hour] = hourlyDistances.getOrDefault(hour, 0.0) + race.distance
+            }
+
+            val entries = ArrayList<Entry>()
+            for (hour in 0..23) {
+                val distance = hourlyDistances.getOrDefault(hour, 0.0)
+                entries.add(Entry(hour.toFloat(), distance.toFloat()))
+            }
+
+            val dataSet = LineDataSet(entries, "Quãng đường chạy trong ngày")
             dataSet.apply {
                 color = ContextCompat.getColor(requireContext(), R.color.main_color)
                 lineWidth = 2f
@@ -100,11 +131,9 @@ class DailyStatisticsFragment : Fragment() {
                 mode = LineDataSet.Mode.CUBIC_BEZIER
             }
 
-            // Set the data for the line chart
             val lineData = LineData(dataSet)
             lineChart.data = lineData
 
-            // Update the chart's appearance
             lineChart.apply {
                 setDrawGridBackground(false)
                 description.isEnabled = false
@@ -119,10 +148,11 @@ class DailyStatisticsFragment : Fragment() {
     }
 
 
+
     private fun showDatePickerBottomSheet() {
         val bottomSheet = DatePickerBottomSheetFragment() { day ->
             binding.filterText.text = DateUtils.getFormattedDate(day)
-            viewModel.filterDataByWeek(day)
+            viewModel.filterDataByDay(day)
         }
 
         bottomSheet.show(parentFragmentManager, bottomSheet.tag)

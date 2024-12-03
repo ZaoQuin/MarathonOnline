@@ -1,67 +1,107 @@
 package com.university.marathononline.ui.view.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.university.marathononline.R
 import com.university.marathononline.databinding.FragmentYearlyStatisticsBinding
-import com.university.marathononline.ui.viewModel.MonthlyStatisticsViewModel
+import com.university.marathononline.ui.viewModel.YearlyStatisticsViewModel
 import com.university.marathononline.utils.DateUtils
+import com.university.marathononline.base.BaseFragment
+import com.university.marathononline.base.BaseRepository
+import com.university.marathononline.data.api.race.RaceApiService
+import com.university.marathononline.data.models.Race
+import com.university.marathononline.data.repository.RaceRepository
+import com.university.marathononline.utils.KEY_RACES
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import java.time.LocalDate
 import java.util.Calendar
+import java.util.Date
 
-class YearlyStatisticsFragment : Fragment() {
+class YearlyStatisticsFragment : BaseFragment<YearlyStatisticsViewModel, FragmentYearlyStatisticsBinding>() {
 
-    private lateinit var binding: FragmentYearlyStatisticsBinding
-    private val viewModel: MonthlyStatisticsViewModel by activityViewModels()
+    override fun getViewModel(): Class<YearlyStatisticsViewModel> = YearlyStatisticsViewModel::class.java
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun getFragmentBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentYearlyStatisticsBinding {
+        return FragmentYearlyStatisticsBinding.inflate(inflater, container, false)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentYearlyStatisticsBinding.inflate(inflater, container, false)
-        return binding.root
+    override fun getFragmentRepositories():  List<BaseRepository> {
+        val token = runBlocking { userPreferences.authToken.first() }
+        val api = retrofitInstance.buildApi(RaceApiService::class.java, token)
+        return listOf(RaceRepository(api))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        (arguments?.getSerializable(KEY_RACES) as? List<Race>)?.let { viewModel.setRaces(it) }
 
         initUI()
+        observeViewModel()
+    }
+
+    private fun observeViewModel() {
+        viewModel.races.observe(viewLifecycleOwner){
+            val current = DateUtils.convertDateToLocalDate(Date())
+            viewModel.filterDataByYear(current.year)
+        }
+
+        viewModel.distance.observe(viewLifecycleOwner){
+            binding.tvDistance.text = viewModel.distance.value.toString()
+        }
+
+        viewModel.timeTaken.observe(viewLifecycleOwner){
+            binding.tvTime.text = viewModel.timeTaken.value.toString()
+        }
+
+        viewModel.avgSpeed.observe(viewLifecycleOwner){
+            binding.tvSpeed.text = viewModel.avgSpeed.value.toString()
+        }
+
+        viewModel.steps.observe(viewLifecycleOwner){
+            binding.tvSteps.text = viewModel.steps.value.toString()
+        }
+
+        viewModel.dataLineChart.observe(viewLifecycleOwner){
+            viewModel.dataLineChart.value?.let { it1 ->
+                Log.d("YearlyStatisticsFragment", it1.toString())
+                setUpLineChart(it1)
+            }
+        }
     }
 
     private fun initUI() {
         val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-
         binding.filterText.text = DateUtils.getFormattedYear(currentYear)
 
         binding.filterButton.setOnClickListener {
             showYearPickerBottomSheet()
         }
+
     }
 
-    private fun setUpLineChart() {
+    private fun setUpLineChart(race: Map<String, String>) {
         binding.apply {
-        // Configure the X and Y axes for the LineChart
+            val lineChart = binding.lineChart
+
             val xAxis = lineChart.xAxis
             val leftAxis = lineChart.axisLeft
             val rightAxis = lineChart.axisRight
 
-            // Configure X-axis (months of the year)
             xAxis.apply {
                 position = com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTTOM
-                setLabelCount(12, true)  // Labeling each month
+                setLabelCount(12, true)
                 textColor = ContextCompat.getColor(requireContext(), R.color.text_color)
                 gridColor = ContextCompat.getColor(requireContext(), R.color.light_gray)
                 axisLineColor = ContextCompat.getColor(requireContext(), R.color.dark_main_color)
@@ -69,100 +109,61 @@ class YearlyStatisticsFragment : Fragment() {
                 isGranularityEnabled = true
             }
 
-            // Configure Y-axis
             leftAxis.apply {
                 textColor = ContextCompat.getColor(requireContext(), R.color.text_color)
                 gridColor = ContextCompat.getColor(requireContext(), R.color.light_gray)
                 axisLineColor = ContextCompat.getColor(requireContext(), R.color.dark_main_color)
+                axisMinimum = 0f
             }
 
-            rightAxis.isEnabled = false  // Disable right Y-axis
+            rightAxis.isEnabled = false
 
-            // Prepare the data entries for the months
             val entries = ArrayList<Entry>()
-            for (i in 1..12) {
-                val month = i  // Month number (1 to 12)
-                val value = getDataForMonth(month) // Get the data for each month (implement the logic here)
 
-                // Add data for the month
-                entries.add(Entry(month.toFloat(), value.toFloat()))
+            // Gắn các giá trị vào các tháng
+            for (month in 1..12) {
+                // Kiểm tra nếu có giá trị cho tháng này trong `race`
+                val distance = race["2024-${month.toString().padStart(2, '0')}"]?.toFloat() ?: 0f
+                entries.add(Entry(month.toFloat(), distance))
             }
 
-            // Create the LineDataSet for the LineChart
+            // Tạo dataset
             val dataSet = LineDataSet(entries, "Quá trình chạy hàng tháng")
             dataSet.apply {
-                color = ContextCompat.getColor(requireContext(), R.color.main_color) // Line color
+                color = ContextCompat.getColor(requireContext(), R.color.main_color)
                 lineWidth = 2f
-                setCircleColor(ContextCompat.getColor(requireContext(), R.color.light_main_color)) // Circle color
+                setCircleColor(ContextCompat.getColor(requireContext(), R.color.light_main_color))
                 circleRadius = 5f
-                setDrawFilled(true)  // Enable filling under the line
-                fillColor = ContextCompat.getColor(requireContext(), R.color.light_main_color) // Fill color
-                fillAlpha = 80  // Transparency for fill
-                mode = LineDataSet.Mode.CUBIC_BEZIER  // Smooth cubic bezier curve
+                setDrawFilled(true)
+                fillColor = ContextCompat.getColor(requireContext(), R.color.light_main_color)
+                fillAlpha = 80
+                mode = LineDataSet.Mode.CUBIC_BEZIER
             }
 
-            // Set data for the LineChart
             val lineData = LineData(dataSet)
             lineChart.data = lineData
 
-            // Update the chart appearance
             lineChart.apply {
-                setDrawGridBackground(false)  // Disable background grid
-                description.isEnabled = false  // Disable description
+                setDrawGridBackground(false)
+                description.isEnabled = false
                 legend.apply {
                     isEnabled = true
-                    textColor = ContextCompat.getColor(requireContext(), R.color.text_color) // Legend text color
+                    textColor = ContextCompat.getColor(requireContext(), R.color.text_color)
                 }
-                setTouchEnabled(true)  // Enable interaction
-                animateXY(1500, 1500)  // Animation for chart rendering
-                setPinchZoom(true)  // Enable pinch zoom
-                setScaleEnabled(true)  // Enable scaling
+                setTouchEnabled(true)
+                animateXY(1500, 1500)
+                setPinchZoom(true)
+                setScaleEnabled(true)
             }
         }
     }
 
-    private fun getDataForMonth(month: Int): Int {
-        return month * 3
-    }
 
-    // Open the Year Picker BottomSheet
     private fun showYearPickerBottomSheet() {
         val yearPicker = YearPickerBottomSheetFragment { selectedYear ->
             binding.filterText.text = DateUtils.getFormattedYear(selectedYear)
-            updateChartForYear(selectedYear)
+            viewModel.filterDataByYear(selectedYear)
         }
         yearPicker.show(parentFragmentManager, "YearPicker")
-    }
-
-    // Update the chart data based on the selected year
-    private fun updateChartForYear(year: Int) {
-        // Logic to update the chart data for the selected year
-        // You can fetch or generate data for the selected year here
-        val entries = ArrayList<Entry>()
-        for (i in 1..12) {
-            val month = i  // Month number (1 to 12)
-            val value = getDataForMonth(month) // Replace this with actual data for the selected year
-
-            // Add data for the month
-            entries.add(Entry(month.toFloat(), value.toFloat()))
-        }
-
-        // Update the dataset with the new data
-        val dataSet = LineDataSet(entries, "Quá trình chạy hàng tháng - $year")
-        dataSet.apply {
-            color = ContextCompat.getColor(requireContext(), R.color.main_color) // Line color
-            lineWidth = 2f
-            setCircleColor(ContextCompat.getColor(requireContext(), R.color.light_main_color)) // Circle color
-            circleRadius = 5f
-            setDrawFilled(true)  // Enable filling under the line
-            fillColor = ContextCompat.getColor(requireContext(), R.color.light_main_color) // Fill color
-            fillAlpha = 80  // Transparency for fill
-            mode = LineDataSet.Mode.CUBIC_BEZIER  // Smooth cubic bezier curve
-        }
-
-        // Set new data for the LineChart
-        val lineData = LineData(dataSet)
-        binding.lineChart.data = lineData
-        binding.lineChart.invalidate() // Refresh the chart
     }
 }

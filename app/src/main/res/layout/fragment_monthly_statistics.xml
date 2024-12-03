@@ -71,6 +71,7 @@
                     android:src="@drawable/ic_distance__2_" />
 
                 <TextView
+                    android:id="@+id/tvDistance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="10.00"
@@ -105,6 +106,7 @@
                     android:src="@drawable/ic_step" />
 
                 <TextView
+                    android:id="@+id/tvSteps"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="10.00 "
@@ -146,6 +148,7 @@
                     android:src="@drawable/ic_speed__2_" />
 
                 <TextView
+                    android:id="@+id/tvSpeed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="10.00"
@@ -179,6 +182,7 @@
                     android:src="@drawable/ic_time__2_" />
 
                 <TextView
+                    android:id="@+id/tvTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="10.00"
@@ -188,7 +192,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Thời gian chạy (giờ)"
+                    android:text="Thời gian chạy"
                     android:textAlignment="center" />
 
             </LinearLayout>

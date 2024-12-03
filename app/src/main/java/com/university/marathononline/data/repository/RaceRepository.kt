@@ -11,4 +11,8 @@ class RaceRepository(
     suspend fun addRaceAndSaveIntoRegistration(race: CreateRaceRequest) = safeApiCall {
         api.addRaceAndSaveIntoRegistration(race)
     }
+
+    suspend fun getByRunner() = safeApiCall {
+        api.getByRunner()
+    }
 }
