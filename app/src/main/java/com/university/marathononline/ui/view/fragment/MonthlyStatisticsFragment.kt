@@ -118,7 +118,7 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
             }
         }
 
-        val dataSet = LineDataSet(entries, "Lượt chạy")
+        val dataSet = LineDataSet(entries, "Quá trình chạy hằng ngày")
         dataSet.apply {
             color = ContextCompat.getColor(requireContext(), R.color.main_color)
             lineWidth = 2f

@@ -44,6 +44,11 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
         observeViewModel()
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.getRaces()
+    }
+
     private fun setUpButton() {
         binding.informationButton.setOnClickListener {
             val intent = Intent(requireContext(), InformationActivity::class.java)

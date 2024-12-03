@@ -119,7 +119,7 @@ class DailyStatisticsFragment : BaseFragment<DailyStatisticsViewModel, FragmentD
                 entries.add(Entry(hour.toFloat(), distance.toFloat()))
             }
 
-            val dataSet = LineDataSet(entries, "Quãng đường chạy trong ngày")
+            val dataSet = LineDataSet(entries, "Quá trình chạy hằng giờ")
             dataSet.apply {
                 color = ContextCompat.getColor(requireContext(), R.color.main_color)
                 lineWidth = 2f
