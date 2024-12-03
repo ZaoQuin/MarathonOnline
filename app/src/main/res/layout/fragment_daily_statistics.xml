@@ -7,8 +7,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/background_light_grey_radius_12sdp"
         android:orientation="vertical"
+        android:background="@drawable/background_light_grey_radius_12sdp"
         android:padding="@dimen/_10sdp">
 
         <LinearLayout
@@ -35,7 +35,7 @@
                 android:id="@+id/filter_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Năm nay"
+                android:text="Hôm nay"
                 android:textSize="18sp"
                 android:textColor="@color/colorPrimary"
                 android:layout_marginEnd="8dp"
@@ -49,39 +49,39 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_15sdp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/_15sdp">
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_5ssp"
                 android:layout_weight="1"
-                android:background="@drawable/background_border_grey_12sp"
-                android:gravity="center"
                 android:orientation="vertical"
+                android:gravity="center"
+                android:layout_margin="@dimen/_5ssp"
                 android:paddingStart="@dimen/_5sdp"
-                android:paddingTop="@dimen/_10sdp"
                 android:paddingEnd="@dimen/_5sdp"
-                android:paddingBottom="@dimen/_10sdp">
+                android:paddingTop="@dimen/_10sdp"
+                android:paddingBottom="@dimen/_10sdp"
+                android:background="@drawable/background_border_grey_12sp">
 
                 <ImageView
+                    android:src="@drawable/ic_distance__2_"
                     android:layout_width="@dimen/_25sdp"
-                    android:layout_height="@dimen/_25sdp"
-                    android:src="@drawable/ic_distance__2_" />
+                    android:layout_height="@dimen/_25sdp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="10.00"
                     android:textSize="@dimen/_15sdp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Quãng Đường (km)"
-                    android:textAlignment="center" />
+                    android:textAlignment="center"
+                    android:text="Quãng Đường (km)"/>
 
 
             </LinearLayout>
@@ -124,94 +124,81 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_5sdp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/_5sdp">
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_5ssp"
                 android:layout_weight="1"
-                android:background="@drawable/background_border_grey_12sp"
-                android:gravity="center"
                 android:orientation="vertical"
+                android:gravity="center"
+                android:layout_margin="@dimen/_5ssp"
                 android:paddingStart="@dimen/_5sdp"
-                android:paddingTop="@dimen/_10sdp"
                 android:paddingEnd="@dimen/_5sdp"
-                android:paddingBottom="@dimen/_10sdp">
+                android:paddingTop="@dimen/_10sdp"
+                android:paddingBottom="@dimen/_10sdp"
+                android:background="@drawable/background_border_grey_12sp">
 
                 <ImageView
+                    android:src="@drawable/ic_speed__2_"
                     android:layout_width="@dimen/_25sdp"
-                    android:layout_height="@dimen/_25sdp"
-                    android:src="@drawable/ic_speed__2_" />
+                    android:layout_height="@dimen/_25sdp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="10.00"
                     android:textSize="@dimen/_15sdp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Tốc độ (km/h)"
-                    android:textAlignment="center" />
+                    android:textAlignment="center"
+                    android:text="Tốc độ (km/h)"/>
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_5ssp"
                 android:layout_weight="1"
-                android:background="@drawable/background_border_grey_12sp"
-                android:gravity="center"
                 android:orientation="vertical"
+                android:gravity="center"
+                android:layout_margin="@dimen/_5ssp"
                 android:paddingStart="@dimen/_5sdp"
-                android:paddingTop="@dimen/_10sdp"
                 android:paddingEnd="@dimen/_5sdp"
-                android:paddingBottom="@dimen/_10sdp">
+                android:paddingTop="@dimen/_10sdp"
+                android:paddingBottom="@dimen/_10sdp"
+                android:background="@drawable/background_border_grey_12sp">
 
                 <ImageView
+                    android:src="@drawable/ic_time__2_"
                     android:layout_width="@dimen/_25sdp"
-                    android:layout_height="@dimen/_25sdp"
-                    android:src="@drawable/ic_time__2_" />
+                    android:layout_height="@dimen/_25sdp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="10.00"
                     android:textSize="@dimen/_15sdp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Thời gian chạy (giờ)"
-                    android:textAlignment="center" />
+                    android:textAlignment="center"
+                    android:text="Thời gian chạy (giờ)"/>
 
             </LinearLayout>
 
         </LinearLayout>
 
-        <HorizontalScrollView
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/lineChart"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/_300sdp">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <com.github.mikephil.charting.charts.LineChart
-                    android:id="@+id/lineChart"
-                    android:layout_width="700dp"
-                    android:layout_height="@dimen/_300sdp"/>
-
-            </LinearLayout>
-
-        </HorizontalScrollView>
+            android:layout_height="@dimen/_300sdp" />
 
     </LinearLayout>
 </layout>

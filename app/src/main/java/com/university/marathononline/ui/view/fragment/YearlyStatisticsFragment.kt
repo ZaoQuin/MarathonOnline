@@ -5,18 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.highlight.Highlight
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 import com.university.marathononline.R
 import com.university.marathononline.databinding.FragmentYearlyStatisticsBinding
 import com.university.marathononline.ui.viewModel.MonthlyStatisticsViewModel
+import com.university.marathononline.utils.DateUtils
+import java.util.Calendar
 
 class YearlyStatisticsFragment : Fragment() {
 
@@ -38,50 +38,131 @@ class YearlyStatisticsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setUpBarChart()
+        initUI()
     }
 
-    lateinit var barChart: BarChart
-    lateinit var barData: BarData
-    lateinit var barDataSet: BarDataSet
-    lateinit var barEntriesList: ArrayList<BarEntry>
+    private fun initUI() {
+        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
 
-    private fun setUpBarChart() {
-        barChart = binding.barChart
+        binding.filterText.text = DateUtils.getFormattedYear(currentYear)
 
-        barChart.setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
-            override fun onValueSelected(e: Entry?, h: Highlight?) {
-                if (e != null) {
-                    val value = e.y
-                    val xValue = e.x
+        binding.filterButton.setOnClickListener {
+            showYearPickerBottomSheet()
+        }
+    }
 
-                    Toast.makeText(requireContext(), "Giá trị: $value, Vị trí: $xValue", Toast.LENGTH_SHORT).show()
+    private fun setUpLineChart() {
+        binding.apply {
+        // Configure the X and Y axes for the LineChart
+            val xAxis = lineChart.xAxis
+            val leftAxis = lineChart.axisLeft
+            val rightAxis = lineChart.axisRight
+
+            // Configure X-axis (months of the year)
+            xAxis.apply {
+                position = com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTTOM
+                setLabelCount(12, true)  // Labeling each month
+                textColor = ContextCompat.getColor(requireContext(), R.color.text_color)
+                gridColor = ContextCompat.getColor(requireContext(), R.color.light_gray)
+                axisLineColor = ContextCompat.getColor(requireContext(), R.color.dark_main_color)
+                granularity = 1f
+                isGranularityEnabled = true
+            }
+
+            // Configure Y-axis
+            leftAxis.apply {
+                textColor = ContextCompat.getColor(requireContext(), R.color.text_color)
+                gridColor = ContextCompat.getColor(requireContext(), R.color.light_gray)
+                axisLineColor = ContextCompat.getColor(requireContext(), R.color.dark_main_color)
+            }
+
+            rightAxis.isEnabled = false  // Disable right Y-axis
+
+            // Prepare the data entries for the months
+            val entries = ArrayList<Entry>()
+            for (i in 1..12) {
+                val month = i  // Month number (1 to 12)
+                val value = getDataForMonth(month) // Get the data for each month (implement the logic here)
+
+                // Add data for the month
+                entries.add(Entry(month.toFloat(), value.toFloat()))
+            }
+
+            // Create the LineDataSet for the LineChart
+            val dataSet = LineDataSet(entries, "Quá trình chạy hàng tháng")
+            dataSet.apply {
+                color = ContextCompat.getColor(requireContext(), R.color.main_color) // Line color
+                lineWidth = 2f
+                setCircleColor(ContextCompat.getColor(requireContext(), R.color.light_main_color)) // Circle color
+                circleRadius = 5f
+                setDrawFilled(true)  // Enable filling under the line
+                fillColor = ContextCompat.getColor(requireContext(), R.color.light_main_color) // Fill color
+                fillAlpha = 80  // Transparency for fill
+                mode = LineDataSet.Mode.CUBIC_BEZIER  // Smooth cubic bezier curve
+            }
+
+            // Set data for the LineChart
+            val lineData = LineData(dataSet)
+            lineChart.data = lineData
+
+            // Update the chart appearance
+            lineChart.apply {
+                setDrawGridBackground(false)  // Disable background grid
+                description.isEnabled = false  // Disable description
+                legend.apply {
+                    isEnabled = true
+                    textColor = ContextCompat.getColor(requireContext(), R.color.text_color) // Legend text color
                 }
+                setTouchEnabled(true)  // Enable interaction
+                animateXY(1500, 1500)  // Animation for chart rendering
+                setPinchZoom(true)  // Enable pinch zoom
+                setScaleEnabled(true)  // Enable scaling
             }
+        }
+    }
 
-            override fun onNothingSelected() {
-                // Không có hành động khi không click vào cột nào
-            }
-        })
+    private fun getDataForMonth(month: Int): Int {
+        return month * 3
+    }
 
-        barEntriesList = ArrayList()
+    // Open the Year Picker BottomSheet
+    private fun showYearPickerBottomSheet() {
+        val yearPicker = YearPickerBottomSheetFragment { selectedYear ->
+            binding.filterText.text = DateUtils.getFormattedYear(selectedYear)
+            updateChartForYear(selectedYear)
+        }
+        yearPicker.show(parentFragmentManager, "YearPicker")
+    }
 
-
-
+    // Update the chart data based on the selected year
+    private fun updateChartForYear(year: Int) {
+        // Logic to update the chart data for the selected year
+        // You can fetch or generate data for the selected year here
+        val entries = ArrayList<Entry>()
         for (i in 1..12) {
-            barEntriesList.add(BarEntry(i.toFloat(), (i * 2).toFloat()))
+            val month = i  // Month number (1 to 12)
+            val value = getDataForMonth(month) // Replace this with actual data for the selected year
+
+            // Add data for the month
+            entries.add(Entry(month.toFloat(), value.toFloat()))
         }
 
-        barDataSet = BarDataSet(barEntriesList, "Quãng đường")
-        barData = BarData(barDataSet)
+        // Update the dataset with the new data
+        val dataSet = LineDataSet(entries, "Quá trình chạy hàng tháng - $year")
+        dataSet.apply {
+            color = ContextCompat.getColor(requireContext(), R.color.main_color) // Line color
+            lineWidth = 2f
+            setCircleColor(ContextCompat.getColor(requireContext(), R.color.light_main_color)) // Circle color
+            circleRadius = 5f
+            setDrawFilled(true)  // Enable filling under the line
+            fillColor = ContextCompat.getColor(requireContext(), R.color.light_main_color) // Fill color
+            fillAlpha = 80  // Transparency for fill
+            mode = LineDataSet.Mode.CUBIC_BEZIER  // Smooth cubic bezier curve
+        }
 
-        barChart.data = barData
-        barChart.invalidate()
-
-        barDataSet.setDrawValues(true)
-        barDataSet.valueTextColor = R.color.dark_main_color
-        barDataSet.setColors(resources.getColor(R.color.light_main_color))
-        barDataSet.valueTextSize = 16f
-        barChart.description.isEnabled = false
+        // Set new data for the LineChart
+        val lineData = LineData(dataSet)
+        binding.lineChart.data = lineData
+        binding.lineChart.invalidate() // Refresh the chart
     }
 }

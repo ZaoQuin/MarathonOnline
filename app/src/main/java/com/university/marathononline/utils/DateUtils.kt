@@ -3,6 +3,7 @@ package com.university.marathononline.utils
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -71,5 +72,40 @@ object DateUtils {
             e.printStackTrace()
             null
         }
+    }
+
+    fun getDateFromText(dateString: String): Date? {// Lấy giá trị chuỗi từ TextView
+
+        // Định dạng ngày cần sử dụng để chuyển đổi
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) // Cập nhật định dạng ngày nếu cần
+
+        return try {
+            // Chuyển chuỗi thành đối tượng Date
+            dateFormat.parse(dateString)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null  // Nếu có lỗi, trả về null
+        }
+    }
+
+    fun getCurrentMonthYear(): String {
+        val calendar = Calendar.getInstance()
+        val month = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) ?: ""
+        val year = calendar.get(Calendar.YEAR)
+        return "$month $year"
+    }
+
+    fun getFormattedMonthYear(month: Int, year: Int): String {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.MONTH, month)
+        calendar.set(Calendar.YEAR, year)
+        val monthName = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) ?: ""
+        return "$monthName năm $year"
+    }
+
+    fun getFormattedYear(year: Int): String  {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.YEAR, year)
+        return "năm $year"
     }
 }

@@ -4,7 +4,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.university.marathononline.ui.view.fragment.WeeklyStatisticsFragment
+import com.university.marathononline.ui.view.fragment.DailyStatisticsFragment
 import com.university.marathononline.ui.view.fragment.MonthlyStatisticsFragment
 import com.university.marathononline.ui.view.fragment.YearlyStatisticsFragment
 
@@ -16,7 +16,7 @@ class ProfilePagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle
         return when (position) {
             1 -> MonthlyStatisticsFragment()
             2 -> YearlyStatisticsFragment()
-            else -> WeeklyStatisticsFragment()
+            else -> DailyStatisticsFragment()
         }
     }
 }
