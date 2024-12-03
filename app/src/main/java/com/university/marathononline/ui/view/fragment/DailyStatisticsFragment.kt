@@ -5,36 +5,32 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
-import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.university.marathononline.R
-import com.university.marathononline.databinding.FragmentYearlyStatisticsBinding
-import com.university.marathononline.ui.viewModel.YearlyStatisticsViewModel
-import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.race.RaceApiService
 import com.university.marathononline.data.models.Race
+import com.university.marathononline.databinding.FragmentDailyStatisticsBinding
+import com.university.marathononline.ui.viewModel.DailyStatisticsViewModel
+import com.university.marathononline.ui.components.DatePickerBottomSheetFragment
+import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.data.repository.RaceRepository
 import com.university.marathononline.utils.KEY_RACES
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import java.time.LocalDate
-import java.util.Calendar
 import java.util.Date
 
-class YearlyStatisticsFragment : BaseFragment<YearlyStatisticsViewModel, FragmentYearlyStatisticsBinding>() {
+class DailyStatisticsFragment : BaseFragment<DailyStatisticsViewModel, FragmentDailyStatisticsBinding>() {
 
-    override fun getViewModel(): Class<YearlyStatisticsViewModel> = YearlyStatisticsViewModel::class.java
+    override fun getViewModel(): Class<DailyStatisticsViewModel> = DailyStatisticsViewModel::class.java
 
-    override fun getFragmentBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentYearlyStatisticsBinding {
-        return FragmentYearlyStatisticsBinding.inflate(inflater, container, false)
+    override fun getFragmentBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentDailyStatisticsBinding {
+        return FragmentDailyStatisticsBinding.inflate(inflater, container, false)
     }
 
     override fun getFragmentRepositories():  List<BaseRepository> {
@@ -53,8 +49,7 @@ class YearlyStatisticsFragment : BaseFragment<YearlyStatisticsViewModel, Fragmen
 
     private fun observeViewModel() {
         viewModel.races.observe(viewLifecycleOwner){
-            val current = DateUtils.convertDateToLocalDate(Date())
-            viewModel.filterDataByYear(current.year)
+            viewModel.filterDataByDay(Date())
         }
 
         viewModel.distance.observe(viewLifecycleOwner){
@@ -75,38 +70,29 @@ class YearlyStatisticsFragment : BaseFragment<YearlyStatisticsViewModel, Fragmen
 
         viewModel.dataLineChart.observe(viewLifecycleOwner){
             viewModel.dataLineChart.value?.let { it1 ->
-                Log.d("YearlyStatisticsFragment", it1.toString())
                 setUpLineChart(it1)
+                Log.d("DailyStatisticsFragment", it1.toString())
             }
         }
     }
 
     private fun initUI() {
-        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-        binding.filterText.text = DateUtils.getFormattedYear(currentYear)
-
-        binding.filterButton.setOnClickListener {
-            showYearPickerBottomSheet()
-        }
-
+        binding.filterText.text = DateUtils.getCurrentDate()
+        binding.filterButton.setOnClickListener { showDatePickerBottomSheet() }
     }
 
-    private fun setUpLineChart(race: Map<String, String>) {
+    private fun setUpLineChart(races: List<Race>) {
         binding.apply {
-            val lineChart = binding.lineChart
-
             val xAxis = lineChart.xAxis
             val leftAxis = lineChart.axisLeft
             val rightAxis = lineChart.axisRight
 
             xAxis.apply {
-                position = com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTTOM
-                setLabelCount(12, true)
+                position = XAxis.XAxisPosition.BOTTOM
+                setLabelCount(3, true)
                 textColor = ContextCompat.getColor(requireContext(), R.color.text_color)
                 gridColor = ContextCompat.getColor(requireContext(), R.color.light_gray)
                 axisLineColor = ContextCompat.getColor(requireContext(), R.color.dark_main_color)
-                granularity = 1f
-                isGranularityEnabled = true
             }
 
             leftAxis.apply {
@@ -118,17 +104,22 @@ class YearlyStatisticsFragment : BaseFragment<YearlyStatisticsViewModel, Fragmen
 
             rightAxis.isEnabled = false
 
-            val entries = ArrayList<Entry>()
+            val hourlyDistances = mutableMapOf<Int, Double>()
 
-            // Gắn các giá trị vào các tháng
-            for (month in 1..12) {
-                // Kiểm tra nếu có giá trị cho tháng này trong `race`
-                val distance = race["2024-${month.toString().padStart(2, '0')}"]?.toFloat() ?: 0f
-                entries.add(Entry(month.toFloat(), distance))
+            races.forEach { race ->
+                val raceTime = DateUtils.convertStringToLocalDateTime(race.timestamp)
+                val hour = raceTime.hour
+
+                hourlyDistances[hour] = hourlyDistances.getOrDefault(hour, 0.0) + race.distance
             }
 
-            // Tạo dataset
-            val dataSet = LineDataSet(entries, "Quá trình chạy hằng tháng")
+            val entries = ArrayList<Entry>()
+            for (hour in 0..23) {
+                val distance = hourlyDistances.getOrDefault(hour, 0.0)
+                entries.add(Entry(hour.toFloat(), distance.toFloat()))
+            }
+
+            val dataSet = LineDataSet(entries, "Quá trình chạy hằng giờ")
             dataSet.apply {
                 color = ContextCompat.getColor(requireContext(), R.color.main_color)
                 lineWidth = 2f
@@ -152,18 +143,18 @@ class YearlyStatisticsFragment : BaseFragment<YearlyStatisticsViewModel, Fragmen
                 }
                 setTouchEnabled(true)
                 animateXY(1500, 1500)
-                setPinchZoom(true)
-                setScaleEnabled(true)
             }
         }
     }
 
 
-    private fun showYearPickerBottomSheet() {
-        val yearPicker = YearPickerBottomSheetFragment { selectedYear ->
-            binding.filterText.text = DateUtils.getFormattedYear(selectedYear)
-            viewModel.filterDataByYear(selectedYear)
+
+    private fun showDatePickerBottomSheet() {
+        val bottomSheet = DatePickerBottomSheetFragment() { day ->
+            binding.filterText.text = DateUtils.getFormattedDate(day)
+            viewModel.filterDataByDay(day)
         }
-        yearPicker.show(parentFragmentManager, "YearPicker")
+
+        bottomSheet.show(parentFragmentManager, bottomSheet.tag)
     }
 }

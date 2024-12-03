@@ -6,14 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.university.marathononline.databinding.FragmentPickerBottomSheetBinding
+import com.university.marathononline.databinding.FragmentDatePickerBottomSheetBinding
 import java.util.Date
 
-class DatePickerBottomSheetFragment (
+class DatePickerBottomSheetFragment(
     private val onDateSelected: (Date) -> Unit
-): BottomSheetDialogFragment(){
+) : BottomSheetDialogFragment() {
 
-    private lateinit var binding: FragmentPickerBottomSheetBinding
+    private lateinit var binding: FragmentDatePickerBottomSheetBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,8 +23,7 @@ class DatePickerBottomSheetFragment (
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentPickerBottomSheetBinding.inflate(inflater, container, false)
-
+        binding = FragmentDatePickerBottomSheetBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -33,11 +32,20 @@ class DatePickerBottomSheetFragment (
 
         val calendarView = binding.calendarView
 
+        val currentDate = Calendar.getInstance().time
+        calendarView.date = currentDate.time
+
+        val calendar = Calendar.getInstance()
+
+        calendarView.setDate(calendar.timeInMillis, true, true)
+
         calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             val selectedDate = Calendar.getInstance().apply {
                 set(year, month, dayOfMonth)
             }.time
-            onDateSelected(selectedDate)
+
+            onDateSelected.invoke(selectedDate)
         }
     }
 }
+

@@ -15,36 +15,37 @@
             android:id="@+id/filter_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="left|center_vertical"
-            android:padding="@dimen/_5sdp"
-            android:elevation="4dp"
-            android:clipToPadding="false"
+            android:background="@drawable/button_background"
             android:clickable="true"
-            android:background="@drawable/button_background">
+            android:clipToPadding="false"
+            android:elevation="4dp"
+            android:gravity="left|center_vertical"
+            android:orientation="horizontal"
+            android:padding="@dimen/_5sdp">
 
             <ImageView
                 android:layout_width="@dimen/_40sdp"
                 android:layout_height="@dimen/_40sdp"
-                android:src="@drawable/ic_calendar"
                 android:backgroundTint="@color/white"
+                android:padding="@dimen/_5sdp"
                 android:scaleType="centerInside"
-                android:padding="@dimen/_5sdp"/>
+                android:src="@drawable/ic_calendar" />
 
             <TextView
                 android:id="@+id/filter_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Năm nay"
-                android:textSize="18sp"
-                android:textColor="@color/colorPrimary"
+                android:layout_gravity="center_vertical"
                 android:layout_marginEnd="8dp"
+                android:drawablePadding="8dp"
                 android:fontFamily="sans-serif-medium"
                 android:padding="10dp"
-                android:layout_gravity="center_vertical"
-                android:drawablePadding="8dp" />
+                android:text="Hôm nay"
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
 
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -209,8 +210,8 @@
 
                 <com.github.mikephil.charting.charts.LineChart
                     android:id="@+id/lineChart"
-                    android:layout_width="700dp"
-                    android:layout_height="@dimen/_300sdp"/>
+                    android:layout_width="1000dp"
+                    android:layout_height="@dimen/_300sdp" />
 
             </LinearLayout>
 

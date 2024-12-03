@@ -1,0 +1,17 @@
+<!-- res/drawable/button_background_picker.xml -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_pressed="true">
+        <shape xmlns:android="http://schemas.android.com/apk/res/android">
+            <solid android:color="#6F9965"/> <!-- Màu nền khi nhấn -->
+            <corners android:radius="16dp"/> <!-- Bo góc -->
+        </shape>
+    </item>
+
+    <item>
+        <shape xmlns:android="http://schemas.android.com/apk/res/android">
+            <solid android:color="@color/light_main_color"/> <!-- Màu nền bình thường -->
+            <corners android:radius="16dp"/> <!-- Bo góc -->
+        </shape>
+    </item>
+</selector>

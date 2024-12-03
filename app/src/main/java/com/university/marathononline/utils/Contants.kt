@@ -11,6 +11,12 @@ const val KEY_ALIAS = "MyAppKeyAlias"
 
 const val KEY_USER = "user"
 const val KEY_CONTEST = "contest"
+const val KEY_RACE = "race"
+const val KEY_RACES = "list-race"
+const val KEY_TOTAL_DISTANCE = "total-distance"
+const val KEY_TOTAL_TIME = "total-time"
+const val KEY_TOTAL_STEPS = "total-steps"
+const val KEY_AVG_SPEED = "avgSpeed"
 
 const val KEY_ROLE = "role"
 const val KEY_FULL_NAME = "fullName"

@@ -1,8 +1,14 @@
 package com.university.marathononline.utils
 
+import android.util.Log
 import java.text.SimpleDateFormat
+import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -71,5 +77,79 @@ object DateUtils {
             e.printStackTrace()
             null
         }
+    }
+
+    fun getDateFromText(dateString: String): Date? {// Lấy giá trị chuỗi từ TextView
+
+        // Định dạng ngày cần sử dụng để chuyển đổi
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) // Cập nhật định dạng ngày nếu cần
+
+        return try {
+            // Chuyển chuỗi thành đối tượng Date
+            dateFormat.parse(dateString)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null  // Nếu có lỗi, trả về null
+        }
+    }
+
+    fun getCurrentMonthYear(): String {
+        val calendar = Calendar.getInstance()
+        val month = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) ?: ""
+        val year = calendar.get(Calendar.YEAR)
+        return "$month $year"
+    }
+
+    fun getFormattedMonthYear(month: Int, year: Int): String {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.MONTH, month)
+        calendar.set(Calendar.YEAR, year)
+        val monthName = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) ?: ""
+        return "$monthName năm $year"
+    }
+
+    fun getFormattedYear(year: Int): String  {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.YEAR, year)
+        return "năm $year"
+    }
+
+    fun convertStringToLocalDateTime(dateString: String): LocalDateTime {
+        return try {
+            val correctedDateString = if (dateString.length > 23) {
+                dateString.substring(0, 23)
+            } else {
+                dateString
+            }
+            LocalDateTime.parse(correctedDateString, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+        } catch (e: DateTimeParseException) {
+            Log.e("DateTimeParse", "Invalid date format: $dateString", e)
+            LocalDateTime.MIN
+        }
+    }
+
+    fun convertDateToLocalDate(date: Date): LocalDate {
+        return date.toInstant()
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+    }
+
+    fun isSameDay(date: Date, localDateTime: LocalDateTime): Boolean {
+        val localDateFromDate = convertDateToLocalDate(date)
+        val localDateFromLocalDateTime = localDateTime.toLocalDate()
+        return localDateFromDate == localDateFromLocalDateTime
+    }
+
+    fun isSameDay(date: Date, localDate: LocalDate): Boolean {
+        val localDateFromDate = convertDateToLocalDate(date)
+        return localDateFromDate == localDate
+    }
+
+    fun convertSecondsToHHMMSS(seconds: Long): String {
+        val duration = Duration.ofSeconds(seconds)
+        val hours = duration.toHours()
+        val minutes = duration.toMinutes() % 60
+        val secs = duration.seconds % 60
+        return String.format("%02d:%02d:%02d", hours, minutes, secs)
     }
 }
