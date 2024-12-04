@@ -3,6 +3,7 @@ package com.university.marathononline.ui.view.activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
@@ -12,6 +13,8 @@ import com.university.marathononline.ui.adapter.ContestRunnerAdapter
 import com.university.marathononline.ui.viewModel.RunnerContestsViewModel
 import com.university.marathononline.utils.KEY_CONTESTS
 import com.university.marathononline.utils.finishAndGoBack
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class RunnerContestActivity : BaseActivity<RunnerContestsViewModel, ActivityRunnerContestBinding>() {
 
@@ -28,7 +31,11 @@ class RunnerContestActivity : BaseActivity<RunnerContestsViewModel, ActivityRunn
 
     private fun setUpAdapter() {
         binding.rvContests.layoutManager = LinearLayoutManager(this)
-        adapter = ContestRunnerAdapter(emptyList(), userPreferences.email.toString())
+        var emailValue = ""
+        lifecycleScope.launch {
+            emailValue = userPreferences.email.first()!!
+        }
+        adapter = ContestRunnerAdapter(emptyList(), emailValue)
         binding.rvContests.adapter = adapter
     }
 

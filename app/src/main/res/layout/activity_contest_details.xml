@@ -217,6 +217,58 @@
 
                         </LinearLayout>
 
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="@dimen/_120sdp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="2dp"
+                                android:text="Phí đăng ký: "
+                                android:textColor="#888888"
+                                android:textSize="15dp"
+                                android:textStyle="bold"/>
+
+                            <TextView
+                                android:id="@+id/tvFee"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="2dp"
+                                android:text="100km"
+                                android:textColor="#888888"
+                                android:textSize="15dp" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="@dimen/_120sdp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="2dp"
+                                android:text="Giới hạn người : "
+                                android:textColor="#888888"
+                                android:textSize="15dp"
+                                android:textStyle="bold"/>
+
+                            <TextView
+                                android:id="@+id/tvMaxMembers"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="2dp"
+                                android:text="100km"
+                                android:textColor="#888888"
+                                android:textSize="15dp" />
+
+                        </LinearLayout>
+
                         <TextView
                             android:id="@+id/content_details"
                             android:layout_width="match_parent"
@@ -477,27 +529,6 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Số cuộc thi đã tổ chức: "
-                                android:textStyle="italic" />
-
-                            <TextView
-                                android:id="@+id/numberContest"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="10"
-                                android:textStyle="italic" />
-
-                        </LinearLayout>
-
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
                                 android:text="Email: "
                                 android:textStyle="italic" />
 
@@ -519,6 +550,7 @@
 
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/register_container"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_75sdp"
             android:layout_alignParentBottom="true"
@@ -542,23 +574,6 @@
                     android:textColor="#888888"
                     android:textSize="15dp"
                     android:textStyle="bold"/>
-
-                <TextView
-                    android:id="@+id/totalRegistration"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="2dp"
-                    android:text="20"
-                    android:textColor="#888888"
-                    android:textSize="15dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="2dp"
-                    android:text="/"
-                    android:textColor="#888888"
-                    android:textSize="15dp" />
 
                 <TextView
                     android:id="@+id/maxMembers"
@@ -608,6 +623,28 @@
                     android:textColor="@color/white" />
 
             </LinearLayout>
+        </com.google.android.material.bottomnavigation.BottomNavigationView>
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/record_container"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_75sdp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/white"
+            android:paddingStart="@dimen/_10sdp"
+            android:paddingEnd="@dimen/_10sdp"
+            android:paddingTop="@dimen/_10sdp"
+            android:visibility="gone">
+
+                <Button
+                    android:id="@+id/btnRecord"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@drawable/btn_radius"
+                    android:text="Chạy"
+                    android:textColor="@color/white" />
+
         </com.google.android.material.bottomnavigation.BottomNavigationView>
 
     </RelativeLayout>

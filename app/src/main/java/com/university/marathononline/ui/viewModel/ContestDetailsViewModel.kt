@@ -1,6 +1,7 @@
 package com.university.marathononline.ui.viewModel
 
 import android.os.CountDownTimer
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -37,6 +38,9 @@ class ContestDetailsViewModel(
 
     private val _remainingTime = MutableLiveData<String>()
     val remainingTime: LiveData<String> get() = _remainingTime
+
+    private val _isRegistered = MutableLiveData<Boolean>()
+    val isRegistered: LiveData<Boolean> get() = _isRegistered
 
     fun startCountdown() {
         viewModelScope.launch {
@@ -92,5 +96,13 @@ class ContestDetailsViewModel(
     fun setRewardGroups(rewards: List<Reward>){
         _rewardGroup.value = rewards.groupBy { it.rewardRank }
             .map { RewardGroup(it.key, it.value) }
+    }
+
+    fun checkRegister(email: String){
+        _isRegistered.value = contest.value?.registrations?.any {
+            Log.d("Check Register", it.runner.email)
+            Log.d("Check Register", email)
+            it.runner.email == email
+        }
     }
 }
