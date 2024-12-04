@@ -9,4 +9,7 @@ interface ContestApiService {
 
     @GET("/api/v1/contest/home")
     suspend fun getHomeContests(): GetContestsResponse
+
+    @GET("/api/v1/contest/runner")
+    suspend fun getByRunner(): GetContestsResponse
 }

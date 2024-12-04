@@ -14,4 +14,8 @@ class ContestRepository(
     suspend fun getHomeContests() = safeApiCall {
         api.getHomeContests()
     }
+
+    suspend fun getByRunner() = safeApiCall {
+        api.getByRunner()
+    }
 }
