@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.fragment.app.Fragment
 import com.university.marathononline.data.models.Contest
+import com.university.marathononline.data.models.Reward
 import com.university.marathononline.data.models.User
 
 
@@ -111,13 +112,19 @@ fun <A : Activity> Fragment.startNewActivity(
             is Long -> intent.putExtra(key, value)
             is User -> intent.putExtra(key, value)
             is Contest -> intent.putExtra(key, value)
+            is Reward -> intent.putExtra(key, value)
             is List<*> -> {
-                if (value.isNotEmpty() && value[0] is Contest) {
-                    // Safely casting List<Contest> to ArrayList<Contest>
-                    @Suppress("UNCHECKED_CAST")
-                    intent.putExtra(key, ArrayList(value as List<Contest>))
-                } else {
-                    throw IllegalArgumentException("Unsupported list type: ${value::class.java}")
+                when {
+                    value.isEmpty() -> intent.putExtra(key, ArrayList<Any>())
+                    value[0] is Contest -> {
+                        @Suppress("UNCHECKED_CAST")
+                        intent.putExtra(key, ArrayList(value as List<Contest>))
+                    }
+                    value[0] is Reward -> {
+                        @Suppress("UNCHECKED_CAST")
+                        intent.putExtra(key, ArrayList(value as List<Reward>))
+                    }
+                    else -> throw IllegalArgumentException("Unsupported list type: ${value::class.java}")
                 }
             }
             else -> throw IllegalArgumentException("Unsupported data type")

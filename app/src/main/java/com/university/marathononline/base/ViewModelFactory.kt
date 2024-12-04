@@ -2,8 +2,6 @@ package com.university.marathononline.base
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.university.marathononline.data.models.Contest
-import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.data.repository.RaceRepository
@@ -29,6 +27,8 @@ import com.university.marathononline.ui.viewModel.RecordViewModel
 import com.university.marathononline.ui.viewModel.RegisterBasicInformationViewModel
 import com.university.marathononline.ui.viewModel.RegisterViewModel
 import com.university.marathononline.ui.viewModel.RoleSelectionViewModel
+import com.university.marathononline.ui.viewModel.RunnerContestsViewModel
+import com.university.marathononline.ui.viewModel.RunnerRewardsViewModel
 import com.university.marathononline.ui.viewModel.SearchViewModel
 import com.university.marathononline.ui.viewModel.SplashRedirectViewModel
 import com.university.marathononline.ui.viewModel.YearlyStatisticsViewModel
@@ -68,6 +68,8 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(YearlyStatisticsViewModel::class.java) -> YearlyStatisticsViewModel(findRepository(RaceRepository::class.java)) as T
             modelClass.isAssignableFrom(SearchViewModel::class.java) -> SearchViewModel(findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(LeaderBoardViewModel::class.java) -> LeaderBoardViewModel() as T
+            modelClass.isAssignableFrom(RunnerContestsViewModel::class.java) -> RunnerContestsViewModel() as T
+            modelClass.isAssignableFrom(RunnerRewardsViewModel::class.java) -> RunnerRewardsViewModel() as T
             else -> throw IllegalArgumentException("ViewModelClass Not Found")
         }
     }

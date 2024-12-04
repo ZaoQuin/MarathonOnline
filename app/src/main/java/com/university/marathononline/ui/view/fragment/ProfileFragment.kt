@@ -18,7 +18,13 @@ import com.university.marathononline.data.repository.RaceRepository
 import com.university.marathononline.databinding.FragmentProfileBinding
 import com.university.marathononline.ui.adapter.ProfilePagerAdapter
 import com.university.marathononline.ui.view.activity.InformationActivity
+import com.university.marathononline.ui.view.activity.RunnerContestActivity
+import com.university.marathononline.ui.view.activity.RunnerRewardsActivity
 import com.university.marathononline.ui.viewModel.ProfileViewModel
+import com.university.marathononline.ui.viewModel.RunnerRewardsViewModel
+import com.university.marathononline.utils.KEY_CONTESTS
+import com.university.marathononline.utils.KEY_REWARDS
+import com.university.marathononline.utils.startNewActivity
 import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -60,6 +66,30 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
             val intent = Intent(requireContext(), InformationActivity::class.java)
             startActivity(intent)
         }
+
+        binding.myContest.setOnClickListener {
+            val contests = viewModel.contests.value
+
+            if(contests!=null)
+                startNewActivity(
+                    RunnerContestActivity::class.java,
+                    mapOf(
+                        KEY_CONTESTS to contests
+                    )
+                )
+        }
+
+        binding.myReward.setOnClickListener{
+            val rewards = viewModel.rewards.value
+
+            if(rewards!=null)
+                startNewActivity(
+                    RunnerRewardsActivity::class.java,
+                    mapOf(
+                        KEY_REWARDS to rewards
+                    )
+                )
+        }
     }
 
     private fun setUpTabLayout() {
@@ -98,10 +128,16 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
             when(it){
                 is Resource.Success -> {
                     binding.myContestsNumber.text = it.value.contests.size.toString()
+                    viewModel.setContests(it.value.contests)
                 }
                 is Resource.Failure -> handleApiError(it)
                 else -> Unit
             }
+        }
+
+        viewModel.contests.observe(viewLifecycleOwner) {
+            viewModel.setRewards(userPreferences.email.toString())
+            binding.myRewardsNumber.text = viewModel.rewards.value?.size.toString()
         }
     }
 }

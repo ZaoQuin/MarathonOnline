@@ -1,0 +1,81 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="6dp"
+        app:cardBackgroundColor="@color/white">
+
+        <LinearLayout
+            android:id="@+id/contestCardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:foreground="?attr/selectableItemBackground">
+
+            <TextView
+                android:id="@+id/tvContestName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Contest Name"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/dark_main_color"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"
+                tools:text="Marathon 2024" />
+
+            <TextView
+                android:id="@+id/tvContestStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/status_background"
+                android:padding="4dp"
+                android:text="Active"
+                android:textColor="@color/main_color"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                tools:text="Active" />
+
+            <TextView
+                android:id="@+id/tvContestDatesStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Start: YYYY-MM-DD | End: YYYY-MM-DD"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/gray"
+                android:layout_marginTop="8dp"
+                tools:text="Start: 2024-01-01 | End: 2024-01-10" />
+
+            <TextView
+                android:id="@+id/tvContestDatesEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Start: YYYY-MM-DD | End: YYYY-MM-DD"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/gray"
+                android:layout_marginTop="8dp"
+                tools:text="Start: 2024-01-01 | End: 2024-01-10" />
+
+            <TextView
+                android:id="@+id/tvCompletionStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Completed: No"
+                android:textColor="@color/red"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:layout_marginTop="8dp"
+                tools:text="Completed: No" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</layout>
