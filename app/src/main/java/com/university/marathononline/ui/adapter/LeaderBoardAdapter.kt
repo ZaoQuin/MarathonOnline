@@ -1,13 +1,14 @@
 package com.university.marathononline.ui.adapter
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.university.marathononline.databinding.ItemLeaderBoardBinding
-import com.university.marathononline.data.models.ContestHistory
+import com.university.marathononline.data.models.Registration
 
-class LeaderBoardAdapter (private val eventHistories: List<ContestHistory>) : RecyclerView.Adapter<LeaderBoardAdapter.ViewHolder>(){
+class LeaderBoardAdapter (private val registrations: List<Registration>) : RecyclerView.Adapter<LeaderBoardAdapter.ViewHolder>(){
 
     class ViewHolder(private val binding: ItemLeaderBoardBinding): RecyclerView.ViewHolder(binding.root) {
         @SuppressLint("SetTextI18n")
@@ -23,13 +24,18 @@ class LeaderBoardAdapter (private val eventHistories: List<ContestHistory>) : Re
         return ViewHolder(binding)
     }
 
-    override fun getItemCount(): Int = eventHistories.size
+    override fun getItemCount(): Int = registrations.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val eventHistory = eventHistories[position]
-        val user = eventHistory.user
-        val distance = eventHistory.raceResults.sumOf { it.distance.toDouble() } ?: 0.0
+        val reg = registrations?.get(position)  // Kiểm tra null
+        if (reg != null) {
+            val user = reg.runner
+            val distance = reg.raceResults?.sumOf { it.distance } ?: 0.0 // Kiểm tra null cho raceResults và trả về 0 nếu null
 
-        holder.bind(distance, user.fullName ?: "Unknown", position)
+            holder.bind(distance, user.fullName, position)
+        } else {
+            // Xử lý khi `reg` là null (nếu cần thiết, ví dụ: ghi log hoặc thông báo người dùng)
+            Log.e("LeaderBoardAdapter", "Registration at position $position is null")
+        }
     }
 }

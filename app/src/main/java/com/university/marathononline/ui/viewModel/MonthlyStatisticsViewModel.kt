@@ -5,9 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.models.Race
-import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.RaceRepository
-import com.university.marathononline.ui.view.fragment.MonthlyStatisticsFragment
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_AVG_SPEED
 import com.university.marathononline.utils.KEY_TOTAL_DISTANCE
