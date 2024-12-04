@@ -11,6 +11,7 @@ const val KEY_ALIAS = "MyAppKeyAlias"
 
 const val KEY_USER = "user"
 const val KEY_CONTEST = "contest"
+const val KEY_CONTESTS = "list-contest"
 const val KEY_RACE = "race"
 const val KEY_RACES = "list-race"
 const val KEY_REGISTRATIONS = "list-registrations"

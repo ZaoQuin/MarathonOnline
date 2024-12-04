@@ -3,15 +3,25 @@ package com.university.marathononline.utils
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.util.Log
-import androidx.recyclerview.widget.RecyclerView
+import androidx.fragment.app.Fragment
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.User
-import com.university.marathononline.ui.view.activity.RoleSelectionActivity
 
 
 fun Activity.finishAndGoBack() {
     finish()
+}
+
+
+
+fun <A : Activity> Fragment.startNewActivity(
+    activity: Class<A>,
+    clearBackStack: Boolean = false
+) {
+    Intent(requireContext(), activity).also {
+        if (clearBackStack) it.flags = NO_BACK_STACK_FLAGS
+        startActivity(it)
+    }
 }
 
 fun <A : Activity> Activity.startNewActivity(
@@ -82,4 +92,39 @@ fun <A : Activity> Context.startNewActivity(
     if (clearBackStack) intent.flags = NO_BACK_STACK_FLAGS
 
     this.startActivity(intent)
+}
+
+
+fun <A : Activity> Fragment.startNewActivity(
+    activity: Class<A>,
+    data: Map<String, Any> = emptyMap(),
+    clearBackStack: Boolean = false
+) {
+    val intent = Intent(requireContext(), activity)
+    for ((key, value) in data) {
+        when (value) {
+            is String -> intent.putExtra(key, value)
+            is Int -> intent.putExtra(key, value)
+            is Boolean -> intent.putExtra(key, value)
+            is Float -> intent.putExtra(key, value)
+            is Double -> intent.putExtra(key, value)
+            is Long -> intent.putExtra(key, value)
+            is User -> intent.putExtra(key, value)
+            is Contest -> intent.putExtra(key, value)
+            is List<*> -> {
+                if (value.isNotEmpty() && value[0] is Contest) {
+                    // Safely casting List<Contest> to ArrayList<Contest>
+                    @Suppress("UNCHECKED_CAST")
+                    intent.putExtra(key, ArrayList(value as List<Contest>))
+                } else {
+                    throw IllegalArgumentException("Unsupported list type: ${value::class.java}")
+                }
+            }
+            else -> throw IllegalArgumentException("Unsupported data type")
+        }
+    }
+
+    if (clearBackStack) intent.flags = NO_BACK_STACK_FLAGS
+
+    startActivity(intent)
 }

@@ -1,6 +1,5 @@
 package com.university.marathononline.ui.view.fragment
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,6 +16,8 @@ import com.university.marathononline.ui.adapter.ContestAdapter
 import com.university.marathononline.databinding.FragmentContestBinding
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.ui.view.activity.SearchActivity
+import com.university.marathononline.utils.KEY_CONTESTS
+import com.university.marathononline.utils.startNewActivity
 import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -49,6 +50,11 @@ class ContestFragment : BaseFragment<ContestViewModel, FragmentContestBinding>()
         observe()
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.getActiveContests()
+    }
+
     private fun setAdapter() {
         adapter = ContestAdapter(emptyList())
         binding.contests.adapter = adapter
@@ -56,13 +62,12 @@ class ContestFragment : BaseFragment<ContestViewModel, FragmentContestBinding>()
 
     private fun setSearchButton() {
         binding.btnSearch.setOnClickListener{
-            val intent = Intent(binding.root.context, SearchActivity::class.java)
-            binding.root.context.startActivity(intent)
+            startNewActivity(SearchActivity::class.java)
         }
     }
 
     private fun observe() {
-        viewModel.contests.observe(viewLifecycleOwner) {
+        viewModel.getContestsResponse.observe(viewLifecycleOwner) {
             Log.d("ContestFragment", it.toString())
             when(it){
                 is Resource.Success -> {
