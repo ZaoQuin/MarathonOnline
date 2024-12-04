@@ -13,17 +13,19 @@ import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.contest.ContestApiService
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.EContestStatus
-import com.university.marathononline.data.models.Payment
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.ui.viewModel.ContestDetailsViewModel
 import com.university.marathononline.databinding.ActivityContestDetailsBinding
 import com.university.marathononline.ui.adapter.RewardAdapter
 import com.university.marathononline.ui.adapter.RuleAdapter
+import com.university.marathononline.ui.view.fragment.LeaderBoardFragment
 import com.university.marathononline.utils.KEY_CONTEST
+import com.university.marathononline.utils.KEY_REGISTRATIONS
 import com.university.marathononline.utils.startNewActivity
 import com.university.marathononline.utils.visible
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import java.io.Serializable
 
 class ContestDetailsActivity :
     BaseActivity<ContestDetailsViewModel, ActivityContestDetailsBinding>() {
@@ -38,7 +40,23 @@ class ContestDetailsActivity :
         initializeUI()
         setRuleAdapter()
         setRewardAdapter()
+        setUpLeaderBoard(savedInstanceState)
         setUpObserve()
+    }
+
+    private fun setUpLeaderBoard(savedInstanceState: Bundle?) {
+        val registrations = viewModel.contest.value?.registrations
+        val fragment = LeaderBoardFragment().apply {
+            arguments = Bundle().apply {
+                putSerializable(KEY_REGISTRATIONS, registrations as Serializable)
+            }
+        }
+
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(binding.fragmentContainer.id, fragment)
+                .commit()
+        }
     }
 
     private fun setUpObserve() {
@@ -102,6 +120,8 @@ class ContestDetailsActivity :
                 organizationalName.text = it.organizer?.fullName
                 emailOrganizer.text = it.organizer?.email
                 sectionLeaderBoard.visible(it.status != EContestStatus.PENDING)
+                maxMembers.text = it.maxMembers.toString()
+                totalRegistration.text = it.registrations?.size.toString()
             }
         }
     }

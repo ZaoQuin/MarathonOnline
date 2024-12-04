@@ -191,6 +191,32 @@
                             android:textStyle="bold"
                             android:layout_marginBottom="@dimen/_5ssp"/>
 
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="@dimen/_120sdp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="2dp"
+                                android:text="Quãng đường: "
+                                android:textColor="#888888"
+                                android:textSize="15dp"
+                                android:textStyle="bold"/>
+
+                            <TextView
+                                android:id="@+id/tvDistance"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="2dp"
+                                android:text="100km"
+                                android:textColor="#888888"
+                                android:textSize="15dp" />
+
+                        </LinearLayout>
+
                         <TextView
                             android:id="@+id/content_details"
                             android:layout_width="match_parent"
@@ -412,131 +438,11 @@
                             android:textSize="@dimen/_13sdp"
                             android:textStyle="bold"/>
 
-                        <FrameLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/background_radius_12sdp_light_green"
-                            android:padding="@dimen/_10sdp">
-
-                            <androidx.constraintlayout.widget.ConstraintLayout
+                            <FrameLayout
+                                android:id="@+id/fragment_container"
                                 android:layout_width="match_parent"
-                                android:layout_height="@dimen/_200sdp">
+                                android:layout_height="wrap_content" />
 
-                                <LinearLayout
-                                    android:id="@+id/container_top2"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="@dimen/_15sdp"
-                                    android:background="@drawable/background_leader_board_item"
-                                    android:gravity="center"
-                                    android:orientation="vertical"
-                                    android:paddingLeft="@dimen/_20sdp"
-                                    android:paddingTop="@dimen/_30sdp"
-                                    android:paddingRight="@dimen/_20sdp"
-                                    android:paddingBottom="@dimen/_30sdp"
-                                    android:rotation="-3"
-                                    app:layout_constraintBottom_toBottomOf="parent"
-                                    app:layout_constraintEnd_toStartOf="@+id/container_top1"
-                                    app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintTop_toTopOf="parent">
-
-                                    <de.hdodenhof.circleimageview.CircleImageView
-                                        android:layout_width="74dp"
-                                        android:layout_height="83dp"
-                                        android:src="@drawable/example_avatar" />
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_gravity="center"
-                                        android:text="Top 2" />
-
-                                </LinearLayout>
-
-                                <LinearLayout
-                                    android:id="@+id/container_top1"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:background="@drawable/background_leader_board_item"
-                                    android:gravity="center"
-                                    android:orientation="vertical"
-                                    android:paddingLeft="@dimen/_20sdp"
-                                    android:paddingTop="@dimen/_30sdp"
-                                    android:paddingRight="@dimen/_20sdp"
-                                    android:paddingBottom="@dimen/_30sdp"
-                                    android:rotation="3"
-                                    app:layout_constraintBottom_toBottomOf="parent"
-                                    app:layout_constraintEnd_toEndOf="parent"
-                                    app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintTop_toTopOf="parent"
-                                    app:layout_constraintVertical_bias="0.2">
-
-                                    <de.hdodenhof.circleimageview.CircleImageView
-                                        android:layout_width="@dimen/_60sdp"
-                                        android:layout_height="@dimen/_60sdp"
-                                        android:src="@drawable/example_avatar" />
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_gravity="center"
-                                        android:text="Top 1" />
-
-                                </LinearLayout>
-
-                                <LinearLayout
-                                    android:id="@+id/container_top3"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginEnd="@dimen/_15sdp"
-                                    android:background="@drawable/background_leader_board_item"
-                                    android:gravity="center"
-                                    android:orientation="vertical"
-                                    android:paddingLeft="@dimen/_20sdp"
-                                    android:paddingTop="@dimen/_30sdp"
-                                    android:paddingRight="@dimen/_20sdp"
-                                    android:paddingBottom="@dimen/_32sdp"
-                                    android:rotation="3"
-                                    app:layout_constraintBottom_toBottomOf="parent"
-                                    app:layout_constraintEnd_toEndOf="parent"
-                                    app:layout_constraintHorizontal_bias="0.5"
-                                    app:layout_constraintStart_toEndOf="@+id/container_top1"
-                                    app:layout_constraintTop_toTopOf="parent"
-                                    app:layout_constraintVertical_bias="0.6">
-
-                                    <de.hdodenhof.circleimageview.CircleImageView
-                                        android:layout_width="@dimen/_60sdp"
-                                        android:layout_height="@dimen/_60sdp"
-                                        android:src="@drawable/example_avatar" />
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_gravity="center"
-                                        android:text="Top 3" />
-                                </LinearLayout>
-
-                            </androidx.constraintlayout.widget.ConstraintLayout>
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="@dimen/_6sdp"
-                                android:layout_marginTop="@dimen/_146sdp"
-                                android:layout_marginEnd="@dimen/_6sdp"
-                                android:background="@drawable/background_light_grey_radius_12sdp"
-                                android:orientation="vertical"
-                                android:padding="@dimen/_20sdp">
-
-                                <androidx.recyclerview.widget.RecyclerView
-                                    android:id="@+id/leaderBoards"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content" />
-
-
-                            </LinearLayout>
-
-                        </FrameLayout>
 
                     </LinearLayout>
 
@@ -618,7 +524,52 @@
             android:layout_alignParentBottom="true"
             android:background="@color/white"
             android:paddingStart="@dimen/_10sdp"
-            android:paddingEnd="@dimen/_10sdp">
+            android:paddingEnd="@dimen/_10sdp"
+            android:paddingTop="@dimen/_10sdp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_margin="@dimen/_5sdp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="2dp"
+                    android:text="Số lượng đăng ký: "
+                    android:textColor="#888888"
+                    android:textSize="15dp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/totalRegistration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="2dp"
+                    android:text="20"
+                    android:textColor="#888888"
+                    android:textSize="15dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="2dp"
+                    android:text="/"
+                    android:textColor="#888888"
+                    android:textSize="15dp" />
+
+                <TextView
+                    android:id="@+id/maxMembers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="2dp"
+                    android:text="100"
+                    android:textColor="#888888"
+                    android:textSize="15dp" />
+
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

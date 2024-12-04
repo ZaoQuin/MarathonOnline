@@ -9,51 +9,53 @@
         app:cardElevation="0dp"
         app:cardBackgroundColor="@android:color/transparent">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/_10sdp"
-        android:orientation="horizontal"
-        android:gravity="center">
-
-        <FrameLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_10sdp"
+            android:orientation="horizontal"
+            android:gravity="center">
 
-            <ImageView
-                android:layout_width="@dimen/_35sdp"
-                android:layout_height="@dimen/_35sdp"
-                android:src="@drawable/ic_star"/>
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="@dimen/_35sdp"
+                    android:layout_height="@dimen/_35sdp"
+                    android:src="@drawable/ic_star"/>
+
+                <TextView
+                    android:id="@+id/position"
+                    android:layout_width="@dimen/_35sdp"
+                    android:layout_height="@dimen/_35sdp"
+                    android:text="999"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@color/black"
+                    android:gravity="center"/>
+
+            </FrameLayout>
 
             <TextView
-                android:id="@+id/position"
-                android:layout_width="@dimen/_35sdp"
-                android:layout_height="@dimen/_35sdp"
-                android:text="999"
-                android:textSize="@dimen/_10sdp"
-                android:textColor="@color/black"
-                android:gravity="center"/>
-
-        </FrameLayout>
-
-        <TextView
-            android:id="@+id/fullName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Quỳnh Giao"
+                android:id="@+id/fullName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Quỳnh Giao"
+                android:gravity="center"
             android:padding="@dimen/_5sdp"
             android:layout_marginStart="@dimen/_10sdp"/>
 
-        <TextView
-            android:id="@+id/distance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="100km"
-            android:padding="@dimen/_5sdp"
-            android:gravity="end"/>
+            <TextView
+                android:id="@+id/distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100km"
+                android:padding="@dimen/_5sdp"
+                android:gravity="end"/>
 
-    </LinearLayout>
+        </LinearLayout>
 
-</androidx.cardview.widget.CardView>
+
+    </androidx.cardview.widget.CardView>
     </layout>

@@ -19,6 +19,7 @@ import com.university.marathononline.ui.viewModel.InformationViewModel
 import com.university.marathononline.ui.viewModel.LoginViewModel
 import com.university.marathononline.ui.viewModel.VerifyOTPViewModel
 import com.university.marathononline.ui.viewModel.HomeViewModel
+import com.university.marathononline.ui.viewModel.LeaderBoardViewModel
 import com.university.marathononline.ui.viewModel.MonthlyStatisticsViewModel
 import com.university.marathononline.ui.viewModel.PaymentConfirmationViewModel
 import com.university.marathononline.ui.viewModel.ProfileViewModel
@@ -61,6 +62,7 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(DailyStatisticsViewModel::class.java) -> DailyStatisticsViewModel(findRepository(RaceRepository::class.java)) as T
             modelClass.isAssignableFrom(MonthlyStatisticsViewModel::class.java) -> MonthlyStatisticsViewModel(findRepository(RaceRepository::class.java)) as T
             modelClass.isAssignableFrom(YearlyStatisticsViewModel::class.java) -> YearlyStatisticsViewModel(findRepository(RaceRepository::class.java)) as T
+            modelClass.isAssignableFrom(LeaderBoardViewModel::class.java) -> LeaderBoardViewModel() as T
             else -> throw IllegalArgumentException("ViewModelClass Not Found")
         }
     }
