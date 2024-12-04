@@ -64,7 +64,6 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/date_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -87,6 +86,17 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     tools:text="01/01/2024" />
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="@dimen/_15sdp"
+                    android:layout_height="@dimen/_15sdp"
+                    android:layout_marginEnd="2dp" />
 
                 <TextView
                     android:layout_width="wrap_content"

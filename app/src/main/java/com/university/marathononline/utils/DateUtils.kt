@@ -152,4 +152,15 @@ object DateUtils {
         val secs = duration.seconds % 60
         return String.format("%02d:%02d:%02d", hours, minutes, secs)
     }
+
+    fun convertToVietnameseDate(dateTime: LocalDateTime): String {
+        val formatter = DateTimeFormatter.ofPattern("Ngày' dd 'tháng' MM 'năm' yyyy", Locale("vi", "VN"))
+        return dateTime.format(formatter)
+    }
+
+    fun convertToVietnameseDate(dateString: String): String {
+        val dateTime = convertStringToLocalDateTime(dateString)
+        val formatter = DateTimeFormatter.ofPattern("'Ngày' dd 'tháng' MM 'năm' yyyy", Locale("vi", "VN"))
+        return dateTime.format(formatter)
+    }
 }

@@ -2,6 +2,9 @@ package com.university.marathononline.utils
 
 import android.widget.EditText
 import android.widget.Spinner
+import java.math.BigDecimal
+import java.text.NumberFormat
+import java.util.Locale
 
 fun compareTextValues(editText1: EditText, editText2: EditText): Boolean {
     val value1 = editText1.text.toString().trim()
@@ -23,4 +26,9 @@ fun EditText.getInt(): Int{
 
 fun Spinner.getIntegerSelectedItem(): Int{
     return selectedItem.toString().toInt()
+}
+
+fun convertToVND(amount: BigDecimal): String {
+    val formatter = NumberFormat.getCurrencyInstance(Locale("vi", "VN"))
+    return formatter.format(amount)
 }

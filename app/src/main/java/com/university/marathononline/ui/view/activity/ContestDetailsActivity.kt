@@ -4,8 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
 import com.university.marathononline.base.BaseActivity
@@ -19,13 +21,18 @@ import com.university.marathononline.databinding.ActivityContestDetailsBinding
 import com.university.marathononline.ui.adapter.RewardAdapter
 import com.university.marathononline.ui.adapter.RuleAdapter
 import com.university.marathononline.ui.view.fragment.LeaderBoardFragment
+import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.KEY_REGISTRATIONS
+import com.university.marathononline.utils.convertToVND
+import com.university.marathononline.utils.enable
 import com.university.marathononline.utils.startNewActivity
 import com.university.marathononline.utils.visible
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.Serializable
+import java.time.LocalDateTime
 
 class ContestDetailsActivity :
     BaseActivity<ContestDetailsViewModel, ActivityContestDetailsBinding>() {
@@ -78,6 +85,17 @@ class ContestDetailsActivity :
                 secondsTextView.text = timeParts[3]
             }
         }
+        viewModel.contest.observe(this){
+            lifecycleScope.launch {
+                val emailValue = userPreferences.email.first()
+                emailValue?.let { it1 -> viewModel.checkRegister(it1) }
+            }
+        }
+        viewModel.isRegistered.observe(this){
+            Log.e("ContestDetailsActivity", it.toString())
+            binding.registerContainer.visible(!it)
+            binding.recordContainer.visible(it)
+        }
     }
 
     private fun setRewardAdapter() {
@@ -106,22 +124,53 @@ class ContestDetailsActivity :
                     )
                 }
             }
+
+            btnRecord.setOnClickListener{
+                startNewActivity(RecordActivity::class.java)
+            }
         }
     }
 
     private fun setUpData() {
         viewModel.contest.value?.let {
             binding.apply {
+                tvDistance.text = "${it.distance.toString()} km"
+                tvFee.text = it.fee?.let { it1 -> convertToVND(it1) }
+                tvMaxMembers.text = if (it.maxMembers == 0) "Không giới hạn người tham gia" else it.maxMembers.toString()
                 contestName.text = it.name
-                startDate.text = it.startDate
-                endDate.text = it.endDate
+                startDate.text = it.startDate?.let { it1 -> DateUtils.convertToVietnameseDate(it1) }
+                endDate.text = it.endDate?.let { it1 -> DateUtils.convertToVietnameseDate(it1) }
                 contentDetails.text = it.description
-                feeRegister.text = it.fee.toString()
+                feeRegister.text = it.fee?.let { it1 -> convertToVND(it1) }
                 organizationalName.text = it.organizer?.fullName
                 emailOrganizer.text = it.organizer?.email
-                sectionLeaderBoard.visible(it.status != EContestStatus.PENDING)
-                maxMembers.text = it.maxMembers.toString()
-                totalRegistration.text = it.registrations?.size.toString()
+                sectionLeaderBoard.visible(it.status == EContestStatus.ACTIVE
+                        || it.status == EContestStatus.FINISHED)
+                val totalRegistration = it.registrations?.size
+                maxMembers.text = if (it.maxMembers == 0) "Không giới hạn người tham gia" else "$totalRegistration/ ${it.maxMembers.toString()}"
+                if(it.maxMembers != 0 && it.maxMembers!! <= it.registrations?.size!!){
+                    btnRegisterContest.enable(false)
+                    btnRegisterContest.text = "Số lượng đăng ký đã quá giới hạn"
+                }
+                if(it.registrationDeadline?.let { it1 -> DateUtils.convertStringToLocalDateTime(it1).isBefore(LocalDateTime.now()) } == true){
+                    btnRegisterContest.enable(false)
+                    btnRegisterContest.text = "Hết hạn đăng ký"
+                }
+                when(it.status){
+                    EContestStatus.CANCELLED -> {
+                        btnRegisterContest.enable(false)
+                        btnRegisterContest.text = "Cuộc thi đã hủy"
+                    }
+                    EContestStatus.NOT_APPROVAL -> {
+                        btnRegisterContest.enable(false)
+                        btnRegisterContest.text = "Cuộc thi không được chấp thuận"
+                    }
+                    EContestStatus.DELETED -> {
+                        btnRegisterContest.enable(false)
+                        btnRegisterContest.text = "Cuộc thi đã bị xóa"
+                    }
+                    else -> Unit
+                }
             }
         }
     }

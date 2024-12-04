@@ -11,6 +11,7 @@ import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.EContestStatus
 import com.university.marathononline.data.models.ERegistrationStatus
 import com.university.marathononline.ui.view.activity.ContestDetailsActivity
+import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.startNewActivity
 
@@ -20,9 +21,8 @@ class ContestRunnerAdapter(private var contests: List<Contest>, private val emai
 
         fun bind(item: Contest, email: String) {
             binding.apply {
-                tvContestName.text = item.name ?: "No Name"
+                tvContestName.text = item.name ?: "Không có tên"
 
-                // Cập nhật trạng thái cuộc thi
                 tvContestStatus.apply {
                     text = when (item.status) {
                         EContestStatus.PENDING -> "Chờ duyệt"
@@ -44,8 +44,11 @@ class ContestRunnerAdapter(private var contests: List<Contest>, private val emai
                     )
                 }
 
-                tvContestDatesStart.text = "Ngày bắt đầu: ${item.startDate ?: "N/A"} "
-                tvContestDatesEnd.text = " Ngày kết thúc: ${item.endDate ?: "N/A"}"
+                val startDate = item.startDate?.let { DateUtils.convertToVietnameseDate(it) }
+                val endDate = item.endDate?.let { DateUtils.convertToVietnameseDate(it) }
+
+                tvContestDatesStart.text = "Ngày bắt đầu: ${startDate ?: "N/A"} "
+                tvContestDatesEnd.text = " Ngày kết thúc: ${endDate ?: "N/A"}"
 
                 tvCompletionStatus.apply {
                     val completed = item.registrations?.any { it.runner.email == email && it.status == ERegistrationStatus.COMPLETED } == true

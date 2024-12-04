@@ -24,3 +24,4 @@ data class Contest(
 enum class EContestStatus {
     PENDING, ACTIVE, FINISHED, CANCELLED, NOT_APPROVAL, DELETED
 }
+
