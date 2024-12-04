@@ -74,6 +74,7 @@
                             android:layout_marginBottom="4dp" />
 
                         <TextView
+                            android:id="@+id/myContestsNumber"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="10"
@@ -83,6 +84,7 @@
                             android:layout_marginBottom="2dp" />
 
                         <TextView
+
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Cuộc thi"

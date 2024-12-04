@@ -61,7 +61,8 @@ class ViewModelFactory(
                                                                                         findRepository(RaceRepository::class.java)) as T
             modelClass.isAssignableFrom(ContestDetailsViewModel::class.java) -> ContestDetailsViewModel(findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(PaymentConfirmationViewModel::class.java) -> PaymentConfirmationViewModel(findRepository(AuthRepository::class.java)) as T
-            modelClass.isAssignableFrom(ProfileViewModel::class.java) -> ProfileViewModel(findRepository(RaceRepository::class.java)) as T
+            modelClass.isAssignableFrom(ProfileViewModel::class.java) -> ProfileViewModel(findRepository(RaceRepository::class.java),
+                findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(DailyStatisticsViewModel::class.java) -> DailyStatisticsViewModel(findRepository(RaceRepository::class.java)) as T
             modelClass.isAssignableFrom(MonthlyStatisticsViewModel::class.java) -> MonthlyStatisticsViewModel(findRepository(RaceRepository::class.java)) as T
             modelClass.isAssignableFrom(YearlyStatisticsViewModel::class.java) -> YearlyStatisticsViewModel(findRepository(RaceRepository::class.java)) as T
