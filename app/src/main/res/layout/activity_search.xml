@@ -43,10 +43,12 @@
                     android:layout_margin="@dimen/_3sdp"/>
 
                 <EditText
+                    android:id="@+id/key"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
                     android:hint="Tìm kiếm"
                     android:textColor="#9B9B9B"/>
+
             </LinearLayout>
 
         </Toolbar>

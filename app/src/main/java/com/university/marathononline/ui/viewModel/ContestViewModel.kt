@@ -1,6 +1,5 @@
 package com.university.marathononline.ui.viewModel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -13,13 +12,13 @@ import kotlinx.coroutines.launch
 class ContestViewModel(
     private val repository: ContestRepository
 ): BaseViewModel(listOf(repository)) {
-    private val _contests: MutableLiveData<Resource<GetContestsResponse>> = MutableLiveData()
-    val contests: LiveData<Resource<GetContestsResponse>> get() = _contests
+    private val _getContestsResponse: MutableLiveData<Resource<GetContestsResponse>> = MutableLiveData()
+    val getContestsResponse: LiveData<Resource<GetContestsResponse>> get() = _getContestsResponse
 
     fun getActiveContests(){
         viewModelScope.launch {
-            _contests.value = Resource.Loading
-            _contests.value = repository.getContests()
+            _getContestsResponse.value = Resource.Loading
+            _getContestsResponse.value = repository.getContests()
         }
     }
 }

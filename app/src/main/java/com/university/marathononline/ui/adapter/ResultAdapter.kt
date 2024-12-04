@@ -8,17 +8,20 @@ import androidx.recyclerview.widget.RecyclerView
 import com.university.marathononline.ui.view.activity.ContestDetailsActivity
 import com.university.marathononline.databinding.ItemResultBinding
 import com.university.marathononline.data.models.Contest
+import com.university.marathononline.utils.KEY_CONTEST
+import com.university.marathononline.utils.startNewActivity
 
 class ResultAdapter (private var results: List<Contest>): RecyclerView.Adapter<ResultAdapter.ViewHolder>(){
     class ViewHolder(private val binding: ItemResultBinding): RecyclerView.ViewHolder(binding.root){
 
         fun bind(item: Contest){
             binding.name.text = item.name
-            binding.organizerName.text = "Tên tổ chức"
+            binding.organizerName.text = item.organizer?.fullName
 
             binding.showDetailsBtn.setOnClickListener {
-                val intent = Intent(binding.root.context, ContestDetailsActivity::class.java)
-                binding.root.context.startActivity(intent)
+                it.context.startNewActivity(ContestDetailsActivity::class.java,
+                    mapOf( KEY_CONTEST to item)
+                )
             }
         }
     }
