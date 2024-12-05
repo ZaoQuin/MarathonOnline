@@ -30,7 +30,7 @@ class LeaderBoardAdapter (private val registrations: List<Registration>) : Recyc
         val reg = registrations?.get(position)  // Kiểm tra null
         if (reg != null) {
             val user = reg.runner
-            val distance = reg.raceResults?.sumOf { it.distance } ?: 0.0 // Kiểm tra null cho raceResults và trả về 0 nếu null
+            val distance = reg.races?.sumOf { it.distance } ?: 0.0 // Kiểm tra null cho raceResults và trả về 0 nếu null
 
             holder.bind(distance, user.fullName, position)
         } else {
