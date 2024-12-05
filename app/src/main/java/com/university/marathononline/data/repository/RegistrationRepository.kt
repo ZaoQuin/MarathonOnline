@@ -2,6 +2,7 @@ package com.university.marathononline.data.repository
 
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.registration.RegistrationApiService
+import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.Race
 
 class RegistrationRepository(
@@ -10,5 +11,9 @@ class RegistrationRepository(
 
     suspend fun saveRaceIntoRegistration(race: Race) = safeApiCall {
         api.saveRaceIntoRegistration(race)
+    }
+
+    suspend fun registerForContest(contest: Contest) = safeApiCall {
+        api.registerForContest(contest)
     }
 }

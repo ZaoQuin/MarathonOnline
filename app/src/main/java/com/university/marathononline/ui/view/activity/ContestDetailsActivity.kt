@@ -171,6 +171,14 @@ class ContestDetailsActivity :
                     }
                     else -> Unit
                 }
+                if (it.startDate?.let { start ->
+                        DateUtils.convertStringToLocalDateTime(start).isBefore(LocalDateTime.now()) ||
+                                DateUtils.convertStringToLocalDateTime(start).isEqual(LocalDateTime.now())
+                    } == false) {
+                    binding.btnRecord.enable(false)
+                    binding.btnRecord.text = "Cuộc thi chưa bắt đầu"
+
+                }
             }
         }
     }

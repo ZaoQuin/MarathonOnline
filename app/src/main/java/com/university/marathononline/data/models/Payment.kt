@@ -5,13 +5,9 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 
 data class Payment(
-    var id: Long,
-    var amount: BigDecimal,
-    var paymentDate: LocalDateTime,
-    var status: EPaymentStatus
+    var id: Long? = null,
+    var amount: BigDecimal? = null,
+    var paymentDate: String? = null
 ): Serializable
 
-enum class EPaymentStatus {
-    PENDING, COMPLETED, FAILED, EXPIRED, CANCELLED
-}
 

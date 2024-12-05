@@ -1,23 +1,10 @@
 package com.university.marathononline.ui.viewModel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.university.marathononline.base.BaseViewModel
-import com.university.marathononline.data.models.ContestHistory
-import com.university.marathononline.data.models.EGender
-import com.university.marathononline.data.models.EPaymentStatus
-import com.university.marathononline.data.models.ERegistrationStatus
-import com.university.marathononline.data.models.ERewardType
-import com.university.marathononline.data.models.ERole
-import com.university.marathononline.data.models.Payment
-import com.university.marathononline.data.models.Race
 import com.university.marathononline.data.models.Registration
-import com.university.marathononline.data.models.Reward
-import com.university.marathononline.data.models.User
 import com.university.marathononline.utils.DateUtils
-import java.math.BigDecimal
-import java.time.LocalDateTime
 
 
 class LeaderBoardViewModel(): BaseViewModel(listOf()) {

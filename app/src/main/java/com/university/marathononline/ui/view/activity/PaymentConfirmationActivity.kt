@@ -2,18 +2,31 @@ package com.university.marathononline.ui.view.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.auth.AuthApiService
+import com.university.marathononline.data.api.contest.ContestApiService
+import com.university.marathononline.data.api.payment.PaymentApiService
+import com.university.marathononline.data.api.registration.RegistrationApiService
 import com.university.marathononline.data.models.Contest
+import com.university.marathononline.data.models.ERegistrationStatus
 import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.AuthRepository
+import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.data.repository.PaymentRepository
+import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.databinding.ActivityPaymentConfirmationBinding
 import com.university.marathononline.ui.viewModel.PaymentConfirmationViewModel
 import com.university.marathononline.utils.KEY_CONTEST
+import com.university.marathononline.utils.enable
+import com.university.marathononline.utils.startNewActivity
 import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -29,14 +42,59 @@ class PaymentConfirmationActivity : BaseActivity<PaymentConfirmationViewModel, A
 
     private fun setUpObserve() {
         viewModel.user.observe(this, Observer {
+            binding.btnPayment.enable(it != Resource.Loading)
             when(it){
                 is Resource.Success -> updateUserUI(it.value)
                 is Resource.Failure -> handleApiError(it)
                 else -> Unit
             }
         })
-    }
 
+        viewModel.registerResponse.observe(this){
+            when(it){
+                is Resource.Success -> {
+                    viewModel.setRegistration(it.value)
+                }
+                is Resource.Failure -> handleApiError(it)
+                else -> Unit
+            }
+        }
+
+        viewModel.registration.observe(this){
+
+            if(viewModel.registration.value?.status == ERegistrationStatus.PENDING) {
+                viewModel.payment()
+            }
+        }
+
+        viewModel.addPayment.observe(this) {
+            when(it){
+                is Resource.Success -> {
+                    Log.d("PaymentActivity", it.toString())
+                    showToastWithDelay("Đăng ký thành công", 2500)
+                    viewModel.getContestById()
+                }
+                is Resource.Failure -> {handleApiError(it)
+                    Log.e("PaymentActivity",
+                        it.fetchErrorMessage())
+                }
+                else -> Unit
+            }
+        }
+
+        viewModel.getContestById.observe(this){
+            when(it){
+                is Resource.Success -> {
+                    startNewActivity(ContestDetailsActivity::class.java, mapOf(KEY_CONTEST to it.value))
+                }
+                is Resource.Failure -> {handleApiError(it)
+                    Log.e("PaymentActivity",
+                        it.fetchErrorMessage())
+                }
+                else -> Unit
+            }
+        }
+    }
     private fun updateUserUI(user: User) {
         binding.apply {
             tvFullName.text = user.fullName
@@ -58,12 +116,17 @@ class PaymentConfirmationActivity : BaseActivity<PaymentConfirmationViewModel, A
 
     private fun updateContestUI(contest: Contest) {
         binding.apply {
+            btnPayment.enable(false)
             tvContestName.text = contest.name
             tvContestDistance.text = contest.distance.toString()
             tvContestFee.text = contest.fee.toString()
             tvtOrganizerName.text = contest.organizer?.fullName
             tvtOrganizerUsername.text = contest.organizer?.username
             tvRegisterDate.text = LocalDateTime.now().toString()
+
+            btnPayment.setOnClickListener{
+                viewModel.registerContest()
+            }
         }
     }
 
@@ -73,9 +136,22 @@ class PaymentConfirmationActivity : BaseActivity<PaymentConfirmationViewModel, A
 
     override fun getActivityRepositories(): List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
-        val api = retrofitInstance.buildApi(AuthApiService::class.java, token)
+        val authApi = retrofitInstance.buildApi(AuthApiService::class.java, token)
+        val regApi = retrofitInstance.buildApi(RegistrationApiService::class.java, token)
+        val paymentApi = retrofitInstance.buildApi(PaymentApiService::class.java, token)
+        val contestApi = retrofitInstance.buildApi(ContestApiService::class.java, token)
         return listOf(
-            AuthRepository(api, userPreferences)
+            AuthRepository(authApi, userPreferences),
+            RegistrationRepository(regApi),
+            PaymentRepository(paymentApi),
+            ContestRepository(contestApi)
         )
     }
+
+    private fun showToastWithDelay(message: String, delayMillis: Long) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        Handler(Looper.getMainLooper()).postDelayed({
+        }, delayMillis)
+    }
+
 }

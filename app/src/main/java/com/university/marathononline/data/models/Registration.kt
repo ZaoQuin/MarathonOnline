@@ -8,13 +8,13 @@ data class Registration(
     var payment: Payment,
     var registrationDate: String,
     var completedDate: String,
+    var status: ERegistrationStatus,
     var registrationRank: Int,
     var raceResults: List<Race>,
-    var rewards: List<Reward>? = null,
-    var status: ERegistrationStatus? = null
+    var rewards: List<Reward>? = null
 ): Serializable
 
 enum class ERegistrationStatus {
-    PENDING, COMPLETED, REJECTED, CANCELLED
+    PENDING,ACTIVE, COMPLETED
 }
 

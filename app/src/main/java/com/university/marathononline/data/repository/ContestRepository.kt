@@ -18,4 +18,8 @@ class ContestRepository(
     suspend fun getByRunner() = safeApiCall {
         api.getByRunner()
     }
+
+    suspend fun getById(id: Long) = safeApiCall {
+        api.getById(id)
+    }
 }
