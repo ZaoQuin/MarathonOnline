@@ -154,8 +154,9 @@ object DateUtils {
     }
 
     fun convertToVietnameseDate(dateTime: LocalDateTime): String {
+        val result = convertStringToLocalDateTime(dateTime.toString())
         val formatter = DateTimeFormatter.ofPattern("Ngày' dd 'tháng' MM 'năm' yyyy", Locale("vi", "VN"))
-        return dateTime.format(formatter)
+        return result.format(formatter)
     }
 
     fun convertToVietnameseDate(dateString: String): String {
