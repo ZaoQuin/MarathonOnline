@@ -62,6 +62,9 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
 
     private fun setUpLineChart(race: Map<String, String>) {
         val lineChart = binding.lineChart
+        val year = viewModel.selectedYear.value?: LocalDate.now().year
+        val month = viewModel.selectedMonth.value?: LocalDate.now().monthValue
+        val numberOfDaysInMonth = LocalDate.of(year, month, 1).lengthOfMonth()
 
         val xAxis = lineChart.xAxis
         val leftAxis = lineChart.axisLeft
@@ -69,7 +72,7 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
 
         xAxis.apply {
             position = XAxis.XAxisPosition.BOTTOM
-            setLabelCount(10, true)
+            setLabelCount(numberOfDaysInMonth, true)
             textColor = ContextCompat.getColor(requireContext(), R.color.text_color)
             gridColor = ContextCompat.getColor(requireContext(), R.color.light_gray)
             axisLineColor = ContextCompat.getColor(requireContext(), R.color.dark_main_color)
@@ -87,39 +90,18 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
         rightAxis.isEnabled = false
 
         val entries = ArrayList<Entry>()
+        for (day in 1..numberOfDaysInMonth) {
+            val formattedDay = day.toString().padStart(2, '0')
+            val formattedMonth = month.toString().padStart(2, '0')
+            val key = "2024-$formattedMonth-$formattedDay"
 
-        if (race.isEmpty()) {
-            val currentMonth = LocalDate.now().monthValue
-            val numberOfDaysInMonth = LocalDate.of(2024, currentMonth, 1).lengthOfMonth() // Giả sử năm là 2024
-
-            for (day in 1..numberOfDaysInMonth) {
-                entries.add(Entry(day.toFloat(), 0f))
-            }
-        } else {
-            for ((day, value) in race) {
-                val dateParts = day.split("-")
-                val month = dateParts[1].toInt()
-                val dayInt = dateParts[2].toInt()
-                val distance = value.toFloat()
-
-                val currentMonth = LocalDate.now().monthValue
-                if (month == currentMonth) {
-                    entries.add(Entry(dayInt.toFloat(), distance))
-                }
-            }
-
-            val currentMonth = LocalDate.now().monthValue
-            val numberOfDaysInMonth = LocalDate.of(2024, currentMonth, 1).lengthOfMonth()
-
-            for (day in 1..numberOfDaysInMonth) {
-                if (entries.none { it.x == day.toFloat() }) {
-                    entries.add(Entry(day.toFloat(), 0f))
-                }
-            }
+            val distance = race[key]?.toFloatOrNull() ?: 0f
+            entries.add(Entry(day.toFloat(), distance))
         }
 
-        val dataSet = LineDataSet(entries, "Quá trình chạy hằng ngày")
-        dataSet.apply {
+        entries.sortBy { it.x }
+
+        val dataSet = LineDataSet(entries, "Quá trình chạy hằng ngày").apply {
             color = ContextCompat.getColor(requireContext(), R.color.main_color)
             lineWidth = 2f
             setCircleColor(ContextCompat.getColor(requireContext(), R.color.light_main_color))
@@ -131,9 +113,8 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
         }
 
         val lineData = LineData(dataSet)
-        lineChart.data = lineData
-
         lineChart.apply {
+            data = lineData
             setDrawGridBackground(false)
             description.isEnabled = false
             legend.apply {
@@ -144,7 +125,10 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
             animateXY(1500, 1500)
             setPinchZoom(true)
             setScaleEnabled(true)
+            invalidate()
         }
+
+        Log.d("MonthlyStatisticsFragment", "Entries count: ${entries.size}")
     }
 
     private fun observeViewModel() {
@@ -179,7 +163,8 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
     private fun showMonthPickerBottomSheet() {
         val bottomSheet = MonthPickerBottomSheetFragment { month, year ->
             binding.filterText.text = DateUtils.getFormattedMonthYear(month, year)
-            viewModel.filterDataByMonth(month, year)
+            viewModel.setSelectedTime(month + 1, year)
+            viewModel.filterDataByMonth(month + 1, year)
         }
         bottomSheet.show(parentFragmentManager, bottomSheet.tag)
     }

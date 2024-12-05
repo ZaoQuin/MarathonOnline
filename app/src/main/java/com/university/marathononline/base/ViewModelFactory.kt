@@ -56,7 +56,7 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(ChangePasswordViewModel::class.java) -> ChangePasswordViewModel(findRepository(UserRepository::class.java)) as T
             modelClass.isAssignableFrom(DeleteUserAccountViewModel::class.java) -> DeleteUserAccountViewModel(findRepository(AuthRepository::class.java)) as T
             modelClass.isAssignableFrom(AccountDeletedViewModel::class.java) -> AccountDeletedViewModel(findRepository(AuthRepository::class.java)) as T
-            modelClass.isAssignableFrom(HomeViewModel::class.java) -> HomeViewModel(findRepository(ContestRepository::class.java)) as T
+            modelClass.isAssignableFrom(HomeViewModel::class.java) -> HomeViewModel(findRepository(ContestRepository::class.java), findRepository(AuthRepository::class.java)) as T
             modelClass.isAssignableFrom(ContestViewModel::class.java) -> ContestViewModel(findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(RecordViewModel::class.java) -> RecordViewModel(findRepository(RegistrationRepository::class.java),
                                                                                         findRepository(RaceRepository::class.java)) as T
