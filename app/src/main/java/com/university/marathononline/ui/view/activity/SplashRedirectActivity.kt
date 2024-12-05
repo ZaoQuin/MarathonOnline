@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import androidx.lifecycle.lifecycleScope
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.data.api.auth.AuthApiService
+import com.university.marathononline.data.models.ERole
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.databinding.ActivitySplashRedirectBinding
 import com.university.marathononline.ui.viewModel.SplashRedirectViewModel
@@ -13,7 +14,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
-class SplashRedirectActivity : BaseActivity<SplashRedirectViewModel, ActivitySplashRedirectBinding>() {
+class SplashRedirectActivity :
+    BaseActivity<SplashRedirectViewModel, ActivitySplashRedirectBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -40,11 +42,18 @@ class SplashRedirectActivity : BaseActivity<SplashRedirectViewModel, ActivitySpl
             } else {
                 val isVerified = userPreferences.isVerified.firstOrNull()
                 val isDeleted = userPreferences.isDeleted.firstOrNull()
+                val role = userPreferences.role.firstOrNull()
                 when {
                     isDeleted == true -> startNewActivity(AccountDeletedActivity::class.java, true)
                     isVerified == null -> startNewActivity(LoginActivity::class.java, true)
                     !isVerified -> startNewActivity(VerifyOTPActivity::class.java)
-                    else -> startNewActivity(MainActivity::class.java, true)
+                    else -> {
+                        when (role) {
+                            ERole.RUNNER -> startNewActivity(MainActivity::class.java, true)
+                            ERole.ORGANIZER -> startNewActivity(OrganizerMainActivity::class.java, true)
+                            else -> startNewActivity(LoginActivity::class.java, true)
+                        }
+                    }
                 }
             }
         }
@@ -52,8 +61,14 @@ class SplashRedirectActivity : BaseActivity<SplashRedirectViewModel, ActivitySpl
 
     override fun getViewModel() = SplashRedirectViewModel::class.java
 
-    override fun getActivityBinding(inflater: LayoutInflater) = ActivitySplashRedirectBinding.inflate(inflater)
+    override fun getActivityBinding(inflater: LayoutInflater) =
+        ActivitySplashRedirectBinding.inflate(inflater)
 
-    override fun getActivityRepositories() = listOf(AuthRepository(retrofitInstance.buildApi(AuthApiService::class.java, ""), userPreferences))
+    override fun getActivityRepositories() = listOf(
+        AuthRepository(
+            retrofitInstance.buildApi(AuthApiService::class.java, ""),
+            userPreferences
+        )
+    )
 
 }

@@ -16,7 +16,9 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
+import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.api.contest.ContestApiService
+import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.databinding.FragmentHomeBinding
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.ui.adapter.ContestAdapter
@@ -105,15 +107,15 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
             Log.d("ContestFragment", it.toString())
             when(it){
                 is Resource.Success -> {
-                    if (it.value.contests.isEmpty()) {
-                        Toast.makeText(requireContext(), "No active contests found.", Toast.LENGTH_SHORT).show()
-                    } else {
-                        adapter.updateData(it.value.contests)
-                    }
+                    adapter.updateData(it.value.contests)
                 }
                 is Resource.Failure -> {
                     handleApiError(it)
                     it.fetchErrorMessage()
+                    if(it.errorCode == 401 || it.errorCode == 500) {
+                        Toast.makeText(requireContext(), "Phiên bản làm việc đã hết hạn.", Toast.LENGTH_SHORT).show()
+                        logout()
+                    }
                 }
                 else -> Unit
             }
@@ -132,7 +134,9 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
 
     override fun getFragmentRepositories(): List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
-        val api = retrofitInstance.buildApi(ContestApiService::class.java, token)
-        return listOf(ContestRepository(api))
+        val contestApi = retrofitInstance.buildApi(ContestApiService::class.java, token)
+        val authApi = retrofitInstance.buildApi(AuthApiService::class.java, token)
+        return listOf(ContestRepository(contestApi),
+            AuthRepository(authApi, userPreferences))
     }
 }

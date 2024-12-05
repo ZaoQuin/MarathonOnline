@@ -6,17 +6,16 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
-import com.university.marathononline.ui.adapter.MainPagerAdapter
 import com.university.marathononline.R
-import com.university.marathononline.databinding.ActivityMainBinding
+import com.university.marathononline.databinding.ActivityOrganizerMainBinding
+import com.university.marathononline.ui.adapter.OrganizerPagerAdapter
 import com.university.marathononline.ui.viewModel.MainViewModel
-import com.university.marathononline.utils.startNewActivity
 
-class MainActivity : AppCompatActivity() {
+class OrganizerMainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityOrganizerMainBinding
     private val viewModel: MainViewModel by viewModels()
-    private lateinit var adapter: MainPagerAdapter
+    private lateinit var adapter: OrganizerPagerAdapter
 
     private var handlerAnimation = Handler()
     private var statusAnimation = false
@@ -24,10 +23,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityOrganizerMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        adapter = MainPagerAdapter(this)
+        adapter = OrganizerPagerAdapter(this)
 
         setUpViewPager()
         setUpBottomNavView()
@@ -38,8 +37,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpRecordButton() {
-        binding.btnRecord.setOnClickListener{
-            startNewActivity(RecordActivity::class.java)
+        binding.btnAddContest.setOnClickListener{
+//            startNewActivity(RecordActivity::class.java)
         }
     }
 
@@ -89,9 +88,9 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNavView.setOnItemSelectedListener { options ->
             when (options.itemId) {
-                R.id.tabHome -> viewModel.onNavOptionSelected(0)
-                R.id.tabContest -> viewModel.onNavOptionSelected(1)
-                R.id.tabNotify -> viewModel.onNavOptionSelected(2)
+                R.id.tabOrganizerHome -> viewModel.onNavOptionSelected(0)
+                R.id.tabManagementContest -> viewModel.onNavOptionSelected(1)
+                R.id.tabOrganizerStatistics -> viewModel.onNavOptionSelected(2)
                 R.id.tabProfile -> viewModel.onNavOptionSelected(3)
                 else -> false
             }

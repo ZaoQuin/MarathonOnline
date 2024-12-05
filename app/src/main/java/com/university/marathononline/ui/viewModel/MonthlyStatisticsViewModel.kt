@@ -23,6 +23,12 @@ class MonthlyStatisticsViewModel(
     private val _distance: MutableLiveData<Double> = MutableLiveData(0.0)
     val distance: LiveData<Double> get() = _distance
 
+    private val _selectedMonth: MutableLiveData<Int> = MutableLiveData()
+    val selectedMonth: LiveData<Int> get() = _selectedMonth
+
+    private val _selectedYear: MutableLiveData<Int> = MutableLiveData()
+    val selectedYear: LiveData<Int> get() = _selectedYear
+
     private val _steps: MutableLiveData<Int> = MutableLiveData(0)
     val steps: LiveData<Int> get() = _steps
 
@@ -43,13 +49,13 @@ class MonthlyStatisticsViewModel(
         try {
             val dateKey = "$year-$month"
             Log.d("MonthlyStatisticsViewModel", "dateKey" + dateKey)
-            val result = statsByMonth[dateKey]
+            val result = statsByMonth[dateKey]?: emptyMap()
             Log.d("MonthlyStatisticsViewModel", result.toString())
 
-            _distance.value = result?.get(KEY_TOTAL_DISTANCE) as? Double ?: 0.0
-            _timeTaken.value = result?.get(KEY_TOTAL_TIME) as? String ?: "00:00:00"
-            _avgSpeed.value = result?.get(KEY_AVG_SPEED) as? Double ?: 0.0
-            _steps.value = result?.get(KEY_TOTAL_STEPS) as? Int ?: 0
+            _distance.value = result[KEY_TOTAL_DISTANCE] as? Double ?: 0.0
+            _timeTaken.value = result[KEY_TOTAL_TIME] as? String ?: "00:00:00"
+            _avgSpeed.value = result[KEY_AVG_SPEED] as? Double ?: 0.0
+            _steps.value = result[KEY_TOTAL_STEPS] as? Int ?: 0
             val raceOfMonth = groupedByMonth[dateKey]
             val groupedByDate = raceOfMonth?.groupBy {
                 DateUtils.convertStringToLocalDateTime(it.timestamp).toLocalDate().toString()
@@ -61,7 +67,6 @@ class MonthlyStatisticsViewModel(
 
             _dataLineChart.value = dailyDistances
         } catch (e: Exception) {
-            Log.e("MonthlyStatisticsViewModel", "Error filtering data for $month/$year", e)
             _dataLineChart.value = emptyMap()
             _distance.value = 0.0
             _timeTaken.value = "00:00:00"
@@ -77,6 +82,11 @@ class MonthlyStatisticsViewModel(
             "${dateTime.year}-${dateTime.monthValue}"
         }
         statsByMonth = groupedByMonth.mapValues { calculateStats(it.value) }
+    }
+
+    fun setSelectedTime(month: Int, year: Int) {
+        _selectedMonth.value = month
+        _selectedYear.value = year
     }
 
     private fun calculateStats(group: List<Race>): Map<String, Any> {

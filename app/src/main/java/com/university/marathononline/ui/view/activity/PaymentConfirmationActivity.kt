@@ -24,8 +24,11 @@ import com.university.marathononline.data.repository.PaymentRepository
 import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.databinding.ActivityPaymentConfirmationBinding
 import com.university.marathononline.ui.viewModel.PaymentConfirmationViewModel
+import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_CONTEST
+import com.university.marathononline.utils.convertToVND
 import com.university.marathononline.utils.enable
+import com.university.marathononline.utils.finishAndGoBack
 import com.university.marathononline.utils.startNewActivity
 import handleApiError
 import kotlinx.coroutines.flow.first
@@ -100,6 +103,10 @@ class PaymentConfirmationActivity : BaseActivity<PaymentConfirmationViewModel, A
             tvFullName.text = user.fullName
             tvUserGender.text = user.gender.value
             tvUserAddress.text = user.address
+
+            buttonBack.setOnClickListener{
+                finishAndGoBack()
+            }
         }
     }
 
@@ -118,15 +125,16 @@ class PaymentConfirmationActivity : BaseActivity<PaymentConfirmationViewModel, A
         binding.apply {
             btnPayment.enable(false)
             tvContestName.text = contest.name
-            tvContestDistance.text = contest.distance.toString()
-            tvContestFee.text = contest.fee.toString()
+            tvContestDistance.text = "${contest.distance} km"
+            tvContestFee.text = contest.fee?.let { convertToVND(it) }
             tvtOrganizerName.text = contest.organizer?.fullName
-            tvtOrganizerUsername.text = contest.organizer?.username
-            tvRegisterDate.text = LocalDateTime.now().toString()
+            tvtOrganizerUsername.text = "@${contest.organizer?.username}"
+            tvRegisterDate.text = DateUtils.convertToVietnameseDate(LocalDateTime.now().toString())
 
             btnPayment.setOnClickListener{
                 viewModel.registerContest()
             }
+
         }
     }
 

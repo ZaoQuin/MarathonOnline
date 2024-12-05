@@ -55,12 +55,12 @@ fun EditText.isEmail(errorTextView: TextView, errorText: String): Boolean{
 
 fun isMatch(text1: EditText, text2: EditText, errorText1: TextView, errorText2: TextView, errorMessage: String): Boolean {
     return if (compareTextValues(text1, text2)) {
-        errorText1.text = errorMessage
-        errorText2.text = errorMessage
-        true
-    } else {
         errorText1.text = null
         errorText2.text = null
+        true
+    } else {
+        errorText1.text = errorMessage
+        errorText2.text = errorMessage
         false
     }
 }

@@ -1,0 +1,5 @@
+<!-- res/drawable/radio_button_unselected.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/light_gray"/>
+    <corners android:radius="20dp"/>
+</shape>

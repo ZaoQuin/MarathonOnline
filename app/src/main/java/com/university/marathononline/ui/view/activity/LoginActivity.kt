@@ -1,12 +1,15 @@
 package com.university.marathononline.ui.view.activity
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.university.marathononline.R.string.*
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.auth.AuthApiService
+import com.university.marathononline.data.models.ERole
 import com.university.marathononline.data.models.LoginInfo
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.response.AuthResponse
@@ -14,6 +17,7 @@ import com.university.marathononline.databinding.ActivityLoginBinding
 import com.university.marathononline.ui.viewModel.LoginViewModel
 import com.university.marathononline.utils.*
 import handleApiError
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding>() {
@@ -29,8 +33,18 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding>() {
         binding.apply {
             progressBar.visible(false)
             appName.visible(true)
-        }
 
+            val roleMap = mapOf(
+                runnerRole to ERole.RUNNER,
+                organizerRole to ERole.ORGANIZER
+            )
+
+            roleMap.forEach { (button, role) ->
+                button.setOnClickListener {
+                    viewModel.selectedRole(role)
+                }
+            }
+        }
         setupClickListeners()
     }
 
@@ -78,7 +92,13 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding>() {
         }
 
         when (response) {
-            is Resource.Success -> onLoginSuccess(response.value)
+            is Resource.Success -> {
+                if(viewModel.selectedRole.value != response.value.role){
+                    Toast.makeText(this, getString(error_selected_role), Toast.LENGTH_SHORT).show()
+                } else {
+                    onLoginSuccess(response.value)
+                }
+            }
             is Resource.Failure -> handleApiError(response)
             else -> Unit
         }

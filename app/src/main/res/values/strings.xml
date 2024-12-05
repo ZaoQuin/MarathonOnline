@@ -14,4 +14,5 @@
     <string name="password_update_success">Cập nhật mật khẩu thành công!</string>
     <string name="resend_otp">Gửi lại mã</string>
     <string name="exist_email">Đã tồn tại tài khoản với email này.</string>
+    <string name="error_selected_role">Vui lòng chọn vai trò hợp lệ.</string>
 </resources>
