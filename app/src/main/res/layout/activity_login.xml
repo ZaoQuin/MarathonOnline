@@ -75,7 +75,57 @@
                     android:text="Vui lòng điền thông tin đăng nhập"
                     android:alpha="0.7"/>
 
-                <View android:layout_width="wrap_content" android:layout_height="30dp"/>
+                <View android:layout_width="wrap_content" android:layout_height="10dp"/>
+
+                <!-- Thêm phần chọn vai trò -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Chọn Vai Trò"
+                    android:textStyle="bold"
+                    android:alpha="0.7"
+                    android:textColor="@color/dark_main_color"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="10dp"/>
+
+                <RadioGroup
+                    android:id="@+id/roleGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:gravity="center">
+
+                    <RadioButton
+                        android:id="@+id/runnerRole"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/dark_main_color"
+                        android:textSize="16sp"
+                        android:text="Runner"
+                        android:buttonTint="@color/my_secondary"
+                        android:layout_marginEnd="20dp"
+                        android:padding="10dp"
+                        android:background="@drawable/radio_button_selector"
+                        android:focusable="true"
+                        android:clickable="true"
+                        android:checked="true"/>
+
+                    <RadioButton
+                        android:id="@+id/organizerRole"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Organizer"
+                        android:textColor="@color/dark_main_color"
+                        android:textSize="16sp"
+                        android:buttonTint="@color/my_secondary"
+                        android:padding="10dp"
+                        android:background="@drawable/radio_button_selector"
+                        android:focusable="true"
+                        android:clickable="true"/>
+                </RadioGroup>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -98,7 +148,7 @@
                     android:paddingStart="@dimen/_10ssp"
                     android:textColor="@android:color/holo_red_dark"/>
 
-                <View android:layout_width="wrap_content" android:layout_height="20dp"/>
+                <View android:layout_width="wrap_content" android:layout_height="10dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -176,37 +226,37 @@
                         android:clickable="true"
                         android:focusable="true"/>
                 </LinearLayout>
-                <View android:layout_width="wrap_content" android:layout_height="15dp"/>
+                <View android:layout_width="wrap_content" android:layout_height="30dp"/>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Hoặc đăng nhập với"
-                    android:layout_gravity="center"
-                    android:alpha="0.7"/>
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="Hoặc đăng nhập với"-->
+<!--                    android:layout_gravity="center"-->
+<!--                    android:alpha="0.7"/>-->
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center">
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="horizontal"-->
+<!--                    android:gravity="center">-->
 
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_margin="12dp"
-                        android:background="@drawable/facebook"/>
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_margin="12dp"
-                        android:background="@drawable/github"/>
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_margin="12dp"
-                        android:background="@drawable/twitter"/>
-                </LinearLayout>
+<!--                    <ImageView-->
+<!--                        android:layout_width="40dp"-->
+<!--                        android:layout_height="40dp"-->
+<!--                        android:layout_margin="12dp"-->
+<!--                        android:background="@drawable/facebook"/>-->
+<!--                    <ImageView-->
+<!--                        android:layout_width="40dp"-->
+<!--                        android:layout_height="40dp"-->
+<!--                        android:layout_margin="12dp"-->
+<!--                        android:background="@drawable/github"/>-->
+<!--                    <ImageView-->
+<!--                        android:layout_width="40dp"-->
+<!--                        android:layout_height="40dp"-->
+<!--                        android:layout_margin="12dp"-->
+<!--                        android:background="@drawable/twitter"/>-->
+<!--                </LinearLayout>-->
 
             </LinearLayout>
 
