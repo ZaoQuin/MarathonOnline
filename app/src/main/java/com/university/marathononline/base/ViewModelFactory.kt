@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.data.repository.PaymentRepository
 import com.university.marathononline.data.repository.RaceRepository
 import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.data.repository.UserRepository
@@ -60,7 +61,8 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(RecordViewModel::class.java) -> RecordViewModel(findRepository(RegistrationRepository::class.java),
                                                                                         findRepository(RaceRepository::class.java)) as T
             modelClass.isAssignableFrom(ContestDetailsViewModel::class.java) -> ContestDetailsViewModel(findRepository(ContestRepository::class.java)) as T
-            modelClass.isAssignableFrom(PaymentConfirmationViewModel::class.java) -> PaymentConfirmationViewModel(findRepository(AuthRepository::class.java)) as T
+            modelClass.isAssignableFrom(PaymentConfirmationViewModel::class.java) -> PaymentConfirmationViewModel(findRepository(AuthRepository::class.java),
+                findRepository(RegistrationRepository::class.java), findRepository(PaymentRepository::class.java), findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(ProfileViewModel::class.java) -> ProfileViewModel(findRepository(RaceRepository::class.java),
                 findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(DailyStatisticsViewModel::class.java) -> DailyStatisticsViewModel(findRepository(RaceRepository::class.java)) as T
