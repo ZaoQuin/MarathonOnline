@@ -9,7 +9,9 @@ import androidx.viewpager2.widget.ViewPager2
 import com.university.marathononline.R
 import com.university.marathononline.databinding.ActivityOrganizerMainBinding
 import com.university.marathononline.ui.adapter.OrganizerPagerAdapter
+import com.university.marathononline.ui.viewModel.AddContestViewModel
 import com.university.marathononline.ui.viewModel.MainViewModel
+import com.university.marathononline.utils.startNewActivity
 
 class OrganizerMainActivity : AppCompatActivity() {
 
@@ -38,7 +40,7 @@ class OrganizerMainActivity : AppCompatActivity() {
 
     private fun setUpRecordButton() {
         binding.btnAddContest.setOnClickListener{
-//            startNewActivity(RecordActivity::class.java)
+            startNewActivity(AddContestActivity::class.java)
         }
     }
 

@@ -8,6 +8,5 @@ data class Rule(
     var icon: String,
     var name: String,
     var description: String,
-    var updateDate: LocalDateTime,
-    var contestId: Long
+    var updateDate: LocalDateTime
 ): Serializable

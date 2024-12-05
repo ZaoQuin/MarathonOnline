@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:minWidth="@dimen/_300sdp"
+    android:padding="@dimen/_10sdp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Thêm Giải Thưởng"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"/>
+
+    <EditText
+        android:id="@+id/etRewardName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Tên giải thưởng"/>
+
+    <EditText
+        android:id="@+id/etRewardDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Chi tiết giải thưởng"
+        android:inputType="textMultiLine"
+        android:minLines="3"/>
+
+    <EditText
+        android:id="@+id/etRewardRank"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Hạng giải"
+        android:inputType="number"/>
+
+    <Spinner
+        android:id="@+id/spinnerRewardType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" />
+<!--        android:prompt="@string/reward_type_prompt"/>-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Hủy"
+            android:layout_marginRight="8dp"/>
+
+        <Button
+            android:id="@+id/btnSaveReward"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Lưu"/>
+    </LinearLayout>
+</LinearLayout>

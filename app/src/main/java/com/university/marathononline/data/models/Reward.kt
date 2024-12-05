@@ -11,6 +11,6 @@ data class Reward(
     var isClaim: Boolean
 ): Serializable
 
-enum class ERewardType {
-    PHYSICAL, VIRTUAL
+enum class ERewardType(value: String) {
+    PHYSICAL("Vật lý"), VIRTUAL("Ảo")
 }
