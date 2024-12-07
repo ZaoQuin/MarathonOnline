@@ -32,3 +32,31 @@ fun convertToVND(amount: BigDecimal): String {
     val formatter = NumberFormat.getCurrencyInstance(Locale("vi", "VN"))
     return formatter.format(amount)
 }
+
+fun formatDistance(distance: Double): String {
+    return if(distance < 1){
+        "${(distance * 1000).toInt()} m"
+    } else {
+        String.format("%.2f km", distance)
+    }
+}
+
+fun formatCalogies(calories: Double): String {
+    return if(calories < 1){
+        String.format("%.2f cal", calories * 1000)
+    } else {
+        String.format("%.2f kcal", calories)
+    }
+}
+
+fun formatPace(pace: Double): String {
+    return if(pace <= 0){
+        "Chưa có dữ liệu"
+    } else {
+        String.format("%.2f phút/km", pace)
+    }
+}
+
+fun formatSpeed(speed: Double): String {
+    return String.format("%.2f km/h", speed)
+}

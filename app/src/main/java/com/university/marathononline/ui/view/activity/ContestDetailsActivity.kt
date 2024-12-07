@@ -26,6 +26,7 @@ import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.KEY_REGISTRATIONS
 import com.university.marathononline.utils.convertToVND
 import com.university.marathononline.utils.enable
+import com.university.marathononline.utils.formatDistance
 import com.university.marathononline.utils.startNewActivity
 import com.university.marathononline.utils.visible
 import kotlinx.coroutines.flow.first
@@ -33,6 +34,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.Serializable
 import java.time.LocalDateTime
+import kotlin.math.roundToInt
 
 class ContestDetailsActivity :
     BaseActivity<ContestDetailsViewModel, ActivityContestDetailsBinding>() {
@@ -96,6 +98,19 @@ class ContestDetailsActivity :
             binding.registerContainer.visible(!it)
             binding.recordContainer.visible(it)
         }
+
+        viewModel.registration.observe(this){
+            binding.apply {
+                val currentDistance = it.races.sumOf { it.distance }
+                val contestDistance = viewModel.contest.value?.distance
+                val ratio = (currentDistance / contestDistance!!)*100
+                binding.apply {
+                    processBar.progress = ratio.toInt()
+                    processBarValue.text = "${formatDistance(currentDistance)}/${formatDistance(contestDistance)}"
+                }
+
+            }
+        }
     }
 
     private fun setRewardAdapter() {
@@ -134,7 +149,7 @@ class ContestDetailsActivity :
     private fun setUpData() {
         viewModel.contest.value?.let {
             binding.apply {
-                tvDistance.text = "${it.distance.toString()} km"
+                tvDistance.text = it.distance?.let { it1 -> formatDistance(it1) }
                 tvFee.text = it.fee?.let { it1 -> convertToVND(it1) }
                 tvMaxMembers.text = if (it.maxMembers == 0) "Không giới hạn người tham gia" else it.maxMembers.toString()
                 contestName.text = it.name
@@ -172,8 +187,7 @@ class ContestDetailsActivity :
                     else -> Unit
                 }
                 if (it.startDate?.let { start ->
-                        DateUtils.convertStringToLocalDateTime(start).isBefore(LocalDateTime.now()) ||
-                                DateUtils.convertStringToLocalDateTime(start).isEqual(LocalDateTime.now())
+                        DateUtils.convertStringToLocalDateTime(start).isBefore(LocalDateTime.now())
                     } == false) {
                     binding.btnRecord.enable(false)
                     binding.btnRecord.text = "Cuộc thi chưa bắt đầu"

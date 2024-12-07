@@ -10,7 +10,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface ContestApiService {
-    @GET("/api/v1/contest")
+    @GET("/api/v1/contest/active-and-completed")
     suspend fun getContests(): GetContestsResponse
 
     @GET("/api/v1/contest/home")

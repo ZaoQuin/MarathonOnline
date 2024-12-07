@@ -91,4 +91,9 @@ dependencies {
 
     // MOMO
     implementation ("com.github.momo-wallet:mobile-sdk:1.0.7")
+
+    // Glide
+
+    implementation ("com.github.bumptech.glide:glide:4.15.0")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.15.0")
 }

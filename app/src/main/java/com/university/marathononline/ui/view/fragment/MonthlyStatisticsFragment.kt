@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.Glide
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -15,12 +16,18 @@ import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.race.RaceApiService
 import com.university.marathononline.data.models.Race
+import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.RaceRepository
 import com.university.marathononline.databinding.FragmentMonthlyStatisticsBinding
 import com.university.marathononline.ui.components.MonthPickerBottomSheetFragment
 import com.university.marathononline.ui.viewModel.MonthlyStatisticsViewModel
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_RACES
+import com.university.marathononline.utils.KEY_USER
+import com.university.marathononline.utils.formatCalogies
+import com.university.marathononline.utils.formatDistance
+import com.university.marathononline.utils.formatPace
+import com.university.marathononline.utils.formatSpeed
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
@@ -46,8 +53,9 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (arguments?.getSerializable(KEY_RACES) as? List<Race>)?.let { viewModel.setRaces(it) }
-
+        (arguments?.getSerializable(KEY_USER) as? User)?.let { viewModel.setUser(it)
+            (arguments?.getSerializable(KEY_RACES) as? List<Race>)?.let { viewModel.setRaces(it) }
+        }
         initUI()
         observeViewModel()
     }
@@ -58,6 +66,12 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
         binding.filterText.text = DateUtils.getFormattedMonthYear(currentMonth, currentYear)
 
         binding.filterButton.setOnClickListener { showMonthPickerBottomSheet() }
+
+
+        Glide.with(this)
+            .asGif()
+            .load(R.drawable.ic_calories)
+            .into(binding.calogiesIcon)
     }
 
     private fun setUpLineChart(race: Map<String, String>) {
@@ -138,19 +152,27 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
         }
 
         viewModel.distance.observe(viewLifecycleOwner){
-            binding.tvDistance.text = viewModel.distance.value.toString()
+            binding.tvDistance.text = formatDistance(it)
         }
 
         viewModel.timeTaken.observe(viewLifecycleOwner){
-            binding.tvTime.text = viewModel.timeTaken.value.toString()
+            binding.tvTime.text = DateUtils.convertSecondsToHHMMSS(it)
         }
 
         viewModel.avgSpeed.observe(viewLifecycleOwner){
-            binding.tvSpeed.text = viewModel.avgSpeed.value.toString()
+            binding.tvSpeed.text = formatSpeed(it)
         }
 
         viewModel.steps.observe(viewLifecycleOwner){
-            binding.tvSteps.text = viewModel.steps.value.toString()
+            binding.tvSteps.text = it.toString()
+        }
+
+        viewModel.calories.observe(viewLifecycleOwner){
+            binding.tvCalories.text = formatCalogies(it)
+        }
+
+        viewModel.pace.observe(viewLifecycleOwner){
+            binding.tvPace.text = formatPace(it)
         }
 
         viewModel.dataLineChart.observe(viewLifecycleOwner){

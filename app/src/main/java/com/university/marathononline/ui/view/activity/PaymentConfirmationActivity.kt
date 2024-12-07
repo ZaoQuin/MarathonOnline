@@ -29,6 +29,7 @@ import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.convertToVND
 import com.university.marathononline.utils.enable
 import com.university.marathononline.utils.finishAndGoBack
+import com.university.marathononline.utils.formatDistance
 import com.university.marathononline.utils.startNewActivity
 import handleApiError
 import kotlinx.coroutines.flow.first
@@ -125,7 +126,7 @@ class PaymentConfirmationActivity : BaseActivity<PaymentConfirmationViewModel, A
         binding.apply {
             btnPayment.enable(false)
             tvContestName.text = contest.name
-            tvContestDistance.text = "${contest.distance} km"
+            tvContestDistance.text = contest.distance?.let { formatDistance(it) }
             tvContestFee.text = contest.fee?.let { convertToVND(it) }
             tvtOrganizerName.text = contest.organizer?.fullName
             tvtOrganizerUsername.text = "@${contest.organizer?.username}"

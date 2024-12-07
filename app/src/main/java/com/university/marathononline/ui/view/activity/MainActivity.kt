@@ -6,6 +6,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
 import com.university.marathononline.ui.adapter.MainPagerAdapter
 import com.university.marathononline.R
 import com.university.marathononline.databinding.ActivityMainBinding

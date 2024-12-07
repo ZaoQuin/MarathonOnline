@@ -12,6 +12,7 @@ import com.university.marathononline.databinding.FragmentLeaderBoardBinding
 import com.university.marathononline.ui.adapter.LeaderBoardAdapter
 import com.university.marathononline.ui.viewModel.LeaderBoardViewModel
 import com.university.marathononline.utils.KEY_REGISTRATIONS
+import com.university.marathononline.utils.formatDistance
 
 class LeaderBoardFragment : BaseFragment<LeaderBoardViewModel, FragmentLeaderBoardBinding>() {
 
@@ -39,7 +40,8 @@ class LeaderBoardFragment : BaseFragment<LeaderBoardViewModel, FragmentLeaderBoa
             if(it!=null)
                 binding.apply {
                     top1Name.text = it.runner.fullName
-                    top1Distance.text = (it.races?.sumOf { it1 -> it1.distance }?.toString()?: "0.0") + " km"
+                    top1Distance.text = it.races?.sumOf { it1 -> it1.distance }
+                        ?.let { it2 -> formatDistance(it2) }
                 }
 
         }
@@ -48,7 +50,8 @@ class LeaderBoardFragment : BaseFragment<LeaderBoardViewModel, FragmentLeaderBoa
             if(it!=null)
                 binding.apply {
                     top2Name.text = it.runner.fullName
-                    top2Distance.text = (it.races?.sumOf { it1 -> it1.distance }?.toString()?: "0.0") + " km"
+                    top2Distance.text = it.races?.sumOf { it1 -> it1.distance }
+                        ?.let { it2 -> formatDistance(it2) }
                 }
         }
 
@@ -56,7 +59,8 @@ class LeaderBoardFragment : BaseFragment<LeaderBoardViewModel, FragmentLeaderBoa
             if(it!=null)
                 binding.apply {
                     top3Name.text = it.runner.fullName
-                    top3Distance.text = (it.races?.sumOf { it1 -> it1.distance }?.toString()?: "0.0") + " km"
+                    top3Distance.text = it.races?.sumOf { it1 -> it1.distance }
+                        ?.let { it2 -> formatDistance(it2) }
                 }
         }
     }
