@@ -8,5 +8,5 @@ data class Rule(
     var icon: String,
     var name: String,
     var description: String,
-    var updateDate: LocalDateTime
+    var updateDate: String
 ): Serializable

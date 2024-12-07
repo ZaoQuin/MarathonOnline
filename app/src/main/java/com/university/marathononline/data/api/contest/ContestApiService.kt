@@ -1,8 +1,12 @@
 package com.university.marathononline.data.api.contest
 
 import com.university.marathononline.data.models.Contest
+import com.university.marathononline.data.request.CreateContestRequest
 import com.university.marathononline.data.response.GetContestsResponse
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface ContestApiService {
@@ -18,4 +22,9 @@ interface ContestApiService {
     @GET("/api/v1/contest/{id}")
     suspend fun getById(@Path("id") id: Long): Contest
 
+    @POST("/api/v1/contest")
+    suspend fun addContest(@Body createContestRequest: CreateContestRequest): Contest
+
+    @PUT("/api/v1/contest")
+    suspend fun updateContest(@Body contest:Contest): Contest
 }

@@ -2,6 +2,8 @@ package com.university.marathononline.data.repository
 
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.contest.ContestApiService
+import com.university.marathononline.data.models.Contest
+import com.university.marathononline.data.request.CreateContestRequest
 
 class ContestRepository(
     private val api: ContestApiService
@@ -21,5 +23,13 @@ class ContestRepository(
 
     suspend fun getById(id: Long) = safeApiCall {
         api.getById(id)
+    }
+
+    suspend fun addContest(request: CreateContestRequest) = safeApiCall {
+        api.addContest(request)
+    }
+
+    suspend fun updateContest(contest: Contest) = safeApiCall {
+        api.updateContest(contest)
     }
 }

@@ -2,29 +2,47 @@ package com.university.marathononline.ui.view.activity
 
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.university.marathononline.databinding.ActivityAddContestBinding
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
+import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.contest.ContestApiService
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.EContestStatus
+import com.university.marathononline.data.models.Reward
+import com.university.marathononline.data.models.Rule
 import com.university.marathononline.data.repository.ContestRepository
-import com.university.marathononline.ui.adapter.RewardAdapter
-import com.university.marathononline.ui.adapter.RuleAdapter
+import com.university.marathononline.data.request.CreateContestRequest
+import com.university.marathononline.databinding.ActivityAddContestBinding
+import com.university.marathononline.ui.adapter.EditRewardAdapter
+import com.university.marathononline.ui.adapter.EditRuleAdapter
 import com.university.marathononline.ui.components.AddRewardDialog
 import com.university.marathononline.ui.components.AddRuleDialog
 import com.university.marathononline.ui.viewModel.AddContestViewModel
+import com.university.marathononline.utils.DateUtils
+import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import java.math.BigDecimal
+import java.time.LocalDateTime
 import java.util.Calendar
 
 class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestBinding>() {
 
-    private val ruleAdapter = RuleAdapter(mutableListOf())
-    private val rewardAdapter = RewardAdapter(mutableListOf())
+    private val ruleAdapter = EditRuleAdapter(
+        rules = mutableListOf(),
+        onEditClick = { rule -> handleEditRule(rule) },
+        onDeleteClick = { rule -> handleDeleteRule(rule) }
+    )
+
+    private val rewardAdapter = EditRewardAdapter(
+        rewards = mutableListOf(),
+        onEditClick = { reward -> handleEditReward(reward) },
+        onDeleteClick = { reward -> handleDeleteReward(reward) }
+    )
 
     override fun getViewModel(): Class<AddContestViewModel> {
         return AddContestViewModel::class.java
@@ -55,28 +73,37 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
         // DatePicker for Start Date
         binding.btnStartDate.setOnClickListener {
             showDatePicker { year, month, dayOfMonth ->
-                binding.btnStartDate.text = "$dayOfMonth/${month + 1}/$year"
+                val localDateTime = LocalDateTime.of(year, month + 1, dayOfMonth, 0, 0, 0)
+                binding.btnStartDate.text =
+                    DateUtils.convertToVietnameseDate(localDateTime.toString())
+                viewModel.selectedStartDate(localDateTime)
             }
         }
 
         // DatePicker for End Date
         binding.btnEndDate.setOnClickListener {
             showDatePicker { year, month, dayOfMonth ->
-                binding.btnEndDate.text = "$dayOfMonth/${month + 1}/$year"
+                val localDateTime = LocalDateTime.of(year, month + 1, dayOfMonth, 0, 0, 0)
+                binding.btnEndDate.text =
+                    DateUtils.convertToVietnameseDate(localDateTime.toString())
+                viewModel.selectedEndDate(localDateTime)
             }
         }
 
         // DatePicker for Registration Deadline
         binding.btnRegistrationDeadline.setOnClickListener {
             showDatePicker { year, month, dayOfMonth ->
-                binding.btnRegistrationDeadline.text = "$dayOfMonth/${month + 1}/$year"
+                val localDateTime = LocalDateTime.of(year, month + 1, dayOfMonth, 0, 0, 0)
+                binding.btnRegistrationDeadline.text =
+                    DateUtils.convertToVietnameseDate(localDateTime.toString())
+                viewModel.selectedRegistrationDeadlineDate(localDateTime)
             }
         }
 
         // Add Rule button
         binding.btnAddRule.setOnClickListener {
             val addRuleDialog = AddRuleDialog(this) { rule ->
-//                ruleAdapter.addRule(rule)
+                ruleAdapter.updateData(ruleAdapter.getCurrentData() + rule)
             }
             addRuleDialog.show()
         }
@@ -84,7 +111,7 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
         // Add Reward button
         binding.btnAddReward.setOnClickListener {
             val addRewardDialog = AddRewardDialog(this) { reward ->
-//                rewardAdapter.addReward(reward)
+                rewardAdapter.updateData(rewardAdapter.getCurrentData() + reward)
             }
             addRewardDialog.show()
         }
@@ -92,25 +119,55 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
         // Save Contest button
         binding.btnSaveContest.setOnClickListener {
             // Collect all contest details
-            val contestDetails = Contest(
+            val contestDetails = CreateContestRequest(
                 name = binding.etContestName.text.toString(),
                 description = binding.etContestDescription.text.toString(),
                 distance = binding.etContestDistance.text.toString().toDoubleOrNull(),
-                startDate = binding.btnStartDate.text.toString(),
-                endDate = binding.btnEndDate.text.toString(),
-                registrationDeadline = binding.btnRegistrationDeadline.text.toString(),
+                startDate = viewModel.start.value.toString(),
+                endDate = viewModel.end.value.toString(),
+                registrationDeadline = viewModel.deadline.value.toString(),
                 fee = BigDecimal(binding.etContestFee.text.toString()),
                 maxMembers = binding.etMaxMembers.text.toString().toIntOrNull(),
-                status = EContestStatus.PENDING, // Default status
-//                rules = ruleAdapter.getRules(),
-//                rewards = rewardAdapter.getRewards()
-                rules = emptyList(),
-                rewards = emptyList()
+                status = EContestStatus.PENDING,
+                rules = ruleAdapter.getCurrentData(),
+                rewards = rewardAdapter.getCurrentData()
             )
 
             // Call ViewModel to save the contest
-//            viewModel.addContest(contestDetails)
+            viewModel.addContest(contestDetails)
         }
+
+        viewModel.addContestResponse.observe(this){
+            Log.e("Add Contest", it.toString())
+            when(it){
+                is Resource.Success -> Toast.makeText(this, "Completed", Toast.LENGTH_SHORT).show()
+                is Resource.Failure -> {
+                    handleApiError(it)
+                    it.fetchErrorMessage()
+                }
+                else -> Unit
+            }
+        }
+    }
+
+    private fun handleEditRule(rule: Rule) {
+        // Logic for editing rule
+    }
+
+    private fun handleDeleteRule(rule: Rule) {
+        val updatedRules = ruleAdapter.getCurrentData().toMutableList()
+        updatedRules.remove(rule)
+        ruleAdapter.updateData(updatedRules)
+    }
+
+    private fun handleEditReward(reward: Reward) {
+        // Logic for editing reward
+    }
+
+    private fun handleDeleteReward(reward: Reward) {
+        val updatedRewards = rewardAdapter.getCurrentData().toMutableList()
+        updatedRewards.remove(reward)
+        rewardAdapter.updateData(updatedRewards)
     }
 
     private fun showDatePicker(onDateSetListener: (Int, Int, Int) -> Unit) {

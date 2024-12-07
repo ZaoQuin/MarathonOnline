@@ -3,80 +3,63 @@ package com.university.marathononline.ui.components
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Spinner
-import com.university.marathononline.R
-import com.university.marathononline.data.models.ERewardType
+import android.widget.ArrayAdapter
 import com.university.marathononline.data.models.Reward
+import com.university.marathononline.data.models.ERewardType
+import com.university.marathononline.databinding.DialogAddRewardBinding
 
 class AddRewardDialog(
     context: Context,
     private val onRewardAdded: (Reward) -> Unit
 ) : Dialog(context) {
 
-    private lateinit var etRewardName: EditText
-    private lateinit var etRewardDescription: EditText
-    private lateinit var etRewardRank: EditText
-    private lateinit var spinnerRewardType: Spinner
-    private lateinit var btnSaveReward: Button
-    private lateinit var btnCancel: Button
+    private lateinit var binding: DialogAddRewardBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.dialog_add_reward)
 
-        // Initialize views
-        etRewardName = findViewById(R.id.etRewardName)
-        etRewardDescription = findViewById(R.id.etRewardDescription)
-        etRewardRank = findViewById(R.id.etRewardRank)
-        spinnerRewardType = findViewById(R.id.spinnerRewardType)
-        btnSaveReward = findViewById(R.id.btnSaveReward)
-        btnCancel = findViewById(R.id.btnCancel)
+        binding = DialogAddRewardBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        // Setup Reward Type Spinner
-        val rewardTypes = ERewardType.values()
-        val adapter = android.widget.ArrayAdapter(
+        val rewardTypes = ERewardType.values().map { it.name }
+        val adapter = ArrayAdapter(
             context,
             android.R.layout.simple_spinner_item,
-            rewardTypes.map { it.name }
+            rewardTypes
         )
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerRewardType.adapter = adapter
+        binding.spinnerRewardType.adapter = adapter
 
-        // Save Reward button click listener
-        btnSaveReward.setOnClickListener {
-            val rewardName = etRewardName.text.toString().trim()
-            val rewardDescription = etRewardDescription.text.toString().trim()
-            val rewardRankStr = etRewardRank.text.toString().trim()
-            val rewardType = spinnerRewardType.selectedItem.toString()
+        binding.btnSaveReward.setOnClickListener {
+            val rewardName = binding.etRewardName.text.toString().trim()
+            val rewardDescription = binding.etRewardDescription.text.toString().trim()
+            val rewardRankStr = binding.etRewardRank.text.toString().trim()
 
             if (rewardName.isNotEmpty() && rewardDescription.isNotEmpty() && rewardRankStr.isNotEmpty()) {
-                try {
-                    val rewardRank = rewardRankStr.toInt()
+                val rewardRank = rewardRankStr.toIntOrNull()
+                if (rewardRank != null) {
                     val newReward = Reward(
-                        id = System.currentTimeMillis(), // Temporary ID generation
+                        id = System.currentTimeMillis(),
                         name = rewardName,
                         description = rewardDescription,
                         rewardRank = rewardRank,
-                        type = ERewardType.valueOf(rewardType),
+                        type = ERewardType.valueOf(binding.spinnerRewardType.selectedItem.toString()),
                         isClaim = false
                     )
                     onRewardAdded(newReward)
                     dismiss()
-                } catch (e: NumberFormatException) {
-                    etRewardRank.error = "Invalid rank number"
+                } else {
+                    binding.etRewardRank.error = "Vui lòng nhập hạng hợp lệ"
                 }
             } else {
-                // Show errors for empty fields
-                if (rewardName.isEmpty()) etRewardName.error = "Reward name is required"
-                if (rewardDescription.isEmpty()) etRewardDescription.error = "Reward description is required"
-                if (rewardRankStr.isEmpty()) etRewardRank.error = "Reward rank is required"
+                if (rewardName.isEmpty()) binding.etRewardName.error = "Tên giải thưởng là bắt buộc"
+                if (rewardDescription.isEmpty()) binding.etRewardDescription.error = "Chi tiết giải thưởng là bắt buộc"
+                if (rewardRankStr.isEmpty()) binding.etRewardRank.error = "Hạng giải thưởng là bắt buộc"
             }
         }
 
-        // Cancel button click listener
-        btnCancel.setOnClickListener {
+        // Set up the cancel button click listener
+        binding.btnCancel.setOnClickListener {
             dismiss()
         }
     }
