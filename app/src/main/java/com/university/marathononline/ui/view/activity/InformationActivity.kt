@@ -14,6 +14,7 @@ import com.university.marathononline.ui.viewModel.InformationViewModel
 import com.university.marathononline.utils.KEY_EMAIL
 import com.university.marathononline.utils.KEY_USER
 import com.university.marathononline.utils.enable
+import com.university.marathononline.utils.finishAndGoBack
 import com.university.marathononline.utils.startNewActivity
 import com.university.marathononline.utils.visible
 import handleApiError
@@ -36,7 +37,7 @@ class InformationActivity : BaseActivity<InformationViewModel, ActivityInformati
             progressBar.visible(false)
             editButton.enable(false)
 
-            buttonBack.setOnClickListener{ finish() }
+            buttonBack.setOnClickListener{ finishAndGoBack() }
 
             buttonLogout.setOnClickListener{ logout() }
 

@@ -49,7 +49,7 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
     private fun handleUpdateResponse(resource: Resource<User>){
         when(resource){
             is Resource.Success -> {
-                startNewActivity(InformationActivity::class.java, true)
+                finishAndGoBack()
             }
             is Resource.Failure -> handleApiError(resource)
             else -> Unit

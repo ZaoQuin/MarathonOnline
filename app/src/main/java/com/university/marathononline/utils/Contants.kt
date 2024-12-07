@@ -20,6 +20,8 @@ const val KEY_TOTAL_DISTANCE = "total-distance"
 const val KEY_TOTAL_TIME = "total-time"
 const val KEY_TOTAL_STEPS = "total-steps"
 const val KEY_AVG_SPEED = "avgSpeed"
+const val KEY_CALORIES = "calories"
+const val KEY_PACE = "pace"
 
 const val KEY_ROLE = "role"
 const val KEY_FULL_NAME = "fullName"

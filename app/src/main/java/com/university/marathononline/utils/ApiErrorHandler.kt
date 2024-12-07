@@ -3,15 +3,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
-import com.university.marathononline.base.BaseActivity
-import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.repository.AuthRepository
-import com.university.marathononline.data.request.RefreshTokenRequest
 import com.university.marathononline.ui.view.activity.SplashRedirectActivity
 import com.university.marathononline.utils.startNewActivity
-import kotlinx.coroutines.launch
 
 fun <T> Fragment.handleApiError(
     failure: Resource.Failure<T>,

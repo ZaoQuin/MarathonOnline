@@ -31,7 +31,7 @@
                 android:padding="@dimen/_10sdp"
                 android:contentDescription="Icon"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_reward"/>
+                android:src="@drawable/ic_reward_2_"/>
 
             <!-- Name Section -->
             <TextView

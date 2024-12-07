@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.models.Contest
+import com.university.marathononline.data.models.Registration
 import com.university.marathononline.data.models.Reward
 import com.university.marathononline.data.models.RewardGroup
 import com.university.marathononline.data.models.Rule
@@ -41,6 +42,9 @@ class ContestDetailsViewModel(
 
     private val _isRegistered = MutableLiveData<Boolean>()
     val isRegistered: LiveData<Boolean> get() = _isRegistered
+
+    private val _registration = MutableLiveData<Registration>()
+    val registration: LiveData<Registration> get() = _registration
 
     fun startCountdown() {
         viewModelScope.launch {
@@ -102,7 +106,12 @@ class ContestDetailsViewModel(
         _isRegistered.value = contest.value?.registrations?.any {
             Log.d("Check Register", it.runner.email)
             Log.d("Check Register", email)
-            it.runner.email == email
+            if(it.runner.email == email){
+                _registration.value = it
+                true
+            } else {
+                false
+            }
         }
     }
 }

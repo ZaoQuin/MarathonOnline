@@ -93,6 +93,8 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding>() {
 
         when (response) {
             is Resource.Success -> {
+                if(viewModel.selectedRole.value == null)
+                    viewModel.selectedRole(ERole.RUNNER)
                 if(viewModel.selectedRole.value != response.value.role){
                     Toast.makeText(this, getString(error_selected_role), Toast.LENGTH_SHORT).show()
                 } else {

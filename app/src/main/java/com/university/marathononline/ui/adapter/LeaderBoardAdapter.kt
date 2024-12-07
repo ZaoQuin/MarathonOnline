@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.university.marathononline.databinding.ItemLeaderBoardBinding
 import com.university.marathononline.data.models.Registration
+import com.university.marathononline.utils.formatDistance
 
 class LeaderBoardAdapter (private val registrations: List<Registration>) : RecyclerView.Adapter<LeaderBoardAdapter.ViewHolder>(){
 
@@ -15,7 +16,7 @@ class LeaderBoardAdapter (private val registrations: List<Registration>) : Recyc
         fun bind(distance: Double, fullName: String, position: Int){
             binding.position.text = (position + 4).toString()
             binding.fullName.text = fullName
-            binding.distance.text = "${distance} km"
+            binding.distance.text = formatDistance(distance)
         }
     }
 

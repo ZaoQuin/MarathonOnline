@@ -30,6 +30,8 @@ import com.university.marathononline.data.repository.RaceRepository
 import com.university.marathononline.data.request.CreateRaceRequest
 import com.university.marathononline.data.response.RegistrationsResponse
 import com.university.marathononline.utils.KalmanFilter
+import com.university.marathononline.utils.formatDistance
+import com.university.marathononline.utils.formatSpeed
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -107,6 +109,7 @@ class RecordViewModel(
     }
 
     fun startRecording(context: Context) {
+        currentLocation = null
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -146,7 +149,7 @@ class RecordViewModel(
         // Log the data
         println("Recording stopped:")
         println("Time: $timeTakenInSeconds seconds")
-        println("Distance: $totalDistance km")
+        println("Distance: ${formatDistance(totalDistance)}")
         println("Speed: $avgSpeed km/h")
         println("Steps: ${_steps.value}")
 
@@ -169,8 +172,8 @@ class RecordViewModel(
 
         if (distance >= 1) {
             totalDistance += distance.div(1000)
-            _speed.value = "%.2f km/h".format(speedInKmH)
-            _distance.value = "%.2f km".format(totalDistance)
+            _speed.value = formatSpeed(speedInKmH)
+            _distance.value = formatDistance(totalDistance)
             currentLocation = location
         }
     }

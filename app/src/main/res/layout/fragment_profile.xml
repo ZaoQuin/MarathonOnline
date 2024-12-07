@@ -31,7 +31,8 @@
                 android:layout_height="@dimen/_30sdp"
                 android:src="@drawable/example_avatar"
                 android:layout_gravity="right"
-                app:civ_border_width="2dp"/>
+                app:civ_border_width="2dp"
+                android:foreground="?attr/selectableItemBackground"/>
         </Toolbar>
 
 
@@ -69,9 +70,9 @@
                         android:layout_margin="4dp">
 
                         <ImageView
-                            android:layout_width="@dimen/_20sdp"
-                            android:layout_height="@dimen/_20sdp"
-                            android:src="@drawable/ic_competition"
+                            android:id="@+id/myContestIcon"
+                            android:layout_width="@dimen/_40sdp"
+                            android:layout_height="@dimen/_40sdp"
                             android:layout_marginBottom="4dp" />
 
                         <TextView
@@ -110,9 +111,9 @@
                         android:layout_margin="4dp">
 
                         <ImageView
-                            android:layout_width="@dimen/_20sdp"
-                            android:layout_height="@dimen/_20sdp"
-                            android:src="@drawable/ic_reward__2_"
+                            android:id="@+id/myRewardIcon"
+                            android:layout_width="@dimen/_40sdp"
+                            android:layout_height="@dimen/_40sdp"
                             android:layout_marginBottom="4dp" />
 
                         <TextView
