@@ -211,7 +211,6 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="2dp"
-                                android:text="100km"
                                 android:textColor="#888888"
                                 android:textSize="15dp" />
 
@@ -237,7 +236,6 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="2dp"
-                                android:text="100km"
                                 android:textColor="#888888"
                                 android:textSize="15dp" />
 
@@ -263,7 +261,6 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="2dp"
-                                android:text="100km"
                                 android:textColor="#888888"
                                 android:textSize="15dp" />
 

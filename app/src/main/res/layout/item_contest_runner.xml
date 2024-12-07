@@ -38,11 +38,10 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/status_background"
                 android:padding="4dp"
-                android:text="Active"
+                android:text="Đang hoạt động"
                 android:textColor="@color/main_color"
                 android:textStyle="bold"
-                android:textSize="12sp"
-                tools:text="Active" />
+                android:textSize="12sp"/>
 
             <TextView
                 android:id="@+id/tvContestDatesStart"
@@ -64,6 +63,52 @@
                 android:layout_marginTop="8dp"
                 tools:text="Start: 2024-01-01 | End: 2024-01-10" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="top">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="@dimen/_5sdp">
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tiến độ chạy của bạn là"
+                        android:paddingEnd="5dp"/>
+
+
+                    <TextView
+                        android:id="@+id/processBarValue"
+                        android:layout_weight="1"
+                        android:gravity="end"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="50/100"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="5dp"/>
+
+                </LinearLayout>
+
+
+                <ProgressBar
+                    android:id="@+id/processBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_10sdp"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progress="50"
+                    android:progressDrawable="@drawable/progress_bar_custom"
+                    style="?android:attr/progressBarStyleHorizontal"/>
+
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/tvCompletionStatus"
                 android:layout_width="wrap_content"
@@ -73,8 +118,20 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:layout_marginTop="8dp"
                 tools:text="Completed: No" />
-
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/statisticsContest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/background_border_grey_12sp"
+            android:padding="@dimen/_4sdp"
+            android:text="Xem thống kê"
+            android:textColor="@color/main_color"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            android:layout_gravity="top|end"
+            android:layout_margin="@dimen/_10sdp"/>
 
     </androidx.cardview.widget.CardView>
 

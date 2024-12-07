@@ -1,0 +1,69 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:minWidth="@dimen/_300sdp"
+        android:padding="@dimen/_10sdp">
+
+        <TextView
+            android:id="@+id/tvContestName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Contest Name"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/tvContestStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Contest Status"/>
+
+        <TextView
+            android:id="@+id/tvContestDatesStart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start Date"/>
+
+        <TextView
+            android:id="@+id/tvContestDatesEnd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="End Date"/>
+
+        <TextView
+            android:id="@+id/tvCompletionStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Completion Status"/>
+
+        <ProgressBar
+            android:id="@+id/processBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:max="100"
+            android:progress="0"/>
+
+        <TextView
+            android:id="@+id/processBarValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="0/0"
+            android:textAlignment="center"
+            android:layout_marginTop="8dp"/>
+
+        <Button
+            android:id="@+id/btnClose"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Close"
+            android:layout_marginTop="16dp"/>
+    </LinearLayout>
+</layout>

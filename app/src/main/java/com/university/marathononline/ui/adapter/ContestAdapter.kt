@@ -11,32 +11,46 @@ import com.university.marathononline.data.models.Contest
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.convertToVND
+import com.university.marathononline.utils.getContestStatusColor
+import com.university.marathononline.utils.getContestStatusText
 import com.university.marathononline.utils.startNewActivity
+import com.university.marathononline.utils.visible
+import java.time.LocalDateTime
 
-class ContestAdapter (private var contests: List<Contest>): RecyclerView.Adapter<ContestAdapter.ViewHolder>(){
-    class ViewHolder(private val binding: ItemContestBinding): RecyclerView.ViewHolder(binding.root){
+class ContestAdapter(private var contests: List<Contest>) :
+    RecyclerView.Adapter<ContestAdapter.ViewHolder>() {
+    class ViewHolder(private val binding: ItemContestBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: Contest){
+        fun bind(item: Contest) {
             binding.apply {
                 raceNameTextView.text = item.name
-                raceStartDateTextView.text = item.startDate?.let {
-                    DateUtils.convertToVietnameseDate(
-                        it
-                    )
-                }
-                raceEndDateTextView.text = item.endDate?.let {
-                    DateUtils.convertToVietnameseDate(
-                        it
-                    )
-                }
-                countMembersText.text ="${item.registrations?.size.toString()} người"
+                raceStartDateTextView.text =
+                    item.startDate?.let {DateUtils.convertToVietnameseDate(it)}
+                raceEndDateTextView.text =
+                    item.endDate?.let {DateUtils.convertToVietnameseDate(it)}
+                raceDeadlineRegisterTextView.text =
+                    item.registrationDeadline?.let {DateUtils.convertToVietnameseDate(it)}
+
+                countMembersText.text = "${item.registrations?.size.toString()}/ ${item.maxMembers}"
                 registrationFee.text = item.fee?.let { convertToVND(it) }
 
-                contestCardView.setOnClickListener{
-                    it.context.startNewActivity(ContestDetailsActivity::class.java,
-                        mapOf( KEY_CONTEST to item)
-                        )
+                contestCardView.setOnClickListener {
+                    it.context.startNewActivity(
+                        ContestDetailsActivity::class.java,
+                        mapOf(KEY_CONTEST to item)
+                    )
                 }
+
+                tvContestStatus.apply {
+                    text = getContestStatusText(context, item.status!!)
+                    setTextColor(getContestStatusColor(context, item.status!!))
+                }
+
+                tvStartStatus.visible( DateUtils.convertStringToLocalDateTime(item.startDate!!).isBefore(
+                    LocalDateTime.now()) ||
+                        DateUtils.convertStringToLocalDateTime(item.startDate!!).isEqual(LocalDateTime.now()))
+                tvRegisterStatus.visible(!DateUtils.convertStringToLocalDateTime(item.registrationDeadline!!).isBefore(LocalDateTime.now()))
             }
         }
     }
