@@ -3,7 +3,6 @@ package com.university.marathononline.ui.view.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -23,7 +22,6 @@ import com.university.marathononline.ui.viewModel.ManagementDetailsContestActivi
 import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.KEY_UPDATE_CONTEST
 import com.university.marathononline.utils.finishAndGoBack
-import com.university.marathononline.utils.startNewActivity
 import com.university.marathononline.utils.visible
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -76,10 +74,10 @@ class ManagementDetailsContestActivity :
             setupMenuButton()
         }
 
-        viewModel.deleteResponse.observe(this) { resource ->
+        viewModel.cancelResponse.observe(this) { resource ->
             when (resource) {
                 is Resource.Success -> {
-                    Toast.makeText(this, "Xóa thành công", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Hủy thành công", Toast.LENGTH_SHORT).show()
                     finish()
                 }
                 is Resource.Failure -> {
@@ -98,7 +96,7 @@ class ManagementDetailsContestActivity :
     private fun setupMenuButton() {
         val pending = viewModel.contest.value!!.status == EContestStatus.PENDING
         binding.buttonEdit.visible(pending)
-        binding.buttonDelete.visible(pending)
+        binding.btnCancel.visible(pending)
     }
 
     private fun setupViewPager() {
@@ -118,20 +116,20 @@ class ManagementDetailsContestActivity :
     }
 
     private fun setupDeleteButton() {
-        binding.buttonDelete.setOnClickListener {
-            showDeleteConfirmationDialog()
+        binding.btnCancel.setOnClickListener {
+            showCancelConfirmationDialog()
         }
     }
 
-    private fun showDeleteConfirmationDialog() {
+    private fun showCancelConfirmationDialog() {
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Xác nhận xóa")
-        builder.setMessage("Bạn có chắc chắn muốn xóa mục này không?")
-        builder.setPositiveButton("Xóa") { dialog, _ ->
-            viewModel.delete()
+        builder.setTitle("Xác nhận hủy cuộc thi")
+        builder.setMessage("Bạn có chắc chắn muốn hủy cuộc thi này không?")
+        builder.setPositiveButton("Xác nhận") { dialog, _ ->
+            viewModel.cancel()
             dialog.dismiss()
         }
-        builder.setNegativeButton("Hủy") { dialog, _ ->
+        builder.setNegativeButton("Trở lại") { dialog, _ ->
             dialog.dismiss()
         }
         builder.create().show()

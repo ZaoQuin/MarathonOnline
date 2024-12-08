@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.university.marathononline.R
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.contest.ContestApiService
@@ -51,7 +52,12 @@ class ContestRegistrationsFragment : BaseFragment<ManagementDetailsContestActivi
     private fun setUpObserve() {
         viewModel.contest.observe(viewLifecycleOwner){
             setRegistrationAdapter()
+            setUpUI(it)
         }
+    }
+
+    private fun setUpUI(contest: Contest) {
+        binding.tvParticipantCount.text = getString(R.string.contest_participant_count, contest.registrations!!.size.toString())
     }
 
     override fun getViewModel() = ManagementDetailsContestActivityViewModel::class.java

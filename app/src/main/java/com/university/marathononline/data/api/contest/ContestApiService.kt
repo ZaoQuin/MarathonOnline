@@ -35,4 +35,7 @@ interface ContestApiService {
 
     @DELETE("/api/v1/contest/{id}")
     suspend fun deleteById(@Path("id") contestId: Long): DeleteResponse
+
+    @PUT("/api/v1/contest/cancel")
+    suspend fun cancel(@Body contest:Contest): Contest
 }
