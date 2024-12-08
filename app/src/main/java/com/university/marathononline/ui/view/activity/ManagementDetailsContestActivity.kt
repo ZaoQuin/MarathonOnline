@@ -1,10 +1,13 @@
 package com.university.marathononline.ui.view.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.tabs.TabLayoutMediator
 import com.university.marathononline.base.BaseActivity
@@ -18,6 +21,7 @@ import com.university.marathononline.databinding.ActivityManagementContestDetail
 import com.university.marathononline.ui.adapter.ManagementDetailsContestPagerAdapter
 import com.university.marathononline.ui.viewModel.ManagementDetailsContestActivityViewModel
 import com.university.marathononline.utils.KEY_CONTEST
+import com.university.marathononline.utils.KEY_UPDATE_CONTEST
 import com.university.marathononline.utils.finishAndGoBack
 import com.university.marathononline.utils.startNewActivity
 import com.university.marathononline.utils.visible
@@ -27,12 +31,22 @@ import kotlinx.coroutines.runBlocking
 class ManagementDetailsContestActivity :
     BaseActivity<ManagementDetailsContestActivityViewModel, ActivityManagementContestDetailsBinding>() {
 
+    private lateinit var resultLauncher: ActivityResultLauncher<Intent>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val updatedContest = result.data?.getSerializableExtra(KEY_UPDATE_CONTEST) as Contest
+                // Cập nhật contest trong ViewModel
+                viewModel.setContest(updatedContest)
+            }
+        }
         handleIntentExtras(intent)
-        setupUI()
         setUpObserve()
         setupDeleteButton()
+        setupUI()
+
     }
 
     private fun setupUI() {
@@ -41,11 +55,10 @@ class ManagementDetailsContestActivity :
         }
 
         binding.buttonEdit.setOnClickListener{
-            val contest = viewModel.contest.value?:null
-            contest?.let {
-                startNewActivity(AddContestActivity::class.java,
-                    mapOf(KEY_CONTEST to it))
-            }
+            val contest = viewModel.contest.value ?: return@setOnClickListener
+            val intent = Intent(this, AddContestActivity::class.java)
+            intent.putExtra(KEY_CONTEST, contest)
+            resultLauncher.launch(intent) // Gửi contest qua AddContestActivity
         }
     }
 
@@ -123,12 +136,6 @@ class ManagementDetailsContestActivity :
         }
         builder.create().show()
     }
-//
-//    private fun setupDeleteButton() {
-//        binding.fabEdit.setOnClickListener {
-//            viewModel.editContest(contest)
-//        }
-//    }
 
     override fun getViewModel() = ManagementDetailsContestActivityViewModel::class.java
 

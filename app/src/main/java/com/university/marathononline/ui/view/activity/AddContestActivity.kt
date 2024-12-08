@@ -1,6 +1,8 @@
 package com.university.marathononline.ui.view.activity
 
+import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -24,7 +26,9 @@ import com.university.marathononline.ui.components.AddRuleDialog
 import com.university.marathononline.ui.viewModel.AddContestViewModel
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_CONTEST
+import com.university.marathononline.utils.KEY_UPDATE_CONTEST
 import com.university.marathononline.utils.finishAndGoBack
+import com.university.marathononline.utils.startNewActivity
 import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -72,6 +76,10 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
         if (contestToEdit != null) {
             // Populate the fields with the contest data for editing
             populateFieldsForEdit(contestToEdit!!)
+        }
+
+        binding.buttonBack.setOnClickListener {
+            finishAndGoBack()
         }
 
         // Set up RecyclerView for rules and rewards
@@ -199,8 +207,17 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
             Log.e("Update Contest", it.toString())
             when(it){
                 is Resource.Success -> {
+//                    Toast.makeText(this, "Đã cập nhật", Toast.LENGTH_SHORT).show()
+//                    startNewActivity(ManagementDetailsContestActivity::class.java,
+//                        mapOf(KEY_CONTEST to it.value)
+//                    )
+
                     Toast.makeText(this, "Đã cập nhật", Toast.LENGTH_SHORT).show()
-                    finishAndGoBack()
+                    val resultIntent = Intent().apply {
+                        putExtra(KEY_UPDATE_CONTEST, it.value) // Gửi contest đã cập nhật về
+                    }
+                    setResult(Activity.RESULT_OK, resultIntent)
+                    finish()
                 }
                 is Resource.Failure -> {
                     handleApiError(it)
