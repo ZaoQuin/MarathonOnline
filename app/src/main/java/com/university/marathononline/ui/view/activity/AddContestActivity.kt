@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Toast
-import androidx.core.content.IntentCompat.getSerializableExtra
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
@@ -114,17 +113,35 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
 
         // Add Rule button
         binding.btnAddRule.setOnClickListener {
-            val addRuleDialog = AddRuleDialog(this) { rule ->
-                ruleAdapter.updateData(ruleAdapter.getCurrentData() + rule)
-            }
+            val addRuleDialog = AddRuleDialog(
+                this,
+                onRuleAdded = { rule ->
+                    ruleAdapter.updateData(ruleAdapter.getCurrentData() + rule)
+                },
+                onRuleUpdated = { updatedRule ->
+                    val updatedRules = ruleAdapter.getCurrentData().map {
+                        if (it.id == updatedRule.id) updatedRule else it
+                    }
+                    ruleAdapter.updateData(updatedRules)
+                }
+            )
             addRuleDialog.show()
         }
 
         // Add Reward button
         binding.btnAddReward.setOnClickListener {
-            val addRewardDialog = AddRewardDialog(this) { reward ->
-                rewardAdapter.updateData(rewardAdapter.getCurrentData() + reward)
+            val addRewardDialog = AddRewardDialog(this,
+            onRewardAdded = { reward ->
+                val updatedRewards = rewardAdapter.getCurrentData() + reward
+                rewardAdapter.updateData(updatedRewards)
+            },
+            onRewardUpdated = { updatedReward ->
+                val updatedRewards = rewardAdapter.getCurrentData().map {
+                    if (it.id == updatedReward.id) updatedReward else it
+                }
+                rewardAdapter.updateData(updatedRewards)
             }
+            )
             addRewardDialog.show()
         }
 
@@ -195,14 +212,12 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
     }
 
     private fun populateFieldsForEdit(contest: Contest) {
-        // Populate fields with the existing contest data for editing
         binding.etContestName.setText(contest.name)
         binding.etContestDescription.setText(contest.description)
         binding.etContestDistance.setText(contest.distance.toString())
         binding.etContestFee.setText(contest.fee.toString())
         binding.etMaxMembers.setText(contest.maxMembers.toString())
 
-        // Populate the selected dates
         binding.btnStartDate.text = DateUtils.convertToVietnameseDate(contest.startDate!!)
         binding.btnEndDate.text = DateUtils.convertToVietnameseDate(contest.endDate.toString())
         binding.btnRegistrationDeadline.text = DateUtils.convertToVietnameseDate(contest.registrationDeadline.toString())
@@ -212,16 +227,30 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
         viewModel.selectedRegistrationDeadlineDate(DateUtils.convertStringToLocalDateTime(contest.registrationDeadline!!))
 
 
-        // Set rules and rewards
         ruleAdapter.updateData(contest.rules!!)
         rewardAdapter.updateData(contest.rewards!!)
-
-        // Set the status (if necessary)
-        // viewModel.selectedStatus(contest.status)
     }
 
     private fun handleEditRule(rule: Rule) {
-        // Logic for editing rule
+        val addRuleDialog = AddRuleDialog(this,
+            onRuleAdded = { rule ->
+                ruleAdapter.updateData(ruleAdapter.getCurrentData() + rule)
+            },
+            onRuleUpdated = { updatedRule ->
+                Log.e("RuleUpdate", "onRuleUpdated called")
+                val updatedRules = ruleAdapter.getCurrentData().map {
+                    if (it.id == updatedRule.id) {
+                        Log.e("RuleUpdate", "Found matching rule")
+                        updatedRule
+                    } else {
+                        it
+                    }
+                }
+                ruleAdapter.updateData(updatedRules)
+            }
+        )
+        addRuleDialog.setRule(rule) // This will now be safe to call
+        addRuleDialog.show()
     }
 
     private fun handleDeleteRule(rule: Rule) {
@@ -231,8 +260,21 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
     }
 
     private fun handleEditReward(reward: Reward) {
-        // Logic for editing reward
+        val addRewardDialog = AddRewardDialog(this,
+            onRewardAdded = { reward ->
+                rewardAdapter.updateData(rewardAdapter.getCurrentData() + reward)
+            },
+            onRewardUpdated = { updatedReward ->
+                val updatedRewards = rewardAdapter.getCurrentData().map {
+                    if (it.id == updatedReward.id) updatedReward else it
+                }
+                rewardAdapter.updateData(updatedRewards)
+            }
+        )
+        addRewardDialog.setReward(reward) // Chuyển reward đã chọn vào dialog
+        addRewardDialog.show()
     }
+
 
     private fun handleDeleteReward(reward: Reward) {
         val updatedRewards = rewardAdapter.getCurrentData().toMutableList()

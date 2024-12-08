@@ -10,10 +10,12 @@ import com.university.marathononline.databinding.DialogAddRewardBinding
 
 class AddRewardDialog(
     context: Context,
-    private val onRewardAdded: (Reward) -> Unit
+    private val onRewardAdded: (Reward) -> Unit,
+    private val onRewardUpdated: (Reward) -> Unit // Hàm callback khi cập nhật phần thưởng
 ) : Dialog(context) {
 
     private lateinit var binding: DialogAddRewardBinding
+    private var rewardToEdit: Reward? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,14 +41,20 @@ class AddRewardDialog(
                 val rewardRank = rewardRankStr.toIntOrNull()
                 if (rewardRank != null) {
                     val newReward = Reward(
-                        id = System.currentTimeMillis(),
+                        id = rewardToEdit?.id ?: System.currentTimeMillis(), // Nếu là chỉnh sửa, dùng id cũ
                         name = rewardName,
                         description = rewardDescription,
                         rewardRank = rewardRank,
                         type = ERewardType.valueOf(binding.spinnerRewardType.selectedItem.toString()),
-                        isClaim = false
+                        isClaim = rewardToEdit?.isClaim ?: false // Nếu chỉnh sửa, giữ lại giá trị `isClaim` cũ
                     )
-                    onRewardAdded(newReward)
+
+                    if (rewardToEdit == null) {
+                        onRewardAdded(newReward)
+                    } else {
+                        onRewardUpdated(newReward) // Nếu là cập nhật, gọi hàm onRewardUpdated
+                    }
+
                     dismiss()
                 } else {
                     binding.etRewardRank.error = "Vui lòng nhập hạng hợp lệ"
@@ -61,6 +69,24 @@ class AddRewardDialog(
         // Set up the cancel button click listener
         binding.btnCancel.setOnClickListener {
             dismiss()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        rewardToEdit?.let {
+            setReward(it)
+        }
+    }
+
+    // Hàm để cập nhật các trường trong dialog với dữ liệu của phần thưởng
+    fun setReward(reward: Reward) {
+        rewardToEdit = reward
+        if (this::binding.isInitialized) {
+            binding.etRewardName.setText(reward.name)
+            binding.etRewardDescription.setText(reward.description)
+            binding.etRewardRank.setText(reward.rewardRank.toString())
+            binding.spinnerRewardType.setSelection(ERewardType.values().indexOf(reward.type))
         }
     }
 }
