@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Toast
+import androidx.core.content.IntentCompat.getSerializableExtra
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
@@ -23,6 +24,8 @@ import com.university.marathononline.ui.components.AddRewardDialog
 import com.university.marathononline.ui.components.AddRuleDialog
 import com.university.marathononline.ui.viewModel.AddContestViewModel
 import com.university.marathononline.utils.DateUtils
+import com.university.marathononline.utils.KEY_CONTEST
+import com.university.marathononline.utils.finishAndGoBack
 import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -31,6 +34,8 @@ import java.time.LocalDateTime
 import java.util.Calendar
 
 class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestBinding>() {
+
+    private var contestToEdit: Contest? = null
 
     private val ruleAdapter = EditRuleAdapter(
         rules = mutableListOf(),
@@ -62,6 +67,13 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        contestToEdit = intent.getSerializableExtra(KEY_CONTEST) as? Contest
+
+        if (contestToEdit != null) {
+            // Populate the fields with the contest data for editing
+            populateFieldsForEdit(contestToEdit!!)
+        }
 
         // Set up RecyclerView for rules and rewards
         binding.recyclerRules.layoutManager = LinearLayoutManager(this)
@@ -119,28 +131,45 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
         // Save Contest button
         binding.btnSaveContest.setOnClickListener {
             // Collect all contest details
-            val contestDetails = CreateContestRequest(
-                name = binding.etContestName.text.toString(),
-                description = binding.etContestDescription.text.toString(),
-                distance = binding.etContestDistance.text.toString().toDoubleOrNull(),
-                startDate = viewModel.start.value.toString(),
-                endDate = viewModel.end.value.toString(),
-                registrationDeadline = viewModel.deadline.value.toString(),
-                fee = BigDecimal(binding.etContestFee.text.toString()),
-                maxMembers = binding.etMaxMembers.text.toString().toIntOrNull(),
-                status = EContestStatus.PENDING,
-                rules = ruleAdapter.getCurrentData(),
-                rewards = rewardAdapter.getCurrentData()
-            )
+            if(contestToEdit == null) {
+                val contestDetails = CreateContestRequest(
+                    name = binding.etContestName.text.toString(),
+                    description = binding.etContestDescription.text.toString(),
+                    distance = binding.etContestDistance.text.toString().toDoubleOrNull(),
+                    startDate = viewModel.start.value.toString(),
+                    endDate = viewModel.end.value.toString(),
+                    registrationDeadline = viewModel.deadline.value.toString(),
+                    fee = BigDecimal(binding.etContestFee.text.toString()),
+                    maxMembers = binding.etMaxMembers.text.toString().toIntOrNull(),
+                    status = EContestStatus.PENDING,
+                    rules = ruleAdapter.getCurrentData(),
+                    rewards = rewardAdapter.getCurrentData()
+                )
 
-            // Call ViewModel to save the contest
-            viewModel.addContest(contestDetails)
+                viewModel.addContest(contestDetails)
+            } else {
+                contestToEdit!!.name = binding.etContestName.text.toString()
+                contestToEdit!!.description = binding.etContestDescription.text.toString()
+                contestToEdit!!.distance = binding.etContestDistance.text.toString().toDoubleOrNull()
+                contestToEdit!!.startDate = viewModel.start.value.toString()
+                contestToEdit!!.endDate = viewModel.end.value.toString()
+                contestToEdit!!.registrationDeadline = viewModel.deadline.value.toString()
+                contestToEdit!!.fee = BigDecimal(binding.etContestFee.text.toString())
+                contestToEdit!!.maxMembers = binding.etMaxMembers.text.toString().toIntOrNull()
+                contestToEdit!!.status = EContestStatus.PENDING
+                contestToEdit!!.rules = ruleAdapter.getCurrentData()
+                contestToEdit!!.rewards = rewardAdapter.getCurrentData()
+                viewModel.updateContest(contestToEdit!!)
+            }
         }
 
         viewModel.addContestResponse.observe(this){
             Log.e("Add Contest", it.toString())
             when(it){
-                is Resource.Success -> Toast.makeText(this, "Completed", Toast.LENGTH_SHORT).show()
+                is Resource.Success -> {
+                    Toast.makeText(this, "Đã thêm", Toast.LENGTH_SHORT).show()
+                    finishAndGoBack()
+                }
                 is Resource.Failure -> {
                     handleApiError(it)
                     it.fetchErrorMessage()
@@ -148,6 +177,47 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
                 else -> Unit
             }
         }
+
+        viewModel.updateContestResponse.observe(this){
+            Log.e("Update Contest", it.toString())
+            when(it){
+                is Resource.Success -> {
+                    Toast.makeText(this, "Đã cập nhật", Toast.LENGTH_SHORT).show()
+                    finishAndGoBack()
+                }
+                is Resource.Failure -> {
+                    handleApiError(it)
+                    it.fetchErrorMessage()
+                }
+                else -> Unit
+            }
+        }
+    }
+
+    private fun populateFieldsForEdit(contest: Contest) {
+        // Populate fields with the existing contest data for editing
+        binding.etContestName.setText(contest.name)
+        binding.etContestDescription.setText(contest.description)
+        binding.etContestDistance.setText(contest.distance.toString())
+        binding.etContestFee.setText(contest.fee.toString())
+        binding.etMaxMembers.setText(contest.maxMembers.toString())
+
+        // Populate the selected dates
+        binding.btnStartDate.text = DateUtils.convertToVietnameseDate(contest.startDate!!)
+        binding.btnEndDate.text = DateUtils.convertToVietnameseDate(contest.endDate.toString())
+        binding.btnRegistrationDeadline.text = DateUtils.convertToVietnameseDate(contest.registrationDeadline.toString())
+
+        viewModel.selectedStartDate(DateUtils.convertStringToLocalDateTime(contest.startDate!!))
+        viewModel.selectedEndDate(DateUtils.convertStringToLocalDateTime(contest.endDate!!))
+        viewModel.selectedRegistrationDeadlineDate(DateUtils.convertStringToLocalDateTime(contest.registrationDeadline!!))
+
+
+        // Set rules and rewards
+        ruleAdapter.updateData(contest.rules!!)
+        rewardAdapter.updateData(contest.rewards!!)
+
+        // Set the status (if necessary)
+        // viewModel.selectedStatus(contest.status)
     }
 
     private fun handleEditRule(rule: Rule) {

@@ -21,7 +21,6 @@ import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.finishAndGoBack
 import com.university.marathononline.utils.startNewActivity
 import com.university.marathononline.utils.visible
-import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
@@ -39,6 +38,14 @@ class ManagementDetailsContestActivity :
     private fun setupUI() {
         binding.buttonBack.setOnClickListener{
             finishAndGoBack()
+        }
+
+        binding.buttonEdit.setOnClickListener{
+            val contest = viewModel.contest.value?:null
+            contest?.let {
+                startNewActivity(AddContestActivity::class.java,
+                    mapOf(KEY_CONTEST to it))
+            }
         }
     }
 
