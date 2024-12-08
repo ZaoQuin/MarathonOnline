@@ -8,11 +8,14 @@ import com.airbnb.lottie.utils.Utils
 import com.university.marathononline.ui.view.activity.ContestDetailsActivity
 import com.university.marathononline.databinding.ItemContestBinding
 import com.university.marathononline.data.models.Contest
+import com.university.marathononline.data.models.EContestStatus
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.convertToVND
+import com.university.marathononline.utils.enableRegister
 import com.university.marathononline.utils.getContestStatusColor
 import com.university.marathononline.utils.getContestStatusText
+import com.university.marathononline.utils.isStarting
 import com.university.marathononline.utils.startNewActivity
 import com.university.marathononline.utils.visible
 import java.time.LocalDateTime
@@ -25,12 +28,9 @@ class ContestAdapter(private var contests: List<Contest>) :
         fun bind(item: Contest) {
             binding.apply {
                 raceNameTextView.text = item.name
-                raceStartDateTextView.text =
-                    item.startDate?.let {DateUtils.convertToVietnameseDate(it)}
-                raceEndDateTextView.text =
-                    item.endDate?.let {DateUtils.convertToVietnameseDate(it)}
-                raceDeadlineRegisterTextView.text =
-                    item.registrationDeadline?.let {DateUtils.convertToVietnameseDate(it)}
+                raceStartDateTextView.text = DateUtils.convertToVietnameseDate(item.startDate!!)
+                raceEndDateTextView.text = DateUtils.convertToVietnameseDate(item.endDate!!)
+                raceDeadlineRegisterTextView.text = DateUtils.convertToVietnameseDate(item.registrationDeadline!!)
 
                 countMembersText.text = "${item.registrations?.size.toString()}/ ${item.maxMembers}"
                 registrationFee.text = item.fee?.let { convertToVND(it) }
@@ -47,10 +47,8 @@ class ContestAdapter(private var contests: List<Contest>) :
                     setTextColor(getContestStatusColor(context, item.status!!))
                 }
 
-                tvStartStatus.visible( DateUtils.convertStringToLocalDateTime(item.startDate!!).isBefore(
-                    LocalDateTime.now()) ||
-                        DateUtils.convertStringToLocalDateTime(item.startDate!!).isEqual(LocalDateTime.now()))
-                tvRegisterStatus.visible(!DateUtils.convertStringToLocalDateTime(item.registrationDeadline!!).isBefore(LocalDateTime.now()))
+                tvStartStatus.visible( isStarting(item))
+                tvRegisterStatus.visible(enableRegister(item))
             }
         }
     }

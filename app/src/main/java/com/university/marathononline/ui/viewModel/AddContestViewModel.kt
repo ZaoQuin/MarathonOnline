@@ -19,6 +19,9 @@ class AddContestViewModel(
     private val _addContestResponse = MutableLiveData<Resource<Contest>>()
     val addContestResponse: LiveData<Resource<Contest>> get() = _addContestResponse
 
+    private val _updateContestResponse = MutableLiveData<Resource<Contest>>()
+    val updateContestResponse: LiveData<Resource<Contest>> get() = _updateContestResponse
+
     private val _start = MutableLiveData<LocalDateTime>()
     val start: LiveData<LocalDateTime> get() = _start
 
@@ -37,6 +40,19 @@ class AddContestViewModel(
                 _addContestResponse.value = response
             } catch (e: Exception) {
                 Log.e("NetworkError", "Error during addContest request: ${e.message}")
+            }
+        }
+    }
+
+    fun updateContest(contest: Contest){
+        viewModelScope.launch {
+            _updateContestResponse.value = Resource.Loading
+
+            try {
+                val response = contestRepository.updateContest(contest)
+                _updateContestResponse.value = response
+            } catch (e: Exception) {
+                Log.e("NetworkError", "Error during updateContest request: ${e.message}")
             }
         }
     }
