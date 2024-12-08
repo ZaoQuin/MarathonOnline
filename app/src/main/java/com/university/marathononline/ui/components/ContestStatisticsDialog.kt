@@ -3,9 +3,12 @@ package com.university.marathononline.ui.components
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.university.marathononline.R
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.databinding.DialogContestStatisticsBinding
+import com.university.marathononline.ui.adapter.RaceStatisticsAdapter
+import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.formatDistance
 import com.university.marathononline.utils.getContestStatusColor
 import com.university.marathononline.utils.getContestStatusText
@@ -34,9 +37,6 @@ class ContestStatisticsDialog(
 
         val startDate = contest.startDate?.let { contest.startDate }
         val endDate = contest.endDate?.let { contest.endDate }
-        binding.tvContestDatesStart.text = context.getString(R.string.contest_start_date, startDate ?: context.getString(R.string.date_not_available))
-        binding.tvContestDatesEnd.text = context.getString(R.string.contest_end_date, endDate ?: context.getString(R.string.date_not_available))
-
         // User Registration Info
         val registration = contest.registrations?.find { it.runner.email == email }
 
@@ -45,9 +45,15 @@ class ContestStatisticsDialog(
             val contestDistance = contest.distance
             val ratio = (currentDistance / contestDistance!!) * 100
 
-            binding.tvCompletionStatus.text = context.getString(R.string.contest_completed, currentDistance, contestDistance)
+            binding.tvContestDatesRegister.text = DateUtils.convertToVietnameseDate(registration.registrationDate)
+            binding.tvCompletionStatus.text = context.getString(R.string.contest_completed)
             binding.processBar.progress = ratio.toInt()
             binding.processBarValue.text = "${formatDistance(currentDistance)}/${formatDistance(contestDistance)}"
+
+
+            val raceAdapter = RaceStatisticsAdapter(it.races ?: emptyList())
+            binding.recyclerViewContests.layoutManager = LinearLayoutManager(context)
+            binding.recyclerViewContests.adapter = raceAdapter
         }
 
         // Close button listener

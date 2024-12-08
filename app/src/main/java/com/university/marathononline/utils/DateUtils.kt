@@ -164,4 +164,10 @@ object DateUtils {
         val formatter = DateTimeFormatter.ofPattern("'Ngày' dd 'tháng' MM 'năm' yyyy", Locale("vi", "VN"))
         return dateTime.format(formatter)
     }
+
+    fun formatLocalDateTimeStrToDateTimeString(dateString: String): String {
+        val localDateTime = convertStringToLocalDateTime(dateString)
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        return localDateTime.format(formatter)
+    }
 }

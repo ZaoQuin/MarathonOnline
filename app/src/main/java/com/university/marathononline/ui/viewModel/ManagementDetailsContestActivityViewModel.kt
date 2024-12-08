@@ -36,8 +36,8 @@ class ManagementDetailsContestActivityViewModel(
     private val _deadlineTime = MutableLiveData<String>()
     val deadlineTime: LiveData<String> get() = _deadlineTime
 
-    private val _deleteResponse = MutableLiveData<Resource<DeleteResponse>>()
-    val deleteResponse: LiveData<Resource<DeleteResponse>> get() = _deleteResponse
+    private val _cancelResponse = MutableLiveData<Resource<Contest>>()
+    val cancelResponse: LiveData<Resource<Contest>> get() = _cancelResponse
 
     fun setContest(contest: Contest){
         _contest.value = contest
@@ -90,12 +90,11 @@ class ManagementDetailsContestActivityViewModel(
         _remainingTime.postValue(timeString)
     }
 
-    fun delete(){
+    fun cancel(){
         val contest = contest.value
-        val contestId = contest?.id
         viewModelScope.launch {
-            _deleteResponse.value = Resource.Loading
-            _deleteResponse.value = repository.deleteById(contestId!!)
+            _cancelResponse.value = Resource.Loading
+            _cancelResponse.value = repository.cancel(contest!!)
         }
     }
 

@@ -40,4 +40,8 @@ class ContestRepository(
     suspend fun deleteById(contestId: Long) = safeApiCall {
         api.deleteById(contestId)
     }
+
+    suspend fun cancel(contest: Contest) = safeApiCall {
+        api.cancel(contest)
+    }
 }
