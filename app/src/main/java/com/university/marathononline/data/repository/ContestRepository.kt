@@ -32,4 +32,8 @@ class ContestRepository(
     suspend fun updateContest(contest: Contest) = safeApiCall {
         api.updateContest(contest)
     }
+
+    suspend fun getContestsByJwt() = safeApiCall {
+        api.getContestsByJwt()
+    }
 }

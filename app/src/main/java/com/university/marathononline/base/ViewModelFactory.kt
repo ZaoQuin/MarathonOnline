@@ -12,6 +12,7 @@ import com.university.marathononline.ui.viewModel.AccountDeletedViewModel
 import com.university.marathononline.ui.viewModel.AddContestViewModel
 import com.university.marathononline.ui.viewModel.ChangePasswordViewModel
 import com.university.marathononline.ui.viewModel.ContestDetailsViewModel
+import com.university.marathononline.ui.viewModel.ContestManagementViewModel
 import com.university.marathononline.ui.viewModel.ContestViewModel
 import com.university.marathononline.ui.viewModel.DailyStatisticsViewModel
 import com.university.marathononline.ui.viewModel.DeleteUserAccountViewModel
@@ -72,6 +73,7 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(YearlyStatisticsViewModel::class.java) -> YearlyStatisticsViewModel(findRepository(RaceRepository::class.java)) as T
             modelClass.isAssignableFrom(SearchViewModel::class.java) -> SearchViewModel(findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(AddContestViewModel::class.java) -> AddContestViewModel(findRepository(ContestRepository::class.java)) as T
+            modelClass.isAssignableFrom(ContestManagementViewModel::class.java) -> ContestManagementViewModel(findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(LeaderBoardViewModel::class.java) -> LeaderBoardViewModel() as T
             modelClass.isAssignableFrom(RunnerContestsViewModel::class.java) -> RunnerContestsViewModel() as T
             modelClass.isAssignableFrom(RunnerRewardsViewModel::class.java) -> RunnerRewardsViewModel() as T

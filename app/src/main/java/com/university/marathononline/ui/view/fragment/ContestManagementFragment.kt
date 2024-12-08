@@ -1,23 +1,161 @@
 package com.university.marathononline.ui.view.fragment
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import com.university.marathononline.R
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.university.marathononline.base.BaseFragment
+import com.university.marathononline.base.BaseRepository
+import com.university.marathononline.data.api.Resource
+import com.university.marathononline.data.api.contest.ContestApiService
+import com.university.marathononline.data.models.EContestStatus
+import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.databinding.FragmentContestManagementBinding
+import com.university.marathononline.ui.adapter.EditContestAdapter
+import com.university.marathononline.ui.viewModel.ContestManagementViewModel
+import com.university.marathononline.utils.SORT_BY_ASC
+import com.university.marathononline.utils.SORT_BY_DES
+import handleApiError
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
-class ContestManagementFragment : Fragment() {
+class ContestManagementFragment :
+    BaseFragment<ContestManagementViewModel, FragmentContestManagementBinding>() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    private lateinit var contestAdapter: EditContestAdapter
+
+    override fun getViewModel(): Class<ContestManagementViewModel> =
+        ContestManagementViewModel::class.java
+
+    override fun getFragmentBinding(
+        inflater: LayoutInflater,
+        container: ViewGroup?
+    ): FragmentContestManagementBinding =
+        FragmentContestManagementBinding.inflate(inflater, container, false)
+
+    override fun getFragmentRepositories(): List<BaseRepository> {
+        val token = runBlocking { userPreferences.authToken.first() }
+        val api = retrofitInstance.buildApi(ContestApiService::class.java, token)
+        return listOf(ContestRepository(api))
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_contest_management, container, false)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        viewModel.getMyContest()
+
+        setupRecyclerView()
+        setupSearch()
+        setupFiltersAndSorting()
+        observeContestData()
+    }
+
+    private fun setupRecyclerView() {
+        contestAdapter = EditContestAdapter(emptyList())
+        binding.recyclerViewContests.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerViewContests.adapter = contestAdapter
+    }
+
+    private fun setupSearch() {
+        binding.searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                viewModel.setSearchKey(s.toString())
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+    }
+
+    private fun setupFiltersAndSorting() {
+        val contests = viewModel.contests.value?: emptyList()
+
+        val statusSpinner = binding.statusSpinner
+        val statusOptions = arrayOf("Tất cả", "Đang diễn ra", "Đã kết thúc", "Đã hủy", "Không chấp nhận")
+        val statusAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, statusOptions)
+        statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        statusSpinner.adapter = statusAdapter
+
+        statusSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parentView: AdapterView<*>?,
+                selectedItemView: View?,
+                position: Int,
+                id: Long
+            ) {
+                val status = when (position) {
+                    0 -> null  // "Tất cả" -> Show all contests (no filtering)
+                    1 -> EContestStatus.ACTIVE  // "Đang diễn ra" -> ACTIVE status
+                    2 -> EContestStatus.FINISHED  // "Đã kết thúc" -> FINISHED status
+                    3 -> EContestStatus.CANCELLED  // "Đã hủy" -> CANCELLED status
+                    4 -> EContestStatus.NOT_APPROVAL  // "Không chấp nhận" -> NOT_APPROVAL status
+                    else -> null
+                }
+
+                viewModel.setFilterStatus(status)
+            }
+
+            override fun onNothingSelected(parentView: AdapterView<*>?) {}
+        }
+
+        val sortSpinner = binding.sortSpinner
+        val sortOptions = arrayOf("Mới nhất", "Cũ nhất")
+        val sortAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, sortOptions)
+        sortAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        sortSpinner.adapter = sortAdapter
+
+        sortSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parentView: AdapterView<*>?,
+                selectedItemView: View?,
+                position: Int,
+                id: Long
+            ) {
+                val sortedContests = when (position) {
+                    0 -> SORT_BY_DES
+                    1 -> SORT_BY_ASC
+                    else -> null
+                }
+
+                viewModel.setSortType(sortedContests)
+            }
+
+            override fun onNothingSelected(parentView: AdapterView<*>?) {}
+        }
+    }
+
+    private fun observeContestData() {
+        viewModel.getContestByJwtResponse.observe(viewLifecycleOwner){
+            when(it){
+                is Resource.Success -> {
+                    viewModel.setContest(it.value)
+                    viewModel.setResult(it.value)
+                }
+                is Resource.Failure -> handleApiError(it)
+                else -> Unit
+            }
+        }
+
+        viewModel.results.observe(viewLifecycleOwner) {
+            contestAdapter.updateData(it)
+        }
+
+        viewModel.keySearch.observe(viewLifecycleOwner) {
+            viewModel.applySearchAndFiltersAndSort()
+        }
+
+        viewModel.filterStatus.observe(viewLifecycleOwner) {
+            viewModel.applySearchAndFiltersAndSort()
+        }
+
+        viewModel.sortType.observe(viewLifecycleOwner) {
+            viewModel.applySearchAndFiltersAndSort()
+        }
     }
 }

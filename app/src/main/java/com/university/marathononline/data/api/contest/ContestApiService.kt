@@ -10,7 +10,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface ContestApiService {
-    @GET("/api/v1/contest/active-and-completed")
+    @GET("/api/v1/contest/active-and-finish")
     suspend fun getContests(): GetContestsResponse
 
     @GET("/api/v1/contest/home")
@@ -27,4 +27,7 @@ interface ContestApiService {
 
     @PUT("/api/v1/contest")
     suspend fun updateContest(@Body contest:Contest): Contest
+
+    @GET("/api/v1/contest/jwt")
+    suspend fun getContestsByJwt(): List<Contest>
 }
