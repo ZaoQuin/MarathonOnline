@@ -6,11 +6,15 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.university.marathononline.databinding.ItemEditContestBinding
 import com.university.marathononline.data.models.Contest
+import com.university.marathononline.ui.components.ContestStatisticsDialog
+import com.university.marathononline.ui.view.activity.ManagementDetailsContestActivity
 import com.university.marathononline.utils.DateUtils
+import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.getContestStatusColor
 import com.university.marathononline.utils.getContestStatusText
 import com.university.marathononline.utils.isStarting
 import com.university.marathononline.utils.enableRegister
+import com.university.marathononline.utils.startNewActivity
 import com.university.marathononline.utils.visible
 
 class EditContestAdapter(private var contests: List<Contest>) :
@@ -31,6 +35,12 @@ class EditContestAdapter(private var contests: List<Contest>) :
                 tvStartStatus.visible(isStarting(item))
 
                 tvRegistrationStatus.visible(enableRegister(item))
+
+                contestCardView.setOnClickListener{
+                    it.context.startNewActivity(ManagementDetailsContestActivity::class.java,
+                        mapOf(KEY_CONTEST to item)
+                    )
+                }
             }
         }
     }

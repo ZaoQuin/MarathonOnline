@@ -34,7 +34,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.Serializable
 import java.time.LocalDateTime
-import kotlin.math.roundToInt
 
 class ContestDetailsActivity :
     BaseActivity<ContestDetailsViewModel, ActivityContestDetailsBinding>() {

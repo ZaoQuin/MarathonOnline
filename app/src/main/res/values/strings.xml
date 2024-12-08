@@ -31,4 +31,10 @@
     <string name="contest_not_completed">Chưa hoàn thành</string>
     <string name="contest_start_date">Ngày bắt đầu: %1$s</string>
     <string name="contest_end_date">Ngày kết thúc: %1$s</string>
+
+<!--    Registration    -->
+    <string name="registration_username">\@%1$s\"</string>
+    <string name="registration_totalDistance">\Tổng quãng đường: %1$s\</string>
+    <string name="registration_totalTime">\Thời gian chạy: %1$s\</string>
+    <string name="registration_status">\Trạng thái: %1$s\</string>
 </resources>

@@ -41,10 +41,10 @@ class ContestManagementViewModel(
     }
 
     fun setContest(contests: List<Contest>) {
-        _contests.value = contests.sortedBy { DateUtils.convertStringToLocalDateTime(it.startDate!!) }
+        _contests.value = contests
     }
     fun setResult(contests: List<Contest>) {
-        _results.value = contests
+        _results.value = contests.sortedByDescending { DateUtils.convertStringToLocalDateTime(it.createDate!!) }
     }
 
     fun setSearchKey(key: String) {
@@ -61,10 +61,10 @@ class ContestManagementViewModel(
 
     fun applySearchAndFiltersAndSort() {
         var contests = contests.value ?: emptyList()
-        contests = search(contests) // Perform search and assign the result
-        contests = filter(contests) // Apply filter and re-assign the result
-        contests = sort(contests) // Apply sorting and re-assign the result
-        _results.value = contests // Finally, set the updated list to _results
+        contests = search(contests)
+        contests = filter(contests)
+        contests = sort(contests)
+        _results.value = contests
     }
 
     fun search(contests: List<Contest>): List<Contest> {
@@ -90,9 +90,9 @@ class ContestManagementViewModel(
             contests // No sorting, return the original list
         } else {
             if (sortType == SORT_BY_ASC) {
-                contests.sortedBy { DateUtils.convertStringToLocalDateTime(it.startDate!!) }
+                contests.sortedBy { DateUtils.convertStringToLocalDateTime(it.createDate!!) }
             } else {
-                contests.sortedByDescending { DateUtils.convertStringToLocalDateTime(it.startDate!!) }
+                contests.sortedByDescending { DateUtils.convertStringToLocalDateTime(it.createDate!!) }
             }
         }
     }

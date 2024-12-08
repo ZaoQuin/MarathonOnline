@@ -55,6 +55,11 @@ class ContestManagementFragment :
         observeContestData()
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.getMyContest()
+    }
+
     private fun setupRecyclerView() {
         contestAdapter = EditContestAdapter(emptyList())
         binding.recyclerViewContests.layoutManager = LinearLayoutManager(requireContext())
@@ -74,10 +79,8 @@ class ContestManagementFragment :
     }
 
     private fun setupFiltersAndSorting() {
-        val contests = viewModel.contests.value?: emptyList()
-
         val statusSpinner = binding.statusSpinner
-        val statusOptions = arrayOf("Tất cả", "Đang diễn ra", "Đã kết thúc", "Đã hủy", "Không chấp nhận")
+        val statusOptions = arrayOf("Tất cả", "Chờ duyệt" ,"Đang diễn ra", "Đã kết thúc", "Đã hủy", "Không chấp nhận")
         val statusAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, statusOptions)
         statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         statusSpinner.adapter = statusAdapter
@@ -91,10 +94,11 @@ class ContestManagementFragment :
             ) {
                 val status = when (position) {
                     0 -> null  // "Tất cả" -> Show all contests (no filtering)
-                    1 -> EContestStatus.ACTIVE  // "Đang diễn ra" -> ACTIVE status
-                    2 -> EContestStatus.FINISHED  // "Đã kết thúc" -> FINISHED status
-                    3 -> EContestStatus.CANCELLED  // "Đã hủy" -> CANCELLED status
-                    4 -> EContestStatus.NOT_APPROVAL  // "Không chấp nhận" -> NOT_APPROVAL status
+                    1 -> EContestStatus.PENDING  // "Tất cả" -> Show all contests (no filtering)
+                    2 -> EContestStatus.ACTIVE  // "Đang diễn ra" -> ACTIVE status
+                    3 -> EContestStatus.FINISHED  // "Đã kết thúc" -> FINISHED status
+                    4 -> EContestStatus.CANCELLED  // "Đã hủy" -> CANCELLED status
+                    5 -> EContestStatus.NOT_APPROVAL  // "Không chấp nhận" -> NOT_APPROVAL status
                     else -> null
                 }
 

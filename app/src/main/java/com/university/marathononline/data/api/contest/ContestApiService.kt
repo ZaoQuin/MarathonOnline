@@ -2,8 +2,10 @@ package com.university.marathononline.data.api.contest
 
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.request.CreateContestRequest
+import com.university.marathononline.data.response.DeleteResponse
 import com.university.marathononline.data.response.GetContestsResponse
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -30,4 +32,7 @@ interface ContestApiService {
 
     @GET("/api/v1/contest/jwt")
     suspend fun getContestsByJwt(): List<Contest>
+
+    @DELETE("/api/v1/contest/{id}")
+    suspend fun deleteById(@Path("id") contestId: Long): DeleteResponse
 }
