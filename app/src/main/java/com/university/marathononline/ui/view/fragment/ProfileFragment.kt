@@ -61,6 +61,12 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
         observeViewModel()
     }
 
+    override fun onStart() {
+        super.onStart()
+        viewModel.getUser()
+        viewModel.getMyContest()
+    }
+
     override fun onResume() {
         super.onResume()
         viewModel.getUser()
@@ -118,8 +124,8 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
 
     private fun getTitle(position: Int): String {
         return when (position) {
-            1 -> "Tháng"
-            2 -> "Năm"
+            1 -> "Tuần"
+            2 -> "Tháng"
             else -> "Ngày"
         }
     }

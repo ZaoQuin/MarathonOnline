@@ -44,15 +44,17 @@
             android:padding="10dp"/>
 
         <!-- Completion Status -->
+
+        <!-- Progress Bar -->
+
         <TextView
             android:id="@+id/tvCompletionStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="10dp"
             android:text="Completion Status"
-            android:textColor="@color/gray"
-            android:padding="10dp"/>
+            android:textColor="@color/gray" />
 
-        <!-- Progress Bar -->
         <ProgressBar
             android:id="@+id/processBar"
             android:layout_width="match_parent"

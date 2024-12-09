@@ -5,19 +5,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
-import com.bumptech.glide.util.Util
-import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.university.marathononline.R
-import com.university.marathononline.databinding.FragmentYearlyStatisticsBinding
-import com.university.marathononline.ui.viewModel.YearlyStatisticsViewModel
+import com.university.marathononline.ui.viewModel.WeeklyStatisticsViewModel
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
@@ -25,6 +19,8 @@ import com.university.marathononline.data.api.race.RaceApiService
 import com.university.marathononline.data.models.Race
 import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.RaceRepository
+import com.university.marathononline.databinding.FragmentWeeklyStatisticsBinding
+import com.university.marathononline.ui.components.WeekPickerBottomSheetFragment
 import com.university.marathononline.utils.KEY_RACES
 import com.university.marathononline.utils.KEY_USER
 import com.university.marathononline.utils.formatCalogies
@@ -33,16 +29,16 @@ import com.university.marathononline.utils.formatPace
 import com.university.marathononline.utils.formatSpeed
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import java.time.LocalDate
+import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
+import java.util.Locale
 
-class YearlyStatisticsFragment : BaseFragment<YearlyStatisticsViewModel, FragmentYearlyStatisticsBinding>() {
+class WeeklyStatisticsFragment : BaseFragment<WeeklyStatisticsViewModel, FragmentWeeklyStatisticsBinding>() {
 
-    override fun getViewModel(): Class<YearlyStatisticsViewModel> = YearlyStatisticsViewModel::class.java
+    override fun getViewModel(): Class<WeeklyStatisticsViewModel> = WeeklyStatisticsViewModel::class.java
 
-    override fun getFragmentBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentYearlyStatisticsBinding {
-        return FragmentYearlyStatisticsBinding.inflate(inflater, container, false)
+    override fun getFragmentBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentWeeklyStatisticsBinding {
+        return FragmentWeeklyStatisticsBinding.inflate(inflater, container, false)
     }
 
     override fun getFragmentRepositories():  List<BaseRepository> {
@@ -62,8 +58,26 @@ class YearlyStatisticsFragment : BaseFragment<YearlyStatisticsViewModel, Fragmen
 
     private fun observeViewModel() {
         viewModel.races.observe(viewLifecycleOwner){
-            val current = DateUtils.convertDateToLocalDate(Date())
-            viewModel.filterDataByYear(current.year)
+            val calendar = Calendar.getInstance()
+
+            val today = calendar.time
+
+            val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+            val daysToMonday = if (dayOfWeek == Calendar.SUNDAY) 6 else (Calendar.MONDAY - dayOfWeek + 7) % 7
+
+            calendar.add(Calendar.DAY_OF_YEAR, -daysToMonday)
+            val startDate = calendar.time
+
+            calendar.add(Calendar.DAY_OF_YEAR, 6)
+            val endDate = calendar.time
+
+            val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+            val startDateString = dateFormat.format(startDate)
+            val endDateString = dateFormat.format(endDate)
+
+            val currentWeek = "$startDateString - $endDateString"
+            binding.filterText.text = currentWeek
+            viewModel.filterDataByWeek(currentWeek)
         }
 
         viewModel.distance.observe(viewLifecycleOwner){
@@ -101,7 +115,6 @@ class YearlyStatisticsFragment : BaseFragment<YearlyStatisticsViewModel, Fragmen
 
     private fun initUI() {
         val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-        binding.filterText.text = DateUtils.getFormattedYear(currentYear)
 
         binding.filterButton.setOnClickListener {
             showYearPickerBottomSheet()
@@ -123,7 +136,7 @@ class YearlyStatisticsFragment : BaseFragment<YearlyStatisticsViewModel, Fragmen
 
             xAxis.apply {
                 position = com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTTOM
-                setLabelCount(12, true)
+                setLabelCount(7, true)
                 textColor = ContextCompat.getColor(requireContext(), R.color.text_color)
                 gridColor = ContextCompat.getColor(requireContext(), R.color.light_gray)
                 axisLineColor = ContextCompat.getColor(requireContext(), R.color.dark_main_color)
@@ -142,15 +155,27 @@ class YearlyStatisticsFragment : BaseFragment<YearlyStatisticsViewModel, Fragmen
 
             val entries = ArrayList<Entry>()
 
-            // Gắn các giá trị vào các tháng
-            for (month in 1..12) {
-                // Kiểm tra nếu có giá trị cho tháng này trong `race`
-                val distance = race["2024-${month.toString().padStart(2, '0')}"]?.toFloat() ?: 0f
-                entries.add(Entry(month.toFloat(), distance))
+            val calendar = Calendar.getInstance()
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+            val today = calendar.time
+            val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+
+            calendar.add(Calendar.DAY_OF_YEAR, - (dayOfWeek - 2))
+
+            val weekDates = ArrayList<String>()
+            for (i in 0..6) {
+                weekDates.add(dateFormat.format(calendar.time))
+                calendar.add(Calendar.DAY_OF_YEAR, 1)
             }
 
-            // Tạo dataset
-            val dataSet = LineDataSet(entries, "Quá trình chạy hằng tháng")
+            weekDates.forEach { date ->
+                val day = date.split("-")[2].toFloat()
+                val distance = race[date]?.toFloatOrNull() ?: 0f
+                entries.add(Entry(day, distance))
+            }
+
+            val dataSet = LineDataSet(entries, "Quá trình chạy trong tuần")
             dataSet.apply {
                 color = ContextCompat.getColor(requireContext(), R.color.main_color)
                 lineWidth = 2f
@@ -180,11 +205,11 @@ class YearlyStatisticsFragment : BaseFragment<YearlyStatisticsViewModel, Fragmen
         }
     }
 
-
     private fun showYearPickerBottomSheet() {
-        val yearPicker = YearPickerBottomSheetFragment { selectedYear ->
-            binding.filterText.text = DateUtils.getFormattedYear(selectedYear)
-            viewModel.filterDataByYear(selectedYear)
+        val yearPicker = WeekPickerBottomSheetFragment { selectedWeek ->
+            binding.filterText.text = selectedWeek
+            println("Tuần được chọn: $selectedWeek")
+            viewModel.filterDataByWeek(selectedWeek)
         }
         yearPicker.show(parentFragmentManager, "YearPicker")
     }

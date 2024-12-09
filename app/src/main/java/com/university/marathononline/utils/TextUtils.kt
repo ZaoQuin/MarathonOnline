@@ -67,10 +67,10 @@ fun formatCalogies(calories: Double): String {
 }
 
 fun formatPace(pace: Double): String {
-    return if(pace <= 0){
-        "Chưa có dữ liệu"
-    } else {
+    return if(pace >= 0){
         String.format("%.2f phút/km", pace)
+    } else {
+        "Chưa có dữ liệu"
     }
 }
 

@@ -39,4 +39,5 @@
     <string name="registration_totalDistance">\Tổng quãng đường: %1$s\</string>
     <string name="registration_totalTime">\Thời gian chạy: %1$s\</string>
     <string name="registration_status">\Trạng thái: %1$s\</string>
+    <string name="registration_register_date">\Ngày đăng ký: %1$s\</string>
 </resources>

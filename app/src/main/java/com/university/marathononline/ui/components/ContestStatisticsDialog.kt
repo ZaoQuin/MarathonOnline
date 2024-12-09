@@ -39,17 +39,15 @@ class ContestStatisticsDialog(
         val endDate = contest.endDate?.let { contest.endDate }
         // User Registration Info
         val registration = contest.registrations?.find { it.runner.email == email }
-
         registration?.let {
             val currentDistance = it.races.sumOf { race -> race.distance }
             val contestDistance = contest.distance
             val ratio = (currentDistance / contestDistance!!) * 100
 
-            binding.tvContestDatesRegister.text = DateUtils.convertToVietnameseDate(registration.registrationDate)
-            binding.tvCompletionStatus.text = context.getString(R.string.contest_completed)
+            binding.tvContestDatesRegister.text =context.getString(R.string.registration_register_date,  DateUtils.convertToVietnameseDate(registration.registrationDate))
+            binding.tvCompletionStatus.text = context.getString(R.string.registration_status, registration.status.value)
             binding.processBar.progress = ratio.toInt()
             binding.processBarValue.text = "${formatDistance(currentDistance)}/${formatDistance(contestDistance)}"
-
 
             val raceAdapter = RaceStatisticsAdapter(it.races ?: emptyList())
             binding.recyclerViewContests.layoutManager = LinearLayoutManager(context)

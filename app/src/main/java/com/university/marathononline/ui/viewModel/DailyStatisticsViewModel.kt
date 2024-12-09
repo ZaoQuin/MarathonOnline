@@ -71,6 +71,7 @@ class DailyStatisticsViewModel(
 
     fun filterDataByDay(selectedDate: Date) {
         val dateKey = DateUtils.convertDateToLocalDate(selectedDate).toString()
+        println("Key Filter Date ${dateKey}")
         val result = statsByDay[dateKey]
         Log.d("DailyStatisticsViewModel", result.toString())
         _distance.value = result?.get(KEY_TOTAL_DISTANCE) as? Double ?: 0.0

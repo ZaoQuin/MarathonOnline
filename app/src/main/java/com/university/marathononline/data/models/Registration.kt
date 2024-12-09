@@ -14,7 +14,7 @@ data class Registration(
     var rewards: List<Reward>? = null
 ): Serializable
 
-enum class ERegistrationStatus {
-    PENDING,ACTIVE, COMPLETED
+enum class ERegistrationStatus(val value: String) {
+    PENDING("Chưa duyệt"),ACTIVE ("Đang hoạt động"), COMPLETED ("Hoàn thành")
 }
 

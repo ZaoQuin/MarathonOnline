@@ -20,8 +20,11 @@ import com.university.marathononline.utils.getAge
 import com.university.marathononline.utils.getAvgWeightByGenderAndAge
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
-class YearlyStatisticsViewModel(
+class WeeklyStatisticsViewModel(
     private val repository: RaceRepository
 ): BaseViewModel(listOf(repository)) {
     private val _user: MutableLiveData<User> = MutableLiveData()
@@ -48,56 +51,11 @@ class YearlyStatisticsViewModel(
     private val _timeTaken: MutableLiveData<Long> = MutableLiveData(0)
     val timeTaken: LiveData<Long> get() = _timeTaken
 
-    private var statsByYear: Map<String,  Map<String, Any>> = emptyMap()
-
-    private var groupedByYear: Map<String,  List<Race>> = emptyMap()
-
     private var _dataLineChart: MutableLiveData<Map<String, String>> = MutableLiveData(emptyMap())
     val dataLineChart: LiveData<Map<String, String>> get() = _dataLineChart
 
     fun setUser(user: User) {
         _user.value = user
-    }
-
-    fun filterDataByYear(year: Int) {
-        try {
-            val dateKey = "$year"
-            Log.d("MonthlyStatisticsViewModel", "dateKey" + dateKey)
-            val result = statsByYear[dateKey]
-            Log.d("MonthlyStatisticsViewModel", result.toString())
-
-            _distance.value = result?.get(KEY_TOTAL_DISTANCE) as? Double ?: 0.0
-            _timeTaken.value = result?.get(KEY_TOTAL_TIME) as? Long ?: 0
-            _avgSpeed.value = result?.get(KEY_AVG_SPEED) as? Double ?: 0.0
-            _steps.value = result?.get(KEY_TOTAL_STEPS) as? Int ?: 0
-            _calories.value = result?.get(KEY_CALORIES) as? Double ?: 0.0
-            _pace.value = result?.get(KEY_PACE) as? Double ?: 0.0
-            val raceOfMonth = groupedByYear[dateKey]
-            val groupedByMonth = raceOfMonth?.groupBy {
-                val dateTime = DateUtils.convertStringToLocalDateTime(it.timestamp)
-                "${dateTime.year}-${dateTime.monthValue}"
-            }
-            val monthlyDistances = groupedByMonth?.mapValues { entry ->
-                val totalDistanceForMonth = entry.value.sumOf { it.distance }
-                "${totalDistanceForMonth}"
-            } ?: emptyMap()
-
-            _dataLineChart.value = monthlyDistances
-        } catch (e: Exception) {
-            _dataLineChart.value = emptyMap()
-            _distance.value = 0.0
-            _timeTaken.value = 0
-            _avgSpeed.value = 0.0
-            _steps.value = 0
-        }
-    }
-
-    fun setRaces(races: List<Race>) {
-        _races.value = races
-        groupedByYear = races.groupBy {
-            DateUtils.convertStringToLocalDateTime(it.timestamp).year.toString()
-        }
-        statsByYear = groupedByYear.mapValues { calculateStats(it.value) }
     }
 
     private fun calculateStats(group: List<Race>): Map<String, Any> {
@@ -121,5 +79,71 @@ class YearlyStatisticsViewModel(
             KEY_CALORIES to calories,
             KEY_PACE to pace
         )
+    }
+
+    private var groupedByDay: Map<String,  List<Race>> = emptyMap()
+
+    private var groupedByWeek: Map<String,  List<Race>> = emptyMap()
+
+    fun setRaces(races: List<Race>) {
+        _races.value = races
+        groupedByDay = races.groupBy {
+            Log.d("DateTimeTest", "Original timestamp: ${it.timestamp}")
+            DateUtils.convertStringToLocalDateTime(it.timestamp).toLocalDate().toString()
+        }
+    }
+
+
+    fun filterDataByWeek(selectedWeek: String) {
+        val dateKeys = generateKeyDatesInWeek(selectedWeek)
+        groupedByWeek = groupedByDay.filter { it.key in dateKeys }
+        val statsByDayOfWeek = groupedByWeek.mapValues { calculateStats(it.value) }
+        val results = dateKeys.mapNotNull{ statsByDayOfWeek[it] }
+        Log.d("WeekStatisticsViewModel", groupedByDay.toString())
+        Log.d("WeekStatisticsViewModel", statsByDayOfWeek.toString())
+        Log.d("WeekStatisticsViewModel", results.toString())
+        val distance = results.sumOf { it[KEY_TOTAL_DISTANCE] as? Double ?: 0.0 }
+        val timeTaken = results.sumOf { it[KEY_TOTAL_TIME] as? Long ?: 0}
+        val avgSpeed = (distance/ (timeTaken /3600.0))
+        _distance.value = distance
+        _timeTaken.value = timeTaken
+        _avgSpeed.value = (avgSpeed?:0) as Double?
+        _steps.value  = results.sumOf { it[KEY_TOTAL_STEPS] as? Int ?: 0}
+        _calories.value = results.sumOf { it[KEY_CALORIES] as? Double ?: 0.0}
+        _pace.value = calPace(avgSpeed)
+        var raceOfWeek = groupedByWeek.filter { it.key in dateKeys }.values.flatten()
+        val groupedByDate = raceOfWeek?.groupBy {
+            DateUtils.convertStringToLocalDateTime(it.timestamp).toLocalDate().toString()
+        }
+        val dailyDistances = groupedByDate?.mapValues { entry ->
+            val totalDistanceForDay = entry.value.sumOf { it.distance }
+            "${totalDistanceForDay}"
+        } ?: emptyMap()
+
+        Log.d("WeekStatisticsViewModel", dailyDistances.toString())
+        _dataLineChart.value = dailyDistances
+    }
+
+
+    fun generateKeyDatesInWeek(input: String): List<String> {
+        val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        val keyDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        val dates = input.split(" - ")
+        val startDate = dateFormat.parse(dates[0]) ?: throw IllegalArgumentException("Invalid start date")
+        val endDate = dateFormat.parse(dates[1]) ?: throw IllegalArgumentException("Invalid end date")
+
+        val calendar = Calendar.getInstance()
+        val keyDates = mutableListOf<String>()
+
+        calendar.time = startDate
+        while (!calendar.time.after(endDate)) {
+            val keyDate = keyDateFormat.format(calendar.time)
+            keyDates.add(keyDate)
+
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+        }
+
+        return keyDates
     }
 }

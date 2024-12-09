@@ -38,7 +38,7 @@ import com.university.marathononline.ui.viewModel.RunnerContestsViewModel
 import com.university.marathononline.ui.viewModel.RunnerRewardsViewModel
 import com.university.marathononline.ui.viewModel.SearchViewModel
 import com.university.marathononline.ui.viewModel.SplashRedirectViewModel
-import com.university.marathononline.ui.viewModel.YearlyStatisticsViewModel
+import com.university.marathononline.ui.viewModel.WeeklyStatisticsViewModel
 
 class ViewModelFactory(
     private val repositories: List<BaseRepository>
@@ -76,7 +76,7 @@ class ViewModelFactory(
                 findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(DailyStatisticsViewModel::class.java) -> DailyStatisticsViewModel(findRepository(RaceRepository::class.java)) as T
             modelClass.isAssignableFrom(MonthlyStatisticsViewModel::class.java) -> MonthlyStatisticsViewModel(findRepository(RaceRepository::class.java)) as T
-            modelClass.isAssignableFrom(YearlyStatisticsViewModel::class.java) -> YearlyStatisticsViewModel(findRepository(RaceRepository::class.java)) as T
+            modelClass.isAssignableFrom(WeeklyStatisticsViewModel::class.java) -> WeeklyStatisticsViewModel(findRepository(RaceRepository::class.java)) as T
             modelClass.isAssignableFrom(SearchViewModel::class.java) -> SearchViewModel(findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(AddContestViewModel::class.java) -> AddContestViewModel(findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(ContestManagementViewModel::class.java) -> ContestManagementViewModel(findRepository(ContestRepository::class.java)) as T

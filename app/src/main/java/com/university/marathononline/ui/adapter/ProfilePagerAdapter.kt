@@ -9,7 +9,7 @@ import com.university.marathononline.data.models.Race
 import com.university.marathononline.data.models.User
 import com.university.marathononline.ui.view.fragment.DailyStatisticsFragment
 import com.university.marathononline.ui.view.fragment.MonthlyStatisticsFragment
-import com.university.marathononline.ui.view.fragment.YearlyStatisticsFragment
+import com.university.marathononline.ui.view.fragment.WeeklyStatisticsFragment
 import com.university.marathononline.utils.KEY_RACES
 import com.university.marathononline.utils.KEY_USER
 
@@ -24,8 +24,8 @@ class ProfilePagerAdapter(
 
     override fun createFragment(position: Int): Fragment {
         val fragment = when (position) {
-            1 -> MonthlyStatisticsFragment()
-            2 -> YearlyStatisticsFragment()
+            1 -> WeeklyStatisticsFragment()
+            2 -> MonthlyStatisticsFragment()
             else -> DailyStatisticsFragment()
         }
         fragment.arguments = Bundle().apply {

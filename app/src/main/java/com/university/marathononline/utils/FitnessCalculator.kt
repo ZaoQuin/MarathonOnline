@@ -66,8 +66,11 @@ fun getAge(birthday: String): Int{
 }
 
 fun calPace(avgSpeed: Double): Double {
-    return 60/avgSpeed?:0.0
+    if(avgSpeed == 0.0 || avgSpeed == null)
+        return 0.0
+    return 60/avgSpeed
 }
+
 
 //kcal
 fun calCalogies(avgSpeed: Double, avgWeight: Double, timeTaken: Long): Double{
