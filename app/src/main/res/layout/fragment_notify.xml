@@ -33,6 +33,15 @@
             android:background="@drawable/background_radius_12sdp_light_green"
             android:padding="@dimen/_5sdp">
 
+            <TextView
+                android:id="@+id/empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Không có thông báo"
+                android:gravity="center"
+                android:visibility="gone"/>
+
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/notifies"
                 android:layout_width="match_parent"

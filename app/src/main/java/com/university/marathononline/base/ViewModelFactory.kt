@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.data.repository.PaymentRepository
 import com.university.marathononline.data.repository.RaceRepository
 import com.university.marathononline.data.repository.RegistrationRepository
@@ -26,6 +27,7 @@ import com.university.marathononline.ui.viewModel.LeaderBoardViewModel
 import com.university.marathononline.ui.viewModel.MainViewModel
 import com.university.marathononline.ui.viewModel.ManagementDetailsContestActivityViewModel
 import com.university.marathononline.ui.viewModel.MonthlyStatisticsViewModel
+import com.university.marathononline.ui.viewModel.NotifyViewModel
 import com.university.marathononline.ui.viewModel.OrganizerHomeViewModel
 import com.university.marathononline.ui.viewModel.OrganizerStatisticsViewModel
 import com.university.marathononline.ui.viewModel.PaymentConfirmationViewModel
@@ -85,6 +87,7 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(LeaderBoardViewModel::class.java) -> LeaderBoardViewModel() as T
             modelClass.isAssignableFrom(RunnerContestsViewModel::class.java) -> RunnerContestsViewModel() as T
             modelClass.isAssignableFrom(RunnerRewardsViewModel::class.java) -> RunnerRewardsViewModel() as T
+            modelClass.isAssignableFrom(NotifyViewModel::class.java) -> NotifyViewModel(findRepository(NotificationRepository::class.java)) as T
             else -> throw IllegalArgumentException("ViewModelClass Not Found")
         }
     }

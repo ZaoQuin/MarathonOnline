@@ -4,15 +4,35 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.university.marathononline.data.models.ENotificationType
 import com.university.marathononline.databinding.ItemNotifyBinding
-import com.university.marathononline.data.models.Notify
+import com.university.marathononline.data.models.Notification
+import com.university.marathononline.ui.view.activity.ContestDetailsActivity
+import com.university.marathononline.utils.DateUtils
+import com.university.marathononline.utils.KEY_CONTEST
+import com.university.marathononline.utils.startNewActivity
 
-class NotifyAdapter(private var notifies: List<Notify>): RecyclerView.Adapter<NotifyAdapter.ViewHolder>() {
+class NotifyAdapter(private var notifies: List<Notification>): RecyclerView.Adapter<NotifyAdapter.ViewHolder>() {
     class ViewHolder (private val binding: ItemNotifyBinding): RecyclerView.ViewHolder(binding.root){
-        fun bind(item: Notify){
-            binding.timeStamp.text = item.timeStamp.toString()
-            binding.title.text = item.title
-            binding.title.text = item.content
+        fun bind(item: Notification){
+            binding.apply {
+                timeStamp.text = item.createAt?.let { DateUtils.convertToVietnameseDate(it) }
+                title.text = item.title
+                content.text = item.content
+                val contest = item.contest
+
+                contest?.let {
+                    notifyCardView.setOnClickListener {
+                        if(item.type == ENotificationType.NEW_NOTIFICATION)
+                            it.context.startNewActivity(
+                                ContestDetailsActivity::class.java,
+                                mapOf(KEY_CONTEST to contest)
+                            )
+                    }
+                }
+            }
+
+
         }
     }
 
@@ -28,7 +48,7 @@ class NotifyAdapter(private var notifies: List<Notify>): RecyclerView.Adapter<No
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(newNotifies: List<Notify>){
+    fun updateData(newNotifies: List<Notification>){
         notifies = newNotifies
         notifyDataSetChanged()
     }
