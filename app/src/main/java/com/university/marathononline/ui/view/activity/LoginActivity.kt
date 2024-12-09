@@ -3,8 +3,10 @@ package com.university.marathononline.ui.view.activity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
+import com.university.marathononline.R
 import com.university.marathononline.R.string.*
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.data.api.Resource
@@ -17,7 +19,6 @@ import com.university.marathononline.databinding.ActivityLoginBinding
 import com.university.marathononline.ui.viewModel.LoginViewModel
 import com.university.marathononline.utils.*
 import handleApiError
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding>() {
@@ -43,6 +44,20 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding>() {
                 button.setOnClickListener {
                     viewModel.selectedRole(role)
                 }
+            }
+
+            passwordEditText.setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_UP) {
+                    val drawableEnd = passwordEditText.compoundDrawables[2]
+                    if (drawableEnd != null && event.rawX >= (passwordEditText.right - drawableEnd.bounds.width())) {
+                        passwordEditText.togglePasswordVisibility(
+                            drawableVisible = R.drawable.password_icon,
+                            drawableInvisible = R.drawable.password_visible_off_icon
+                        )
+                        return@setOnTouchListener true
+                    }
+                }
+                false
             }
         }
         setupClickListeners()
@@ -101,7 +116,11 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding>() {
                     onLoginSuccess(response.value)
                 }
             }
-            is Resource.Failure -> handleApiError(response)
+            is Resource.Failure -> {
+                handleApiError(response)
+
+                Toast.makeText(this, getString(error_login), Toast.LENGTH_SHORT).show()
+            }
             else -> Unit
         }
     }

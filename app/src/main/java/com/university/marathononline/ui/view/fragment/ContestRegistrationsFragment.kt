@@ -10,6 +10,7 @@ import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.contest.ContestApiService
 import com.university.marathononline.data.models.Contest
+import com.university.marathononline.data.models.ERegistrationStatus
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.databinding.FragmentContestRegistrationsBinding
 import com.university.marathononline.ui.adapter.RegistrationAdapter
@@ -57,7 +58,8 @@ class ContestRegistrationsFragment : BaseFragment<ManagementDetailsContestActivi
     }
 
     private fun setUpUI(contest: Contest) {
-        binding.tvParticipantCount.text = getString(R.string.contest_participant_count, contest.registrations!!.size.toString())
+        val participantCount = contest.registrations?.filter { it.status != ERegistrationStatus.PENDING }?.size ?: 0
+        binding.tvParticipantCount.text = getString(R.string.contest_participant_count, participantCount.toString())
     }
 
     override fun getViewModel() = ManagementDetailsContestActivityViewModel::class.java

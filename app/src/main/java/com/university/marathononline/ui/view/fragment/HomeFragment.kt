@@ -112,8 +112,8 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
                 is Resource.Failure -> {
                     handleApiError(it)
                     it.fetchErrorMessage()
-                    if(it.errorCode == 401 || it.errorCode == 500) {
-                        Toast.makeText(requireContext(), "Phiên bản làm việc đã hết hạn.", Toast.LENGTH_SHORT).show()
+                    if(it.errorCode == 500) {
+                        Toast.makeText(requireContext(), "Phiên bản làm việc đã hết hạn, vui lòng đăng nhập lại", Toast.LENGTH_LONG).show()
                         logout()
                     }
                 }

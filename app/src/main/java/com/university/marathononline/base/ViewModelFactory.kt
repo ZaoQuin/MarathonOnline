@@ -23,8 +23,11 @@ import com.university.marathononline.ui.viewModel.LoginViewModel
 import com.university.marathononline.ui.viewModel.VerifyOTPViewModel
 import com.university.marathononline.ui.viewModel.HomeViewModel
 import com.university.marathononline.ui.viewModel.LeaderBoardViewModel
+import com.university.marathononline.ui.viewModel.MainViewModel
 import com.university.marathononline.ui.viewModel.ManagementDetailsContestActivityViewModel
 import com.university.marathononline.ui.viewModel.MonthlyStatisticsViewModel
+import com.university.marathononline.ui.viewModel.OrganizerHomeViewModel
+import com.university.marathononline.ui.viewModel.OrganizerStatisticsViewModel
 import com.university.marathononline.ui.viewModel.PaymentConfirmationViewModel
 import com.university.marathononline.ui.viewModel.ProfileViewModel
 import com.university.marathononline.ui.viewModel.RecordViewModel
@@ -50,6 +53,8 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(SplashRedirectViewModel::class.java) -> SplashRedirectViewModel(findRepository(AuthRepository::class.java)) as T
             modelClass.isAssignableFrom(LoginViewModel::class.java) -> LoginViewModel(findRepository(AuthRepository::class.java)) as T
             modelClass.isAssignableFrom(VerifyOTPViewModel::class.java) -> VerifyOTPViewModel(findRepository(AuthRepository::class.java)) as T
+            modelClass.isAssignableFrom(OrganizerHomeViewModel::class.java) -> OrganizerHomeViewModel(findRepository(AuthRepository::class.java)) as T
+            modelClass.isAssignableFrom(MainViewModel::class.java) -> MainViewModel(findRepository(AuthRepository::class.java)) as T
             modelClass.isAssignableFrom(ForgetPasswordViewModel::class.java) -> ForgetPasswordViewModel(findRepository(UserRepository::class.java)) as T
             modelClass.isAssignableFrom(InformationViewModel::class.java) -> InformationViewModel(findRepository(AuthRepository::class.java)) as T
             modelClass.isAssignableFrom(RoleSelectionViewModel::class.java) -> RoleSelectionViewModel(findRepository(UserRepository::class.java)) as T
@@ -60,7 +65,7 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(DeleteUserAccountViewModel::class.java) -> DeleteUserAccountViewModel(findRepository(AuthRepository::class.java)) as T
             modelClass.isAssignableFrom(AccountDeletedViewModel::class.java) -> AccountDeletedViewModel(findRepository(AuthRepository::class.java)) as T
             modelClass.isAssignableFrom(HomeViewModel::class.java) -> HomeViewModel(findRepository(ContestRepository::class.java), findRepository(AuthRepository::class.java)) as T
-            modelClass.isAssignableFrom(ContestViewModel::class.java) -> ContestViewModel(findRepository(ContestRepository::class.java)) as T
+            modelClass.isAssignableFrom(ContestViewModel::class.java) -> ContestViewModel(findRepository(AuthRepository::class.java), findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(RecordViewModel::class.java) -> RecordViewModel(findRepository(RegistrationRepository::class.java),
                                                                                         findRepository(RaceRepository::class.java)) as T
             modelClass.isAssignableFrom(ContestDetailsViewModel::class.java) -> ContestDetailsViewModel(findRepository(ContestRepository::class.java)) as T
@@ -75,6 +80,7 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(SearchViewModel::class.java) -> SearchViewModel(findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(AddContestViewModel::class.java) -> AddContestViewModel(findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(ContestManagementViewModel::class.java) -> ContestManagementViewModel(findRepository(ContestRepository::class.java)) as T
+            modelClass.isAssignableFrom(OrganizerStatisticsViewModel::class.java) -> OrganizerStatisticsViewModel(findRepository(AuthRepository::class.java), findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(ManagementDetailsContestActivityViewModel::class.java) -> ManagementDetailsContestActivityViewModel(findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(LeaderBoardViewModel::class.java) -> LeaderBoardViewModel() as T
             modelClass.isAssignableFrom(RunnerContestsViewModel::class.java) -> RunnerContestsViewModel() as T

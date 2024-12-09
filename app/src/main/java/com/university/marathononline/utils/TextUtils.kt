@@ -1,5 +1,7 @@
 package com.university.marathononline.utils
 
+import android.text.InputType
+import android.text.method.PasswordTransformationMethod
 import android.widget.EditText
 import android.widget.Spinner
 import java.math.BigDecimal
@@ -22,6 +24,21 @@ fun EditText.getString(): String{
 
 fun EditText.getInt(): Int{
     return text.toString().toInt();
+}
+
+fun EditText.togglePasswordVisibility(drawableVisible: Int, drawableInvisible: Int) {
+    val isPasswordVisible = this.transformationMethod !is PasswordTransformationMethod
+
+    if (isPasswordVisible) {
+        this.transformationMethod = PasswordTransformationMethod.getInstance()
+        this.setCompoundDrawablesWithIntrinsicBounds(0, 0, drawableInvisible, 0)
+    } else {
+        this.transformationMethod = null
+        this.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+        this.setCompoundDrawablesWithIntrinsicBounds(0, 0, drawableVisible, 0)
+    }
+
+    this.setSelection(this.text.length)
 }
 
 fun Spinner.getIntegerSelectedItem(): Int{

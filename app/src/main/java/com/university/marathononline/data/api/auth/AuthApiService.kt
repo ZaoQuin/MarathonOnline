@@ -13,6 +13,9 @@ import retrofit2.http.POST
 
 
 interface AuthApiService {
+    @GET("/api/v1/auth/check")
+    suspend fun checkToken(): String
+
     @GET("/api/v1/auth")
     suspend fun getUser(): User
 

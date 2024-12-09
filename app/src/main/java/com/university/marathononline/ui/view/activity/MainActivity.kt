@@ -2,31 +2,34 @@ package com.university.marathononline.ui.view.activity
 
 import android.os.Bundle
 import android.os.Handler
+import android.view.LayoutInflater
+import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
-import com.bumptech.glide.Glide
-import com.university.marathononline.ui.adapter.MainPagerAdapter
 import com.university.marathononline.R
+import com.university.marathononline.base.BaseActivity
+import com.university.marathononline.base.BaseRepository
+import com.university.marathononline.data.api.Resource
+import com.university.marathononline.data.api.auth.AuthApiService
+import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.databinding.ActivityMainBinding
+import com.university.marathononline.ui.adapter.MainPagerAdapter
 import com.university.marathononline.ui.viewModel.MainViewModel
 import com.university.marathononline.utils.startNewActivity
+import handleApiError
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
 
-    private lateinit var binding: ActivityMainBinding
-    private val viewModel: MainViewModel by viewModels()
     private lateinit var adapter: MainPagerAdapter
-
     private var handlerAnimation = Handler()
-    private var statusAnimation = false
     private lateinit var runnable: Runnable
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         adapter = MainPagerAdapter(this)
 
@@ -38,8 +41,20 @@ class MainActivity : AppCompatActivity() {
         observe()
     }
 
+    override fun getViewModel(): Class<MainViewModel> = MainViewModel::class.java
+
+    override fun getActivityBinding(inflater: LayoutInflater): ActivityMainBinding {
+        return ActivityMainBinding.inflate(inflater)
+    }
+
+    override fun getActivityRepositories(): List<BaseRepository> {
+        val token = runBlocking { userPreferences.authToken.first() }
+        val api = retrofitInstance.buildApi(AuthApiService::class.java, token)
+        return listOf(AuthRepository(api, userPreferences))
+    }
+
     private fun setUpRecordButton() {
-        binding.btnRecord.setOnClickListener{
+        binding.btnRecord.setOnClickListener {
             startNewActivity(RecordActivity::class.java)
         }
     }

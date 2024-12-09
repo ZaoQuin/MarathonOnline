@@ -21,7 +21,7 @@ data class Contest(
     var registrationDeadline: String? = null
 ): Serializable
 
-enum class EContestStatus {
-    PENDING, ACTIVE, FINISHED, CANCELLED, NOT_APPROVAL, DELETED
+enum class EContestStatus(val value: String){
+    PENDING("Chờ duyệt"), ACTIVE("Đang hoạt động"), FINISHED("Hoàn thành"), CANCELLED("Đã hủy"), NOT_APPROVAL("Không chấp nhận"), DELETED("Đã xóa")
 }
 

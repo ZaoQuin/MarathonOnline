@@ -10,7 +10,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
+import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.api.contest.ContestApiService
+import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.ui.viewModel.ContestViewModel
 import com.university.marathononline.ui.adapter.ContestAdapter
 import com.university.marathononline.databinding.FragmentContestBinding
@@ -35,8 +37,9 @@ class ContestFragment : BaseFragment<ContestViewModel, FragmentContestBinding>()
 
     override fun getFragmentRepositories(): List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
-        val api = retrofitInstance.buildApi(ContestApiService::class.java, token)
-        return listOf(ContestRepository(api))
+        val apiAuth = retrofitInstance.buildApi(AuthApiService::class.java, token)
+        val apiContest = retrofitInstance.buildApi(ContestApiService::class.java, token)
+        return listOf(AuthRepository(apiAuth, userPreferences), ContestRepository(apiContest))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -80,6 +83,10 @@ class ContestFragment : BaseFragment<ContestViewModel, FragmentContestBinding>()
                 is Resource.Failure -> {
                     handleApiError(it)
                     it.fetchErrorMessage()
+                    if(it.errorCode == 500) {
+                        Toast.makeText(requireContext(), "Phiên bản làm việc đã hết hạn, vui lòng đăng nhập lại", Toast.LENGTH_LONG).show()
+                        logout()
+                    }
                 }
                 else -> Unit
             }

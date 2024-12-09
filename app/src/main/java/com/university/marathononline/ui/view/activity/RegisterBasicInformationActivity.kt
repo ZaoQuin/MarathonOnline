@@ -3,7 +3,9 @@ package com.university.marathononline.ui.view.activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import androidx.lifecycle.Observer
+import com.university.marathononline.R
 import com.university.marathononline.R.string.*
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.data.api.Resource
@@ -56,7 +58,37 @@ class RegisterBasicInformationActivity : BaseActivity<RegisterBasicInformationVi
     }
 
     private fun initializeUI() {
-        binding.progressBar.visible(false)
+        binding.apply {
+            progressBar.visible(false)
+
+            passwordText.setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_UP) {
+                    val drawableEnd = passwordText.compoundDrawables[2]
+                    if (drawableEnd != null && event.rawX >= (passwordText.right - drawableEnd.bounds.width())) {
+                        passwordText.togglePasswordVisibility(
+                            drawableVisible = R.drawable.password_icon,
+                            drawableInvisible = R.drawable.password_visible_off_icon
+                        )
+                        return@setOnTouchListener true
+                    }
+                }
+                false
+            }
+
+            confirmPasswordText.setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_UP) {
+                    val drawableEnd = confirmPasswordText.compoundDrawables[2]
+                    if (drawableEnd != null && event.rawX >= (confirmPasswordText.right - drawableEnd.bounds.width())) {
+                        confirmPasswordText.togglePasswordVisibility(
+                            drawableVisible = R.drawable.password_icon,
+                            drawableInvisible = R.drawable.password_visible_off_icon
+                        )
+                        return@setOnTouchListener true
+                    }
+                }
+                false
+            }
+        }
         setupClickListeners()
     }
 

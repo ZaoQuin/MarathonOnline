@@ -1,14 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data/>
+
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.view.fragment.OrganizerHomeFragment">
+    android:orientation="vertical">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_marginTop="@dimen/_13sdp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Xin chào,"
+        android:textSize="@dimen/_20sdp"
+        android:paddingStart="@dimen/_20sdp"
+        android:paddingEnd="@dimen/_20sdp"
+        android:paddingTop="@dimen/_5sdp"/>
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/userFullNameText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Quỳnh Giao"
+        android:textSize="@dimen/_27sdp"
+        android:textStyle="bold"
+        android:textColor="@color/light_main_color"
+        android:layout_marginBottom="@dimen/_10sdp"
+        android:paddingStart="@dimen/_20sdp"
+        android:paddingEnd="@dimen/_20sdp"
+        android:paddingTop="@dimen/_5sdp"
+        android:paddingBottom="@dimen/_5sdp"/>
+
+</LinearLayout>
+</layout>
