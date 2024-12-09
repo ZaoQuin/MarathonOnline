@@ -8,12 +8,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Toast
+import android.widget.Toast.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
+import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.api.contest.ContestApiService
 import com.university.marathononline.data.models.EContestStatus
+import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.databinding.FragmentContestManagementBinding
 import com.university.marathononline.ui.adapter.EditContestAdapter
@@ -40,8 +44,8 @@ class ContestManagementFragment :
 
     override fun getFragmentRepositories(): List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
-        val api = retrofitInstance.buildApi(ContestApiService::class.java, token)
-        return listOf(ContestRepository(api))
+        val apiContest = retrofitInstance.buildApi(ContestApiService::class.java, token)
+        return listOf(ContestRepository(apiContest))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -141,7 +145,9 @@ class ContestManagementFragment :
                     viewModel.setContest(it.value)
                     viewModel.setResult(it.value)
                 }
-                is Resource.Failure -> handleApiError(it)
+                is Resource.Failure -> {
+                    handleApiError(it)
+                }
                 else -> Unit
             }
         }

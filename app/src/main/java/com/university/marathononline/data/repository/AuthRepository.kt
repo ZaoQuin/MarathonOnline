@@ -14,6 +14,10 @@ class AuthRepository(
     private val preferences: UserPreferences
 ): BaseRepository() {
 
+    suspend fun checkToken() = safeApiCall {
+        api.checkToken()
+    }
+
     suspend fun getUser() = safeApiCall {
         api.getUser()
     }

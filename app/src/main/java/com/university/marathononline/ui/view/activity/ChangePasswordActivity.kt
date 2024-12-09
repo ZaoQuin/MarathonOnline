@@ -4,9 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import com.university.marathononline.R
 import com.university.marathononline.R.string.*
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.data.api.Resource
@@ -74,6 +76,34 @@ class ChangePasswordActivity :
             sendOTPButton.setOnClickListener{
                 viewModel.sendOtp()
                 openOTPVerifyForm()
+            }
+
+            passwordEditText.setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_UP) {
+                    val drawableEnd = passwordEditText.compoundDrawables[2]
+                    if (drawableEnd != null && event.rawX >= (passwordEditText.right - drawableEnd.bounds.width())) {
+                        passwordEditText.togglePasswordVisibility(
+                            drawableVisible = R.drawable.password_icon,
+                            drawableInvisible = R.drawable.password_visible_off_icon
+                        )
+                        return@setOnTouchListener true
+                    }
+                }
+                false
+            }
+
+            confirmPasswordEditText.setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_UP) {
+                    val drawableEnd = confirmPasswordEditText.compoundDrawables[2]
+                    if (drawableEnd != null && event.rawX >= (passwordEditText.right - drawableEnd.bounds.width())) {
+                        confirmPasswordEditText.togglePasswordVisibility(
+                            drawableVisible = R.drawable.password_icon,
+                            drawableInvisible = R.drawable.password_visible_off_icon
+                        )
+                        return@setOnTouchListener true
+                    }
+                }
+                false
             }
 
             buttonBack.setOnClickListener { finishAndGoBack() }

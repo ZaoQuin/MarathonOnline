@@ -2,6 +2,7 @@ package com.university.marathononline.ui.view.activity
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.widget.Toast
 import androidx.lifecycle.*
 import com.university.marathononline.R
@@ -78,6 +79,37 @@ class ForgetPasswordActivity: BaseActivity<ForgetPasswordViewModel, ActivityForg
             sendOTPButton.setOnClickListener{
                 viewModel.setEmail(emailEditText.text.toString())
                 viewModel.checkEmail()
+            }
+
+
+
+            confirmPasswordEditText.setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_UP) {
+                    val drawableEnd = confirmPasswordEditText.compoundDrawables[2]
+                    if (drawableEnd != null && event.rawX >= (passwordEditText.right - drawableEnd.bounds.width())) {
+                        confirmPasswordEditText.togglePasswordVisibility(
+                            drawableVisible = R.drawable.password_icon,
+                            drawableInvisible = R.drawable.password_visible_off_icon
+                        )
+                        return@setOnTouchListener true
+                    }
+                }
+                false
+            }
+
+
+            passwordEditText.setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_UP) {
+                    val drawableEnd = passwordEditText.compoundDrawables[2]
+                    if (drawableEnd != null && event.rawX >= (passwordEditText.right - drawableEnd.bounds.width())) {
+                        passwordEditText.togglePasswordVisibility(
+                            drawableVisible = R.drawable.password_icon,
+                            drawableInvisible = R.drawable.password_visible_off_icon
+                        )
+                        return@setOnTouchListener true
+                    }
+                }
+                false
             }
 
             buttonBack.setOnClickListener { finishAndGoBack() }

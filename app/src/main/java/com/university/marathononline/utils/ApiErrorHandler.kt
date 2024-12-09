@@ -3,6 +3,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.ui.view.activity.SplashRedirectActivity
@@ -18,23 +19,23 @@ fun <T> Fragment.handleApiError(
             logError("Unauthorized access - 401", failure)
         }
         failure.errorCode == 403 -> {
-            showToast("You don't have permission to access this resource.")
+//            showToast("You don't have permission to access this resource.")
             logError("Forbidden - 403", failure)
         }
         failure.errorCode == 404 -> {
-            showToast("Resource not found. Please try again.")
+//            showToast("Resource not found. Please try again.")
             logError("Not Found - 404", failure)
         }
         failure.errorCode == 408 -> {
-            showToast("Request timed out. Please try again.")
+//            showToast("Request timed out. Please try again.")
             logError("Request Timeout - 408", failure)
         }
         failure.errorCode == 500 -> {
-            showToast("Something went wrong on the server, please try again later.")
+//            showToast("Something went wrong on the server, please try again later.")
             logError("Internal Server Error - 500", failure)
         }
         failure.isNetworkError -> {
-            showToast("Please check your internet connection.")
+//            showToast("Please check your internet connection.")
             logError("Network Error", failure)
         }
         else -> {
@@ -79,23 +80,23 @@ fun <T> AppCompatActivity.handleApiError(
             logError("Unauthorized access - 401", failure)
         }
         failure.errorCode == 403 -> {
-            showToast("You don't have permission to access this resource.")
+//            showToast("You don't have permission to access this resource.")
             logError("Forbidden - 403", failure)
         }
         failure.errorCode == 404 -> {
-            showToast("Resource not found. Please try again.")
+//            showToast("Resource not found. Please try again.")
             logError("Not Found - 404", failure)
         }
         failure.errorCode == 408 -> {
-            showToast("Request timed out. Please try again.")
+//            showToast("Request timed out. Please try again.")
             logError("Request Timeout - 408", failure)
         }
         failure.errorCode == 500 -> {
-            showToast("Something went wrong on the server, please try again later.")
+//            showToast("Something went wrong on the server, please try again later.")
             logError("Internal Server Error - 500", failure)
         }
         failure.isNetworkError -> {
-            showToast("Please check your internet connection.")
+//            showToast("Please check your internet connection.")
             logError("Network Error", failure)
         }
         else -> {

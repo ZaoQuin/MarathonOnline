@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.google.android.material.tabs.TabLayoutMediator
 import com.university.marathononline.R
@@ -146,7 +147,13 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
                     viewModel.setUser(it.value)
                     viewModel.getRaces()
                 }
-                is Resource.Failure -> handleApiError(it)
+                is Resource.Failure -> {
+                    handleApiError(it)
+                    if(it.errorCode == 500) {
+                        Toast.makeText(requireContext(), "Phiên bản làm việc đã hết hạn, vui lòng đăng nhập lại", Toast.LENGTH_LONG).show()
+                        logout()
+                    }
+                }
                 else -> Unit
             }
         }
