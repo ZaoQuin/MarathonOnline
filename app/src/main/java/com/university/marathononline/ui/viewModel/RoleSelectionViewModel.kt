@@ -8,11 +8,11 @@ import com.university.marathononline.data.repository.UserRepository
 
 class RoleSelectionViewModel(
     private val repository: UserRepository
-): BaseViewModel(listOf(repository)) {
+) : BaseViewModel(listOf(repository)) {
     private val _role: MutableLiveData<ERole> = MutableLiveData()
     val role: LiveData<ERole> get() = _role
 
-    fun selectedRole(role: ERole){
+    fun selectedRole(role: ERole) {
         _role.value = role
     }
 

@@ -3,13 +3,11 @@ package com.university.marathononline.ui.view.activity
 import android.os.Bundle
 import android.os.Handler
 import android.view.LayoutInflater
-import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import com.university.marathononline.R
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
-import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.databinding.ActivityOrganizerMainBinding
