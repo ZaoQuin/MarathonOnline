@@ -97,8 +97,8 @@ class ContestManagementFragment :
                 id: Long
             ) {
                 val status = when (position) {
-                    0 -> null  // "Tất cả" -> Show all contests (no filtering)
-                    1 -> EContestStatus.PENDING  // "Tất cả" -> Show all contests (no filtering)
+                    0 -> null  // "Tất cả" -> Show all contests
+                    1 -> EContestStatus.PENDING  // "Chờ" -> PENDING status
                     2 -> EContestStatus.ACTIVE  // "Đang diễn ra" -> ACTIVE status
                     3 -> EContestStatus.FINISHED  // "Đã kết thúc" -> FINISHED status
                     4 -> EContestStatus.CANCELLED  // "Đã hủy" -> CANCELLED status

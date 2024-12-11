@@ -2,11 +2,8 @@ package com.university.marathononline.ui.viewModel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.university.marathononline.base.BaseViewModel
-import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.repository.AuthRepository
-import kotlinx.coroutines.launch
 
 class MainViewModel(
     private val authRepository: AuthRepository

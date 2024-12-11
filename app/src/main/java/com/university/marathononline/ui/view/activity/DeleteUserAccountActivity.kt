@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.university.marathononline.R.string.error_field_required
+import com.university.marathononline.R.string.error_invalid_otp
 import com.university.marathononline.R.string.password_update_success
 import com.university.marathononline.R.string.resend_otp
 import com.university.marathononline.base.BaseActivity
@@ -94,7 +95,16 @@ class DeleteUserAccountActivity :
         if(!validateFields())
             return
 
-        viewModel.delete()
+        viewModel.setOTP(binding.otpEditText.text.toString())
+        val errorMessage =
+            if(!viewModel.isOtpValid())
+                getMessage(error_invalid_otp)
+            else {
+                viewModel.delete()
+                null
+            }
+
+        binding.otpErrorText.text = errorMessage
     }
 
     private fun openOTPVerifyForm(){

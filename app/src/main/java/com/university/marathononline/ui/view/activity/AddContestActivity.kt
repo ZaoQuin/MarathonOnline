@@ -74,7 +74,6 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
         contestToEdit = intent.getSerializableExtra(KEY_CONTEST) as? Contest
 
         if (contestToEdit != null) {
-            // Populate the fields with the contest data for editing
             populateFieldsForEdit(contestToEdit!!)
         }
 
@@ -82,14 +81,12 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
             finishAndGoBack()
         }
 
-        // Set up RecyclerView for rules and rewards
         binding.recyclerRules.layoutManager = LinearLayoutManager(this)
         binding.recyclerRules.adapter = ruleAdapter
 
         binding.recyclerRewards.layoutManager = LinearLayoutManager(this)
         binding.recyclerRewards.adapter = rewardAdapter
 
-        // DatePicker for Start Date
         binding.btnStartDate.setOnClickListener {
             showDatePicker { year, month, dayOfMonth ->
                 val localDateTime = LocalDateTime.of(year, month + 1, dayOfMonth, 0, 0, 0)
@@ -99,7 +96,6 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
             }
         }
 
-        // DatePicker for End Date
         binding.btnEndDate.setOnClickListener {
             showDatePicker { year, month, dayOfMonth ->
                 val localDateTime = LocalDateTime.of(year, month + 1, dayOfMonth, 0, 0, 0)
@@ -109,7 +105,6 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
             }
         }
 
-        // DatePicker for Registration Deadline
         binding.btnRegistrationDeadline.setOnClickListener {
             showDatePicker { year, month, dayOfMonth ->
                 val localDateTime = LocalDateTime.of(year, month + 1, dayOfMonth, 0, 0, 0)
@@ -119,7 +114,6 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
             }
         }
 
-        // Add Rule button
         binding.btnAddRule.setOnClickListener {
             val addRuleDialog = AddRuleDialog(
                 this,
@@ -136,7 +130,6 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
             addRuleDialog.show()
         }
 
-        // Add Reward button
         binding.btnAddReward.setOnClickListener {
             val addRewardDialog = AddRewardDialog(this,
             onRewardAdded = { reward ->
@@ -153,7 +146,6 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
             addRewardDialog.show()
         }
 
-        // Save Contest button
         binding.btnSaveContest.setOnClickListener {
             // Collect all contest details
             if(contestToEdit == null) {
@@ -207,14 +199,9 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
             Log.e("Update Contest", it.toString())
             when(it){
                 is Resource.Success -> {
-//                    Toast.makeText(this, "Đã cập nhật", Toast.LENGTH_SHORT).show()
-//                    startNewActivity(ManagementDetailsContestActivity::class.java,
-//                        mapOf(KEY_CONTEST to it.value)
-//                    )
-
                     Toast.makeText(this, "Đã cập nhật", Toast.LENGTH_SHORT).show()
                     val resultIntent = Intent().apply {
-                        putExtra(KEY_UPDATE_CONTEST, it.value) // Gửi contest đã cập nhật về
+                        putExtra(KEY_UPDATE_CONTEST, it.value)
                     }
                     setResult(Activity.RESULT_OK, resultIntent)
                     finish()
@@ -266,7 +253,7 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
                 ruleAdapter.updateData(updatedRules)
             }
         )
-        addRuleDialog.setRule(rule) // This will now be safe to call
+        addRuleDialog.setRule(rule)
         addRuleDialog.show()
     }
 
@@ -288,7 +275,7 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
                 rewardAdapter.updateData(updatedRewards)
             }
         )
-        addRewardDialog.setReward(reward) // Chuyển reward đã chọn vào dialog
+        addRewardDialog.setReward(reward)
         addRewardDialog.show()
     }
 

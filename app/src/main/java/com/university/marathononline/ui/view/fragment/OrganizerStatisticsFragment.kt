@@ -104,7 +104,7 @@ class OrganizerStatisticsFragment : BaseFragment<OrganizerStatisticsViewModel, F
         }
 
         val dataSet = PieDataSet(entries, "Giới tính")
-        dataSet.colors = listOf(Color.RED, Color.RED)  // Ví dụ màu cho nam và nữ
+        dataSet.colors = listOf(Color.RED, Color.RED)
         val pieData = PieData(dataSet)
 
         binding.ageContests.data = pieData

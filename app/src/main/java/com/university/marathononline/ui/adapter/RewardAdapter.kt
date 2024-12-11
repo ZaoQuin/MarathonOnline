@@ -20,7 +20,10 @@ class RewardAdapter(private var rewardGroups: List<RewardGroup>) :
         @SuppressLint("SetTextI18n")
         fun bind(group: RewardGroup) {
             binding.apply {
-                rewardRankTextView.text = "Xếp hạng: ${group.rewardRank}"
+                if(group.rewardRank != 0)
+                    rewardRankTextView.text = "Xếp hạng: ${group.rewardRank}"
+                else
+                    rewardRankTextView.text = "Hoàn thành cuộc thi"
                 rewardsRecyclerView.layoutManager = LinearLayoutManager(binding.root.context)
                 val childAdapter = RewardChildAdapter(group.rewards)
                 rewardsRecyclerView.adapter = childAdapter

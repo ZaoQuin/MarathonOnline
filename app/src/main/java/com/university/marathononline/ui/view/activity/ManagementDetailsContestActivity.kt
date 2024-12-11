@@ -36,7 +36,7 @@ class ManagementDetailsContestActivity :
         resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val updatedContest = result.data?.getSerializableExtra(KEY_UPDATE_CONTEST) as Contest
-                // Cập nhật contest trong ViewModel
+
                 viewModel.setContest(updatedContest)
             }
         }
@@ -56,7 +56,7 @@ class ManagementDetailsContestActivity :
             val contest = viewModel.contest.value ?: return@setOnClickListener
             val intent = Intent(this, AddContestActivity::class.java)
             intent.putExtra(KEY_CONTEST, contest)
-            resultLauncher.launch(intent) // Gửi contest qua AddContestActivity
+            resultLauncher.launch(intent)
         }
     }
 

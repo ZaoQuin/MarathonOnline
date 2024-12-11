@@ -78,16 +78,16 @@ class ContestManagementViewModel(
     fun filter(contests: List<Contest>): List<Contest> {
         val status = filterStatus.value
         return if (status == null) {
-            contests // Return all contests if no filter is selected
+            contests
         } else {
-            contests.filter { it.status == status } // Apply status filter
+            contests.filter { it.status == status }
         }
     }
 
     fun sort(contests: List<Contest>): List<Contest> {
         val sortType = sortType.value
         return if (sortType == null) {
-            contests // No sorting, return the original list
+            contests
         } else {
             if (sortType == SORT_BY_ASC) {
                 contests.sortedBy { DateUtils.convertStringToLocalDateTime(it.createDate!!) }

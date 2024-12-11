@@ -3,6 +3,7 @@ package com.university.marathononline.ui.view.activity
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.*
 import android.os.Bundle
@@ -11,7 +12,6 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
@@ -35,12 +35,44 @@ import kotlinx.coroutines.runBlocking
 class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>() {
 
     private val handler = Handler(Looper.getMainLooper())
+    private val locationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val fineLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+        val coarseLocationGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+
+        if (fineLocationGranted && coarseLocationGranted) {
+            checkActivityRecognitionPermission()
+        } else {
+            Toast.makeText(
+                this,
+                "Ứng dụng cần quyền vị trí để hoạt động bình thường.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private val activityRecognitionPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            binding.playButton.enable(true)
+        } else {
+            Toast.makeText(
+                this,
+                "Ứng dụng cần quyền nhận dạng hoạt động để hoạt động bình thường.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
         initializeUI()
         setupObservers()
-        checkAndRequestActivityRecognitionPermission()
+        checkAndRequestPermissions()
         viewModel.initializeLocationTracking(this)
     }
 
@@ -93,33 +125,35 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>() {
 
     private fun initializeUI() {
         binding.apply {
-            playButton.enable(hasLocationPermission())
+            playButton.enable(hasLocationPermissions())
             buttonBack.setOnClickListener { finishAndGoBack() }
             playButton.setOnClickListener { viewModel.startRecording(this@RecordActivity) }
             stopButton.setOnClickListener { viewModel.stopRecording() }
         }
-        requestLocationPermissionsIfNeeded()
     }
 
-
-    @SuppressLint("ObsoleteSdkInt")
-    private fun checkAndRequestActivityRecognitionPermission() {
-        if ((SDK_INT >= Q) &&
-            (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACTIVITY_RECOGNITION
-            ) != PackageManager.PERMISSION_GRANTED)
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
-                ACTIVITY_RECOGNITION_REQUEST_CODE
+    private fun requestLocationPermissions() {
+        locationPermissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
             )
+        )
+    }
+
+    private fun requestActivityRecognitionPermission() {
+        activityRecognitionPermissionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
+    }
+
+    private fun checkAndRequestPermissions() {
+        if (hasLocationPermissions()) {
+            checkActivityRecognitionPermission()
+        } else {
+            requestLocationPermissions()
         }
     }
 
-    // Checks if both Fine and Coarse Location permissions are granted
-    private fun hasLocationPermission(): Boolean {
+    private fun hasLocationPermissions(): Boolean {
         return ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_FINE_LOCATION
@@ -130,32 +164,17 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>() {
                 ) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun requestLocationPermissionsIfNeeded() {
-        if (!hasLocationPermission()) {
-            val locationPermissionLauncher = registerForActivityResult(
-                ActivityResultContracts.RequestMultiplePermissions()
-            ) { permissions ->
-                val fineLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
-                val coarseLocationGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
-
-                if (!fineLocationGranted || !coarseLocationGranted) {
-                    Toast.makeText(
-                        this,
-                        "Ứng dụng cần cấp quyền để có thể hoạt động bình thường",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-            locationPermissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                )
-            )
+    private fun checkActivityRecognitionPermission() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACTIVITY_RECOGNITION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            binding.playButton.enable(true)
+        } else {
+            requestActivityRecognitionPermission()
         }
     }
-
 
     override fun getViewModel() = RecordViewModel::class.java
 

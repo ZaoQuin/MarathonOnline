@@ -11,7 +11,6 @@ import com.university.marathononline.data.models.Reward
 import com.university.marathononline.data.models.RewardGroup
 import com.university.marathononline.data.models.Rule
 import com.university.marathononline.data.repository.ContestRepository
-import com.university.marathononline.data.response.DeleteResponse
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
