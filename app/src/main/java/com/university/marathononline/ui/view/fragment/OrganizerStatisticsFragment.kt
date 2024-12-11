@@ -15,7 +15,6 @@ import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.api.contest.ContestApiService
-import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.EContestStatus
 import com.university.marathononline.data.models.EGender
 import com.university.marathononline.data.models.ERegistrationStatus
@@ -24,7 +23,6 @@ import com.university.marathononline.databinding.FragmentOrganizerStatisticsBind
 import com.university.marathononline.ui.viewModel.OrganizerStatisticsViewModel
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.utils.DateUtils
-import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.convertToVND
 import com.university.marathononline.utils.formatDistance
 import handleApiError
@@ -148,6 +146,11 @@ class OrganizerStatisticsFragment : BaseFragment<OrganizerStatisticsViewModel, F
 
         viewModel.getContest()
         observe()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.getContest()
     }
 
     override fun getViewModel(): Class<OrganizerStatisticsViewModel> {

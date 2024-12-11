@@ -10,6 +10,7 @@ import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.user.UserApiService
 import com.university.marathononline.data.models.EGender
+import com.university.marathononline.data.models.ERole
 import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.UserRepository
 import com.university.marathononline.databinding.ActivityEditInformationBinding
@@ -24,7 +25,6 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleIntentExtras(intent)
-        initializeUI()
         setUpObserve()
     }
 
@@ -38,6 +38,7 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
 
     private fun setUpObserve() {
         viewModel.user.observe(this, Observer {
+            initializeUI()
             updateUI(it)
         })
 
@@ -61,9 +62,16 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
             fullNameEditText.setText(user.fullName)
             phoneNumberEditText.setText(user.phoneNumber)
             addressText.setText(user.address)
-            radioMale.isChecked = user.gender == EGender.MALE
-            radioFemale.isChecked = user.gender == EGender.FEMALE
-            setBirthday(user.birthday)
+            if(user.role == ERole.RUNNER) {
+                radioMale.isChecked = user.gender == EGender.MALE
+                radioFemale.isChecked = user.gender == EGender.FEMALE
+                setBirthday(user.birthday)
+            } else {
+                genderLabel.visible(false)
+                genderGroup.visible(false)
+                birthdayLabel.visible(false)
+                birthdayGroup.visible(false)
+            }
         }
     }
 

@@ -7,6 +7,7 @@ import com.university.marathononline.R.string.*
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.user.UserApiService
+import com.university.marathononline.data.models.ERole
 import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.UserRepository
 import com.university.marathononline.databinding.ActivityRegisterOrganizerInfoBinding
@@ -88,7 +89,8 @@ class RegisterOrganizerInfoActivity : BaseActivity<RegisterViewModel, ActivityRe
                 usernameText.getString(),
                 phoneNumberText.getString(),
                 "",
-                addressText.getString()
+                addressText.getString(),
+                ERole.ORGANIZER
             )
         }
     }

@@ -5,8 +5,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.university.marathononline.ui.view.fragment.ContestManagementFragment
 import com.university.marathononline.ui.view.fragment.OrganizerHomeFragment
+import com.university.marathononline.ui.view.fragment.OrganizerInformationFragment
 import com.university.marathononline.ui.view.fragment.OrganizerStatisticsFragment
-import com.university.marathononline.ui.view.fragment.ProfileFragment
 
 class OrganizerPagerAdapter (fragment: FragmentActivity): FragmentStateAdapter(fragment) {
     override fun getItemCount(): Int = 4
@@ -16,7 +16,7 @@ class OrganizerPagerAdapter (fragment: FragmentActivity): FragmentStateAdapter(f
             0 -> OrganizerHomeFragment()
             1 -> ContestManagementFragment()
             2 -> OrganizerStatisticsFragment()
-            3 -> ProfileFragment()
+            3 -> OrganizerInformationFragment()
             else -> OrganizerHomeFragment()
         }
     }

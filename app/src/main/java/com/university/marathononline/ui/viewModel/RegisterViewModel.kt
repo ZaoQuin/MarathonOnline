@@ -28,7 +28,7 @@ class RegisterViewModel(
     private val _registerResponse: MutableLiveData<Resource<User>> = MutableLiveData()
     val registerResponse: LiveData<Resource<User>> get() = _registerResponse.distinctUntilChanged()
 
-    fun register(username: String, phoneNumber: String, birthday: String, address: String){
+    fun register(username: String, phoneNumber: String, birthday: String, address: String, role: ERole){
         viewModelScope.launch {
             _registerResponse.value = Resource.Loading
             val request = CreateUserRequest(
@@ -40,7 +40,7 @@ class RegisterViewModel(
                 birthday,
                 username,
                 password.value.toString(),
-                ERole.RUNNER
+                role
             )
             _registerResponse.value = repository.createUser(request)
         }

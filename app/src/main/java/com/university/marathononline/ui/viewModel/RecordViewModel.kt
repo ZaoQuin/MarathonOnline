@@ -9,6 +9,9 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.location.Location
+import android.location.LocationManager
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
 import androidx.core.app.ActivityCompat
@@ -42,6 +45,9 @@ class RecordViewModel(
     private val registrationRepository: RegistrationRepository,
     private val raceRepository: RaceRepository
 ) : BaseViewModel(listOf(registrationRepository, raceRepository)) {
+
+    private val _isGPSEnabled = MutableLiveData<Boolean>()
+    val isGPSEnabled: LiveData<Boolean> get() = _isGPSEnabled
 
     private val _createRaceResponse: MutableLiveData<Resource<Race>> = MutableLiveData()
     val createRaceResponse: LiveData<Resource<Race>> get() = _createRaceResponse
@@ -96,6 +102,28 @@ class RecordViewModel(
         stepSensor?.let {
             sensorManager.registerListener(stepListener, it, SensorManager.SENSOR_DELAY_UI)
         }
+
+
+        setupGPSStatusObserver(context)
+    }
+
+    private fun setupGPSStatusObserver(context: Context) {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+        val isGPSAvailable = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        _isGPSEnabled.value = isGPSAvailable
+
+        val handler = Handler(Looper.getMainLooper())
+        val checkGPSRunnable = object : Runnable {
+            override fun run() {
+                val currentGPSStatus = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                if (currentGPSStatus != _isGPSEnabled.value) {
+                    _isGPSEnabled.value = currentGPSStatus
+                }
+                handler.postDelayed(this, 3000)
+            }
+        }
+        handler.post(checkGPSRunnable)
     }
 
     private val stepListener = object : SensorEventListener {

@@ -10,6 +10,7 @@ import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.user.UserApiService
 import com.university.marathononline.data.models.EGender
+import com.university.marathononline.data.models.ERole
 import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.UserRepository
 import com.university.marathononline.databinding.ActivityRegisterRunnerInfoBinding
@@ -114,7 +115,8 @@ class RegisterRunnerInfoActivity : BaseActivity<RegisterViewModel, ActivityRegis
                     usernameText.text.toString(),
                     phoneNumberText.text.toString(),
                     it,
-                    addressText.text.toString()
+                    addressText.text.toString(),
+                    ERole.RUNNER
                 )
             }
         }

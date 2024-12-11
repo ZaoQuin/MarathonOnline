@@ -17,10 +17,10 @@
     <string name="error_login">Tài khoản hoặc mật khẩu không chính xác.</string>
     <string name="error_selected_role">Vui lòng chọn vai trò hợp lệ.</string>
 
-<!--    Date Time-->
+    <!--    Date Time-->
     <string name="date_not_available">N/A</string>
 
-<!--    Contest     -->
+    <!--    Contest     -->
     <string name="contest_status_pending">Chờ duyệt</string>
     <string name="contest_status_active">Đang hoạt động</string>
     <string name="contest_status_finished">Đã kết thúc</string>
@@ -34,7 +34,7 @@
     <string name="contest_end_date">Ngày kết thúc: %1$s</string>
     <string name="contest_participant_count">Tổng số người tham gia: %1$s</string>
 
-<!--    Registration    -->
+    <!--    Registration    -->
     <string name="registration_username">\@%1$s\"</string>
     <string name="registration_totalDistance">\Tổng quãng đường: %1$s\</string>
     <string name="registration_totalTime">\Thời gian chạy: %1$s\</string>

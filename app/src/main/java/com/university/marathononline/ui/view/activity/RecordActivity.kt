@@ -6,12 +6,15 @@ import android.content.pm.PackageManager
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.*
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.university.marathononline.base.BaseActivity
@@ -30,6 +33,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>() {
+
+    private val handler = Handler(Looper.getMainLooper())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +74,21 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>() {
                 else -> Unit
             }
         }
+
+        viewModel.isGPSEnabled.observe(this, Observer { isEnabled ->
+            if (isEnabled) {
+                binding.checkGPS.text = "GPS is Enabled"
+
+                handler.postDelayed({
+                    binding.checkGPS.visible(false)
+                    binding.recordLayout.visible(true)
+                    binding.playButton.enable(true)
+                }, 3000)
+            } else {
+                binding.playButton.enable(false)
+                binding.checkGPS.text = "GPS is Disabled"
+            }
+        })
     }
 
     private fun initializeUI() {
