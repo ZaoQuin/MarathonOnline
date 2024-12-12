@@ -17,10 +17,10 @@ class RunnerRewardAdapter(private var rewards: List<Reward>) : RecyclerView.Adap
         fun bind(item: Reward) {
             binding.apply {
                 rewardName.text = item.name ?: "No Name"
-                rewardName.text = item.description ?: "No Description"
+                rewardDescription.text = item.description ?: "No Description"
                 rewardRank.text = "Hạng: ${item.rewardRank}"
 //                claimButton.visible(false)
-                claimButton.visible(item.type == ERewardType.PHYSICAL && item.isClaim == false)
+//                claimButton.visible(item.type == ERewardType.PHYSICAL && item.isClaim == false)
             }
         }
     }

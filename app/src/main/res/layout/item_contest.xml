@@ -64,7 +64,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/status_background"
                     android:padding="4dp"
-                    android:text="Đẵ bắt đầu"
+                    android:text="Đã bắt đầu"
                     android:textColor="@color/dark_main_color"
                     android:textStyle="bold"
                     android:textSize="12sp"

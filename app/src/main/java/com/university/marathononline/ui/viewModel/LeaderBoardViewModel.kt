@@ -3,6 +3,7 @@ package com.university.marathononline.ui.viewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.university.marathononline.base.BaseViewModel
+import com.university.marathononline.data.models.ERegistrationStatus
 import com.university.marathononline.data.models.Registration
 import com.university.marathononline.utils.DateUtils
 
@@ -20,7 +21,9 @@ class LeaderBoardViewModel(): BaseViewModel(listOf()) {
     val top3: LiveData<Registration> get() = _top3
 
     fun setRegistrations(registrations: List<Registration>){
-        _registrations.value = registrations
+        _registrations.value = registrations.filter {
+            it.status == ERegistrationStatus.ACTIVE || it.status == ERegistrationStatus.COMPLETED
+        }
     }
 
 

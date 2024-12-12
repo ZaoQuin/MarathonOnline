@@ -22,6 +22,12 @@ data class Contest(
 ): Serializable
 
 enum class EContestStatus(val value: String){
-    PENDING("Chờ duyệt"), ACTIVE("Đang hoạt động"), FINISHED("Hoàn thành"), CANCELLED("Đã hủy"), NOT_APPROVAL("Không chấp nhận"), DELETED("Đã xóa")
+    PENDING("Chờ duyệt"),
+    ACTIVE("Đang hoạt động"),
+    FINISHED("Kết thúc"),
+    CANCELLED("Đã hủy"),
+    NOT_APPROVAL("Không chấp nhận"),
+    DELETED("Đã xóa"),
+    COMPLETED("Hoàn thành")
 }
 

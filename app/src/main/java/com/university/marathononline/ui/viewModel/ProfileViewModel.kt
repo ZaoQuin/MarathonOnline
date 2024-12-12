@@ -43,14 +43,8 @@ class ProfileViewModel(
         _contests.value = contests
     }
 
-    fun setRewards(email: String){
-        _rewards.value = contests.value?.flatMap { contest ->
-            contest.registrations?.filter { registration ->
-                registration.runner.email == email
-            }?.flatMap { registration ->
-                registration.rewards!!
-            } ?: emptyList()
-        }
+    fun setRewards(rewards: List<Reward>){
+        _rewards.value = rewards
     }
 
     fun getRaces(){

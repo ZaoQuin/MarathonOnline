@@ -13,19 +13,36 @@
         android:padding="@dimen/_10sdp">
 
         <!-- Contest Name -->
-        <TextView
-            android:id="@+id/tvContestName"
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Contest Name"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/dark_main_color"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/rounded_background"
-            android:padding="10dp"/>
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:background="@drawable/rounded_background">
 
-        <!-- Contest Status -->
+            <TextView
+                android:id="@+id/tvContestName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Contest Name"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/dark_main_color"
+                android:padding="10dp"/>
+
+            <ImageButton
+                android:id="@+id/reportButton"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:background="@android:color/transparent"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:src="@drawable/ic_report"
+                android:visibility="gone"/>
+
+
+        </LinearLayout>
         <TextView
             android:id="@+id/tvContestStatus"
             android:layout_width="match_parent"
@@ -43,9 +60,6 @@
             android:textColor="@color/gray"
             android:padding="10dp"/>
 
-        <!-- Completion Status -->
-
-        <!-- Progress Bar -->
 
         <TextView
             android:id="@+id/tvCompletionStatus"
@@ -148,6 +162,7 @@
             android:clipToPadding="false"/>
 
         <!-- Close Button -->
+
         <Button
             android:id="@+id/btnClose"
             android:layout_width="match_parent"

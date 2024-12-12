@@ -8,9 +8,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.contest.ContestApiService
+import com.university.marathononline.data.api.registration.RegistrationApiService
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.EContestStatus
 import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.databinding.FragmentContestDetailsBinding
 import com.university.marathononline.ui.adapter.RewardAdapter
 import com.university.marathononline.ui.adapter.RuleAdapter
@@ -19,11 +21,13 @@ import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.KEY_REGISTRATIONS
 import com.university.marathononline.utils.convertToVND
+import com.university.marathononline.utils.enable
 import com.university.marathononline.utils.formatDistance
 import com.university.marathononline.utils.visible
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import java.io.Serializable
+import java.time.LocalDateTime
 
 class ContestDetailsFragment : BaseFragment<ManagementDetailsContestActivityViewModel, FragmentContestDetailsBinding>() {
 
@@ -126,6 +130,14 @@ class ContestDetailsFragment : BaseFragment<ManagementDetailsContestActivityView
                 emailOrganizer.text = it.organizer?.email
                 sectionLeaderBoard.visible(it.status == EContestStatus.ACTIVE
                         || it.status == EContestStatus.FINISHED)
+                status.text = it.status?.value
+
+                if (it.startDate?.let { start ->
+                        DateUtils.convertStringToLocalDateTime(start).isBefore(LocalDateTime.now())
+                    } == true) {
+                    sectionLeaderBoard.visible(it.status == EContestStatus.ACTIVE
+                            || it.status == EContestStatus.FINISHED)
+                }
             }
         }
     }
@@ -141,8 +153,9 @@ class ContestDetailsFragment : BaseFragment<ManagementDetailsContestActivityView
     override fun getFragmentRepositories(): List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
         val apiContest = retrofitInstance.buildApi(ContestApiService::class.java, token)
+        val apiRegistration = retrofitInstance.buildApi(RegistrationApiService::class.java, token)
         return listOf(
-            ContestRepository(apiContest)
+            ContestRepository(apiContest), RegistrationRepository(apiRegistration)
         )
     }
 

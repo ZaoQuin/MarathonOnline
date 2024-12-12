@@ -14,7 +14,9 @@ import com.university.marathononline.ui.components.ContestStatisticsDialog
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.formatDistance
 
-class RegistrationAdapter(private var registrations: List<Registration>, private var contest: Contest) :
+class RegistrationAdapter(private var registrations: List<Registration>,
+                          private var contest: Contest,
+                          private val onBlockRegistration: (Registration) -> Unit ) :
     RecyclerView.Adapter<RegistrationAdapter.ViewHolder>() {
 
     private var filteredRegistrations = registrations
@@ -22,33 +24,27 @@ class RegistrationAdapter(private var registrations: List<Registration>, private
     class ViewHolder(private val binding: ItemRegistrationBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: Registration, contest: Contest) {
+        fun bind(item: Registration, contest: Contest, onBlockRegistration: (Registration) -> Unit) {
             binding.apply {
-                // Set user details
                 tvFullName.text = item.runner.fullName
                 tvUsername.text = itemView.context.getString(registration_username, item.runner.username)
                 val totalDistance = item.races.sumOf { it.distance }
                 val totalTime = item.races.sumOf { it.timeTaken }
                 tvTotalDistance.text =  itemView.context.getString(registration_totalDistance, formatDistance(totalDistance))
                 tvTotalTime.text =  itemView.context.getString(registration_totalTime, DateUtils.convertSecondsToHHMMSS(totalTime))
-                tvStatus.text = itemView.context.getString(registration_status, getStatusText(item.status))
+                tvStatus.text = itemView.context.getString(registration_status, item.status.value)
 
-                // Set the status color and text
                 tvStatus.setTextColor(getStatusColor(item.status))
 
                 statisticsContest.setOnClickListener {
                     val context = it.context
-                    val dialog = ContestStatisticsDialog(context, contest, item.runner.email)
+                    val dialog = ContestStatisticsDialog(context,
+                        contest,
+                        item.runner.email,
+                        true,
+                        onBlockRegistration = { onBlockRegistration(item) })
                     dialog.show()
                 }
-            }
-        }
-
-        private fun getStatusText(status: ERegistrationStatus): String {
-            return when (status) {
-                ERegistrationStatus.ACTIVE -> "Đang hoạt động"
-                ERegistrationStatus.COMPLETED -> "Đã hoàn thành"
-                else -> ""
             }
         }
 
@@ -57,6 +53,7 @@ class RegistrationAdapter(private var registrations: List<Registration>, private
                 ERegistrationStatus.PENDING -> Color.YELLOW
                 ERegistrationStatus.ACTIVE -> Color.GREEN
                 ERegistrationStatus.COMPLETED -> Color.GRAY
+                ERegistrationStatus.BLOCK -> Color.RED
             }
         }
     }
@@ -69,7 +66,7 @@ class RegistrationAdapter(private var registrations: List<Registration>, private
     override fun getItemCount(): Int = filteredRegistrations.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(filteredRegistrations[position], contest)
+        holder.bind(filteredRegistrations[position], contest, onBlockRegistration)
     }
 
     // Update data and notify adapter
@@ -77,8 +74,12 @@ class RegistrationAdapter(private var registrations: List<Registration>, private
     fun updateData(newRegistrations: List<Registration>) {
         registrations = newRegistrations
         filteredRegistrations = newRegistrations.filter { it.status != ERegistrationStatus.PENDING }
+        contest.registrations = newRegistrations
         notifyDataSetChanged()
     }
 
+    fun getCurrentData(): List<Registration> {
+        return registrations
+    }
 }
 

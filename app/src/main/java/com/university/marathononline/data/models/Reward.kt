@@ -7,8 +7,7 @@ data class Reward(
     var name: String,
     var description: String,
     var rewardRank: Int,
-    var type: ERewardType,
-    var isClaim: Boolean
+    var type: ERewardType
 ): Serializable
 
 enum class ERewardType(value: String) {

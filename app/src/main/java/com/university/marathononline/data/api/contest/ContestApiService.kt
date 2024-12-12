@@ -38,4 +38,7 @@ interface ContestApiService {
 
     @PUT("/api/v1/contest/cancel")
     suspend fun cancel(@Body contest:Contest): Contest
+
+    @PUT("/api/v1/contest/prizes")
+    suspend fun completed(@Body contest: Contest): Contest
 }
