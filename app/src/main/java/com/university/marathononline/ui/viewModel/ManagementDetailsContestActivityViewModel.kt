@@ -44,6 +44,12 @@ class ManagementDetailsContestActivityViewModel(
     private val _blockRegistration = MutableLiveData<Resource<Registration>>()
     val blockRegistration: LiveData<Resource<Registration>> get() = _blockRegistration
 
+    private val _prizesReponse = MutableLiveData<Resource<List<Registration>>>()
+    val prizesReponse: LiveData<Resource<List<Registration>>> get() = _prizesReponse
+
+    private val _completedResponse = MutableLiveData<Resource<Contest>>()
+    val completedResponse: LiveData<Resource<Contest>> get() = _completedResponse
+
     fun setContest(contest: Contest){
         _contest.value = contest
     }
@@ -107,6 +113,22 @@ class ManagementDetailsContestActivityViewModel(
         viewModelScope.launch {
             _blockRegistration.value = Resource.Loading
             _blockRegistration.value = registrationRepository.block(registration)
+        }
+    }
+
+    fun prizes() {
+        val contest = contest.value
+        viewModelScope.launch {
+            _prizesReponse.value = Resource.Loading
+            _prizesReponse.value = registrationRepository.prizes(contest!!)
+        }
+    }
+
+    fun completed() {
+        val contest = contest.value
+        viewModelScope.launch {
+            _completedResponse.value = Resource.Loading
+            _completedResponse.value = contestRepository.completed(contest!!)
         }
     }
 

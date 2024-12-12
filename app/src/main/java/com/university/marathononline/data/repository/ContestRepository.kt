@@ -44,4 +44,8 @@ class ContestRepository(
     suspend fun cancel(contest: Contest) = safeApiCall {
         api.cancel(contest)
     }
+
+    suspend fun completed(contest: Contest) = safeApiCall {
+        api.completed(contest)
+    }
 }

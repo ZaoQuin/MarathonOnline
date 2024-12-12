@@ -13,7 +13,6 @@ import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.formatDistance
 import com.university.marathononline.utils.getContestStatusColor
-import com.university.marathononline.utils.getContestStatusText
 import com.university.marathononline.utils.startNewActivity
 
 class ContestRunnerAdapter(private var contests: List<Contest>, private val email: String) : RecyclerView.Adapter<ContestRunnerAdapter.ViewHolder>() {
@@ -27,7 +26,7 @@ class ContestRunnerAdapter(private var contests: List<Contest>, private val emai
                 tvContestName.text = item.name
 
                 tvContestStatus.apply {
-                    text = getContestStatusText(context, item.status!!)
+                    text = item.status?.value
                     setTextColor(getContestStatusColor(context, item.status!!))
                 }
 

@@ -7,12 +7,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.university.marathononline.databinding.ItemEditContestBinding
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.ERegistrationStatus
-import com.university.marathononline.ui.components.ContestStatisticsDialog
 import com.university.marathononline.ui.view.activity.ManagementDetailsContestActivity
-import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.getContestStatusColor
-import com.university.marathononline.utils.getContestStatusText
 import com.university.marathononline.utils.isStarting
 import com.university.marathononline.utils.enableRegister
 import com.university.marathononline.utils.startNewActivity
@@ -29,7 +26,7 @@ class EditContestAdapter(private var contests: List<Contest>) :
                 tvContestName.text = item.name
                 tvContestDescription.text = item.description
                 tvContestStatus.apply {
-                    text = getContestStatusText(context, item.status!!)
+                    text = item.status?.value
                     setTextColor(getContestStatusColor(context, item.status!!))
                 }
 

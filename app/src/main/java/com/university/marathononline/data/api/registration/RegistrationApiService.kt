@@ -17,4 +17,7 @@ interface RegistrationApiService {
 
     @PUT("/api/v1/registration/block")
     suspend fun block(@Body registration: Registration): Registration
+
+    @PUT("/api/v1/registration/prizes")
+    suspend fun prizes(@Body contest: Contest): List<Registration>
 }

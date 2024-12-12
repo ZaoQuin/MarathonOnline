@@ -4,21 +4,17 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.airbnb.lottie.utils.Utils
 import com.university.marathononline.ui.view.activity.ContestDetailsActivity
 import com.university.marathononline.databinding.ItemContestBinding
 import com.university.marathononline.data.models.Contest
-import com.university.marathononline.data.models.EContestStatus
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.convertToVND
 import com.university.marathononline.utils.enableRegister
 import com.university.marathononline.utils.getContestStatusColor
-import com.university.marathononline.utils.getContestStatusText
 import com.university.marathononline.utils.isStarting
 import com.university.marathononline.utils.startNewActivity
 import com.university.marathononline.utils.visible
-import java.time.LocalDateTime
 
 class ContestAdapter(private var contests: List<Contest>) :
     RecyclerView.Adapter<ContestAdapter.ViewHolder>() {
@@ -43,7 +39,7 @@ class ContestAdapter(private var contests: List<Contest>) :
                 }
 
                 tvContestStatus.apply {
-                    text = getContestStatusText(context, item.status!!)
+                    text = item.status?.value
                     setTextColor(getContestStatusColor(context, item.status!!))
                 }
 

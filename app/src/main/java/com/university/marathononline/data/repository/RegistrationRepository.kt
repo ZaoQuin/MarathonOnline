@@ -21,4 +21,8 @@ class RegistrationRepository(
     suspend fun block(registration: Registration) = safeApiCall{
         api.block(registration)
     }
+
+    suspend fun prizes(contest: Contest) = safeApiCall {
+        api.prizes(contest)
+    }
 }

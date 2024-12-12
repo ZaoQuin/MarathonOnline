@@ -3,6 +3,7 @@ package com.university.marathononline.ui.view.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -25,8 +26,10 @@ import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.KEY_UPDATE_CONTEST
 import com.university.marathononline.utils.finishAndGoBack
 import com.university.marathononline.utils.visible
+import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import java.io.Console
 
 class ManagementDetailsContestActivity :
     BaseActivity<ManagementDetailsContestActivityViewModel, ActivityManagementContestDetailsBinding>() {
@@ -93,12 +96,36 @@ class ManagementDetailsContestActivity :
                 else -> Unit
             }
         }
+
+        viewModel.prizesReponse.observe(this) {
+            when(it){
+                is Resource.Success -> viewModel.completed()
+                is Resource.Failure -> {
+                    handleApiError(it)
+                    Log.d("PRizerssdsd", it.fetchErrorMessage())
+                }
+                else -> Unit
+            }
+        }
+
+        viewModel.completedResponse.observe(this) {
+            when(it){
+                is Resource.Success -> {
+                    Toast.makeText(this, "Hoàn thành cuộc thi", Toast.LENGTH_SHORT).show()
+                    viewModel.setContest(it.value)
+                }
+                is Resource.Failure -> handleApiError(it)
+                else -> Unit
+            }
+        }
     }
 
     private fun setupMenuButton() {
         val pending = viewModel.contest.value!!.status == EContestStatus.PENDING
+        val finished = viewModel.contest.value!!.status == EContestStatus.FINISHED
         binding.buttonEdit.visible(pending)
         binding.btnCancel.visible(pending)
+        binding.btnPrizes.visible(finished)
     }
 
     private fun setupViewPager() {
@@ -121,6 +148,10 @@ class ManagementDetailsContestActivity :
         binding.btnCancel.setOnClickListener {
             showCancelConfirmationDialog()
         }
+
+        binding.btnPrizes.setOnClickListener {
+            showPrizeConfirmationDialog()
+        }
     }
 
     private fun showCancelConfirmationDialog() {
@@ -129,6 +160,20 @@ class ManagementDetailsContestActivity :
         builder.setMessage("Bạn có chắc chắn muốn hủy cuộc thi này không?")
         builder.setPositiveButton("Xác nhận") { dialog, _ ->
             viewModel.cancel()
+            dialog.dismiss()
+        }
+        builder.setNegativeButton("Trở lại") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.create().show()
+    }
+
+    private fun showPrizeConfirmationDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Trao giải")
+        builder.setMessage("Xác nhận trao giải thưởng cho các vận động viên?")
+        builder.setPositiveButton("Xác nhận") { dialog, _ ->
+            viewModel.prizes()
             dialog.dismiss()
         }
         builder.setNegativeButton("Trở lại") { dialog, _ ->

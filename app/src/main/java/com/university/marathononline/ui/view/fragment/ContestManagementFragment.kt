@@ -84,7 +84,14 @@ class ContestManagementFragment :
 
     private fun setupFiltersAndSorting() {
         val statusSpinner = binding.statusSpinner
-        val statusOptions = arrayOf("Tất cả", "Chờ duyệt" ,"Đang diễn ra", "Đã kết thúc", "Đã hủy", "Không chấp nhận")
+        val statusOptions =
+            arrayOf("Tất cả",
+                EContestStatus.PENDING.value,
+                EContestStatus.ACTIVE.value,
+                EContestStatus.FINISHED.value,
+                EContestStatus.CANCELLED.value,
+                EContestStatus.NOT_APPROVAL.value,
+                EContestStatus.COMPLETED.value)
         val statusAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, statusOptions)
         statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         statusSpinner.adapter = statusAdapter
@@ -97,12 +104,13 @@ class ContestManagementFragment :
                 id: Long
             ) {
                 val status = when (position) {
-                    0 -> null  // "Tất cả" -> Show all contests
-                    1 -> EContestStatus.PENDING  // "Chờ" -> PENDING status
-                    2 -> EContestStatus.ACTIVE  // "Đang diễn ra" -> ACTIVE status
-                    3 -> EContestStatus.FINISHED  // "Đã kết thúc" -> FINISHED status
-                    4 -> EContestStatus.CANCELLED  // "Đã hủy" -> CANCELLED status
-                    5 -> EContestStatus.NOT_APPROVAL  // "Không chấp nhận" -> NOT_APPROVAL status
+                    0 -> null
+                    1 -> EContestStatus.PENDING
+                    2 -> EContestStatus.ACTIVE
+                    3 -> EContestStatus.FINISHED
+                    4 -> EContestStatus.CANCELLED
+                    5 -> EContestStatus.NOT_APPROVAL
+                    6 -> EContestStatus.COMPLETED
                     else -> null
                 }
 

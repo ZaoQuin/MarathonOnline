@@ -174,6 +174,12 @@ class ContestDetailsActivity :
                     btnRegisterContest.enable(false)
                     btnRegisterContest.text = it.status!!.value
                 }
+
+                if ( it.status == EContestStatus.COMPLETED ||
+                    it.status == EContestStatus.FINISHED){
+                    btnRecord.enable(false)
+                    btnRecord.text = it.status!!.value
+                }
                 if (it.startDate?.let { start ->
                         DateUtils.convertStringToLocalDateTime(start).isBefore(LocalDateTime.now())
                     } == false) {
@@ -181,7 +187,8 @@ class ContestDetailsActivity :
                     binding.btnRecord.text = "Cuộc thi chưa bắt đầu"
                 } else {
                     sectionLeaderBoard.visible(it.status == EContestStatus.ACTIVE
-                            || it.status == EContestStatus.FINISHED)
+                            || it.status == EContestStatus.FINISHED
+                            || it.status == EContestStatus.COMPLETED)
                 }
             }
         }

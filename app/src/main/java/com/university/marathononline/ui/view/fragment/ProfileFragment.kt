@@ -56,7 +56,6 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.getUser()
-        viewModel.getMyContest()
         setUpButton()
         observeViewModel()
     }
@@ -64,13 +63,11 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
     override fun onStart() {
         super.onStart()
         viewModel.getUser()
-        viewModel.getMyContest()
     }
 
     override fun onResume() {
         super.onResume()
         viewModel.getUser()
-        viewModel.getMyContest()
     }
 
     private fun setUpButton() {
@@ -151,6 +148,7 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
             when(it){
                 is Resource.Success -> {
                     viewModel.setUser(it.value)
+                    viewModel.getMyContest()
                     viewModel.getRaces()
                 }
                 is Resource.Failure -> {
@@ -167,17 +165,24 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
         viewModel.getMyContestResponse.observe(viewLifecycleOwner){
             when(it){
                 is Resource.Success -> {
+                    val user = viewModel.user.value
+                    val rewards = it.value.contests?.flatMap { contest ->
+                        contest.registrations!!
+                            .filter { registration ->
+                                registration.runner.email == user?.email
+                            }
+                            .flatMap { registration ->
+                                registration.rewards ?: emptyList()
+                            }
+                    }
                     binding.myContestsNumber.text = it.value.contests.size.toString()
+                    binding.myRewardsNumber.text = rewards?.size.toString()
+                    viewModel.setRewards(rewards?: emptyList())
                     viewModel.setContests(it.value.contests)
                 }
                 is Resource.Failure -> handleApiError(it)
                 else -> Unit
             }
-        }
-
-        viewModel.contests.observe(viewLifecycleOwner) {
-            viewModel.setRewards(userPreferences.email.toString())
-            binding.myRewardsNumber.text = viewModel.rewards.value?.size.toString()
         }
     }
 }

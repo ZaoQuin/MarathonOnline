@@ -13,7 +13,6 @@ import com.university.marathononline.ui.adapter.RaceStatisticsAdapter
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.formatDistance
 import com.university.marathononline.utils.getContestStatusColor
-import com.university.marathononline.utils.getContestStatusText
 import com.university.marathononline.utils.visible
 
 class ContestStatisticsDialog(
@@ -35,7 +34,7 @@ class ContestStatisticsDialog(
 
         binding.tvContestName.text = contest.name
         binding.tvContestStatus.apply {
-            text = getContestStatusText(context, contest.status!!)
+            text = contest.status?.value
             setTextColor(getContestStatusColor(context, contest.status!!))
         }
 

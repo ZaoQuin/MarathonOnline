@@ -59,6 +59,19 @@
                 android:src="@drawable/ic_edit"
                 android:layout_margin="@dimen/_10sdp"
                 android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/btn_prizes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/status_background"
+                android:padding="@dimen/_5sdp"
+                android:text="Trao giải"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:layout_gravity="end"
+                android:layout_margin="@dimen/_10sdp"
+                android:visibility="gone"/>
         </Toolbar>
 
         <!-- TabLayout -->
