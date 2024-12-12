@@ -41,18 +41,17 @@ class AddRewardDialog(
                 val rewardRank = rewardRankStr.toIntOrNull()
                 if (rewardRank != null) {
                     val newReward = Reward(
-                        id = rewardToEdit?.id ?: System.currentTimeMillis(), // Nếu là chỉnh sửa, dùng id cũ
+                        id = rewardToEdit?.id ?: System.currentTimeMillis(),
                         name = rewardName,
                         description = rewardDescription,
                         rewardRank = rewardRank,
-                        type = ERewardType.valueOf(binding.spinnerRewardType.selectedItem.toString()),
-                        isClaim = rewardToEdit?.isClaim ?: false // Nếu chỉnh sửa, giữ lại giá trị `isClaim` cũ
+                        type = ERewardType.valueOf(binding.spinnerRewardType.selectedItem.toString())
                     )
 
                     if (rewardToEdit == null) {
                         onRewardAdded(newReward)
                     } else {
-                        onRewardUpdated(newReward) // Nếu là cập nhật, gọi hàm onRewardUpdated
+                        onRewardUpdated(newReward)
                     }
 
                     dismiss()

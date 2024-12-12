@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.university.marathononline.databinding.ItemEditContestBinding
 import com.university.marathononline.data.models.Contest
+import com.university.marathononline.data.models.ERegistrationStatus
 import com.university.marathononline.ui.components.ContestStatisticsDialog
 import com.university.marathononline.ui.view.activity.ManagementDetailsContestActivity
 import com.university.marathononline.utils.DateUtils
@@ -35,6 +36,12 @@ class EditContestAdapter(private var contests: List<Contest>) :
                 tvStartStatus.visible(isStarting(item))
 
                 tvRegistrationStatus.visible(enableRegister(item))
+
+                val count = item.registrations?.count{
+                    it.status != ERegistrationStatus.PENDING
+                }.toString()
+
+                tvRegistrationCount.text = "Số lượng: ${count}/ ${item.maxMembers}"
 
                 contestCardView.setOnClickListener{
                     it.context.startNewActivity(ManagementDetailsContestActivity::class.java,

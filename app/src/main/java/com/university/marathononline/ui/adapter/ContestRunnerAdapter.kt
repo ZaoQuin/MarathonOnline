@@ -1,16 +1,10 @@
 package com.university.marathononline.ui.adapter
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
-import com.university.marathononline.R
 import com.university.marathononline.R.string.*;
-import com.university.marathononline.R.color.*;
 import com.university.marathononline.databinding.ItemContestRunnerBinding
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.ui.components.ContestStatisticsDialog
@@ -21,7 +15,6 @@ import com.university.marathononline.utils.formatDistance
 import com.university.marathononline.utils.getContestStatusColor
 import com.university.marathononline.utils.getContestStatusText
 import com.university.marathononline.utils.startNewActivity
-import com.university.marathononline.utils.updateCompletionStatus
 
 class ContestRunnerAdapter(private var contests: List<Contest>, private val email: String) : RecyclerView.Adapter<ContestRunnerAdapter.ViewHolder>() {
 
@@ -49,9 +42,7 @@ class ContestRunnerAdapter(private var contests: List<Contest>, private val emai
 
                 val registration = item.registrations?.find { it.runner.email == email }
 
-                tvCompletionStatus.apply {
-                    updateCompletionStatus(context, tvCompletionStatus, registration!!.status)
-                }
+                tvCompletionStatus.text = "Trạng thái: ${registration?.status?.value}"
 
                 val currentDistance = registration!!.races.sumOf { it.distance }
                 val contestDistance = item.distance
@@ -70,7 +61,7 @@ class ContestRunnerAdapter(private var contests: List<Contest>, private val emai
 
                 statisticsContest.setOnClickListener {
                     val context = it.context
-                    val dialog = ContestStatisticsDialog(context, item, email)
+                    val dialog = ContestStatisticsDialog(context, item, email, false, null)
                     dialog.show()
                 }
             }

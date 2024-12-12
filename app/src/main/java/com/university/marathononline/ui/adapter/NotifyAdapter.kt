@@ -23,7 +23,7 @@ class NotifyAdapter(private var notifies: List<Notification>): RecyclerView.Adap
 
                 contest?.let {
                     notifyCardView.setOnClickListener {
-                        if(item.type == ENotificationType.NEW_NOTIFICATION)
+                        if(item.type == ENotificationType.NEW_CONTEST)
                             it.context.startNewActivity(
                                 ContestDetailsActivity::class.java,
                                 mapOf(KEY_CONTEST to contest)

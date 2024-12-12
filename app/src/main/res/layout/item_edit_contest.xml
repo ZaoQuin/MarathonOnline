@@ -46,6 +46,16 @@
                 android:maxLines="2"
                 tools:text="Cùng tham gia cuộc thi chạy marathon để thử thách bản thân!" />
 
+            <TextView
+                android:id="@+id/tvRegistrationCount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Số lượng người đăng ký"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:ellipsize="end"
+                android:maxLines="2"/>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -70,7 +80,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/status_background"
                     android:padding="4dp"
-                    android:text="Đẵ bắt đầu"
+                    android:text="Đã bắt đầu"
                     android:textColor="@color/dark_main_color"
                     android:textStyle="bold"
                     android:textSize="12sp"

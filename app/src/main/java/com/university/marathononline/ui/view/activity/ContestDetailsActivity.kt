@@ -158,8 +158,6 @@ class ContestDetailsActivity :
                 feeRegister.text = it.fee?.let { it1 -> convertToVND(it1) }
                 organizationalName.text = it.organizer?.fullName
                 emailOrganizer.text = it.organizer?.email
-                sectionLeaderBoard.visible(it.status == EContestStatus.ACTIVE
-                        || it.status == EContestStatus.FINISHED)
                 val totalRegistration = it.registrations?.size
                 maxMembers.text = if (it.maxMembers == 0) "Không giới hạn người tham gia" else "$totalRegistration/ ${it.maxMembers.toString()}"
                 if(it.maxMembers != 0 && it.maxMembers!! <= it.registrations?.size!!){
@@ -170,27 +168,20 @@ class ContestDetailsActivity :
                     btnRegisterContest.enable(false)
                     btnRegisterContest.text = "Hết hạn đăng ký"
                 }
-                when(it.status){
-                    EContestStatus.CANCELLED -> {
-                        btnRegisterContest.enable(false)
-                        btnRegisterContest.text = "Cuộc thi đã hủy"
-                    }
-                    EContestStatus.NOT_APPROVAL -> {
-                        btnRegisterContest.enable(false)
-                        btnRegisterContest.text = "Cuộc thi không được chấp thuận"
-                    }
-                    EContestStatus.DELETED -> {
-                        btnRegisterContest.enable(false)
-                        btnRegisterContest.text = "Cuộc thi đã bị xóa"
-                    }
-                    else -> Unit
+                if(it.status == EContestStatus.CANCELLED ||
+                    it.status == EContestStatus.NOT_APPROVAL ||
+                    it.status == EContestStatus.DELETED){
+                    btnRegisterContest.enable(false)
+                    btnRegisterContest.text = it.status!!.value
                 }
                 if (it.startDate?.let { start ->
                         DateUtils.convertStringToLocalDateTime(start).isBefore(LocalDateTime.now())
                     } == false) {
                     binding.btnRecord.enable(false)
                     binding.btnRecord.text = "Cuộc thi chưa bắt đầu"
-
+                } else {
+                    sectionLeaderBoard.visible(it.status == EContestStatus.ACTIVE
+                            || it.status == EContestStatus.FINISHED)
                 }
             }
         }

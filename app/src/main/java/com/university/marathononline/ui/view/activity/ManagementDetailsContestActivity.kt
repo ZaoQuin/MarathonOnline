@@ -13,9 +13,11 @@ import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.contest.ContestApiService
+import com.university.marathononline.data.api.registration.RegistrationApiService
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.EContestStatus
 import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.databinding.ActivityManagementContestDetailsBinding
 import com.university.marathononline.ui.adapter.ManagementDetailsContestPagerAdapter
 import com.university.marathononline.ui.viewModel.ManagementDetailsContestActivityViewModel
@@ -142,8 +144,9 @@ class ManagementDetailsContestActivity :
     override fun getActivityRepositories(): List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
         val apiContest = retrofitInstance.buildApi(ContestApiService::class.java, token)
+        val apiRegistration = retrofitInstance.buildApi(RegistrationApiService::class.java, token)
         return listOf(
-            ContestRepository(apiContest)
+            ContestRepository(apiContest), RegistrationRepository(apiRegistration)
         )
     }
 }

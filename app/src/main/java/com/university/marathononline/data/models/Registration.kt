@@ -15,6 +15,9 @@ data class Registration(
 ): Serializable
 
 enum class ERegistrationStatus(val value: String) {
-    PENDING("Chưa duyệt"),ACTIVE ("Đang hoạt động"), COMPLETED ("Hoàn thành")
+    PENDING("Chưa duyệt"),
+    ACTIVE ("Đang hoạt động"),
+    COMPLETED ("Hoàn thành"),
+    BLOCK("Bị chặn")
 }
 

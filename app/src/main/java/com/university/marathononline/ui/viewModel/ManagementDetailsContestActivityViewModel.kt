@@ -7,10 +7,12 @@ import androidx.lifecycle.viewModelScope
 import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.models.Contest
+import com.university.marathononline.data.models.Registration
 import com.university.marathononline.data.models.Reward
 import com.university.marathononline.data.models.RewardGroup
 import com.university.marathononline.data.models.Rule
 import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.data.repository.RegistrationRepository
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -18,8 +20,9 @@ import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
 class ManagementDetailsContestActivityViewModel(
-    private val repository: ContestRepository
-): BaseViewModel(listOf(repository)) {
+    private val contestRepository: ContestRepository,
+    private val registrationRepository: RegistrationRepository
+): BaseViewModel(listOf(contestRepository)) {
     private val _contest = MutableLiveData<Contest>()
     val contest: LiveData<Contest> get() = _contest
 
@@ -37,6 +40,9 @@ class ManagementDetailsContestActivityViewModel(
 
     private val _cancelResponse = MutableLiveData<Resource<Contest>>()
     val cancelResponse: LiveData<Resource<Contest>> get() = _cancelResponse
+
+    private val _blockRegistration = MutableLiveData<Resource<Registration>>()
+    val blockRegistration: LiveData<Resource<Registration>> get() = _blockRegistration
 
     fun setContest(contest: Contest){
         _contest.value = contest
@@ -93,7 +99,14 @@ class ManagementDetailsContestActivityViewModel(
         val contest = contest.value
         viewModelScope.launch {
             _cancelResponse.value = Resource.Loading
-            _cancelResponse.value = repository.cancel(contest!!)
+            _cancelResponse.value = contestRepository.cancel(contest!!)
+        }
+    }
+
+    fun block(registration: Registration) {
+        viewModelScope.launch {
+            _blockRegistration.value = Resource.Loading
+            _blockRegistration.value = registrationRepository.block(registration)
         }
     }
 

@@ -14,6 +14,10 @@ data class Notification(
     var type: ENotificationType? = null
 ): Serializable
 
-enum class ENotificationType {
-    REWARD, NEW_NOTIFICATION
+enum class ENotificationType(val value: String) {
+    REWARD("Giải thưởng"),
+    NEW_CONTEST("Cuộc thi mới"),
+    BLOCK_CONTEST("Bị chặn khỏi cuộc thi"),
+    ACCEPT_CONTEST("Cuộc thi được duyệt"),
+    NOT_APPROVAL_CONTEST("Cuộc thi bị chặn")
 }

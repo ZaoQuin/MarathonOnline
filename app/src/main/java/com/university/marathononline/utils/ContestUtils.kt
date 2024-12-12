@@ -33,22 +33,6 @@ fun getContestStatusColor(context: Context, status: EContestStatus): Int {
     }
 }
 
-fun updateCompletionStatus(context: Context, textView: TextView, status: ERegistrationStatus) {
-    val completed = status == ERegistrationStatus.COMPLETED
-    textView.text = if (completed) {
-        context.getString(contest_completed)
-    } else {
-        context.getString(contest_not_completed)
-    }
-
-    textView.setTextColor(
-        ContextCompat.getColor(
-            context,
-            if (completed) main_color else red
-        )
-    )
-}
-
 fun isStarting(contest: Contest): Boolean{
     return (DateUtils.convertStringToLocalDateTime(contest.startDate!!).isBefore(
         LocalDateTime.now()) ||
