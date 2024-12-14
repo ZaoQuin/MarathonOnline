@@ -30,6 +30,9 @@ import com.university.marathononline.utils.formatSpeed
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import java.util.Locale
 
@@ -60,8 +63,6 @@ class WeeklyStatisticsFragment : BaseFragment<WeeklyStatisticsViewModel, Fragmen
         viewModel.races.observe(viewLifecycleOwner){
             val calendar = Calendar.getInstance()
 
-            val today = calendar.time
-
             calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
             val startDate = calendar.time
 
@@ -74,6 +75,8 @@ class WeeklyStatisticsFragment : BaseFragment<WeeklyStatisticsViewModel, Fragmen
 
             val currentWeek = "$startDateString - $endDateString"
             binding.filterText.text = currentWeek
+
+            viewModel.setSelectedTime(currentWeek)
             viewModel.filterDataByWeek(currentWeek)
         }
 
@@ -111,8 +114,6 @@ class WeeklyStatisticsFragment : BaseFragment<WeeklyStatisticsViewModel, Fragmen
     }
 
     private fun initUI() {
-        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-
         binding.filterButton.setOnClickListener {
             showYearPickerBottomSheet()
         }
@@ -152,19 +153,10 @@ class WeeklyStatisticsFragment : BaseFragment<WeeklyStatisticsViewModel, Fragmen
 
             val entries = ArrayList<Entry>()
 
-            val calendar = Calendar.getInstance()
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val selectedDate = viewModel.selectedTime.value
 
-            val today = calendar.time
-            val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+            val weekDates = getWeekDates(selectedDate!!)
 
-            calendar.add(Calendar.DAY_OF_YEAR, - (dayOfWeek - 2))
-
-            val weekDates = ArrayList<String>()
-            for (i in 0..6) {
-                weekDates.add(dateFormat.format(calendar.time))
-                calendar.add(Calendar.DAY_OF_YEAR, 1)
-            }
 
             weekDates.forEach { date ->
                 val day = date.split("-")[2].toFloat()
@@ -206,8 +198,27 @@ class WeeklyStatisticsFragment : BaseFragment<WeeklyStatisticsViewModel, Fragmen
         val yearPicker = WeekPickerBottomSheetFragment { selectedWeek ->
             binding.filterText.text = selectedWeek
             println("Tuần được chọn: $selectedWeek")
+            viewModel.setSelectedTime(selectedWeek)
             viewModel.filterDataByWeek(selectedWeek)
         }
         yearPicker.show(parentFragmentManager, "YearPicker")
+    }
+
+    private fun getWeekDates(dateRange: String): List<String> {
+        val inputFormatter = DateTimeFormatter.ofPattern("d-M-yyyy")  // Định dạng ban đầu
+        val outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd") // Định dạng mới
+
+        val parts = dateRange.split(" - ")
+        val startDate = LocalDate.parse(parts[0], inputFormatter)
+        val endDate = LocalDate.parse(parts[1], inputFormatter)
+
+        val daysBetween = ChronoUnit.DAYS.between(startDate, endDate).toInt()
+
+        val weekDates = mutableListOf<String>()
+        for (i in 0..daysBetween) {
+            // Định dạng lại ngày sau khi cộng thêm số ngày
+            weekDates.add(startDate.plusDays(i.toLong()).format(outputFormatter))
+        }
+        return weekDates
     }
 }

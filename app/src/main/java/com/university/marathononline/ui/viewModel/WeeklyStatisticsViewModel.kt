@@ -30,6 +30,9 @@
         private val _user: MutableLiveData<User> = MutableLiveData()
         val user: LiveData<User> get() = _user
 
+        private val _selectedTime: MutableLiveData<String> = MutableLiveData()
+        val selectedTime: LiveData<String> get() = _selectedTime
+
         private val _races: MutableLiveData<List<Race>> = MutableLiveData()
         val races: LiveData<List<Race>> get() = _races
 
@@ -56,6 +59,10 @@
 
         fun setUser(user: User) {
             _user.value = user
+        }
+
+        fun setSelectedTime(time: String) {
+            _selectedTime.value = time
         }
 
         private fun calculateStats(group: List<Race>): Map<String, Any> {
