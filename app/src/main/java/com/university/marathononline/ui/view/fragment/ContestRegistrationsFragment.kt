@@ -11,11 +11,13 @@ import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.contest.ContestApiService
+import com.university.marathononline.data.api.notify.NotificationApiService
 import com.university.marathononline.data.api.registration.RegistrationApiService
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.ERegistrationStatus
 import com.university.marathononline.data.models.Registration
 import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.databinding.FragmentContestRegistrationsBinding
 import com.university.marathononline.ui.adapter.RegistrationAdapter
@@ -71,6 +73,7 @@ class ContestRegistrationsFragment : BaseFragment<ManagementDetailsContestActivi
                         if(registration.id == it.value.id) it.value else registration
                     }
                     registrationAdapter.updateData(updateData)
+                    viewModel.blockNotification(it.value.runner)
                 }
                 is Resource.Failure -> handleApiError(it)
                 else -> Unit
@@ -100,8 +103,10 @@ class ContestRegistrationsFragment : BaseFragment<ManagementDetailsContestActivi
         val token = runBlocking { userPreferences.authToken.first() }
         val apiContest = retrofitInstance.buildApi(ContestApiService::class.java, token)
         val apiRegistration = retrofitInstance.buildApi(RegistrationApiService::class.java, token)
+        val apiNotify = retrofitInstance.buildApi(NotificationApiService::class.java, token)
         return listOf(
-            ContestRepository(apiContest), RegistrationRepository(apiRegistration)
+            ContestRepository(apiContest), RegistrationRepository(apiRegistration),
+            NotificationRepository(apiNotify)
         )
     }
 }

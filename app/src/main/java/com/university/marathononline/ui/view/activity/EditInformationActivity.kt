@@ -148,7 +148,7 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
                 phoneNumberEditText to phoneNumberEditText,
                 addressText to addressErrorText
             )
-            return fields.any { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }
+            return fields.all { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }
         }
     }
 

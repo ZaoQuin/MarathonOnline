@@ -15,6 +15,7 @@ import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.contest.ContestApiService
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.EContestStatus
+import com.university.marathononline.data.models.ERegistrationStatus
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.ui.viewModel.ContestDetailsViewModel
 import com.university.marathononline.databinding.ActivityContestDetailsBinding
@@ -98,6 +99,14 @@ class ContestDetailsActivity :
             binding.recordContainer.visible(it)
         }
 
+        viewModel.isBlocked.observe(this){
+            Log.e("ContestDetailsActivity", "Check Block")
+            if(it) {
+                binding.btnRecord.enable(false)
+                binding.btnRecord.text = ERegistrationStatus.BLOCK.value
+            }
+        }
+
         viewModel.registration.observe(this){
             binding.apply {
                 val currentDistance = it.races.sumOf { it.distance }
@@ -168,18 +177,6 @@ class ContestDetailsActivity :
                     btnRegisterContest.enable(false)
                     btnRegisterContest.text = "Hết hạn đăng ký"
                 }
-                if(it.status == EContestStatus.CANCELLED ||
-                    it.status == EContestStatus.NOT_APPROVAL ||
-                    it.status == EContestStatus.DELETED){
-                    btnRegisterContest.enable(false)
-                    btnRegisterContest.text = it.status!!.value
-                }
-
-                if ( it.status == EContestStatus.COMPLETED ||
-                    it.status == EContestStatus.FINISHED){
-                    btnRecord.enable(false)
-                    btnRecord.text = it.status!!.value
-                }
                 if (it.startDate?.let { start ->
                         DateUtils.convertStringToLocalDateTime(start).isBefore(LocalDateTime.now())
                     } == false) {
@@ -189,6 +186,18 @@ class ContestDetailsActivity :
                     sectionLeaderBoard.visible(it.status == EContestStatus.ACTIVE
                             || it.status == EContestStatus.FINISHED
                             || it.status == EContestStatus.COMPLETED)
+                }
+
+                if(it.status != EContestStatus.ACTIVE ||
+                    it.status != EContestStatus.PENDING ){
+                    btnRegisterContest.enable(false)
+                    btnRegisterContest.text = it.status!!.value
+                }
+
+                if ( it.status == EContestStatus.COMPLETED ||
+                    it.status == EContestStatus.FINISHED){
+                    btnRecord.enable(false)
+                    btnRecord.text = it.status!!.value
                 }
             }
         }

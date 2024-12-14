@@ -113,7 +113,7 @@ class RegisterBasicInformationActivity : BaseActivity<RegisterBasicInformationVi
                 getString(error_password_mismatch))
                     && emailText.isEmail( emailErrorText, getString(error_invalid_email))
                     && passwordText.isValidPassword( passwordErrorText, getString(error_invalid_password))
-                    && fields.any { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }
+                    && fields.all { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }
         }
 
     }

@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.models.Contest
+import com.university.marathononline.data.models.ERegistrationStatus
 import com.university.marathononline.data.models.Registration
 import com.university.marathononline.data.models.Reward
 import com.university.marathononline.data.models.RewardGroup
@@ -42,6 +43,9 @@ class ContestDetailsViewModel(
 
     private val _isRegistered = MutableLiveData<Boolean>()
     val isRegistered: LiveData<Boolean> get() = _isRegistered
+
+    private val _isBlocked = MutableLiveData<Boolean>()
+    val isBlocked: LiveData<Boolean> get() = _isBlocked
 
     private val _registration = MutableLiveData<Registration>()
     val registration: LiveData<Registration> get() = _registration
@@ -108,6 +112,7 @@ class ContestDetailsViewModel(
             Log.d("Check Register", email)
             if(it.runner.email == email){
                 _registration.value = it
+                _isBlocked.value = (it.status == ERegistrationStatus.BLOCK)
                 true
             } else {
                 false

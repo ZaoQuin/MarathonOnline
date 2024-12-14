@@ -3,8 +3,11 @@ package com.university.marathononline.ui.view.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,22 +17,24 @@ import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.contest.ContestApiService
+import com.university.marathononline.data.api.notify.NotificationApiService
 import com.university.marathononline.data.api.registration.RegistrationApiService
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.EContestStatus
 import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.databinding.ActivityManagementContestDetailsBinding
 import com.university.marathononline.ui.adapter.ManagementDetailsContestPagerAdapter
 import com.university.marathononline.ui.viewModel.ManagementDetailsContestActivityViewModel
 import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.KEY_UPDATE_CONTEST
+import com.university.marathononline.utils.enable
 import com.university.marathononline.utils.finishAndGoBack
 import com.university.marathononline.utils.visible
 import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import java.io.Console
 
 class ManagementDetailsContestActivity :
     BaseActivity<ManagementDetailsContestActivityViewModel, ActivityManagementContestDetailsBinding>() {
@@ -49,7 +54,6 @@ class ManagementDetailsContestActivity :
         setUpObserve()
         setupDeleteButton()
         setupUI()
-
     }
 
     private fun setupUI() {
@@ -99,11 +103,11 @@ class ManagementDetailsContestActivity :
 
         viewModel.prizesReponse.observe(this) {
             when(it){
-                is Resource.Success -> viewModel.completed()
-                is Resource.Failure -> {
-                    handleApiError(it)
-                    Log.d("PRizerssdsd", it.fetchErrorMessage())
+                is Resource.Success -> {
+                    viewModel.rewardNotification(it.value)
+                    viewModel.completed()
                 }
+                is Resource.Failure -> handleApiError(it)
                 else -> Unit
             }
         }
@@ -173,6 +177,7 @@ class ManagementDetailsContestActivity :
         builder.setTitle("Trao giải")
         builder.setMessage("Xác nhận trao giải thưởng cho các vận động viên?")
         builder.setPositiveButton("Xác nhận") { dialog, _ ->
+            binding.btnPrizes.enable(false)
             viewModel.prizes()
             dialog.dismiss()
         }
@@ -190,8 +195,10 @@ class ManagementDetailsContestActivity :
         val token = runBlocking { userPreferences.authToken.first() }
         val apiContest = retrofitInstance.buildApi(ContestApiService::class.java, token)
         val apiRegistration = retrofitInstance.buildApi(RegistrationApiService::class.java, token)
+        val apiNotify = retrofitInstance.buildApi(NotificationApiService::class.java, token)
         return listOf(
-            ContestRepository(apiContest), RegistrationRepository(apiRegistration)
+            ContestRepository(apiContest), RegistrationRepository(apiRegistration),
+            NotificationRepository(apiNotify)
         )
     }
 }

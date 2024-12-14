@@ -61,6 +61,21 @@ fun <A : Activity> Activity.startNewActivity(
             is Long -> intent.putExtra(key, value)
             is User -> intent.putExtra(key, value)
             is Contest -> intent.putExtra(key, value)
+            is Reward -> intent.putExtra(key, value)
+            is List<*> -> {
+                when {
+                    value.isEmpty() -> intent.putExtra(key, ArrayList<Any>())
+                    value[0] is Contest -> {
+                        @Suppress("UNCHECKED_CAST")
+                        intent.putExtra(key, ArrayList(value as List<Contest>))
+                    }
+                    value[0] is Reward -> {
+                        @Suppress("UNCHECKED_CAST")
+                        intent.putExtra(key, ArrayList(value as List<Reward>))
+                    }
+                    else -> throw IllegalArgumentException("Unsupported list type: ${value::class.java}")
+                }
+            }
             else -> throw IllegalArgumentException("Unsupported data type")
         }
     }
@@ -86,6 +101,21 @@ fun <A : Activity> Context.startNewActivity(
             is Long -> intent.putExtra(key, value)
             is User -> intent.putExtra(key, value)
             is Contest -> intent.putExtra(key, value)
+            is Reward -> intent.putExtra(key, value)
+            is List<*> -> {
+                when {
+                    value.isEmpty() -> intent.putExtra(key, ArrayList<Any>())
+                    value[0] is Contest -> {
+                        @Suppress("UNCHECKED_CAST")
+                        intent.putExtra(key, ArrayList(value as List<Contest>))
+                    }
+                    value[0] is Reward -> {
+                        @Suppress("UNCHECKED_CAST")
+                        intent.putExtra(key, ArrayList(value as List<Reward>))
+                    }
+                    else -> throw IllegalArgumentException("Unsupported list type: ${value::class.java}")
+                }
+            }
             else -> throw IllegalArgumentException("Unsupported data type")
         }
     }

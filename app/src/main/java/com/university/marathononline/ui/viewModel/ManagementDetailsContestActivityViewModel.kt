@@ -7,12 +7,17 @@ import androidx.lifecycle.viewModelScope
 import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.models.Contest
+import com.university.marathononline.data.models.ENotificationType
 import com.university.marathononline.data.models.Registration
 import com.university.marathononline.data.models.Reward
 import com.university.marathononline.data.models.RewardGroup
 import com.university.marathononline.data.models.Rule
+import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.data.repository.RegistrationRepository
+import com.university.marathononline.data.request.CreateGroupNotificationRequest
+import com.university.marathononline.data.request.CreateIndividualNotificationRequest
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -21,7 +26,8 @@ import java.util.concurrent.TimeUnit
 
 class ManagementDetailsContestActivityViewModel(
     private val contestRepository: ContestRepository,
-    private val registrationRepository: RegistrationRepository
+    private val registrationRepository: RegistrationRepository,
+    private val notificationRepository: NotificationRepository
 ): BaseViewModel(listOf(contestRepository)) {
     private val _contest = MutableLiveData<Contest>()
     val contest: LiveData<Contest> get() = _contest
@@ -132,4 +138,33 @@ class ManagementDetailsContestActivityViewModel(
         }
     }
 
+    fun blockNotification(receiver: User) {
+        viewModelScope.launch {
+            val theContest = contest.value
+            val request = CreateIndividualNotificationRequest(
+                contest = theContest,
+                title = ENotificationType.BLOCK_CONTEST.value,
+                content = "Bạn đã bị chặn ra khỏi cuộc thi ${theContest?.name} vì gian lận, liên hệ " +
+                        "${theContest?.organizer?.email} để tìm hiểu thêm thông tin.",
+                type = ENotificationType.BLOCK_CONTEST,
+                receiver = receiver
+            )
+            notificationRepository.addIndividualNotification(request)
+        }
+    }
+
+    fun rewardNotification(registrations: List<Registration>) {
+        viewModelScope.launch {
+            val runners = registrations.map { it.runner }
+            val theContest = contest.value
+            val request = CreateGroupNotificationRequest(
+                contest = theContest,
+                title = ENotificationType.REWARD.value,
+                content = "Bạn đã nhận được phần quà từ cuộc thi ${theContest?.name}.",
+                type = ENotificationType.REWARD,
+                receivers = runners
+            )
+            notificationRepository.addGroupNotification(request)
+        }
+    }
 }

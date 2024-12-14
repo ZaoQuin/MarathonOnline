@@ -9,7 +9,9 @@ import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.data.request.CheckContestNameRequest
 import com.university.marathononline.data.request.CreateContestRequest
+import com.university.marathononline.data.response.CheckContestNameResponse
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -22,14 +24,17 @@ class AddContestViewModel(
     private val _updateContestResponse = MutableLiveData<Resource<Contest>>()
     val updateContestResponse: LiveData<Resource<Contest>> get() = _updateContestResponse
 
-    private val _start = MutableLiveData<LocalDateTime>()
+    private val _start = MutableLiveData<LocalDateTime>(null)
     val start: LiveData<LocalDateTime> get() = _start
 
-    private val _end = MutableLiveData<LocalDateTime>()
+    private val _end = MutableLiveData<LocalDateTime>(null)
     val end: LiveData<LocalDateTime> get() = _end
 
-    private val _deadline = MutableLiveData<LocalDateTime>()
+    private val _deadline = MutableLiveData<LocalDateTime>(null)
     val deadline: LiveData<LocalDateTime> get() = _deadline
+
+    private val _checkNameResponse = MutableLiveData<Resource<CheckContestNameResponse>>(null)
+    val checkNameResponse: LiveData<Resource<CheckContestNameResponse>> get() = _checkNameResponse
 
     fun addContest(createContestRequest: CreateContestRequest){
         viewModelScope.launch {
@@ -67,5 +72,12 @@ class AddContestViewModel(
 
     fun selectedStartDate(localDateTime: LocalDateTime) {
         _start.value = localDateTime
+    }
+
+    fun checkNameContest(name: String) {
+        viewModelScope.launch {
+            _checkNameResponse.value = Resource.Loading
+            _checkNameResponse.value = contestRepository.isExistName(CheckContestNameRequest(name))
+        }
     }
 }

@@ -170,4 +170,10 @@ object DateUtils {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
         return localDateTime.format(formatter)
     }
+
+    fun convertToVietnameseDateTime(dateString: String): String{
+        val dateTime = convertStringToLocalDateTime(dateString)
+        val formatter = DateTimeFormatter.ofPattern("'Ngày' dd 'tháng' MM 'năm' yyyy, HH:mm:ss", Locale("vi", "VN"))
+        return dateTime.format(formatter)
+    }
 }

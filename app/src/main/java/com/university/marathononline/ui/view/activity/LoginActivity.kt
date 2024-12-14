@@ -141,7 +141,7 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding>() {
             )
             return emailEditText.isEmail( emailErrorText, getString(error_invalid_email))
                     && passwordEditText.isValidPassword( passwordErrorText, getString(error_invalid_password))
-                    && fields.any { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }
+                    && fields.all { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }
         }
     }
 

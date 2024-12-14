@@ -42,6 +42,7 @@ class OrganizerStatisticsFragment : BaseFragment<OrganizerStatisticsViewModel, F
                     Log.d("OrganizerStatistics", "Success: Contest data received")
                     Log.d("OrganizerStatistics", "Contest Data: ${it.value}")
                     viewModel.setContest(it.value)
+                    hideSkeletonLoading()
                 }
                 is Resource.Failure -> {
                     Log.e("OrganizerStatistics", "Failure: ${it.errorMessage}")
@@ -146,6 +147,24 @@ class OrganizerStatisticsFragment : BaseFragment<OrganizerStatisticsViewModel, F
 
         viewModel.getContest()
         observe()
+
+        showSkeletonLoading()
+    }
+
+    private fun showSkeletonLoading() {
+        binding.apply {
+            shimmerLayout.startShimmer()
+            shimmerLayout.visibility = View.VISIBLE
+            content.visibility = View.GONE
+        }
+    }
+
+    private fun hideSkeletonLoading() {
+        binding.apply {
+            shimmerLayout.stopShimmer()
+            shimmerLayout.visibility = View.GONE
+            content.visibility = View.VISIBLE
+        }
     }
 
     override fun onResume() {

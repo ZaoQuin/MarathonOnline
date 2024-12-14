@@ -84,6 +84,8 @@ class RegisterOrganizerInfoActivity : BaseActivity<RegisterViewModel, ActivityRe
         if(!validateFields())
             return
 
+        viewModel.checkUsername(binding.usernameText.text.toString())
+
         binding.apply {
             viewModel.register(
                 usernameText.getString(),
@@ -104,7 +106,7 @@ class RegisterOrganizerInfoActivity : BaseActivity<RegisterViewModel, ActivityRe
                 phoneNumberText to phoneNumberErrorText
             )
             return phoneNumberText.isPhoneNumber(phoneNumberErrorText, getString(error_invalid_phone_number))
-                    && fields.any { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }
+                    && fields.all { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }
         }
     }
 
