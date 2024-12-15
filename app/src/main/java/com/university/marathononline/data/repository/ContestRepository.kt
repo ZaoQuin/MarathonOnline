@@ -53,4 +53,8 @@ class ContestRepository(
     suspend fun isExistName(request: CheckContestNameRequest) = safeApiCall {
         api.isExistName(request)
     }
+
+    suspend fun checkActiveContest() = safeApiCall {
+        api.checkActiveContest()
+    }
 }

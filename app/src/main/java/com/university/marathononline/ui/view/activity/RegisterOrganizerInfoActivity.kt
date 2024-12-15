@@ -38,6 +38,37 @@ class RegisterOrganizerInfoActivity : BaseActivity<RegisterViewModel, ActivityRe
             binding.progressBar.visible(it == Resource.Loading)
             handleRegisterResponse(it)
         })
+
+        viewModel.checkUsernameResponse.observe(this){
+            when(it){
+                is Resource.Success -> {
+                    if (!it.value.exists) {
+                        binding.usernameErrorText.text = null
+                        registerHandle()
+                    } else {
+                        binding.usernameErrorText.text = "Tên người dùng đã tồn tại"
+                    }
+                }
+                is Resource.Failure -> {
+                    handleApiError(it)
+                    it.fetchErrorMessage()
+                }
+                else -> Unit
+            }
+        }
+    }
+
+    private fun registerHandle() {
+
+        binding.apply {
+            viewModel.register(
+                usernameText.getString(),
+                phoneNumberText.getString(),
+                "",
+                addressText.getString(),
+                ERole.ORGANIZER
+            )
+        }
     }
 
     private fun handleRegisterResponse(resource: Resource<User>){
@@ -85,16 +116,6 @@ class RegisterOrganizerInfoActivity : BaseActivity<RegisterViewModel, ActivityRe
             return
 
         viewModel.checkUsername(binding.usernameText.text.toString())
-
-        binding.apply {
-            viewModel.register(
-                usernameText.getString(),
-                phoneNumberText.getString(),
-                "",
-                addressText.getString(),
-                ERole.ORGANIZER
-            )
-        }
     }
 
     private fun validateFields(): Boolean {

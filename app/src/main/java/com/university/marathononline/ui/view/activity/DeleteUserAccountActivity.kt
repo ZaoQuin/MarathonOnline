@@ -15,7 +15,10 @@ import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.auth.AuthApiService
+import com.university.marathononline.data.api.contest.ContestApiService
+import com.university.marathononline.data.models.ERole
 import com.university.marathononline.data.repository.AuthRepository
+import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.databinding.ActivityDeleteUserAccountBinding
 import com.university.marathononline.ui.viewModel.DeleteUserAccountViewModel
 import com.university.marathononline.utils.KEY_EMAIL
@@ -61,6 +64,23 @@ class DeleteUserAccountActivity :
                 else -> Unit
             }
         })
+
+        viewModel.checkActiveContest.observe(this){
+            when(it){
+                is Resource.Success -> {
+                    if (!it.value.exists) {
+                        viewModel.delete()
+                    } else {
+                        Toast.makeText(this, "Các cuộc thi đang hoạt động, không thể xóa tài khoản", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                is Resource.Failure -> {
+                    handleApiError(it)
+                    it.fetchErrorMessage()
+                }
+                else -> Unit
+            }
+        }
     }
 
     private fun showSuccessToastAndNavigate() {
@@ -100,7 +120,11 @@ class DeleteUserAccountActivity :
             if(!viewModel.isOtpValid())
                 getMessage(error_invalid_otp)
             else {
-                viewModel.delete()
+                val role = runBlocking { userPreferences.role.first() }
+                if(role != ERole.ORGANIZER)
+                    viewModel.delete()
+                else
+                    viewModel.checkActiveContest()
                 null
             }
 
@@ -129,7 +153,8 @@ class DeleteUserAccountActivity :
 
     override fun getActivityRepositories() : List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
-        val api = retrofitInstance.buildApi(AuthApiService::class.java, token)
-        return listOf( AuthRepository(api, userPreferences))
+        val apiAuth = retrofitInstance.buildApi(AuthApiService::class.java, token)
+        val apiContest = retrofitInstance.buildApi(ContestApiService::class.java, token)
+        return listOf( AuthRepository(apiAuth, userPreferences), ContestRepository(apiContest))
     }
 }
