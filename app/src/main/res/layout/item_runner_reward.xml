@@ -15,6 +15,7 @@
         tools:context=".YourActivity">
 
         <LinearLayout
+            android:id="@+id/rewardCardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -35,6 +36,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Description of the reward"
+                android:textColor="@color/text_color"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/contestName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Marathon 2024"
                 android:textColor="@color/text_color"
                 android:textSize="16sp"/>
 

@@ -1,8 +1,12 @@
 package com.university.marathononline.ui.view.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import com.university.marathononline.R.string.error_field_required
 import com.university.marathononline.R.string.error_invalid_phone_number
@@ -38,6 +42,24 @@ class RegisterRunnerInfoActivity : BaseActivity<RegisterViewModel, ActivityRegis
     }
 
     private fun setUpObserve() {
+        viewModel.checkUsernameResponse.observe(this){
+            when(it){
+                is Resource.Success -> {
+                    if (!it.value.exists) {
+                        binding.usernameErrorText.text = null
+                        registerHandle()
+                    } else {
+                        binding.usernameErrorText.text = "Tên người dùng đã tồn tại"
+                    }
+                }
+                is Resource.Failure -> {
+                    handleApiError(it)
+                    it.fetchErrorMessage()
+                }
+                else -> Unit
+            }
+        }
+
         viewModel.registerResponse.observe(this, Observer {
             binding.apply {
                 progressBar.visible(it == Resource.Loading)
@@ -45,6 +67,25 @@ class RegisterRunnerInfoActivity : BaseActivity<RegisterViewModel, ActivityRegis
             }
             handleRegisterResponse(it)
         })
+    }
+
+    private fun registerHandle() {
+
+        binding.apply {
+            DateUtils.convertToDateString(
+                spinnerDay.selectedItem.toString().toInt(),
+                spinnerMonth.selectedItem.toString().toInt(),
+                spinnerYear.selectedItem.toString().toInt()
+            )?.let {
+                viewModel.register(
+                    usernameText.text.toString(),
+                    phoneNumberText.text.toString(),
+                    it,
+                    addressText.text.toString(),
+                    ERole.RUNNER
+                )
+            }
+        }
     }
 
     private fun handleRegisterResponse(resource: Resource<User>){
@@ -84,6 +125,20 @@ class RegisterRunnerInfoActivity : BaseActivity<RegisterViewModel, ActivityRegis
                     if (!hasFocus) validateNormalEditText(text, error)
                 }
             }
+
+            usernameText.addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(s: Editable?) {
+                    val textWithoutSpaces = s?.toString()?.replace(" ", "")
+                    if (textWithoutSpaces != s.toString()) {
+                        usernameText.setText(textWithoutSpaces)
+                        usernameText.setSelection(textWithoutSpaces!!.length)
+                    }
+                }
+
+                override fun beforeTextChanged(charSequence: CharSequence?, start: Int, count: Int, after: Int) {}
+
+                override fun onTextChanged(charSequence: CharSequence?, start: Int, before: Int, count: Int) {}
+            })
         }
 
         setupClickListeners()
@@ -105,23 +160,9 @@ class RegisterRunnerInfoActivity : BaseActivity<RegisterViewModel, ActivityRegis
         if(!validateFields())
             return
 
-        binding.apply {
-            DateUtils.convertToDateString(
-                spinnerDay.selectedItem.toString().toInt(),
-                spinnerMonth.selectedItem.toString().toInt(),
-                spinnerYear.selectedItem.toString().toInt()
-            )?.let {
-                viewModel.register(
-                    usernameText.text.toString(),
-                    phoneNumberText.text.toString(),
-                    it,
-                    addressText.text.toString(),
-                    ERole.RUNNER
-                )
-            }
-        }
-
+        viewModel.checkUsername(binding.usernameText.text.toString())
     }
+
 
     private fun setupDateOfBirthSpinners(){
         val currentYear = Calendar.getInstance().get(Calendar.YEAR)
@@ -142,7 +183,7 @@ class RegisterRunnerInfoActivity : BaseActivity<RegisterViewModel, ActivityRegis
                 phoneNumberText to phoneNumberErrorText
             )
             return phoneNumberText.isPhoneNumber(phoneNumberErrorText, getString(error_invalid_phone_number))
-                    && fields.any { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }
+                    && fields.all { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }
         }
     }
 

@@ -72,6 +72,15 @@
                 android:layout_height="wrap_content"
                 android:hint="Tên cuộc thi" />
 
+
+            <TextView
+                android:id="@+id/etContestNameErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
+
+
             <View
                 android:layout_width="wrap_content"
                 android:layout_height="10dp" />
@@ -90,6 +99,14 @@
                 android:layout_height="wrap_content"
                 android:hint="Mô tả cuộc thi" />
 
+
+            <TextView
+                android:id="@+id/etContestDescriptionErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
+
             <View
                 android:layout_width="wrap_content"
                 android:layout_height="10dp" />
@@ -99,7 +116,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:alpha="0.7"
-                android:text="Quãng đường"
+                android:text="Quãng đường (km)"
                 android:textStyle="bold" />
 
             <EditText
@@ -108,6 +125,14 @@
                 android:layout_height="wrap_content"
                 android:hint="Quãng đường"
                 android:inputType="numberDecimal"/>
+
+
+            <TextView
+                android:id="@+id/etContestDistanceErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
 
             <View
                 android:layout_width="wrap_content"
@@ -118,7 +143,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:alpha="0.7"
-                android:text="Chi phí"
+                android:text="Chi phí (VNĐ)"
                 android:textStyle="bold" />
 
             <EditText
@@ -127,6 +152,14 @@
                 android:layout_height="wrap_content"
                 android:hint="Chi phí"
                 android:inputType="numberDecimal"/>
+
+            <TextView
+                android:id="@+id/etContestFeeErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
+
 
             <View
                 android:layout_width="wrap_content"
@@ -148,6 +181,12 @@
                 android:hint="Số lượng đăng ký"
                 android:inputType="numberDecimal"/>
 
+            <TextView
+                android:id="@+id/etMaxMembersErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
 
             <View
                 android:layout_width="wrap_content"
@@ -168,6 +207,14 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:text="Select Start Date" />
 
+
+            <TextView
+                android:id="@+id/startDateErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
+
             <View
                 android:layout_width="wrap_content"
                 android:layout_height="10dp" />
@@ -187,6 +234,14 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:text="Select End Date" />
 
+
+            <TextView
+                android:id="@+id/endDateErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
+
             <View
                 android:layout_width="wrap_content"
                 android:layout_height="10dp" />
@@ -205,6 +260,13 @@
                 android:layout_height="wrap_content"
                 android:background="?android:attr/selectableItemBackground"
                 android:text="Select Registration Deadline" />
+
+            <TextView
+                android:id="@+id/deadlineDateErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
 
             <View
                 android:layout_width="wrap_content"

@@ -8,10 +8,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.contest.ContestApiService
+import com.university.marathononline.data.api.notify.NotificationApiService
 import com.university.marathononline.data.api.registration.RegistrationApiService
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.EContestStatus
 import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.databinding.FragmentContestDetailsBinding
 import com.university.marathononline.ui.adapter.RewardAdapter
@@ -128,16 +130,7 @@ class ContestDetailsFragment : BaseFragment<ManagementDetailsContestActivityView
                 contentDetails.text = it.description
                 organizationalName.text = it.organizer?.fullName
                 emailOrganizer.text = it.organizer?.email
-                sectionLeaderBoard.visible(it.status == EContestStatus.ACTIVE
-                        || it.status == EContestStatus.FINISHED)
                 status.text = it.status?.value
-
-                if (it.startDate?.let { start ->
-                        DateUtils.convertStringToLocalDateTime(start).isBefore(LocalDateTime.now())
-                    } == true) {
-                    sectionLeaderBoard.visible(it.status == EContestStatus.ACTIVE
-                            || it.status == EContestStatus.FINISHED)
-                }
             }
         }
     }
@@ -154,8 +147,10 @@ class ContestDetailsFragment : BaseFragment<ManagementDetailsContestActivityView
         val token = runBlocking { userPreferences.authToken.first() }
         val apiContest = retrofitInstance.buildApi(ContestApiService::class.java, token)
         val apiRegistration = retrofitInstance.buildApi(RegistrationApiService::class.java, token)
+        val apiNotify = retrofitInstance.buildApi(NotificationApiService::class.java, token)
         return listOf(
-            ContestRepository(apiContest), RegistrationRepository(apiRegistration)
+            ContestRepository(apiContest), RegistrationRepository(apiRegistration),
+            NotificationRepository(apiNotify)
         )
     }
 

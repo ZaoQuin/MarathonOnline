@@ -15,6 +15,9 @@ class NotifyViewModel(
     private val _notifies = MutableLiveData<List<Notification>>()
     val notifies: LiveData<List<Notification>> get() = _notifies
 
+    private val _setReadResponse = MutableLiveData<Resource<Notification>>()
+    val setReadResponse: LiveData<Resource<Notification>> get() = _setReadResponse
+
     private val _getNotificationResponse = MutableLiveData<Resource<List<Notification>>>()
     val getNotificationResponse: LiveData<Resource<List<Notification>>> get() = _getNotificationResponse
 
@@ -26,6 +29,13 @@ class NotifyViewModel(
         viewModelScope.launch {
             _getNotificationResponse.value = Resource.Loading
             _getNotificationResponse.value = notificationRepository.getNotificationsByJWT()
+        }
+    }
+
+    fun setRead(notify: Notification) {
+        viewModelScope.launch {
+            _setReadResponse.value = Resource.Loading
+            _setReadResponse.value = notificationRepository.readNotify(notify)
         }
     }
 }

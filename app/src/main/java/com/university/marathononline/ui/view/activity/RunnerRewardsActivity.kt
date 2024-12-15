@@ -6,10 +6,13 @@ import android.view.LayoutInflater
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
+import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.Reward
 import com.university.marathononline.databinding.ActivityRunnerRewardsBinding
 import com.university.marathononline.ui.adapter.RunnerRewardAdapter
 import com.university.marathononline.ui.viewModel.RunnerRewardsViewModel
+import com.university.marathononline.utils.KEY_CONTESTS
+import com.university.marathononline.utils.KEY_EMAIL
 import com.university.marathononline.utils.KEY_REWARDS
 import com.university.marathononline.utils.finishAndGoBack
 
@@ -28,13 +31,20 @@ class RunnerRewardsActivity  : BaseActivity<RunnerRewardsViewModel, ActivityRunn
 
     private fun setUpAdapter() {
         binding.rvRewards.layoutManager = LinearLayoutManager(this)
-        adapter = RunnerRewardAdapter(emptyList())
+        adapter = RunnerRewardAdapter(mutableListOf())
         binding.rvRewards.adapter = adapter
     }
 
     private fun setUpObserve() {
-        viewModel.rewards.observe(this) {
-            viewModel.rewards.value?.let { it1 -> adapter.updateData(it1) }
+        viewModel.rewardOfContests.observe(this) {
+            viewModel.rewardOfContests.observe(this) { rewardList ->
+                val mutableRewardList = rewardList.toMutableList()
+                adapter.updateData(mutableRewardList)
+            }
+        }
+
+        viewModel.contests.observe(this){
+            viewModel.setRewardOfContest(it)
         }
     }
 
@@ -47,7 +57,9 @@ class RunnerRewardsActivity  : BaseActivity<RunnerRewardsViewModel, ActivityRunn
     private fun handleIntentExtras(intent: Intent) {
         intent.apply {
             viewModel.apply {
-                (getSerializableExtra(KEY_REWARDS) as? List<Reward>)?.let { setRewards(it) }
+                (getSerializableExtra(KEY_EMAIL) as? String)?.let { setEmail(it)
+                 (getSerializableExtra(KEY_CONTESTS) as? List<Contest>)?.let { setContests(it) }
+                }
             }
         }
     }

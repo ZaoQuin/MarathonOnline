@@ -20,7 +20,6 @@ import com.university.marathononline.utils.KEY_EMAIL
 import com.university.marathononline.utils.KEY_USER
 import com.university.marathononline.utils.enable
 import com.university.marathononline.utils.startNewActivity
-import com.university.marathononline.utils.visible
 import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -38,11 +37,35 @@ class OrganizerInformationFragment : BaseFragment<InformationViewModel, Fragment
 
         initializeUI()
         setUpObserve()
+        showSkeletonLoading()
+    }
+
+    private fun showSkeletonLoading() {
+        binding.apply {
+            shimmerLayout.startShimmer()
+            shimmerLayout.visibility = View.VISIBLE
+            shimmerLayout3.visibility = View.VISIBLE
+            fullnameText.visibility = View.GONE
+            content.visibility = View.GONE
+            emailText.visibility = View.GONE
+            addressText.visibility = View.GONE
+        }
+    }
+
+    private fun hideSkeletonLoading() {
+        binding.apply {
+            shimmerLayout.stopShimmer()
+            shimmerLayout.visibility = View.GONE
+            shimmerLayout3.visibility = View.GONE
+            fullnameText.visibility = View.GONE
+            content.visibility = View.VISIBLE
+            emailText.visibility = View.VISIBLE
+            addressText.visibility = View.VISIBLE
+        }
     }
 
     private fun initializeUI() {
         binding.apply {
-            progressBar.visible(false)
             editButton.enable(false)
 
             buttonLogout.setOnClickListener{ logout() }
@@ -88,11 +111,11 @@ class OrganizerInformationFragment : BaseFragment<InformationViewModel, Fragment
 
     private fun setUpObserve() {
         viewModel.getUser.observe(viewLifecycleOwner, Observer {
-            binding.progressBar.visible(it == Resource.Loading)
             when(it) {
                 is Resource.Success -> {
                     binding.editButton.enable(true)
                     viewModel.setUser(it.value)
+                    hideSkeletonLoading()
                 }
                 is Resource.Failure -> handleApiError(it)
                 else -> Unit

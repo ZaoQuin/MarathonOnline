@@ -38,6 +38,37 @@ class RegisterOrganizerInfoActivity : BaseActivity<RegisterViewModel, ActivityRe
             binding.progressBar.visible(it == Resource.Loading)
             handleRegisterResponse(it)
         })
+
+        viewModel.checkUsernameResponse.observe(this){
+            when(it){
+                is Resource.Success -> {
+                    if (!it.value.exists) {
+                        binding.usernameErrorText.text = null
+                        registerHandle()
+                    } else {
+                        binding.usernameErrorText.text = "Tên người dùng đã tồn tại"
+                    }
+                }
+                is Resource.Failure -> {
+                    handleApiError(it)
+                    it.fetchErrorMessage()
+                }
+                else -> Unit
+            }
+        }
+    }
+
+    private fun registerHandle() {
+
+        binding.apply {
+            viewModel.register(
+                usernameText.getString(),
+                phoneNumberText.getString(),
+                "",
+                addressText.getString(),
+                ERole.ORGANIZER
+            )
+        }
     }
 
     private fun handleRegisterResponse(resource: Resource<User>){
@@ -84,15 +115,7 @@ class RegisterOrganizerInfoActivity : BaseActivity<RegisterViewModel, ActivityRe
         if(!validateFields())
             return
 
-        binding.apply {
-            viewModel.register(
-                usernameText.getString(),
-                phoneNumberText.getString(),
-                "",
-                addressText.getString(),
-                ERole.ORGANIZER
-            )
-        }
+        viewModel.checkUsername(binding.usernameText.text.toString())
     }
 
     private fun validateFields(): Boolean {
@@ -104,7 +127,7 @@ class RegisterOrganizerInfoActivity : BaseActivity<RegisterViewModel, ActivityRe
                 phoneNumberText to phoneNumberErrorText
             )
             return phoneNumberText.isPhoneNumber(phoneNumberErrorText, getString(error_invalid_phone_number))
-                    && fields.any { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }
+                    && fields.all { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }
         }
     }
 

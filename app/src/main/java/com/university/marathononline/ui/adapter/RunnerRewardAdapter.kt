@@ -6,21 +6,34 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.university.marathononline.data.models.ERewardType
+import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.Reward
-import com.university.marathononline.utils.visible
+import com.university.marathononline.ui.view.activity.ContestDetailsActivity
+import com.university.marathononline.utils.KEY_CONTEST
+import com.university.marathononline.utils.startNewActivity
 
-class RunnerRewardAdapter(private var rewards: List<Reward>) : RecyclerView.Adapter<RunnerRewardAdapter.ViewHolder>() {
+class RunnerRewardAdapter(private var rewardOfContests: MutableList<Pair<Contest, Reward>>) : RecyclerView.Adapter<RunnerRewardAdapter.ViewHolder>() {
 
     class ViewHolder(private val binding: ItemRunnerRewardBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: Reward) {
+        fun bind(item: Reward, contest: Contest) {
             binding.apply {
                 rewardName.text = item.name ?: "No Name"
                 rewardDescription.text = item.description ?: "No Description"
-                rewardRank.text = "Hạng: ${item.rewardRank}"
-//                claimButton.visible(false)
-//                claimButton.visible(item.type == ERewardType.PHYSICAL && item.isClaim == false)
+                if(item.rewardRank != 0)
+                    rewardRank.text = "Hạng: ${item.rewardRank}"
+                else
+                    rewardRank.text = "Hoàn thành cuộc thi"
+
+                contestName.text = contest.name
+
+                rewardCardView.setOnClickListener {
+                    it.context.startNewActivity(
+                        ContestDetailsActivity::class.java,
+                        mapOf( KEY_CONTEST to contest)
+                    )
+                }
+
             }
         }
     }
@@ -31,14 +44,17 @@ class RunnerRewardAdapter(private var rewards: List<Reward>) : RecyclerView.Adap
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(rewards[position])
+        val item = rewardOfContests[position]
+        val contest = item.first
+        val reward = item.second
+        holder.bind(reward, contest)
     }
 
-    override fun getItemCount(): Int = rewards.size
+    override fun getItemCount(): Int = rewardOfContests.size
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(newRewards: List<Reward>) {
-        rewards = newRewards
+    fun updateData(newData: MutableList<Pair<Contest, Reward>>) {
+        rewardOfContests = newData
         notifyDataSetChanged()
     }
 }

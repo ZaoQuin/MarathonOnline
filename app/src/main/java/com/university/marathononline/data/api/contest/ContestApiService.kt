@@ -1,7 +1,10 @@
 package com.university.marathononline.data.api.contest
 
 import com.university.marathononline.data.models.Contest
+import com.university.marathononline.data.request.CheckContestNameRequest
 import com.university.marathononline.data.request.CreateContestRequest
+import com.university.marathononline.data.response.CheckActiveContestResponse
+import com.university.marathononline.data.response.CheckContestNameResponse
 import com.university.marathononline.data.response.DeleteResponse
 import com.university.marathononline.data.response.GetContestsResponse
 import retrofit2.http.Body
@@ -41,4 +44,10 @@ interface ContestApiService {
 
     @PUT("/api/v1/contest/prizes")
     suspend fun completed(@Body contest: Contest): Contest
+
+    @POST("/api/v1/contest/check-name")
+    suspend fun isExistName(@Body request: CheckContestNameRequest): CheckContestNameResponse
+
+    @POST("/api/v1/contest/check-active")
+    suspend fun checkActiveContest(): CheckActiveContestResponse
 }

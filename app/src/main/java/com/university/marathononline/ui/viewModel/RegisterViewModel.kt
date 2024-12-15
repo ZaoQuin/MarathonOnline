@@ -6,7 +6,9 @@ import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.models.*
 import com.university.marathononline.data.repository.UserRepository
+import com.university.marathononline.data.request.CheckUsernameRequest
 import com.university.marathononline.data.request.CreateUserRequest
+import com.university.marathononline.data.response.CheckUsernameResponse
 import kotlinx.coroutines.launch
 
 class RegisterViewModel(
@@ -27,6 +29,10 @@ class RegisterViewModel(
 
     private val _registerResponse: MutableLiveData<Resource<User>> = MutableLiveData()
     val registerResponse: LiveData<Resource<User>> get() = _registerResponse.distinctUntilChanged()
+
+
+    private val _checkUsernameResponse: MutableLiveData<Resource<CheckUsernameResponse>> = MutableLiveData()
+    val checkUsernameResponse: LiveData<Resource<CheckUsernameResponse>> get() = _checkUsernameResponse
 
     fun register(username: String, phoneNumber: String, birthday: String, address: String, role: ERole){
         viewModelScope.launch {
@@ -63,6 +69,13 @@ class RegisterViewModel(
             _gender.value = role
         } catch (e: IllegalArgumentException) {
             Log.e("RoleSelectionViewModel", "Invalid role: $role")
+        }
+    }
+
+    fun checkUsername(username: String) {
+        viewModelScope.launch {
+            _checkUsernameResponse.value = Resource.Loading
+            _checkUsernameResponse.value = repository.checkUsername(CheckUsernameRequest(username))
         }
     }
 }

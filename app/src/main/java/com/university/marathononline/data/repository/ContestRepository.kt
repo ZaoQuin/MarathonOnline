@@ -3,6 +3,7 @@ package com.university.marathononline.data.repository
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.contest.ContestApiService
 import com.university.marathononline.data.models.Contest
+import com.university.marathononline.data.request.CheckContestNameRequest
 import com.university.marathononline.data.request.CreateContestRequest
 
 class ContestRepository(
@@ -47,5 +48,13 @@ class ContestRepository(
 
     suspend fun completed(contest: Contest) = safeApiCall {
         api.completed(contest)
+    }
+
+    suspend fun isExistName(request: CheckContestNameRequest) = safeApiCall {
+        api.isExistName(request)
+    }
+
+    suspend fun checkActiveContest() = safeApiCall {
+        api.checkActiveContest()
     }
 }

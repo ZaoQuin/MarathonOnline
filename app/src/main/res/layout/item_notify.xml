@@ -30,14 +30,25 @@
                 android:layout_height="wrap_content"
                 android:text="Tiêu đề"
                 android:textStyle="bold"
-                android:textSize="@dimen/_15sdp"/>
+                android:textSize="@dimen/_15sdp"
+                android:textColor="@color/main_color"/>
 
             <TextView
                 android:id="@+id/content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Nội dung"
-                android:textSize="@dimen/_13sdp"/>
+                android:text="Nội dung dài cần hiển thị"
+                android:textSize="@dimen/_13sdp"
+                android:lineSpacingExtra="4dp"
+                android:lineSpacingMultiplier="1.2"
+                android:maxLines="10"
+                android:ellipsize="end"
+                android:scrollbars="vertical"
+                android:padding="8dp"
+                android:breakStrategy="balanced"
+                android:textAlignment="viewStart"
+                android:justificationMode="inter_word"
+                android:hyphenationFrequency="full" />
 
         </LinearLayout>
 

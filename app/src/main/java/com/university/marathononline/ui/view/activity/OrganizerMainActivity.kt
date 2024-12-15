@@ -9,7 +9,9 @@ import com.university.marathononline.R
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.auth.AuthApiService
+import com.university.marathononline.data.api.notify.NotificationApiService
 import com.university.marathononline.data.repository.AuthRepository
+import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.databinding.ActivityOrganizerMainBinding
 import com.university.marathononline.ui.adapter.OrganizerPagerAdapter
 import com.university.marathononline.ui.viewModel.MainViewModel
@@ -44,8 +46,8 @@ class OrganizerMainActivity : BaseActivity<MainViewModel, ActivityOrganizerMainB
 
     override fun getActivityRepositories(): List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
-        val api = retrofitInstance.buildApi(AuthApiService::class.java, token)
-        return listOf(AuthRepository(api, userPreferences))
+        val api = retrofitInstance.buildApi(NotificationApiService::class.java, token)
+        return listOf(NotificationRepository(api))
     }
 
     private fun setUpRecordButton() {

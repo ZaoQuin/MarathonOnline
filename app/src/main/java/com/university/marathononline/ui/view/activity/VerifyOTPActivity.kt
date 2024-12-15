@@ -129,7 +129,7 @@ class VerifyOTPActivity : BaseActivity<VerifyOTPViewModel, ActivityVerifyOtpBind
                 otpDigit5 to otpErrorText,
                 otpDigit6 to otpErrorText,
             )
-            return fields.any { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }
+            return fields.all { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }
         }
     }
 

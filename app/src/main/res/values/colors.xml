@@ -21,5 +21,6 @@
     <color name="light_gray">#ededed</color>
     <color name="red">#FF0000</color>
     <color name="light_red">#FF4C40</color>
+    <color name="placeholder_color">#E2E2E2</color>
 
 </resources>

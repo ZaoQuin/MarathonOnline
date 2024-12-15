@@ -1,7 +1,6 @@
 package com.university.marathononline.data.models
 
 import java.io.Serializable
-import java.time.LocalDateTime
 
 data class Notification(
     var id: Long? = null,
@@ -19,5 +18,5 @@ enum class ENotificationType(val value: String) {
     NEW_CONTEST("Cuộc thi mới"),
     BLOCK_CONTEST("Bị chặn khỏi cuộc thi"),
     ACCEPT_CONTEST("Cuộc thi được duyệt"),
-    NOT_APPROVAL_CONTEST("Cuộc thi bị chặn")
+    NOT_APPROVAL_CONTEST("Cuộc thi không được duyệt")
 }
