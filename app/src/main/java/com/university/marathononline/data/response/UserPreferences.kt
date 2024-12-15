@@ -94,7 +94,7 @@ class UserPreferences(
                 }
             } catch (e: Exception) {
                 Log.e("UserPreferences", "Failed to decrypt password", e)
-                clearLoginInfo() // Optionally clear login info on consistent decryption failure
+                clearLoginInfo()
                 null
             }
         }

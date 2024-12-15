@@ -41,11 +41,13 @@ class ContestRunnerAdapter(private var contests: List<Contest>, private val emai
 
                 val registration = item.registrations?.find { it.runner.email == email }
 
-                tvCompletionStatus.text = "Trạng thái: ${registration?.status?.value}"
+                tvCompletionStatus.text = "Trạng thái: ${registration?.status?.value }"
 
-                val currentDistance = registration!!.races.sumOf { it.distance }
-                val contestDistance = item.distance
-                val ratio = (currentDistance / contestDistance!!)*100
+                val currentDistance = registration?.races?.sumOf { it.distance ?: 0.0 } ?: 0.0
+                val contestDistance = item.distance ?: 0.0
+
+                val ratio = if (contestDistance > 0) (currentDistance / contestDistance) * 100 else 0.0
+
                 binding.apply {
                     processBar.progress = ratio.toInt()
                     processBarValue.text = "${formatDistance(currentDistance)}/${formatDistance(contestDistance)}"
@@ -73,7 +75,6 @@ class ContestRunnerAdapter(private var contests: List<Contest>, private val emai
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        // Gọi phương thức bind để cập nhật UI
         holder.bind(contests[position], email)
     }
 

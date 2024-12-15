@@ -179,7 +179,7 @@ class ContestDetailsActivity :
                 }
                 if (it.startDate?.let { start ->
                         DateUtils.convertStringToLocalDateTime(start).isBefore(LocalDateTime.now())
-                    } == false) {
+                    } == false && it.status == EContestStatus.ACTIVE) {
                     binding.btnRecord.enable(false)
                     binding.btnRecord.text = "Cuộc thi chưa bắt đầu"
                 } else {
@@ -188,8 +188,7 @@ class ContestDetailsActivity :
                             || it.status == EContestStatus.COMPLETED)
                 }
 
-                if(it.status != EContestStatus.ACTIVE ||
-                    it.status != EContestStatus.PENDING ){
+                if(it.status == EContestStatus.PENDING ){
                     btnRegisterContest.enable(false)
                     btnRegisterContest.text = it.status!!.value
                 }

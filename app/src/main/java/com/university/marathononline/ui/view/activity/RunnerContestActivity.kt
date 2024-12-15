@@ -24,32 +24,28 @@ class RunnerContestActivity : BaseActivity<RunnerContestsViewModel, ActivityRunn
         super.onCreate(savedInstanceState)
         handleIntentExtras(intent)
 
-        setUpAdapter()
         initializeUI()
         setUpObserve()
     }
 
-    private fun setUpAdapter() {
-        binding.rvContests.layoutManager = LinearLayoutManager(this)
-        var emailValue = ""
+    private fun setUpAdapter(contests: List<Contest>) {
         lifecycleScope.launch {
-            emailValue = userPreferences.email.first()!!
+            val emailValue = userPreferences.email.first() ?: "" // Ensure email is fetched safely
+            adapter = ContestRunnerAdapter(contests, emailValue)
+            binding.rvContests.adapter = adapter
         }
-        adapter = ContestRunnerAdapter(emptyList(), emailValue)
-        binding.rvContests.adapter = adapter
     }
 
     private fun setUpObserve() {
-        viewModel.contests.observe(this) {
-            viewModel.contests.value?.let { it1 -> adapter.updateData(it1) }
+        viewModel.contests.observe(this) { contests ->
+            contests?.let { adapter.updateData(it) }
         }
     }
 
     private fun initializeUI() {
         binding.rvContests.layoutManager = LinearLayoutManager(this)
-        binding.rvContests.adapter = adapter
 
-        binding.buttonBack.setOnClickListener{
+        binding.buttonBack.setOnClickListener {
             finishAndGoBack()
         }
     }
@@ -57,7 +53,10 @@ class RunnerContestActivity : BaseActivity<RunnerContestsViewModel, ActivityRunn
     private fun handleIntentExtras(intent: Intent) {
         intent.apply {
             viewModel.apply {
-                (getSerializableExtra(KEY_CONTESTS) as? List<Contest>)?.let { setContests(it) }
+                (getSerializableExtra(KEY_CONTESTS) as? List<Contest>)?.let {
+                    setContests(it)
+                    setUpAdapter(it)
+                }
             }
         }
     }
