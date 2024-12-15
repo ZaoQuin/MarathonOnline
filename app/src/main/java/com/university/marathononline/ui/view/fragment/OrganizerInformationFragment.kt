@@ -37,31 +37,6 @@ class OrganizerInformationFragment : BaseFragment<InformationViewModel, Fragment
 
         initializeUI()
         setUpObserve()
-        showSkeletonLoading()
-    }
-
-    private fun showSkeletonLoading() {
-        binding.apply {
-            shimmerLayout.startShimmer()
-            shimmerLayout.visibility = View.VISIBLE
-            shimmerLayout3.visibility = View.VISIBLE
-            fullnameText.visibility = View.GONE
-            content.visibility = View.GONE
-            emailText.visibility = View.GONE
-            addressText.visibility = View.GONE
-        }
-    }
-
-    private fun hideSkeletonLoading() {
-        binding.apply {
-            shimmerLayout.stopShimmer()
-            shimmerLayout.visibility = View.GONE
-            shimmerLayout3.visibility = View.GONE
-            fullnameText.visibility = View.GONE
-            content.visibility = View.VISIBLE
-            emailText.visibility = View.VISIBLE
-            addressText.visibility = View.VISIBLE
-        }
     }
 
     private fun initializeUI() {
@@ -115,7 +90,6 @@ class OrganizerInformationFragment : BaseFragment<InformationViewModel, Fragment
                 is Resource.Success -> {
                     binding.editButton.enable(true)
                     viewModel.setUser(it.value)
-                    hideSkeletonLoading()
                 }
                 is Resource.Failure -> handleApiError(it)
                 else -> Unit

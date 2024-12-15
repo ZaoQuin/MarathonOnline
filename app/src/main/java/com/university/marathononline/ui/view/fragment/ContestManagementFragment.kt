@@ -60,24 +60,8 @@ class ContestManagementFragment :
         setupFiltersAndSorting()
         observeContestData()
 
-        showSkeletonLoading()
     }
 
-    private fun showSkeletonLoading() {
-        binding.apply {
-            shimmerLayout.startShimmer()
-            shimmerLayout.visibility = View.VISIBLE
-            recyclerViewContests.visibility = View.GONE
-        }
-    }
-
-    private fun hideSkeletonLoading() {
-        binding.apply {
-            shimmerLayout.stopShimmer()
-            shimmerLayout.visibility = View.GONE
-            recyclerViewContests.visibility = View.VISIBLE
-        }
-    }
     override fun onResume() {
         super.onResume()
         viewModel.getMyContest()
@@ -171,7 +155,6 @@ class ContestManagementFragment :
                 is Resource.Success -> {
                     viewModel.setContest(it.value)
                     viewModel.setResult(it.value)
-                    hideSkeletonLoading()
                 }
                 is Resource.Failure -> {
                     handleApiError(it)

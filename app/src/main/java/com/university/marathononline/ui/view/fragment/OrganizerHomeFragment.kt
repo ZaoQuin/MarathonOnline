@@ -62,11 +62,6 @@ class OrganizerHomeFragment : BaseFragment<NotifyViewModel, FragmentOrganizerHom
         viewModel.getNotifications()
 
         observe()
-
-        showSkeletonLoading()
-        Handler(Looper.getMainLooper()).postDelayed({
-            hideSkeletonLoading()
-        }, 3000)
     }
 
     override fun onResume() {
@@ -78,21 +73,6 @@ class OrganizerHomeFragment : BaseFragment<NotifyViewModel, FragmentOrganizerHom
         viewModel.setRead(notify)
     }
 
-    private fun showSkeletonLoading() {
-        binding.apply {
-            shimmerLayout.startShimmer()
-            shimmerLayout.visibility = View.VISIBLE
-            contentLayout.visibility = View.GONE
-        }
-    }
-
-    private fun hideSkeletonLoading() {
-        binding.apply {
-            shimmerLayout.stopShimmer()
-            shimmerLayout.visibility = View.GONE
-            contentLayout.visibility = View.VISIBLE
-        }
-    }
 
     private fun observe() {
         viewModel.getNotificationResponse.observe(viewLifecycleOwner){

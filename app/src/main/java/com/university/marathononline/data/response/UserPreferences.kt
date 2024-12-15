@@ -1,6 +1,7 @@
 package com.university.marathononline.data.response
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.DataStore
 import androidx.datastore.preferences.Preferences
 import androidx.datastore.preferences.createDataStore
@@ -35,12 +36,17 @@ class UserPreferences(
     }
 
     private fun decryptData(encryptedData: ByteArray, iv: ByteArray): String {
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        val spec = GCMParameterSpec(128, iv)
+        try {
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            val spec = GCMParameterSpec(128, iv)
 
-        cipher.init(Cipher.DECRYPT_MODE, secretKey, spec)
-        val decryptedData = cipher.doFinal(encryptedData)
-        return String(decryptedData, Charsets.UTF_8)
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, spec)
+            val decryptedData = cipher.doFinal(encryptedData)
+            return String(decryptedData, Charsets.UTF_8)
+        } catch (e: Exception) {
+            Log.e("UserPreferences", "Decryption error", e)
+            throw e
+        }
     }
 
     val authToken: Flow<String?>
@@ -77,12 +83,18 @@ class UserPreferences(
 
     val password: Flow<String?>
         get() = dataStore.data.map { preferences ->
-            val encryptedPassword = preferences[KEY_AUTH_PASSWORD_PRE]?.let { Base64.getDecoder().decode(it) }
-            val iv = preferences[KEY_AUTH_PASSWORD_IV_PRE]?.let { Base64.getDecoder().decode(it) }
+            try {
+                val encryptedPassword = preferences[KEY_AUTH_PASSWORD_PRE]?.let { Base64.getDecoder().decode(it) }
+                val iv = preferences[KEY_AUTH_PASSWORD_IV_PRE]?.let { Base64.getDecoder().decode(it) }
 
-            if (encryptedPassword != null && iv != null) {
-                decryptData(encryptedPassword, iv)
-            } else {
+                if (encryptedPassword != null && iv != null) {
+                    decryptData(encryptedPassword, iv)
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                Log.e("UserPreferences", "Failed to decrypt password", e)
+                clearLoginInfo() // Optionally clear login info on consistent decryption failure
                 null
             }
         }
