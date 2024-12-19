@@ -212,8 +212,17 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
         binding.btnSaveContest.setOnClickListener {
             if(!validateFields())
                 return@setOnClickListener
-            val name = contestToEdit?.name ?: binding.etContestName.text.toString()
-            viewModel.checkNameContest(name)
+            val name = binding.etContestName.text.toString()
+
+            if (contestToEdit != null) {
+                if (contestToEdit!!.name != name) {
+                    viewModel.checkNameContest(name)
+                } else {
+                    addContestHandle()
+                }
+            } else {
+                viewModel.checkNameContest(name)
+            }
         }
     }
 
