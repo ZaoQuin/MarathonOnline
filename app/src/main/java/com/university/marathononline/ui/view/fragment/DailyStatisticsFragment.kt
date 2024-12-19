@@ -127,22 +127,25 @@ class DailyStatisticsFragment : BaseFragment<DailyStatisticsViewModel, FragmentD
             rightAxis.isEnabled = false
 
             val hourlyDistances = mutableMapOf<Int, Double>()
-
             races.forEach { race ->
                 val raceTime = DateUtils.convertStringToLocalDateTime(race.timestamp)
                 val hour = raceTime.hour
-
                 hourlyDistances[hour] = hourlyDistances.getOrDefault(hour, 0.0) + race.distance
+            }
+
+            for (hour in 0..23) {
+                if (!hourlyDistances.containsKey(hour)) {
+                    hourlyDistances[hour] = 0.0
+                }
             }
 
             val entries = ArrayList<Entry>()
             for (hour in 0..23) {
-                val distance = hourlyDistances.getOrDefault(hour - 1, 0.0)
+                val distance = hourlyDistances.getOrDefault(hour, 0.0)
                 entries.add(Entry(hour.toFloat(), distance.toFloat()))
             }
 
-            val dataSet = LineDataSet(entries, "Quá trình chạy hằng giờ")
-            dataSet.apply {
+            val dataSet = LineDataSet(entries, "Quá trình chạy hằng giờ").apply {
                 color = ContextCompat.getColor(requireContext(), R.color.main_color)
                 lineWidth = 2f
                 setCircleColor(ContextCompat.getColor(requireContext(), R.color.light_main_color))
@@ -154,9 +157,9 @@ class DailyStatisticsFragment : BaseFragment<DailyStatisticsViewModel, FragmentD
             }
 
             val lineData = LineData(dataSet)
-            lineChart.data = lineData
 
             lineChart.apply {
+                data = lineData
                 setDrawGridBackground(false)
                 description.isEnabled = false
                 legend.apply {
@@ -165,6 +168,9 @@ class DailyStatisticsFragment : BaseFragment<DailyStatisticsViewModel, FragmentD
                 }
                 setTouchEnabled(true)
                 animateXY(1500, 1500)
+                setPinchZoom(true)
+                setScaleEnabled(true)
+                invalidate()
             }
         }
     }

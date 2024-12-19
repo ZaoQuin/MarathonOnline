@@ -46,7 +46,6 @@ class PaymentConfirmationActivity : BaseActivity<PaymentConfirmationViewModel, A
 
     private fun setUpObserve() {
         viewModel.user.observe(this, Observer {
-            binding.btnPayment.enable(it != Resource.Loading)
             when(it){
                 is Resource.Success -> updateUserUI(it.value)
                 is Resource.Failure -> handleApiError(it)
@@ -55,6 +54,7 @@ class PaymentConfirmationActivity : BaseActivity<PaymentConfirmationViewModel, A
         })
 
         viewModel.registerResponse.observe(this){
+            binding.btnPayment.enable(false)
             when(it){
                 is Resource.Success -> {
                     viewModel.setRegistration(it.value)
@@ -124,7 +124,6 @@ class PaymentConfirmationActivity : BaseActivity<PaymentConfirmationViewModel, A
 
     private fun updateContestUI(contest: Contest) {
         binding.apply {
-            btnPayment.enable(false)
             tvContestName.text = contest.name
             tvContestDistance.text = contest.distance?.let { formatDistance(it) }
             tvContestFee.text = contest.fee?.let { convertToVND(it) }

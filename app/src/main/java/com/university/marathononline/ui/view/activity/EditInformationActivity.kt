@@ -145,7 +145,7 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
         binding.apply {
             val fields = listOf(
                 fullNameEditText to fullnameErrorText,
-                phoneNumberEditText to phoneNumberEditText,
+                phoneNumberEditText to phoneNumberErrorText,
                 addressText to addressErrorText
             )
             return fields.all { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }

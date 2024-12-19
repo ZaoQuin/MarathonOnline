@@ -80,7 +80,7 @@ class DailyStatisticsViewModel(
         _steps.value = result?.get(KEY_TOTAL_STEPS) as? Int ?: 0
         _calories.value = result?.get(KEY_CALORIES) as? Double ?: 0.0
         _pace.value = result?.get(KEY_PACE) as? Double ?: 0.0
-        _dataLineChart.value = groupedByDay[dateKey]
+        _dataLineChart.value = groupedByDay[dateKey]?: emptyList()
     }
 
     private fun calculateStats(group: List<Race>): Map<String, Any> {

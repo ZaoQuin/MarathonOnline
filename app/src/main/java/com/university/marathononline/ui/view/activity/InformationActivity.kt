@@ -32,6 +32,11 @@ class InformationActivity : BaseActivity<InformationViewModel, ActivityInformati
         setUpObserve()
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.getUser()
+    }
+
     private fun initializeUI() {
         binding.apply {
             progressBar.visible(false)
