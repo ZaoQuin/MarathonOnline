@@ -77,10 +77,13 @@
                         android:layout_weight="1"
                         android:background="@drawable/background_radius_12sdp_light_green"
                         android:gravity="center"
-                        android:padding="@dimen/_5sdp"
+                        android:paddingStart="@dimen/_5sdp"
+                        android:paddingEnd="@dimen/_5sdp"
+                        android:paddingTop="@dimen/_20sdp"
+                        android:paddingBottom="@dimen/_20sdp"
                         android:textColor="@color/white"
-                        android:textSize="@dimen/_13ssp"
-                        app:drawableStartCompat="@drawable/ic_distance" />
+                        android:textSize="@dimen/_20ssp"
+                        app:drawableTopCompat="@drawable/ic_distance" />
 
                     <TextView
                         android:id="@+id/tvSpeed"
@@ -89,10 +92,38 @@
                         android:layout_weight="1"
                         android:background="@drawable/background_radius_12sdp_light_green"
                         android:gravity="center"
-                        android:padding="@dimen/_5sdp"
+                        android:paddingStart="@dimen/_5sdp"
+                        android:paddingEnd="@dimen/_5sdp"
+                        android:paddingTop="@dimen/_20sdp"
+                        android:paddingBottom="@dimen/_20sdp"
                         android:textColor="@color/white"
-                        android:textSize="@dimen/_13ssp"
-                        app:drawableStartCompat="@drawable/ic_speed" />
+                        android:textSize="@dimen/_20ssp"
+                        app:drawableTopCompat="@drawable/ic_speed" />
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/tvDistance"-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginEnd="@dimen/_5sdp"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:background="@drawable/background_radius_12sdp_light_green"-->
+<!--                        android:gravity="center"-->
+<!--                        android:padding="@dimen/_5sdp"-->
+<!--                        android:textColor="@color/white"-->
+<!--                        android:textSize="@dimen/_13ssp"-->
+<!--                        app:drawableStartCompat="@drawable/ic_distance" />-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/tvSpeed"-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:background="@drawable/background_radius_12sdp_light_green"-->
+<!--                        android:gravity="center"-->
+<!--                        android:padding="@dimen/_5sdp"-->
+<!--                        android:textColor="@color/white"-->
+<!--                        android:textSize="@dimen/_13ssp"-->
+<!--                        app:drawableStartCompat="@drawable/ic_speed" />-->
 
                 </LinearLayout>
 
