@@ -53,7 +53,6 @@ class ChangePasswordViewModel(
             _email.value,
             "Thay đổi mật khẩu tài khoản Marathon Online",
             "Mã xác thực của bạn là ${_originOtp.value}")
-
         mail.execute()
     }
 

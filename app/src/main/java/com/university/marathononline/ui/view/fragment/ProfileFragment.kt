@@ -79,7 +79,7 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
         }
 
         binding.myContest.setOnClickListener {
-            val contests = viewModel.contests.value
+            val contests = viewModel.contests.value?: emptyList()
 
             if(contests!=null)
                 startNewActivity(

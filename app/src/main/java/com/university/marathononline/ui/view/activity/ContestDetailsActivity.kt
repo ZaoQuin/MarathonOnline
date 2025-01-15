@@ -198,6 +198,12 @@ class ContestDetailsActivity :
                     btnRecord.enable(false)
                     btnRecord.text = it.status!!.value
                 }
+
+                if ( it.status == EContestStatus.COMPLETED ||
+                    it.status == EContestStatus.FINISHED){
+                    btnRegisterContest.enable(false)
+                    btnRegisterContest.text = it.status!!.value
+                }
             }
         }
     }

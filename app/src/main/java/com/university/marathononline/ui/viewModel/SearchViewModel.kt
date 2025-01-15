@@ -1,5 +1,6 @@
 package com.university.marathononline.ui.viewModel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -28,6 +29,7 @@ class SearchViewModel(
 
     fun setContests(contests: List<Contest>) {
         _contests.value = contests
+        Log.d("SearchViewModel", contests.size.toString())
     }
 
     fun search(query: String) {

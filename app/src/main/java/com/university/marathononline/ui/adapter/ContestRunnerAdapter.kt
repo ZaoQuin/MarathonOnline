@@ -41,7 +41,7 @@ class ContestRunnerAdapter(private var contests: List<Contest>, private val emai
 
                 val registration = item.registrations?.find { it.runner.email == email }
 
-                tvCompletionStatus.text = "Trạng thái: ${registration?.status?.value }"
+                tvCompletionStatus.text = "Trạng thái: ${registration!!.status.value }"
 
                 val currentDistance = registration?.races?.sumOf { it.distance ?: 0.0 } ?: 0.0
                 val contestDistance = item.distance ?: 0.0
