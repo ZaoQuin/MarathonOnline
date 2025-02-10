@@ -4,6 +4,7 @@ import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.request.AuthRequest
 import com.university.marathononline.data.request.RefreshTokenRequest
 import com.university.marathononline.base.BaseRepository
+import com.university.marathononline.data.models.EUserStatus
 import com.university.marathononline.data.models.LoginInfo
 import com.university.marathononline.data.response.AuthResponse
 import com.university.marathononline.data.response.UserPreferences
@@ -41,9 +42,10 @@ class AuthRepository(
     suspend fun saveAuthenticatedUser(authResponse: AuthResponse) {
         preferences.saveAuthenticated(authResponse.fullName,
             authResponse.accessToken,
+            authResponse.email,
             authResponse.role,
-            authResponse.isVerified,
-            authResponse.isDeleted)
+            authResponse.status != EUserStatus.PENDING,
+            authResponse.status == EUserStatus.DELETED)
     }
 
     suspend fun saveAuthToken(newToken: String) {

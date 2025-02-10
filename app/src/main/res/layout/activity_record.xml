@@ -47,6 +47,12 @@
             android:clipChildren="true">
 
 
+            <fragment
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -100,30 +106,30 @@
                         android:textSize="@dimen/_20ssp"
                         app:drawableTopCompat="@drawable/ic_speed" />
 
-<!--                    <TextView-->
-<!--                        android:id="@+id/tvDistance"-->
-<!--                        android:layout_width="0dp"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:layout_marginEnd="@dimen/_5sdp"-->
-<!--                        android:layout_weight="1"-->
-<!--                        android:background="@drawable/background_radius_12sdp_light_green"-->
-<!--                        android:gravity="center"-->
-<!--                        android:padding="@dimen/_5sdp"-->
-<!--                        android:textColor="@color/white"-->
-<!--                        android:textSize="@dimen/_13ssp"-->
-<!--                        app:drawableStartCompat="@drawable/ic_distance" />-->
+                    <!--                    <TextView-->
+                    <!--                        android:id="@+id/tvDistance"-->
+                    <!--                        android:layout_width="0dp"-->
+                    <!--                        android:layout_height="wrap_content"-->
+                    <!--                        android:layout_marginEnd="@dimen/_5sdp"-->
+                    <!--                        android:layout_weight="1"-->
+                    <!--                        android:background="@drawable/background_radius_12sdp_light_green"-->
+                    <!--                        android:gravity="center"-->
+                    <!--                        android:padding="@dimen/_5sdp"-->
+                    <!--                        android:textColor="@color/white"-->
+                    <!--                        android:textSize="@dimen/_13ssp"-->
+                    <!--                        app:drawableStartCompat="@drawable/ic_distance" />-->
 
-<!--                    <TextView-->
-<!--                        android:id="@+id/tvSpeed"-->
-<!--                        android:layout_width="0dp"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:layout_weight="1"-->
-<!--                        android:background="@drawable/background_radius_12sdp_light_green"-->
-<!--                        android:gravity="center"-->
-<!--                        android:padding="@dimen/_5sdp"-->
-<!--                        android:textColor="@color/white"-->
-<!--                        android:textSize="@dimen/_13ssp"-->
-<!--                        app:drawableStartCompat="@drawable/ic_speed" />-->
+                    <!--                    <TextView-->
+                    <!--                        android:id="@+id/tvSpeed"-->
+                    <!--                        android:layout_width="0dp"-->
+                    <!--                        android:layout_height="wrap_content"-->
+                    <!--                        android:layout_weight="1"-->
+                    <!--                        android:background="@drawable/background_radius_12sdp_light_green"-->
+                    <!--                        android:gravity="center"-->
+                    <!--                        android:padding="@dimen/_5sdp"-->
+                    <!--                        android:textColor="@color/white"-->
+                    <!--                        android:textSize="@dimen/_13ssp"-->
+                    <!--                        app:drawableStartCompat="@drawable/ic_speed" />-->
 
                 </LinearLayout>
 

@@ -13,7 +13,7 @@ data class User(
     val username: String,
     val role: ERole?,
     val refreshToken: String,
-    val isVerified: Boolean,
+    val status: EUserStatus?,
     val avatarUrl: String? = null
 ): Serializable
 
@@ -23,4 +23,8 @@ enum class EGender(val value: String) {
 
 enum class ERole(val value: String){
     RUNNER("Vận dộnng viên"), ORGANIZER("Nhà tổ chức"), ADMIN("Quản trị")
+}
+
+enum class EUserStatus(val value: String) {
+    PENDING("Chưa xác thực"), DELETED("Đã bị xóa"), PRIVATE("Bí mật"), PUBLIC("Công khai")
 }

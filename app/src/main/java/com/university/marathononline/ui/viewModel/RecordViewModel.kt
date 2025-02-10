@@ -13,7 +13,6 @@ import android.location.LocationManager
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -24,10 +23,10 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.android.gms.maps.model.LatLng
 import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.models.Race
-import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.data.repository.RaceRepository
 import com.university.marathononline.data.request.CreateRaceRequest
@@ -35,8 +34,10 @@ import com.university.marathononline.data.response.RegistrationsResponse
 import com.university.marathononline.utils.KalmanFilter
 import com.university.marathononline.utils.formatDistance
 import com.university.marathononline.utils.formatSpeed
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -45,7 +46,6 @@ class RecordViewModel(
     private val registrationRepository: RegistrationRepository,
     private val raceRepository: RaceRepository
 ) : BaseViewModel(listOf(registrationRepository, raceRepository)) {
-
     private val _isGPSEnabled = MutableLiveData<Boolean>()
     val isGPSEnabled: LiveData<Boolean> get() = _isGPSEnabled
 
@@ -60,9 +60,6 @@ class RecordViewModel(
 
     private val _speed = MutableStateFlow("0 km/h")
     val speed = _speed.asStateFlow()
-
-    private val _position = MutableStateFlow("Not checking location")
-    val position = _position.asStateFlow()
 
     private val _distance = MutableStateFlow("0 km")
     val distance = _distance.asStateFlow()
@@ -81,6 +78,12 @@ class RecordViewModel(
 
     private val kalmanLatitude = KalmanFilter(q = 0.001, r = 1.0)
     private val kalmanLongitude = KalmanFilter(q = 0.001, r = 1.0)
+
+    private val _position = MutableStateFlow("")
+    val position: StateFlow<String> get() = _position
+
+    private val _routes = MutableStateFlow<List<LatLng>>(emptyList())
+    val routes: StateFlow<List<LatLng>> get() = _routes
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
@@ -104,21 +107,23 @@ class RecordViewModel(
         }
 
 
-        setupGPSStatusObserver(context)
+        viewModelScope.launch(Dispatchers.IO) {
+            setupGPSStatusObserver(context)
+        }
     }
 
     private fun setupGPSStatusObserver(context: Context) {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         val isGPSAvailable = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-        _isGPSEnabled.value = isGPSAvailable
+        _isGPSEnabled.postValue(isGPSAvailable)
 
         val handler = Handler(Looper.getMainLooper())
         val checkGPSRunnable = object : Runnable {
             override fun run() {
                 val currentGPSStatus = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 if (currentGPSStatus != _isGPSEnabled.value) {
-                    _isGPSEnabled.value = currentGPSStatus
+                    _isGPSEnabled.postValue(currentGPSStatus)
                 }
                 handler.postDelayed(this, 3000)
             }
@@ -186,23 +191,30 @@ class RecordViewModel(
 
     @SuppressLint("DefaultLocale")
     private fun updateUI(location: Location) {
-        val filteredLatitude = kalmanLatitude.processMeasurement(location.latitude)
-        val filteredLongitude = kalmanLongitude.processMeasurement(location.longitude)
+        viewModelScope.launch {
+            val filteredLatitude = kalmanLatitude.processMeasurement(location.latitude)
+            val filteredLongitude = kalmanLongitude.processMeasurement(location.longitude)
 
-        _position.value = "Position: $filteredLatitude, $filteredLongitude"
+            val newLocation = "$filteredLatitude,$filteredLongitude"
+            _position.emit(newLocation)
 
-        val speedInKmH = location.speed * 3.6
-        val distance = currentLocation?.distanceTo(location) ?: 0f
+            val newPoint = LatLng(filteredLatitude, filteredLongitude)
+            val newRoutes = _routes.value + newPoint
+            _routes.emit(newRoutes)
 
-        if (currentLocation == null) {
-            currentLocation = location
-        }
+            val speedInKmH = location.speed * 3.6
+            val distance = currentLocation?.distanceTo(location) ?: 0f
 
-        if (distance >= 1) {
-            totalDistance += distance.div(1000)
-            _speed.value = formatSpeed(speedInKmH)
-            _distance.value = formatDistance(totalDistance)
-            currentLocation = location
+            if (currentLocation == null) {
+                currentLocation = location
+            }
+
+            if (distance >= 1) {
+                totalDistance += distance.div(1000)
+                _speed.value = formatSpeed(speedInKmH)
+                _distance.value = formatDistance(totalDistance)
+                currentLocation = location
+            }
         }
     }
 
