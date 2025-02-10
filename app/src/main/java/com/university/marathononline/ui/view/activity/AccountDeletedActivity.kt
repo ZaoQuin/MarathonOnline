@@ -1,7 +1,6 @@
 package com.university.marathononline.ui.view.activity
 
 import android.os.Bundle
-import android.text.Editable
 import android.view.LayoutInflater
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository

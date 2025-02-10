@@ -139,10 +139,11 @@ class UserPreferences(
         }
     }
 
-    suspend fun saveAuthenticated(fullName: String, accessToken: String, role: ERole, isVerified: Boolean, isDeleted: Boolean){
+    suspend fun saveAuthenticated(fullName: String, accessToken: String, email: String, role: ERole, isVerified: Boolean, isDeleted: Boolean){
         dataStore.edit {
             preferences ->
             preferences[KEY_AUTH_FULL_NAME_PRE] = fullName
+            preferences[KEY_AUTH_EMAIL_PRE] = email
             preferences[KEY_AUTH_TOKEN_PRE] = accessToken
             preferences[KEY_AUTH_ROLE_PRE] = role.name
             preferences[KEY_AUTH_STATUS_PRE] = isVerified

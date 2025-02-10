@@ -1,11 +1,9 @@
 package com.university.marathononline.ui.view.activity
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.os.Build
-import android.os.Build.VERSION.SDK_INT
-import android.os.Build.VERSION_CODES.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -17,6 +15,20 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.JointType
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.Polyline
+import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.RoundCap
+import com.university.marathononline.R
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
@@ -31,9 +43,13 @@ import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import com.university.marathononline.R.id.*
 
-class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>() {
+class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), OnMapReadyCallback {
 
+    private lateinit var googleMap: GoogleMap
+    private var currentMarker: Marker? = null
+    private var polyline: Polyline? = null
     private val handler = Handler(Looper.getMainLooper())
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -130,6 +146,14 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>() {
             playButton.setOnClickListener { viewModel.startRecording(this@RecordActivity) }
             stopButton.setOnClickListener { viewModel.stopRecording() }
         }
+
+        initMap()
+    }
+
+    private fun initMap(){
+        val mapFragment = supportFragmentManager.findFragmentById(map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+
     }
 
     private fun requestLocationPermissions() {
@@ -189,5 +213,62 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>() {
             RegistrationRepository(apiRegistration),
             RaceRepository(apiRace)
         )
+    }
+
+    override fun onMapReady(map: GoogleMap) {
+        this.googleMap = map
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.routes.collect { routes ->
+                    if (routes.isNotEmpty()) {
+                        drawRoute(routes)
+
+                        val lastPoint = routes.last()
+
+                        if (currentMarker == null) {
+                            val originalBitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_runner)
+
+                            val scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, 48, 48, false)
+
+                            val customIcon = BitmapDescriptorFactory.fromBitmap(scaledBitmap)
+                            currentMarker = googleMap.addMarker(
+                                MarkerOptions()
+                                    .position(lastPoint)
+                                    .title("Current Location")
+                                    .icon(customIcon)
+                                    .anchor(0.5f, 0.5f))
+                        } else {
+                            currentMarker?.position = lastPoint
+                        }
+
+                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastPoint, 16f))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun drawRoute(route: List<LatLng>) {
+        polyline?.remove()
+
+        if (route.size > 1) {
+            val polylineOptions = PolylineOptions()
+                .addAll(route)
+                .color(getColor(R.color.light_main_color))
+                .width(30f)
+                .jointType(JointType.ROUND)
+                .startCap(RoundCap())
+                .endCap(RoundCap())
+
+            polyline = googleMap.addPolyline(polylineOptions)
+        }
+
+        if (route.isNotEmpty()) {
+            val bounds = LatLngBounds.builder()
+            route.forEach { bounds.include(it) }
+            val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds.build(), 100)
+
+            googleMap.animateCamera(cameraUpdate, 1000, null)
+        }
     }
 }

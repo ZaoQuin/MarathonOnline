@@ -10,6 +10,7 @@ import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.auth.AuthApiService
+import com.university.marathononline.data.models.EUserStatus
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.databinding.ActivityVerifyOtpBinding
 import com.university.marathononline.ui.viewModel.VerifyOTPViewModel
@@ -55,7 +56,7 @@ class VerifyOTPActivity : BaseActivity<VerifyOTPViewModel, ActivityVerifyOtpBind
                     is Resource.Success -> {
                         Toast.makeText(this@VerifyOTPActivity, resource.value.fullName, Toast.LENGTH_SHORT).show()
                         lifecycleScope.launch {
-                            viewModel.saveStatusUser(resource.value.isVerified)
+                            viewModel.saveStatusUser(resource.value.status != EUserStatus.PENDING)
                             startNewActivity(SplashRedirectActivity::class.java, true)
                         }
                     }
