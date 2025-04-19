@@ -8,21 +8,33 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.OptIn
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
+import com.google.android.material.badge.BadgeDrawable
+import com.google.android.material.badge.BadgeUtils
+import com.google.android.material.badge.ExperimentalBadgeUtils
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.university.marathononline.R
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.api.contest.ContestApiService
+import com.university.marathononline.data.api.notify.NotificationApiService
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.databinding.FragmentHomeBinding
 import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.ui.adapter.ContestAdapter
+import com.university.marathononline.ui.view.activity.NotificationsActivity
+import com.university.marathononline.ui.view.activity.RunnerContestActivity
 import com.university.marathononline.ui.viewModel.HomeViewModel
+import com.university.marathononline.utils.KEY_CONTESTS
+import com.university.marathononline.utils.KEY_NOTIFICATIONS
+import com.university.marathononline.utils.startNewActivity
 import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -54,9 +66,33 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
         setupAdapter()
         setupViewPager2()
         setupTabLayout()
+        setupNotifyButton()
+        initializeUI()
         observeViewModel()
 
         handler.postDelayed(runnable, 3000)
+    }
+
+    private fun initializeUI(){
+        binding.apply {
+            notifyButton.setOnClickListener{ navigationNotifications()}
+        }
+    }
+
+    private fun navigationNotifications(){
+        val notifications = viewModel.notifications.value?: emptyList()
+
+        if(notifications!=null)
+            startNewActivity(
+                NotificationsActivity::class.java,
+                mapOf(
+                    KEY_CONTESTS to notifications
+                )
+            )
+    }
+
+    private fun setupNotifyButton(){
+        viewModel.getNotifications();
     }
 
     private fun setupAdapter() {
@@ -102,6 +138,7 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
         })
     }
 
+    @OptIn(ExperimentalBadgeUtils::class)
     private fun observeViewModel() {
         viewModel.contests.observe(viewLifecycleOwner) {
             Log.d("ContestFragment", it.toString())
@@ -117,6 +154,23 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
                         logout()
                     }
                 }
+                else -> Unit
+            }
+        }
+
+        viewModel.getNotifiesResponse.observe(viewLifecycleOwner) {
+            when(it){
+                is Resource.Success -> {
+                    viewModel.setNotifications(it.value);
+                    val unreadCount = it.value.filter { notification -> !notification.isRead!! }.size
+                    val badgeDrawable = BadgeDrawable.create(requireContext()).apply {
+                        isVisible = unreadCount >= 0
+                        number = unreadCount
+                        backgroundColor = resources.getColor(R.color.red, null)
+                    }
+                    BadgeUtils.attachBadgeDrawable(badgeDrawable, binding.notifyButton)
+                }
+                is Resource.Failure -> handleApiError(it)
                 else -> Unit
             }
         }
@@ -136,7 +190,9 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
         val token = runBlocking { userPreferences.authToken.first() }
         val contestApi = retrofitInstance.buildApi(ContestApiService::class.java, token)
         val authApi = retrofitInstance.buildApi(AuthApiService::class.java, token)
+        val notifyApi = retrofitInstance.buildApi(NotificationApiService::class.java, token)
         return listOf(ContestRepository(contestApi),
-            AuthRepository(authApi, userPreferences))
+            AuthRepository(authApi, userPreferences),
+            NotificationRepository(notifyApi))
     }
 }

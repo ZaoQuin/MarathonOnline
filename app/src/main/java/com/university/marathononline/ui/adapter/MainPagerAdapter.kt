@@ -7,8 +7,8 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.university.marathononline.data.models.Notification
 import com.university.marathononline.ui.view.fragment.ContestFragment
 import com.university.marathononline.ui.view.fragment.HomeFragment
-import com.university.marathononline.ui.view.fragment.NotifyFragment
 import com.university.marathononline.ui.view.fragment.ProfileFragment
+import com.university.marathononline.ui.view.fragment.TrainingPlanFragment
 import com.university.marathononline.utils.KEY_NOTIFICATIONS
 
 class MainPagerAdapter(fragment: FragmentActivity,
@@ -19,7 +19,7 @@ class MainPagerAdapter(fragment: FragmentActivity,
         return when (position) {
             0 -> HomeFragment()
             1 -> ContestFragment()
-            2 -> NotifyFragment()
+            2 -> TrainingPlanFragment()
             3 -> ProfileFragment()
             else -> HomeFragment()
         }
@@ -27,12 +27,9 @@ class MainPagerAdapter(fragment: FragmentActivity,
         val fragment = when (position) {
             0 -> HomeFragment()
             1 -> ContestFragment()
-            2 -> NotifyFragment()
+            2 -> TrainingPlanFragment()
             3 -> ProfileFragment()
             else -> HomeFragment()
-        }
-        fragment.arguments = Bundle().apply {
-            putSerializable(KEY_NOTIFICATIONS, ArrayList(notifications))
         }
         return fragment
     }

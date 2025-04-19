@@ -1,6 +1,7 @@
 package com.university.marathononline.utils
 
 import android.app.Activity
+import android.app.Notification
 import android.content.Context
 import android.content.Intent
 import androidx.fragment.app.Fragment
@@ -62,6 +63,7 @@ fun <A : Activity> Activity.startNewActivity(
             is User -> intent.putExtra(key, value)
             is Contest -> intent.putExtra(key, value)
             is Reward -> intent.putExtra(key, value)
+            is Notification -> intent.putExtra(key, value)
             is List<*> -> {
                 when {
                     value.isEmpty() -> intent.putExtra(key, ArrayList<Any>())
@@ -72,6 +74,10 @@ fun <A : Activity> Activity.startNewActivity(
                     value[0] is Reward -> {
                         @Suppress("UNCHECKED_CAST")
                         intent.putExtra(key, ArrayList(value as List<Reward>))
+                    }
+                    value[0] is Notification -> {
+                        @Suppress("UNCHECKED_CAST")
+                        intent.putExtra(key, ArrayList(value as List<Notification>))
                     }
                     else -> throw IllegalArgumentException("Unsupported list type: ${value::class.java}")
                 }
@@ -102,6 +108,7 @@ fun <A : Activity> Context.startNewActivity(
             is User -> intent.putExtra(key, value)
             is Contest -> intent.putExtra(key, value)
             is Reward -> intent.putExtra(key, value)
+            is Notification -> intent.putExtra(key, value)
             is List<*> -> {
                 when {
                     value.isEmpty() -> intent.putExtra(key, ArrayList<Any>())
@@ -112,6 +119,10 @@ fun <A : Activity> Context.startNewActivity(
                     value[0] is Reward -> {
                         @Suppress("UNCHECKED_CAST")
                         intent.putExtra(key, ArrayList(value as List<Reward>))
+                    }
+                    value[0] is Notification -> {
+                        @Suppress("UNCHECKED_CAST")
+                        intent.putExtra(key, ArrayList(value as List<Notification>))
                     }
                     else -> throw IllegalArgumentException("Unsupported list type: ${value::class.java}")
                 }
@@ -143,6 +154,7 @@ fun <A : Activity> Fragment.startNewActivity(
             is User -> intent.putExtra(key, value)
             is Contest -> intent.putExtra(key, value)
             is Reward -> intent.putExtra(key, value)
+            is Notification -> intent.putExtra(key, value)
             is List<*> -> {
                 when {
                     value.isEmpty() -> intent.putExtra(key, ArrayList<Any>())
@@ -153,6 +165,10 @@ fun <A : Activity> Fragment.startNewActivity(
                     value[0] is Reward -> {
                         @Suppress("UNCHECKED_CAST")
                         intent.putExtra(key, ArrayList(value as List<Reward>))
+                    }
+                    value[0] is Notification -> {
+                        @Suppress("UNCHECKED_CAST")
+                        intent.putExtra(key, ArrayList(value as List<Notification>))
                     }
                     else -> throw IllegalArgumentException("Unsupported list type: ${value::class.java}")
                 }

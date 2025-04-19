@@ -5,23 +5,43 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
+import com.university.marathononline.data.models.Notification
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.data.response.GetContestsResponse
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
     private val contestRepository: ContestRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val notificationRepository: NotificationRepository
 ) : BaseViewModel(listOf(contestRepository, authRepository)) {
+    private val _notifications = MutableLiveData<List<Notification>>()
+    val notifications: LiveData<List<Notification>> get() = _notifications
 
     private val _contests: MutableLiveData<Resource<GetContestsResponse>> = MutableLiveData()
     val contests: LiveData<Resource<GetContestsResponse>> get() = _contests
+
+    private val _getNotifiesResponse: MutableLiveData<Resource<List<Notification>>> = MutableLiveData()
+    val getNotifiesResponse: LiveData<Resource<List<Notification>>> get() = _getNotifiesResponse
+
+    fun setNotifications(notifications: List<Notification>){
+        this._notifications.value = notifications;
+    }
 
     fun getActiveContests(){
         viewModelScope.launch {
             _contests.value = Resource.Loading
             _contests.value = contestRepository.getHomeContests()
+        }
+    }
+
+
+    fun getNotifications() {
+        viewModelScope.launch {
+            _getNotifiesResponse.value = Resource.Loading
+            _getNotifiesResponse.value = notificationRepository.getNotificationsByJWT()
         }
     }
 }

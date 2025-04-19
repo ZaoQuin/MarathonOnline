@@ -40,6 +40,7 @@ import com.university.marathononline.ui.viewModel.RunnerContestsViewModel
 import com.university.marathononline.ui.viewModel.RunnerRewardsViewModel
 import com.university.marathononline.ui.viewModel.SearchViewModel
 import com.university.marathononline.ui.viewModel.SplashRedirectViewModel
+import com.university.marathononline.ui.viewModel.TrainingPlanViewModel
 import com.university.marathononline.ui.viewModel.WeeklyStatisticsViewModel
 
 class ViewModelFactory(
@@ -56,7 +57,7 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(LoginViewModel::class.java) -> LoginViewModel(findRepository(AuthRepository::class.java)) as T
             modelClass.isAssignableFrom(VerifyOTPViewModel::class.java) -> VerifyOTPViewModel(findRepository(AuthRepository::class.java)) as T
             modelClass.isAssignableFrom(OrganizerHomeViewModel::class.java) -> OrganizerHomeViewModel(findRepository(AuthRepository::class.java)) as T
-            modelClass.isAssignableFrom(MainViewModel::class.java) -> MainViewModel(findRepository(NotificationRepository::class.java)) as T
+            modelClass.isAssignableFrom(MainViewModel::class.java) -> MainViewModel() as T
             modelClass.isAssignableFrom(ForgetPasswordViewModel::class.java) -> ForgetPasswordViewModel(findRepository(UserRepository::class.java)) as T
             modelClass.isAssignableFrom(InformationViewModel::class.java) -> InformationViewModel(findRepository(AuthRepository::class.java)) as T
             modelClass.isAssignableFrom(RoleSelectionViewModel::class.java) -> RoleSelectionViewModel(findRepository(UserRepository::class.java)) as T
@@ -66,7 +67,7 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(ChangePasswordViewModel::class.java) -> ChangePasswordViewModel(findRepository(UserRepository::class.java)) as T
             modelClass.isAssignableFrom(DeleteUserAccountViewModel::class.java) -> DeleteUserAccountViewModel(findRepository(AuthRepository::class.java), findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(AccountDeletedViewModel::class.java) -> AccountDeletedViewModel(findRepository(AuthRepository::class.java)) as T
-            modelClass.isAssignableFrom(HomeViewModel::class.java) -> HomeViewModel(findRepository(ContestRepository::class.java), findRepository(AuthRepository::class.java)) as T
+            modelClass.isAssignableFrom(HomeViewModel::class.java) -> HomeViewModel(findRepository(ContestRepository::class.java), findRepository(AuthRepository::class.java), findRepository(NotificationRepository::class.java)) as T
             modelClass.isAssignableFrom(ContestViewModel::class.java) -> ContestViewModel(findRepository(AuthRepository::class.java), findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(RecordViewModel::class.java) -> RecordViewModel(findRepository(RegistrationRepository::class.java),
                                                                                         findRepository(RaceRepository::class.java)) as T
@@ -88,6 +89,7 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(RunnerContestsViewModel::class.java) -> RunnerContestsViewModel() as T
             modelClass.isAssignableFrom(RunnerRewardsViewModel::class.java) -> RunnerRewardsViewModel() as T
             modelClass.isAssignableFrom(NotifyViewModel::class.java) -> NotifyViewModel(findRepository(NotificationRepository::class.java)) as T
+            modelClass.isAssignableFrom(TrainingPlanViewModel::class.java) -> TrainingPlanViewModel() as T
             else -> throw IllegalArgumentException("ViewModelClass Not Found")
         }
     }

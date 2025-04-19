@@ -6,84 +6,111 @@
 
     </data>
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <LinearLayout
+        <Toolbar
+            android:id="@+id/navigation_header_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/_30sdp"
-            android:orientation="vertical"
-            android:paddingBottom="@dimen/_80sdp">
+            android:padding="@dimen/_5sdp"
+            android:background="@color/white">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/notify_button"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:src="@drawable/ic_notify"
+                android:layout_gravity="right"
+                android:foreground="?attr/selectableItemBackground"
+                android:layout_marginEnd="@dimen/_15sdp"
+                android:padding="0dp"/>
+
+        </Toolbar>
+
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_marginTop="@dimen/_13sdp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Xin chào,"
-                    android:textSize="@dimen/_20sdp"
-                    android:paddingStart="@dimen/_20sdp"
-                    android:paddingEnd="@dimen/_20sdp"
-                    android:paddingTop="@dimen/_5sdp"/>
-
-                <TextView
-                    android:id="@+id/userFullNameText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Quỳnh Giao"
-                    android:textSize="@dimen/_27sdp"
-                    android:textStyle="bold"
-                    android:textColor="@color/light_main_color"
-                    android:layout_marginBottom="@dimen/_10sdp"
-                    android:paddingStart="@dimen/_20sdp"
-                    android:paddingEnd="@dimen/_20sdp"
-                    android:paddingTop="@dimen/_5sdp"
-                    android:paddingBottom="@dimen/_5sdp"/>
+                android:layout_marginBottom="@dimen/_30sdp"
+                android:orientation="vertical"
+                android:paddingBottom="@dimen/_80sdp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/_12sdp"
                     android:orientation="vertical">
 
                     <TextView
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Sự Kiện Mới:"
-                        android:textSize="@dimen/_14ssp"
-                        android:textStyle="bold"
-                        android:textColor="@color/dark_main_color"
+                        android:layout_marginTop="@dimen/_13sdp"
                         android:paddingStart="@dimen/_20sdp"
-                        android:paddingEnd="@dimen/_20sdp"
                         android:paddingTop="@dimen/_5sdp"
-                        android:paddingBottom="@dimen/_5sdp"/>
-
-                    <com.google.android.material.tabs.TabLayout
-                        android:id="@+id/tab_layout"
-                        android:layout_width="match_parent"
-                        android:layout_height="10dp"
-                        android:layout_gravity="center"
-                        app:tabIndicatorColor="@color/main_color"
                         android:paddingEnd="@dimen/_20sdp"
-                        android:paddingStart="@dimen/_20sdp"/>
+                        android:text="Xin chào,"
+                        android:textSize="@dimen/_20sdp" />
 
-                    <androidx.viewpager2.widget.ViewPager2
-                        android:id="@+id/view_pager2"
+                    <TextView
+                        android:id="@+id/userFullNameText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_10sdp"
+                        android:paddingStart="@dimen/_20sdp"
+                        android:paddingTop="@dimen/_5sdp"
+                        android:paddingEnd="@dimen/_20sdp"
+                        android:paddingBottom="@dimen/_5sdp"
+                        android:text="Quỳnh Giao"
+                        android:textColor="@color/light_main_color"
+                        android:textSize="@dimen/_27sdp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingTop="@dimen/_10sdp"
-                        android:paddingBottom="@dimen/_80sdp"
-                        android:clipToPadding="false"
-                        android:background="@android:color/transparent"/>
+                        android:layout_marginTop="@dimen/_12sdp"
+                        android:orientation="vertical">
 
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="@dimen/_20sdp"
+                            android:paddingTop="@dimen/_5sdp"
+                            android:paddingEnd="@dimen/_20sdp"
+                            android:paddingBottom="@dimen/_5sdp"
+                            android:text="Sự Kiện Mới:"
+                            android:textColor="@color/dark_main_color"
+                            android:textSize="@dimen/_14ssp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.tabs.TabLayout
+                            android:id="@+id/tab_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="10dp"
+                            android:layout_gravity="center"
+                            android:paddingStart="@dimen/_20sdp"
+                            android:paddingEnd="@dimen/_20sdp"
+                            app:tabIndicatorColor="@color/main_color" />
+
+                        <androidx.viewpager2.widget.ViewPager2
+                            android:id="@+id/view_pager2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@android:color/transparent"
+                            android:clipToPadding="false"
+                            android:paddingTop="@dimen/_10sdp"
+                            android:paddingBottom="@dimen/_80sdp" />
+
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
-    </ScrollView>
+        </ScrollView>
+
+    </LinearLayout>
 </layout>

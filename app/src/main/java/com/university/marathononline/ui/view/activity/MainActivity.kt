@@ -2,24 +2,16 @@ package com.university.marathononline.ui.view.activity
 
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.view.LayoutInflater
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import com.university.marathononline.R
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
-import com.university.marathononline.data.api.Resource
-import com.university.marathononline.data.api.auth.AuthApiService
-import com.university.marathononline.data.api.notify.NotificationApiService
-import com.university.marathononline.data.repository.AuthRepository
-import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.databinding.ActivityMainBinding
 import com.university.marathononline.ui.adapter.MainPagerAdapter
 import com.university.marathononline.ui.viewModel.MainViewModel
 import com.university.marathononline.utils.startNewActivity
-import com.university.marathononline.utils.visible
-import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
@@ -32,8 +24,6 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.getNotification()
-        updateCountNotification(0)
         adapter = MainPagerAdapter(this, emptyList())
 
         setUpViewPager()
@@ -50,11 +40,7 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>(){
         return ActivityMainBinding.inflate(inflater)
     }
 
-    override fun getActivityRepositories(): List<BaseRepository> {
-        val token = runBlocking { userPreferences.authToken.first() }
-        val api = retrofitInstance.buildApi(NotificationApiService::class.java, token)
-        return listOf(NotificationRepository(api))
-    }
+    override fun getActivityRepositories(): List<BaseRepository> = listOf()
 
     private fun setUpRecordButton() {
         binding.btnRecord.setOnClickListener {
@@ -100,20 +86,6 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>(){
             binding.bottomNavView.menu
                 .getItem(if (page < 2) page else page + 1).isChecked = true
         })
-
-        viewModel.getNotificationResponse.observe(this){
-            when(it){
-                is Resource.Success -> {
-                    Log.d("NotifyFragment", "Number of notifications: ${it.value.size}")
-                    adapter = MainPagerAdapter(this, it.value)
-                    val unreadCount = it.value.filter { notification -> !notification.isRead!! }
-                    updateCountNotification(unreadCount.size)
-                }
-                is Resource.Failure -> handleApiError(it)
-                else -> Unit
-            }
-
-        }
     }
 
     private fun setUpBottomNavView() {
@@ -124,7 +96,7 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>(){
             when (options.itemId) {
                 R.id.tabHome -> viewModel.onNavOptionSelected(0)
                 R.id.tabContest -> viewModel.onNavOptionSelected(1)
-                R.id.tabNotify -> viewModel.onNavOptionSelected(2)
+                R.id.tabTrain -> viewModel.onNavOptionSelected(2)
                 R.id.tabProfile -> viewModel.onNavOptionSelected(3)
                 else -> false
             }
@@ -140,16 +112,5 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>(){
                 viewModel.onPageSelected(position)
             }
         })
-    }
-
-    fun updateCountNotification(number: Int) {
-        Log.e("Main Activity", "Notification ${number}")
-        val badge = binding.bottomNavView.getOrCreateBadge(R.id.tabNotify)
-        badge.number = number
-        if (number == 0) {
-            badge.isVisible = false
-        } else {
-            badge.isVisible = true
-        }
     }
 }
