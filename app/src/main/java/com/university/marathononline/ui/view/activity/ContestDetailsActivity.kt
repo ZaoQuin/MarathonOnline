@@ -109,7 +109,7 @@ class ContestDetailsActivity :
 
         viewModel.registration.observe(this){
             binding.apply {
-                val currentDistance = it.races.sumOf { it.distance }
+                val currentDistance = it.records.sumOf { it.distance }
                 val contestDistance = viewModel.contest.value?.distance
                 val ratio = (currentDistance / contestDistance!!)*100
                 binding.apply {

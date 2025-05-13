@@ -9,7 +9,7 @@ import com.university.marathononline.R
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.Registration
 import com.university.marathononline.databinding.DialogContestStatisticsBinding
-import com.university.marathononline.ui.adapter.RaceStatisticsAdapter
+import com.university.marathononline.ui.adapter.RecordStatisticsAdapter
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.formatDistance
 import com.university.marathononline.utils.getContestStatusColor
@@ -40,7 +40,7 @@ class ContestStatisticsDialog(
 
         val registration = contest.registrations?.find { it.runner.email == email }
         registration?.let {
-            val currentDistance = it.races.sumOf { race -> race.distance }
+            val currentDistance = it.records.sumOf { record -> record.distance }
             val contestDistance = contest.distance
             val ratio = (currentDistance / contestDistance!!) * 100
 
@@ -49,9 +49,9 @@ class ContestStatisticsDialog(
             binding.processBar.progress = ratio.toInt()
             binding.processBarValue.text = "${formatDistance(currentDistance)}/${formatDistance(contestDistance)}"
 
-            val raceAdapter = RaceStatisticsAdapter(it.races ?: emptyList())
+            val recordAdapter = RecordStatisticsAdapter(it.records ?: emptyList())
             binding.recyclerViewContests.layoutManager = LinearLayoutManager(context)
-            binding.recyclerViewContests.adapter = raceAdapter
+            binding.recyclerViewContests.adapter = recordAdapter
 
             if(isManager){
                 binding.reportButton.visible(true)

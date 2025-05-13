@@ -6,20 +6,20 @@ import androidx.lifecycle.viewModelScope
 import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.models.Contest
-import com.university.marathononline.data.models.Race
+import com.university.marathononline.data.models.Record
 import com.university.marathononline.data.models.Reward
 import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.ContestRepository
-import com.university.marathononline.data.repository.RaceRepository
+import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.data.response.GetContestsResponse
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(
     private val authRepository: AuthRepository,
-    private val raceRepository: RaceRepository,
+    private val recordRepository: RecordRepository,
     private val contestRepository: ContestRepository
-): BaseViewModel(listOf(authRepository, raceRepository, contestRepository)) {
+): BaseViewModel(listOf(authRepository, recordRepository, contestRepository)) {
 
     private val _getUserResponse: MutableLiveData<Resource<User>> = MutableLiveData()
     val getUserResponse: LiveData<Resource<User>> get() = _getUserResponse
@@ -27,8 +27,8 @@ class ProfileViewModel(
     private val _user: MutableLiveData<User> = MutableLiveData()
     val user: LiveData<User> get() = _user
 
-    private val _getRaceResponse: MutableLiveData<Resource<List<Race>>> = MutableLiveData()
-    val getRaceResponse: LiveData<Resource<List<Race>>> get() = _getRaceResponse
+    private val _getRecordResponse: MutableLiveData<Resource<List<Record>>> = MutableLiveData()
+    val getRecordResponse: LiveData<Resource<List<Record>>> get() = _getRecordResponse
 
     private val _getMyContestResponse: MutableLiveData<Resource<GetContestsResponse>> = MutableLiveData()
     val getMyContestResponse: LiveData<Resource<GetContestsResponse>> get() = _getMyContestResponse
@@ -47,10 +47,10 @@ class ProfileViewModel(
         _rewards.value = rewards
     }
 
-    fun getRaces(){
+    fun getRecords(){
         viewModelScope.launch {
-            _getRaceResponse.value = Resource.Loading
-            _getRaceResponse.value = raceRepository.getByRunner()
+            _getRecordResponse.value = Resource.Loading
+            _getRecordResponse.value = recordRepository.getByRunner()
         }
     }
 

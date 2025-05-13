@@ -32,9 +32,9 @@ import com.university.marathononline.R
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
-import com.university.marathononline.data.api.race.RaceApiService
+import com.university.marathononline.data.api.record.RecordApiService
 import com.university.marathononline.data.api.registration.RegistrationApiService
-import com.university.marathononline.data.repository.RaceRepository
+import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.databinding.ActivityRecordBinding
 import com.university.marathononline.ui.viewModel.RecordViewModel
@@ -105,15 +105,15 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
             }
         }
 
-        viewModel.createRaceResponse.observe(this) {
+        viewModel.createRecordResponse.observe(this) {
             when (it) {
-                is Resource.Success -> viewModel.saveRaceIntoRegistration(it.value)
+                is Resource.Success -> viewModel.saveRecordIntoRegistration(it.value)
                 is Resource.Failure -> handleApiError(it)
                 else -> Unit
             }
         }
 
-        viewModel.saveRaceIntoRegistration.observe(this) {
+        viewModel.saveRecordIntoRegistration.observe(this) {
             when (it) {
                 is Resource.Success -> Toast.makeText(this, "Save Completed", Toast.LENGTH_SHORT)
                     .show()
@@ -208,10 +208,10 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
     override fun getActivityRepositories(): List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
         val apiRegistration = retrofitInstance.buildApi(RegistrationApiService::class.java, token)
-        val apiRace = retrofitInstance.buildApi(RaceApiService::class.java, token)
+        val apiRecord = retrofitInstance.buildApi(RecordApiService::class.java, token)
         return listOf(
             RegistrationRepository(apiRegistration),
-            RaceRepository(apiRace)
+            RecordRepository(apiRecord)
         )
     }
 

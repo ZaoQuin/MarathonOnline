@@ -157,7 +157,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/item_race_statistics"
+            tools:listitem="@layout/item_record_statistics"
             android:paddingBottom="@dimen/_80sdp"
             android:clipToPadding="false"/>
 

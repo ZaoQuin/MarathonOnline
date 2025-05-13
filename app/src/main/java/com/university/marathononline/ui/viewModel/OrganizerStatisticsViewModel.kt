@@ -78,14 +78,14 @@ class OrganizerStatisticsViewModel(
             _fee.value = totalFee
 
             val totalSteps = activeRegistrations.sumOf { registration ->
-                registration.races?.sumOf { it.steps ?: 0 } ?: 0
+                registration.records?.sumOf { it.steps ?: 0 } ?: 0
             }
 
             _totalSteps.value = totalSteps
 
-            val races = activeRegistrations.flatMap { it.races }
-            val totalDistance = races.sumOf { it.distance }
-            val totalTime = races.sumOf { it.timeTaken }
+            val records = activeRegistrations.flatMap { it.records }
+            val totalDistance = records.sumOf { it.distance }
+            val totalTime = records.sumOf { it.timeTaken }
             Log.d("OrganizerStatistics", "Total distance: $totalDistance")
             Log.d("OrganizerStatistics", "Total time: $totalTime")
             _totalDistance.value = totalDistance

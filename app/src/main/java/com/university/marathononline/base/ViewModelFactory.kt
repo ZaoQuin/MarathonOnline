@@ -6,7 +6,7 @@ import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.data.repository.PaymentRepository
-import com.university.marathononline.data.repository.RaceRepository
+import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.data.repository.UserRepository
 import com.university.marathononline.ui.viewModel.AccountDeletedViewModel
@@ -70,16 +70,16 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(HomeViewModel::class.java) -> HomeViewModel(findRepository(ContestRepository::class.java), findRepository(AuthRepository::class.java), findRepository(NotificationRepository::class.java)) as T
             modelClass.isAssignableFrom(ContestViewModel::class.java) -> ContestViewModel(findRepository(AuthRepository::class.java), findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(RecordViewModel::class.java) -> RecordViewModel(findRepository(RegistrationRepository::class.java),
-                                                                                        findRepository(RaceRepository::class.java)) as T
+                                                                                        findRepository(RecordRepository::class.java)) as T
             modelClass.isAssignableFrom(ContestDetailsViewModel::class.java) -> ContestDetailsViewModel(findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(PaymentConfirmationViewModel::class.java) -> PaymentConfirmationViewModel(findRepository(AuthRepository::class.java),
                 findRepository(RegistrationRepository::class.java), findRepository(PaymentRepository::class.java), findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(ProfileViewModel::class.java) -> ProfileViewModel(findRepository(AuthRepository::class.java),
-                findRepository(RaceRepository::class.java),
+                findRepository(RecordRepository::class.java),
                 findRepository(ContestRepository::class.java)) as T
-            modelClass.isAssignableFrom(DailyStatisticsViewModel::class.java) -> DailyStatisticsViewModel(findRepository(RaceRepository::class.java)) as T
-            modelClass.isAssignableFrom(MonthlyStatisticsViewModel::class.java) -> MonthlyStatisticsViewModel(findRepository(RaceRepository::class.java)) as T
-            modelClass.isAssignableFrom(WeeklyStatisticsViewModel::class.java) -> WeeklyStatisticsViewModel(findRepository(RaceRepository::class.java)) as T
+            modelClass.isAssignableFrom(DailyStatisticsViewModel::class.java) -> DailyStatisticsViewModel(findRepository(RecordRepository::class.java)) as T
+            modelClass.isAssignableFrom(MonthlyStatisticsViewModel::class.java) -> MonthlyStatisticsViewModel(findRepository(RecordRepository::class.java)) as T
+            modelClass.isAssignableFrom(WeeklyStatisticsViewModel::class.java) -> WeeklyStatisticsViewModel(findRepository(RecordRepository::class.java)) as T
             modelClass.isAssignableFrom(SearchViewModel::class.java) -> SearchViewModel(findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(AddContestViewModel::class.java) -> AddContestViewModel(findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(ContestManagementViewModel::class.java) -> ContestManagementViewModel(findRepository(ContestRepository::class.java)) as T

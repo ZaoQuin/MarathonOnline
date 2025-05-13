@@ -30,11 +30,11 @@ class LeaderBoardViewModel(): BaseViewModel(listOf()) {
     fun rankUsers() {
         val sortedRegistrations = registrations.value?.sortedWith(
             compareByDescending<Registration> { reg ->
-                reg.races?.sumOf { it.distance } ?: 0.0
+                reg.records?.sumOf { it.distance } ?: 0.0
             }.thenBy { reg ->
-                reg.races?.sumOf { it.timeTaken } ?: 0L
+                reg.records?.sumOf { it.timeTaken } ?: 0L
             }.thenBy { reg ->
-                reg.races?.map { it.avgSpeed }?.average() ?: 0.0
+                reg.records?.map { it.avgSpeed }?.average() ?: 0.0
             }.thenBy { reg ->
                 DateUtils.convertStringToLocalDateTime(reg.registrationDate)
             }

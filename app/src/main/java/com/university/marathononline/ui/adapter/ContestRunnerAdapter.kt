@@ -43,7 +43,7 @@ class ContestRunnerAdapter(private var contests: List<Contest>, private val emai
 
                 tvCompletionStatus.text = "Trạng thái: ${registration!!.status.value }"
 
-                val currentDistance = registration?.races?.sumOf { it.distance ?: 0.0 } ?: 0.0
+                val currentDistance = registration?.records?.sumOf { it.distance ?: 0.0 } ?: 0.0
                 val contestDistance = item.distance ?: 0.0
 
                 val ratio = if (contestDistance > 0) (currentDistance / contestDistance) * 100 else 0.0

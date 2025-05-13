@@ -32,7 +32,7 @@
 
             <TextView
                 android:layout_marginTop="@dimen/_5sdp"
-                android:id="@+id/raceNameTextView"
+                android:id="@+id/recordNameTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Tên cuộc thi"
@@ -100,7 +100,7 @@
                     android:src="@drawable/ic_calendar" />
 
                 <TextView
-                    android:id="@+id/raceDateTextView"
+                    android:id="@+id/recordDateTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="2dp"
@@ -128,7 +128,7 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/raceStartDateTextView"
+                    android:id="@+id/recordStartDateTextView"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -152,7 +152,7 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/raceEndDateTextView"
+                    android:id="@+id/recordEndDateTextView"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -178,7 +178,7 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/raceDeadlineRegisterTextView"
+                    android:id="@+id/recordDeadlineRegisterTextView"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"

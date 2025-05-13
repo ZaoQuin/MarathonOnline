@@ -10,7 +10,7 @@ data class Registration(
     var completedDate: String,
     var status: ERegistrationStatus,
     var registrationRank: Int,
-    var races: List<Race>,
+    var records: List<Record>,
     var rewards: List<Reward>? = null
 ): Serializable
 

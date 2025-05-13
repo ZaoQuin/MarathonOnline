@@ -40,7 +40,7 @@ class LeaderBoardFragment : BaseFragment<LeaderBoardViewModel, FragmentLeaderBoa
             if(it!=null)
                 binding.apply {
                     top1Name.text = it.runner.fullName
-                    top1Distance.text = it.races?.sumOf { it1 -> it1.distance }
+                    top1Distance.text = it.records?.sumOf { it1 -> it1.distance }
                         ?.let { it2 -> formatDistance(it2) }
                 }
 
@@ -50,7 +50,7 @@ class LeaderBoardFragment : BaseFragment<LeaderBoardViewModel, FragmentLeaderBoa
             if(it!=null)
                 binding.apply {
                     top2Name.text = it.runner.fullName
-                    top2Distance.text = it.races?.sumOf { it1 -> it1.distance }
+                    top2Distance.text = it.records?.sumOf { it1 -> it1.distance }
                         ?.let { it2 -> formatDistance(it2) }
                 }
         }
@@ -59,7 +59,7 @@ class LeaderBoardFragment : BaseFragment<LeaderBoardViewModel, FragmentLeaderBoa
             if(it!=null)
                 binding.apply {
                     top3Name.text = it.runner.fullName
-                    top3Distance.text = it.races?.sumOf { it1 -> it1.distance }
+                    top3Distance.text = it.records?.sumOf { it1 -> it1.distance }
                         ?.let { it2 -> formatDistance(it2) }
                 }
         }

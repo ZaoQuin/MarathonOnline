@@ -5,18 +5,18 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.university.marathononline.data.models.Race
+import com.university.marathononline.data.models.Record
 import com.university.marathononline.data.models.User
 import com.university.marathononline.ui.view.fragment.DailyStatisticsFragment
 import com.university.marathononline.ui.view.fragment.MonthlyStatisticsFragment
 import com.university.marathononline.ui.view.fragment.WeeklyStatisticsFragment
-import com.university.marathononline.utils.KEY_RACES
+import com.university.marathononline.utils.KEY_RECORDS
 import com.university.marathononline.utils.KEY_USER
 
 class ProfilePagerAdapter(
     fragmentManager: FragmentManager,
     lifecycle: Lifecycle,
-    private val races: List<Race>,
+    private val records: List<Record>,
     private val user: User
 ) :
     FragmentStateAdapter(fragmentManager, lifecycle){
@@ -29,7 +29,7 @@ class ProfilePagerAdapter(
             else -> DailyStatisticsFragment()
         }
         fragment.arguments = Bundle().apply {
-            putSerializable(KEY_RACES, ArrayList(races))
+            putSerializable(KEY_RECORDS, ArrayList(records))
             putSerializable(KEY_USER, user)
         }
         return fragment
