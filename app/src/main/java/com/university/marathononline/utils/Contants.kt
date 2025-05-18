@@ -26,6 +26,10 @@ const val KEY_AVG_SPEED = "avgSpeed"
 const val KEY_CALORIES = "calories"
 const val KEY_PACE = "pace"
 
+
+const val KEY_TRAINING_PLAN = "training_plan"
+const val KEY_TRAINING_PLAN_ID = "training_plan_id"
+
 const val KEY_ROLE = "role"
 const val KEY_FULL_NAME = "fullName"
 const val KEY_EMAIL = "email"

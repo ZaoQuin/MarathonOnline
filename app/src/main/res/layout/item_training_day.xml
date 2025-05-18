@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Calendar Navigation -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/_16sdp"
+            android:layout_marginTop="@dimen/_12sdp">
+
+            <ImageButton
+                android:id="@+id/previous_day"
+                android:layout_width="@dimen/_32sdp"
+                android:layout_height="@dimen/_32sdp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/button_circle_green"
+                android:padding="@dimen/_8sdp"
+                android:src="@drawable/ic_previous"
+                android:tint="@color/white"
+                android:contentDescription="Previous day" />
+
+            <TextView
+                android:id="@+id/day_of_session"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="Thứ 2, 15/05/2025"
+                android:textColor="@color/dark_main_color"
+                android:textSize="@dimen/_14sdp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/next_day"
+                android:layout_width="@dimen/_32sdp"
+                android:layout_height="@dimen/_32sdp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/button_circle_green"
+                android:padding="@dimen/_8sdp"
+                android:src="@drawable/ic_next"
+                android:tint="@color/white"
+                android:contentDescription="Next day" />
+        </RelativeLayout>
+
+        <!-- Single Training Session Card -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="@dimen/_12sdp">
+
+            <!-- Session Card -->
+            <include
+                android:id="@+id/training_session_card"
+                layout="@layout/item_training_session"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/_10sdp"/>
+
+            <!-- Empty State View -->
+            <LinearLayout
+                android:id="@+id/empty_state"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="@dimen/_120sdp"
+                    android:layout_height="@dimen/_120sdp"
+                    android:src="@drawable/ic_empty_training"
+                    app:tint="@color/light_gray"
+                    android:contentDescription="No training sessions" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_16sdp"
+                    android:text="Không có bài tập luyện nào"
+                    android:textColor="@color/dark_main_color"
+                    android:textSize="@dimen/_16sdp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_8sdp"
+                    android:gravity="center"
+                    android:paddingHorizontal="@dimen/_32sdp"
+                    android:text="Hiện không có bài tập luyện nào được lên lịch cho ngày này"
+                    android:textSize="@dimen/_12sdp" />
+            </LinearLayout>
+        </FrameLayout>
+    </LinearLayout>
+</layout>

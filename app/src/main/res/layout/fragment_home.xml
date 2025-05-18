@@ -15,8 +15,15 @@
             android:id="@+id/navigation_header_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/_5sdp"
-            android:background="@color/white">
+            android:paddingTop="@dimen/_15sdp"
+            android:paddingEnd="@dimen/_10sdp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_20sdp"
+                android:text="Xin chào,"
+                android:textSize="@dimen/_20sdp" />
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/notify_button"
@@ -48,16 +55,6 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/_13sdp"
-                        android:paddingStart="@dimen/_20sdp"
-                        android:paddingTop="@dimen/_5sdp"
-                        android:paddingEnd="@dimen/_20sdp"
-                        android:text="Xin chào,"
-                        android:textSize="@dimen/_20sdp" />
-
-                    <TextView
                         android:id="@+id/userFullNameText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -65,7 +62,6 @@
                         android:paddingStart="@dimen/_20sdp"
                         android:paddingTop="@dimen/_5sdp"
                         android:paddingEnd="@dimen/_20sdp"
-                        android:paddingBottom="@dimen/_5sdp"
                         android:text="Quỳnh Giao"
                         android:textColor="@color/light_main_color"
                         android:textSize="@dimen/_27sdp"
@@ -74,14 +70,12 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/_12sdp"
                         android:orientation="vertical">
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingStart="@dimen/_20sdp"
-                            android:paddingTop="@dimen/_5sdp"
                             android:paddingEnd="@dimen/_20sdp"
                             android:paddingBottom="@dimen/_5sdp"
                             android:text="Sự Kiện Mới:"

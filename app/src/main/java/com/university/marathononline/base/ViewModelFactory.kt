@@ -8,6 +8,7 @@ import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.data.repository.PaymentRepository
 import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.data.repository.RegistrationRepository
+import com.university.marathononline.data.repository.TrainingPlanRepository
 import com.university.marathononline.data.repository.UserRepository
 import com.university.marathononline.ui.viewModel.AccountDeletedViewModel
 import com.university.marathononline.ui.viewModel.AddContestViewModel
@@ -89,7 +90,8 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(RunnerContestsViewModel::class.java) -> RunnerContestsViewModel() as T
             modelClass.isAssignableFrom(RunnerRewardsViewModel::class.java) -> RunnerRewardsViewModel() as T
             modelClass.isAssignableFrom(NotifyViewModel::class.java) -> NotifyViewModel(findRepository(NotificationRepository::class.java)) as T
-            modelClass.isAssignableFrom(TrainingPlanViewModel::class.java) -> TrainingPlanViewModel() as T
+            modelClass.isAssignableFrom(TrainingPlanViewModel::class.java) -> TrainingPlanViewModel(findRepository(TrainingPlanRepository::class.java)) as T
+            modelClass.isAssignableFrom(TrainingPlanViewModel::class.java) -> TrainingPlanViewModel(findRepository(TrainingPlanRepository::class.java)) as T
             else -> throw IllegalArgumentException("ViewModelClass Not Found")
         }
     }

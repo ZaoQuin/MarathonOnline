@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/_80sdp">
+
+        <!-- Loading State -->
+        <LinearLayout
+            android:id="@+id/loading_state"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <!-- Plan Summary Loading Skeleton -->
+            <include layout="@layout/item_loading_plan_summary" />
+
+            <!-- Current Week Text Skeleton -->
+            <View
+                android:layout_width="@dimen/_120sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:background="@drawable/background_shimmer" />
+
+            <!-- Week Tab Loading Skeleton -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_40sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginHorizontal="@dimen/_10sdp"
+                android:background="@drawable/background_shimmer" />
+
+            <!-- Day Selector Loading Skeleton -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="@dimen/_16sdp"
+                android:padding="@dimen/_10sdp">
+
+                <!-- Day Navigation Skeleton -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <View
+                        android:layout_width="@dimen/_30sdp"
+                        android:layout_height="@dimen/_30sdp"
+                        android:background="@drawable/background_shimmer"
+                        android:layout_margin="@dimen/_4sdp" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/_20sdp"
+                        android:layout_weight="1"
+                        android:layout_marginHorizontal="@dimen/_8sdp"
+                        android:background="@drawable/background_shimmer" />
+
+                    <View
+                        android:layout_width="@dimen/_30sdp"
+                        android:layout_height="@dimen/_30sdp"
+                        android:background="@drawable/background_shimmer"
+                        android:layout_margin="@dimen/_4sdp" />
+                </LinearLayout>
+
+                <!-- Training Session Card Skeleton -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_16sdp"
+                    android:background="@drawable/background_shimmer"
+                    android:orientation="vertical"
+                    android:padding="@dimen/_16sdp">
+
+                    <View
+                        android:layout_width="@dimen/_140sdp"
+                        android:layout_height="@dimen/_20sdp"
+                        android:background="@drawable/background_shimmer" />
+
+                    <View
+                        android:layout_width="@dimen/_80sdp"
+                        android:layout_height="@dimen/_15sdp"
+                        android:layout_marginTop="@dimen/_8sdp"
+                        android:background="@drawable/background_shimmer" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_16sdp"
+                        android:background="@drawable/background_shimmer" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_8sdp"
+                        android:background="@drawable/background_shimmer" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_16sdp"
+                        android:orientation="horizontal">
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/_15sdp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="@dimen/_8sdp"
+                            android:background="@drawable/background_shimmer" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/_15sdp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="@dimen/_8sdp"
+                            android:background="@drawable/background_shimmer" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Active Training Plan Section -->
+        <LinearLayout
+            android:id="@+id/active_plan_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- Plan Summary Card - Modified to match profile style -->
+            <include
+                android:id="@+id/plan_summary"
+                layout="@layout/item_plan_summary" />
+
+            <!-- Day Selector -->
+            <include
+                android:id="@+id/item_training_day"
+                layout="@layout/item_training_day" />
+        </LinearLayout>
+
+        <include
+            android:id="@+id/no_active_plan"
+            layout="@layout/item_no_active_plan"
+            android:visibility="gone" />
+    </LinearLayout>
+</layout>

@@ -5,30 +5,29 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        app:cardElevation="4dp"
+        app:cardElevation="@dimen/_2sdp"
+        app:cardCornerRadius="@dimen/_12sdp"
         app:cardBackgroundColor="@android:color/white"
-        android:layout_margin="@dimen/_4sdp"
-        android:radius="@dimen/_8sdp">
+        android:layout_marginBottom="@dimen/_8sdp"
+        app:cardUseCompatPadding="false">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/_8sdp">
+            android:padding="@dimen/_12sdp">
 
-            <!-- Hình ảnh sự kiện -->
-            <ImageView
+            <!-- Hình ảnh sự kiện với góc bo tròn -->
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/event_image"
-                android:layout_width="@dimen/_45sdp"
-                android:layout_height="@dimen/_45sdp"
+                android:layout_width="@dimen/_50sdp"
+                android:layout_height="@dimen/_50sdp"
                 android:src="@drawable/example_event"
                 android:scaleType="centerCrop"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginEnd="@dimen/_8sdp"
-                android:clipToOutline="true"
-                android:outlineProvider="background"/>
+                app:shapeAppearanceOverlay="@style/RoundedImageView"
+                android:elevation="@dimen/_1sdp"/>
 
             <!-- Nội dung văn bản -->
             <LinearLayout
@@ -37,10 +36,10 @@
                 android:orientation="vertical"
                 app:layout_constraintStart_toEndOf="@id/event_image"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginStart="@dimen/_8sdp"
-                android:layout_marginEnd="@dimen/_8sdp"
-                android:gravity="start">
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/show_details_btn"
+                android:layout_marginStart="@dimen/_12sdp"
+                android:layout_marginEnd="@dimen/_8sdp">
 
                 <!-- Tên cuộc thi -->
                 <TextView
@@ -60,23 +59,36 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Tên tổ chức"
-                    android:textStyle="italic"
                     android:textSize="@dimen/_12sdp"
                     android:textColor="@color/gray"
                     android:ellipsize="end"
-                    android:maxLines="1"/>
+                    android:maxLines="1"
+                    android:layout_marginTop="@dimen/_4sdp"/>
+
+                <!-- Thêm thông tin thời gian (tùy chọn) -->
+                <TextView
+                    android:id="@+id/event_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="01/01/2023 - 31/12/2023"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@color/main_color"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:layout_marginTop="@dimen/_4sdp"/>
 
             </LinearLayout>
 
-            <!-- Nút chi tiết -->
+            <!-- Nút chi tiết được cải thiện -->
             <ImageButton
                 android:id="@+id/show_details_btn"
-                android:layout_width="@dimen/_20sdp"
-                android:layout_height="@dimen/_20sdp"
-                android:background="@android:color/transparent"
-                android:padding="0dp"
+                android:layout_width="@dimen/_32sdp"
+                android:layout_height="@dimen/_32sdp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="@dimen/_6sdp"
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_right"
+                app:tint="@color/main_color"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
