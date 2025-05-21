@@ -29,6 +29,7 @@ const val KEY_PACE = "pace"
 
 const val KEY_TRAINING_PLAN = "training_plan"
 const val KEY_TRAINING_PLAN_ID = "training_plan_id"
+const val KEY_TRAINING_DAY = "training_day"
 
 const val KEY_ROLE = "role"
 const val KEY_FULL_NAME = "fullName"

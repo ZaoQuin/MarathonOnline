@@ -67,6 +67,12 @@
                         android:textSize="@dimen/_27sdp"
                         android:textStyle="bold" />
 
+                    <include
+                        android:id="@+id/item_today_training"
+                        layout="@layout/item_today_training"
+                        android:visibility="gone"/>
+
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

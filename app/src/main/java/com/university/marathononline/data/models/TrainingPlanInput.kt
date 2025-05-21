@@ -1,12 +1,14 @@
 package com.university.marathononline.data.models
 
+import java.io.Serializable
+
 data class TrainingPlanInput (
     var level: ETrainingPlanInputLevel,
     var goal: ETrainingPlanInputGoal,
     var maxDistance: Double,
     var averagePace: Double,
     var daysPerWeek: Int
-)
+): Serializable
 
 enum class ETrainingPlanInputLevel(val value: String) {
     BEGINNER("Người mới bắt đầu"),

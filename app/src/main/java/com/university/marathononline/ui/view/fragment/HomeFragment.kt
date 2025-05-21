@@ -24,17 +24,23 @@ import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.api.contest.ContestApiService
 import com.university.marathononline.data.api.notify.NotificationApiService
+import com.university.marathononline.data.api.trainingDay.TrainingDayApiService
+import com.university.marathononline.data.models.TrainingDay
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.databinding.FragmentHomeBinding
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.data.repository.NotificationRepository
+import com.university.marathononline.data.repository.TrainingDayRepository
 import com.university.marathononline.ui.adapter.ContestAdapter
 import com.university.marathononline.ui.view.activity.NotificationsActivity
-import com.university.marathononline.ui.view.activity.RunnerContestActivity
+import com.university.marathononline.ui.view.activity.RecordActivity
 import com.university.marathononline.ui.viewModel.HomeViewModel
+import com.university.marathononline.utils.DateUtils
+import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.KEY_CONTESTS
-import com.university.marathononline.utils.KEY_NOTIFICATIONS
+import com.university.marathononline.utils.KEY_TRAINING_DAY
 import com.university.marathononline.utils.startNewActivity
+import com.university.marathononline.utils.visible
 import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -62,6 +68,7 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
 
         binding.userFullNameText.text = runBlocking { userPreferences.fullName.first() }
         viewModel.getActiveContests()
+        viewModel.getCurrentTrainingDay()
 
         setupAdapter()
         setupViewPager2()
@@ -120,6 +127,20 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
         }
     }
 
+    private fun setUpTrainingDayUI(trainingDay: TrainingDay){
+        binding.itemTodayTraining.apply {
+            root.visibility = View.VISIBLE
+            tvWeek.text = trainingDay.week.toString()
+            tvDay.text = trainingDay.dayOfWeek.toString()
+            tvDateTime.text = DateUtils.convertToVietnameseDate(trainingDay.dateTime)
+            tvSessionDetails.text = trainingDay.session.notes
+            btnStartTraining.setOnClickListener{
+                startNewActivity(RecordActivity::class.java,
+                    mapOf(KEY_TRAINING_DAY to trainingDay))
+            }
+        }
+    }
+
     private fun setupTabLayout() {
         TabLayoutMediator(binding.tabLayout, binding.viewPager2) { _, _ -> }.attach()
 
@@ -140,6 +161,19 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
 
     @OptIn(ExperimentalBadgeUtils::class)
     private fun observeViewModel() {
+        viewModel.getCurrentTrainingDay.observe(viewLifecycleOwner) {
+            when(it){
+                is Resource.Success -> {
+                    setUpTrainingDayUI(it.value)
+                }
+                is Resource.Failure -> {
+                    handleApiError(it)
+                    it.fetchErrorMessage()
+                }
+                else -> Unit
+            }
+        }
+
         viewModel.contests.observe(viewLifecycleOwner) {
             Log.d("ContestFragment", it.toString())
             when(it){
@@ -190,9 +224,11 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
         val token = runBlocking { userPreferences.authToken.first() }
         val contestApi = retrofitInstance.buildApi(ContestApiService::class.java, token)
         val authApi = retrofitInstance.buildApi(AuthApiService::class.java, token)
+        val trainingDayApi = retrofitInstance.buildApi(TrainingDayApiService::class.java, token)
         val notifyApi = retrofitInstance.buildApi(NotificationApiService::class.java, token)
         return listOf(ContestRepository(contestApi),
             AuthRepository(authApi, userPreferences),
+            TrainingDayRepository(trainingDayApi),
             NotificationRepository(notifyApi))
     }
 }

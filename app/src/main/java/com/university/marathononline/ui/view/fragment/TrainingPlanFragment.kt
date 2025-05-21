@@ -249,7 +249,7 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
         val filteredDay = filterTrainingDayByDate()
 
         if (filteredDay != null) {
-            println("Đã tìm thấy ngày luyện tập: ${filteredDay.session.dateTime}, loại: ${filteredDay.session.type}")
+            println("Đã tìm thấy ngày luyện tập: ${filteredDay.dateTime}, loại: ${filteredDay.session.type}")
 
             binding.itemDetails.itemTrainingDay.dayOfSession.text = DateUtils.formatTrainingDayString(filteredDay)
 
@@ -352,7 +352,7 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
 
             // Find training day with matching date
             return viewModel.currentTrainingDays.value?.find { day ->
-                val sessionDate = DateUtils.convertStringToLocalDateTime(day.session.dateTime).toLocalDate()
+                val sessionDate = DateUtils.convertStringToLocalDateTime(day.dateTime).toLocalDate()
                 sessionDate == currentDate
             }
         } catch (e: Exception) {

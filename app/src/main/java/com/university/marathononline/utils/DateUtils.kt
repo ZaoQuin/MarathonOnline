@@ -216,7 +216,7 @@ object DateUtils {
             val currentDate = LocalDate.now()
 
             // Parse trainingDay.date từ chuỗi ISO (yyyy-MM-ddTHH:mm:ss)
-            val trainingDateTime = LocalDateTime.parse(trainingDay.session.dateTime)
+            val trainingDateTime = LocalDateTime.parse(trainingDay.dateTime)
             val trainingDate = trainingDateTime.toLocalDate()
 
             println("Current Date" + currentDate)

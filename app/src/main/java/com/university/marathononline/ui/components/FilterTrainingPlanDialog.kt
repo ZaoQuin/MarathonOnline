@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.ViewGroup
 import android.view.Window
 import android.widget.Toast
 import com.university.marathononline.databinding.DialogFilterTrainingPlanBinding
@@ -36,7 +37,7 @@ class FilterTrainingPlanDialog(
 
         // Set the dialog width to match parent with margins
         val width = (context.resources.displayMetrics.widthPixels * 0.9).toInt()
-        window?.setLayout(width, -2) // -2 is WRAP_CONTENT
+        window?.setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT) // -2 is WRAP_CONTENT
 
         setupUI()
         setupListeners()
