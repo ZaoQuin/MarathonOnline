@@ -1,8 +1,6 @@
 package com.university.marathononline.ui.view.fragment
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -11,14 +9,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
-import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.api.notify.NotificationApiService
 import com.university.marathononline.data.models.Notification
-import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.databinding.FragmentOrganizerHomeBinding
 import com.university.marathononline.ui.adapter.NotifyAdapter
-import com.university.marathononline.ui.viewModel.MainViewModel
 import com.university.marathononline.ui.viewModel.NotifyViewModel
 import com.university.marathononline.utils.visible
 import handleApiError
@@ -80,7 +75,7 @@ class OrganizerHomeFragment : BaseFragment<NotifyViewModel, FragmentOrganizerHom
                 is Resource.Success -> {
                     binding.empty.visible(it.value.size == 0)
                     Log.d("NotificationFrag", it.value.toString())
-                    viewModel.setNotification(it.value)
+                    viewModel.setNotifications(it.value)
                 }
                 is Resource.Failure -> handleApiError(it)
                 else -> Unit

@@ -4,9 +4,9 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.university.marathononline.base.BaseViewModel
-import com.university.marathononline.data.models.Race
+import com.university.marathononline.data.models.Record
 import com.university.marathononline.data.models.User
-import com.university.marathononline.data.repository.RaceRepository
+import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_AVG_SPEED
 import com.university.marathononline.utils.KEY_CALORIES
@@ -23,13 +23,13 @@ import java.math.RoundingMode
 import java.util.Date
 
 class DailyStatisticsViewModel(
-    private val raceRepository: RaceRepository
-): BaseViewModel(listOf(raceRepository)){
+    private val recordRepository: RecordRepository
+): BaseViewModel(listOf(recordRepository)){
     private val _user: MutableLiveData<User> = MutableLiveData()
     val user: LiveData<User> get() = _user
 
-    private val _races: MutableLiveData<List<Race>> = MutableLiveData()
-    val races: LiveData<List<Race>> get() = _races
+    private val _records: MutableLiveData<List<Record>> = MutableLiveData()
+    val records: LiveData<List<Record>> get() = _records
 
     private val _distance: MutableLiveData<Double> = MutableLiveData(0.0)
     val distance: LiveData<Double> get() = _distance
@@ -51,14 +51,14 @@ class DailyStatisticsViewModel(
 
     private var statsByDay: Map<String,  Map<String, Any>> = emptyMap()
 
-    private var groupedByDay: Map<String,  List<Race>> = emptyMap()
+    private var groupedByDay: Map<String,  List<Record>> = emptyMap()
 
-    private var _dataLineChart: MutableLiveData<List<Race>> = MutableLiveData()
-    val dataLineChart: LiveData<List<Race>> get() = _dataLineChart
+    private var _dataLineChart: MutableLiveData<List<Record>> = MutableLiveData()
+    val dataLineChart: LiveData<List<Record>> get() = _dataLineChart
 
-    fun setRaces(races: List<Race>){
-        _races.value = races
-        groupedByDay = races.groupBy {
+    fun setRecords(records: List<Record>){
+        _records.value = records
+        groupedByDay = records.groupBy {
             Log.d("DateTimeTest", "Original timestamp: ${it.timestamp}")
             DateUtils.convertStringToLocalDateTime(it.timestamp).toLocalDate().toString()
         }
@@ -83,7 +83,7 @@ class DailyStatisticsViewModel(
         _dataLineChart.value = groupedByDay[dateKey]?: emptyList()
     }
 
-    private fun calculateStats(group: List<Race>): Map<String, Any> {
+    private fun calculateStats(group: List<Record>): Map<String, Any> {
         val totalDistance = group.sumOf { it.distance }
         val totalTime = group.sumOf { it.timeTaken }
         val totalSteps = group.sumOf { it.steps }

@@ -41,6 +41,8 @@ class ContestDetailsActivity :
 
     private lateinit var ruleAdapter: RuleAdapter
     private lateinit var rewardAdapter: RewardAdapter
+    private val handler = Handler(Looper.getMainLooper())
+    private var isTabSelected = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,45 +81,58 @@ class ContestDetailsActivity :
             viewModel.startCountdown()
         }
         viewModel.remainingTime.observe(this) { time ->
-            val timeParts = time.split(":")
-            binding.apply {
-                daysTextView.text = timeParts[0]
-                hoursTextView.text = timeParts[1]
-                minutesTextView.text = timeParts[2]
-                secondsTextView.text = timeParts[3]
-            }
+            updateCountdownDisplay(time)
         }
-        viewModel.contest.observe(this){
+        viewModel.contest.observe(this) {
             lifecycleScope.launch {
                 val emailValue = userPreferences.email.first()
-                emailValue?.let { it1 -> viewModel.checkRegister(it1) }
+                emailValue?.let { email -> viewModel.checkRegister(email) }
             }
         }
-        viewModel.isRegistered.observe(this){
+        viewModel.isRegistered.observe(this) {
             Log.e("ContestDetailsActivity", it.toString())
-            binding.registerContainer.visible(!it)
-            binding.recordContainer.visible(it)
+            updateContainerVisibility(it)
         }
-
-        viewModel.isBlocked.observe(this){
+        viewModel.isBlocked.observe(this) {
             Log.e("ContestDetailsActivity", "Check Block")
-            if(it) {
-                binding.btnRecord.enable(false)
-                binding.btnRecord.text = ERegistrationStatus.BLOCK.value
-            }
+            updateBlockedStatus(it)
         }
+        viewModel.registration.observe(this) {
+            updateProgressDisplay(it)
+        }
+    }
 
-        viewModel.registration.observe(this){
-            binding.apply {
-                val currentDistance = it.races.sumOf { it.distance }
-                val contestDistance = viewModel.contest.value?.distance
-                val ratio = (currentDistance / contestDistance!!)*100
-                binding.apply {
-                    processBar.progress = ratio.toInt()
-                    processBarValue.text = "${formatDistance(currentDistance)}/${formatDistance(contestDistance)}"
-                }
+    private fun updateCountdownDisplay(time: String) {
+        val timeParts = time.split(":")
+        binding.apply {
+            daysTextView.text = timeParts[0]
+            hoursTextView.text = timeParts[1]
+            minutesTextView.text = timeParts[2]
+            secondsTextView.text = timeParts[3]
+        }
+    }
 
-            }
+    private fun updateContainerVisibility(isRegistered: Boolean) {
+        binding.registerContainer.visible(!isRegistered)
+        binding.recordContainer.visible(isRegistered)
+    }
+
+    private fun updateBlockedStatus(isBlocked: Boolean) {
+        if (isBlocked) {
+            binding.btnRecord.enable(false)
+            binding.btnRecord.text = ERegistrationStatus.BLOCK.value
+        }
+    }
+
+    private fun updateProgressDisplay(registration: com.university.marathononline.data.models.Registration) {
+        val records = registration.records ?: emptyList()
+        val currentDistance = records.sumOf { it.distance }
+        val contestDistance = viewModel.contest.value?.distance ?: 0.0
+        val ratio = if (contestDistance > 0) (currentDistance / contestDistance) * 100 else 0.0
+
+        binding.apply {
+            processBar.progress = ratio.toInt()
+            processBarValue.text = "${formatDistance(currentDistance)}/${formatDistance(contestDistance)}"
         }
     }
 
@@ -138,71 +153,109 @@ class ContestDetailsActivity :
         setUpTabLayout()
         setUpScrollView()
         setUpBackButton()
+        setUpButtonListeners()
+    }
 
+    private fun setUpButtonListeners() {
         binding.apply {
             btnRegisterContest.setOnClickListener {
-                viewModel.contest.value?.let {
+                viewModel.contest.value?.let { contest ->
                     startNewActivity(PaymentConfirmationActivity::class.java,
-                        mapOf( KEY_CONTEST to it)
+                        mapOf(KEY_CONTEST to contest)
                     )
                 }
             }
 
-            btnRecord.setOnClickListener{
+            btnRecord.setOnClickListener {
                 startNewActivity(RecordActivity::class.java)
             }
         }
     }
 
     private fun setUpData() {
-        viewModel.contest.value?.let {
+        viewModel.contest.value?.let { contest ->
             binding.apply {
-                tvDistance.text = it.distance?.let { it1 -> formatDistance(it1) }
-                tvFee.text = it.fee?.let { it1 -> convertToVND(it1) }
-                tvMaxMembers.text = if (it.maxMembers == 0) "Không giới hạn người tham gia" else it.maxMembers.toString()
-                contestName.text = it.name
-                startDate.text = it.startDate?.let { it1 -> DateUtils.convertToVietnameseDate(it1) }
-                endDate.text = it.endDate?.let { it1 -> DateUtils.convertToVietnameseDate(it1) }
-                contentDetails.text = it.description
-                feeRegister.text = it.fee?.let { it1 -> convertToVND(it1) }
-                organizationalName.text = it.organizer?.fullName
-                emailOrganizer.text = it.organizer?.email
-                val totalRegistration = it.registrations?.size
-                maxMembers.text = if (it.maxMembers == 0) "Không giới hạn người tham gia" else "$totalRegistration/ ${it.maxMembers.toString()}"
-                if(it.maxMembers != 0 && it.maxMembers!! <= it.registrations?.size!!){
+                populateBasicInfo(contest)
+                updateButtonStates(contest)
+                updateLeaderboardVisibility(contest)
+            }
+        }
+    }
+
+    private fun updateLeaderboardVisibility(contest: Contest) {
+        // Show leaderboard for active, finished or completed contests
+        binding.sectionLeaderBoard.visible(
+            contest.status == EContestStatus.ACTIVE ||
+                    contest.status == EContestStatus.FINISHED ||
+                    contest.status == EContestStatus.COMPLETED
+        )
+    }
+
+    private fun populateBasicInfo(contest: Contest) {
+        binding.apply {
+            tvDistance.text = contest.distance?.let { formatDistance(it) }
+            tvFee.text = contest.fee?.let { convertToVND(it) }
+            tvMaxMembers.text = if (contest.maxMembers == 0) "Không giới hạn người tham gia" else contest.maxMembers.toString()
+            contestName.text = contest.name
+            startDate.text = contest.startDate?.let { DateUtils.convertToVietnameseDate(it) }
+            endDate.text = contest.endDate?.let { DateUtils.convertToVietnameseDate(it) }
+            contentDetails.text = contest.description
+            feeRegister.text = contest.fee?.let { convertToVND(it) }
+            organizationalName.text = contest.organizer?.fullName
+            emailOrganizer.text = contest.organizer?.email
+
+            val totalRegistration = contest.registrations?.size ?: 0
+            maxMembers.text = if (contest.maxMembers == 0)
+                "Không giới hạn người tham gia"
+            else
+                "$totalRegistration/ ${contest.maxMembers}"
+        }
+    }
+
+    private fun updateButtonStates(contest: Contest) {
+        binding.apply {
+            // Registration button states
+            val now = LocalDateTime.now()
+            val registrationDeadlinePassed = contest.registrationDeadline?.let {
+                DateUtils.convertStringToLocalDateTime(it).isBefore(now)
+            } ?: false
+
+            val isMaxRegistrationsReached = contest.maxMembers != 0 &&
+                    contest.maxMembers!! <= (contest.registrations?.size ?: 0)
+
+            val contestHasntStarted = contest.startDate?.let {
+                DateUtils.convertStringToLocalDateTime(it).isAfter(now)
+            } ?: false
+
+            // Update registration button
+            when {
+                contest.status == EContestStatus.PENDING -> {
+                    btnRegisterContest.enable(false)
+                    btnRegisterContest.text = contest.status!!.value
+                }
+                contest.status == EContestStatus.COMPLETED || contest.status == EContestStatus.FINISHED -> {
+                    btnRegisterContest.enable(false)
+                    btnRegisterContest.text = contest.status!!.value
+                }
+                isMaxRegistrationsReached -> {
                     btnRegisterContest.enable(false)
                     btnRegisterContest.text = "Số lượng đăng ký đã quá giới hạn"
                 }
-                if(it.registrationDeadline?.let { it1 -> DateUtils.convertStringToLocalDateTime(it1).isBefore(LocalDateTime.now()) } == true){
+                registrationDeadlinePassed -> {
                     btnRegisterContest.enable(false)
                     btnRegisterContest.text = "Hết hạn đăng ký"
                 }
-                if (it.startDate?.let { start ->
-                        DateUtils.convertStringToLocalDateTime(start).isBefore(LocalDateTime.now())
-                    } == false && it.status == EContestStatus.ACTIVE) {
-                    binding.btnRecord.enable(false)
-                    binding.btnRecord.text = "Cuộc thi chưa bắt đầu"
-                } else {
-                    sectionLeaderBoard.visible(it.status == EContestStatus.ACTIVE
-                            || it.status == EContestStatus.FINISHED
-                            || it.status == EContestStatus.COMPLETED)
-                }
+            }
 
-                if(it.status == EContestStatus.PENDING ){
-                    btnRegisterContest.enable(false)
-                    btnRegisterContest.text = it.status!!.value
-                }
-
-                if ( it.status == EContestStatus.COMPLETED ||
-                    it.status == EContestStatus.FINISHED){
+            // Update record button
+            when {
+                contestHasntStarted && contest.status == EContestStatus.ACTIVE -> {
                     btnRecord.enable(false)
-                    btnRecord.text = it.status!!.value
+                    btnRecord.text = "Cuộc thi chưa bắt đầu"
                 }
-
-                if ( it.status == EContestStatus.COMPLETED ||
-                    it.status == EContestStatus.FINISHED){
-                    btnRegisterContest.enable(false)
-                    btnRegisterContest.text = it.status!!.value
+                contest.status == EContestStatus.COMPLETED || contest.status == EContestStatus.FINISHED -> {
+                    btnRecord.enable(false)
+                    btnRecord.text = contest.status!!.value
                 }
             }
         }
@@ -211,17 +264,11 @@ class ContestDetailsActivity :
     private fun handleIntentExtras(intent: Intent) {
         intent.apply {
             viewModel.apply {
-                (getSerializableExtra(KEY_CONTEST) as? Contest)?.let {
-                    setContest(it)
-                    it.rules?.let { it1 ->
-                        setRules(it1)
-                    }
-                    it.rewards?.let { it1 ->
-                        setRewardGroups(it1)
-                    }
-                    it.registrationDeadline?.let { it2 ->
-                        setDeadlineTime(it2)
-                    }
+                (getSerializableExtra(KEY_CONTEST) as? Contest)?.let { contest ->
+                    setContest(contest)
+                    contest.rules?.let { rules -> setRules(rules) }
+                    contest.rewards?.let { rewards -> setRewardGroups(rewards) }
+                    contest.registrationDeadline?.let { deadline -> setDeadlineTime(deadline) }
                 }
             }
         }
@@ -246,56 +293,53 @@ class ContestDetailsActivity :
         }
     }
 
-
-    var isTabSelected = false
-
     private fun setUpScrollView() {
         binding.scrollView.viewTreeObserver.addOnScrollChangedListener {
             if (!isTabSelected) {
                 binding.apply {
                     val scrollY = scrollView.scrollY
-                    val sectionDetailsTop = getTopRelativeToParent(sectionDetails)
-                    val deadlineTop = getTopRelativeToParent(sectionDeadline)
-                    val rewardsTop = getTopRelativeToParent(sectionRewards)
-                    val rulesTop = getTopRelativeToParent(sectionRules)
-                    val organizationalTop = getTopRelativeToParent(sectionOrganizational)
-                    val sectionLeaderBoardTop = getTopRelativeToParent(sectionLeaderBoard)
+                    updateTabSelectionBasedOnScroll(scrollY)
+                }
+            }
+        }
+    }
 
-                    when {
-                        scrollY >= organizationalTop -> {
-                            tabLayout.selectTab(tabLayout.getTabAt(5))
-                            tabLayout.visible(true)
-                        }
+    private fun updateTabSelectionBasedOnScroll(scrollY: Int) {
+        binding.apply {
+            val sectionDetailsTop = getTopRelativeToParent(sectionDetails)
+            val deadlineTop = getTopRelativeToParent(sectionDeadline)
+            val rewardsTop = getTopRelativeToParent(sectionRewards)
+            val rulesTop = getTopRelativeToParent(sectionRules)
+            val organizationalTop = getTopRelativeToParent(sectionOrganizational)
+            val sectionLeaderBoardTop = getTopRelativeToParent(sectionLeaderBoard)
 
-                        scrollY >= sectionLeaderBoardTop -> {
-                            tabLayout.selectTab(tabLayout.getTabAt(4))
-                            tabLayout.visible(true)
-                        }
-
-                        scrollY >= rulesTop -> {
-                            tabLayout.selectTab(tabLayout.getTabAt(3))
-                            tabLayout.visible(true)
-                        }
-
-                        scrollY >= rewardsTop -> {
-                            tabLayout.selectTab(tabLayout.getTabAt(2))
-                            tabLayout.visible(true)
-                        }
-
-                        scrollY >= deadlineTop -> {
-                            tabLayout.selectTab(tabLayout.getTabAt(1))
-                            tabLayout.visible(true)
-                        }
-
-                        scrollY >= sectionDetailsTop -> {
-                            tabLayout.selectTab(tabLayout.getTabAt(0))
-                            tabLayout.visible(true)
-                        }
-
-                        else -> {
-                            tabLayout.visible(false)
-                        }
-                    }
+            when {
+                scrollY >= organizationalTop -> {
+                    tabLayout.selectTab(tabLayout.getTabAt(5))
+                    tabLayout.visible(true)
+                }
+                scrollY >= sectionLeaderBoardTop -> {
+                    tabLayout.selectTab(tabLayout.getTabAt(4))
+                    tabLayout.visible(true)
+                }
+                scrollY >= rulesTop -> {
+                    tabLayout.selectTab(tabLayout.getTabAt(3))
+                    tabLayout.visible(true)
+                }
+                scrollY >= rewardsTop -> {
+                    tabLayout.selectTab(tabLayout.getTabAt(2))
+                    tabLayout.visible(true)
+                }
+                scrollY >= deadlineTop -> {
+                    tabLayout.selectTab(tabLayout.getTabAt(1))
+                    tabLayout.visible(true)
+                }
+                scrollY >= sectionDetailsTop -> {
+                    tabLayout.selectTab(tabLayout.getTabAt(0))
+                    tabLayout.visible(true)
+                }
+                else -> {
+                    tabLayout.visible(false)
                 }
             }
         }
@@ -324,15 +368,7 @@ class ContestDetailsActivity :
             tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                 override fun onTabSelected(tab: TabLayout.Tab?) {
                     isTabSelected = true
-                    when (tab?.position) {
-                        0 -> scrollView.smoothScrollTo(0, sectionDetails.top)
-                        1 -> scrollView.smoothScrollTo(0, sectionDeadline.top)
-                        2 -> scrollView.smoothScrollTo(0, sectionRewards.top)
-                        3 -> scrollView.smoothScrollTo(0, sectionRules.top)
-                        4 -> scrollView.smoothScrollTo(0, sectionLeaderBoard.top)
-                        5 -> scrollView.smoothScrollTo(0, sectionOrganizational.top)
-                    }
-
+                    scrollToSelectedTab(tab?.position ?: 0)
                     handler.postDelayed({
                         isTabSelected = false
                     }, 500)
@@ -344,5 +380,16 @@ class ContestDetailsActivity :
         }
     }
 
-    private val handler = Handler(Looper.getMainLooper())
+    private fun scrollToSelectedTab(position: Int) {
+        binding.apply {
+            when (position) {
+                0 -> scrollView.smoothScrollTo(0, sectionDetails.top)
+                1 -> scrollView.smoothScrollTo(0, sectionDeadline.top)
+                2 -> scrollView.smoothScrollTo(0, sectionRewards.top)
+                3 -> scrollView.smoothScrollTo(0, sectionRules.top)
+                4 -> scrollView.smoothScrollTo(0, sectionLeaderBoard.top)
+                5 -> scrollView.smoothScrollTo(0, sectionOrganizational.top)
+            }
+        }
+    }
 }

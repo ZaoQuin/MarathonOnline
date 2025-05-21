@@ -13,7 +13,6 @@ import com.university.marathononline.ui.adapter.RunnerRewardAdapter
 import com.university.marathononline.ui.viewModel.RunnerRewardsViewModel
 import com.university.marathononline.utils.KEY_CONTESTS
 import com.university.marathononline.utils.KEY_EMAIL
-import com.university.marathononline.utils.KEY_REWARDS
 import com.university.marathononline.utils.finishAndGoBack
 
 class RunnerRewardsActivity  : BaseActivity<RunnerRewardsViewModel, ActivityRunnerRewardsBinding>() {

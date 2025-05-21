@@ -15,13 +15,13 @@ import com.university.marathononline.ui.viewModel.WeeklyStatisticsViewModel
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
-import com.university.marathononline.data.api.race.RaceApiService
-import com.university.marathononline.data.models.Race
+import com.university.marathononline.data.api.record.RecordApiService
+import com.university.marathononline.data.models.Record
 import com.university.marathononline.data.models.User
-import com.university.marathononline.data.repository.RaceRepository
+import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.databinding.FragmentWeeklyStatisticsBinding
 import com.university.marathononline.ui.components.WeekPickerBottomSheetFragment
-import com.university.marathononline.utils.KEY_RACES
+import com.university.marathononline.utils.KEY_RECORDS
 import com.university.marathononline.utils.KEY_USER
 import com.university.marathononline.utils.formatCalogies
 import com.university.marathononline.utils.formatDistance
@@ -46,21 +46,21 @@ class WeeklyStatisticsFragment : BaseFragment<WeeklyStatisticsViewModel, Fragmen
 
     override fun getFragmentRepositories():  List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
-        val api = retrofitInstance.buildApi(RaceApiService::class.java, token)
-        return listOf(RaceRepository(api))
+        val api = retrofitInstance.buildApi(RecordApiService::class.java, token)
+        return listOf(RecordRepository(api))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (arguments?.getSerializable(KEY_USER) as? User)?.let { viewModel.setUser(it)
-            (arguments?.getSerializable(KEY_RACES) as? List<Race>)?.let { viewModel.setRaces(it) }
+            (arguments?.getSerializable(KEY_RECORDS) as? List<Record>)?.let { viewModel.setRecords(it) }
         }
         initUI()
         observeViewModel()
     }
 
     private fun observeViewModel() {
-        viewModel.races.observe(viewLifecycleOwner){
+        viewModel.records.observe(viewLifecycleOwner){
             val calendar = Calendar.getInstance()
 
             calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
@@ -124,7 +124,7 @@ class WeeklyStatisticsFragment : BaseFragment<WeeklyStatisticsViewModel, Fragmen
             .into(binding.calogiesIcon)
     }
 
-    private fun setUpLineChart(race: Map<String, String>) {
+    private fun setUpLineChart(record: Map<String, String>) {
         binding.apply {
             val lineChart = binding.lineChart
 
@@ -160,7 +160,7 @@ class WeeklyStatisticsFragment : BaseFragment<WeeklyStatisticsViewModel, Fragmen
 
             weekDates.forEach { date ->
                 val day = date.split("-")[2].toFloat()
-                val distance = race[date]?.toFloatOrNull() ?: 0f
+                val distance = record[date]?.toFloatOrNull() ?: 0f
                 entries.add(Entry(day, distance))
             }
 

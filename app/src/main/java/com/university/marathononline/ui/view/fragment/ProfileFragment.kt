@@ -14,22 +14,20 @@ import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.api.contest.ContestApiService
-import com.university.marathononline.data.api.race.RaceApiService
-import com.university.marathononline.data.models.Race
+import com.university.marathononline.data.api.record.RecordApiService
+import com.university.marathononline.data.models.Record
 import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.ContestRepository
-import com.university.marathononline.data.repository.RaceRepository
+import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.databinding.FragmentProfileBinding
 import com.university.marathononline.ui.adapter.ProfilePagerAdapter
 import com.university.marathononline.ui.view.activity.InformationActivity
 import com.university.marathononline.ui.view.activity.RunnerContestActivity
 import com.university.marathononline.ui.view.activity.RunnerRewardsActivity
 import com.university.marathononline.ui.viewModel.ProfileViewModel
-import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.KEY_CONTESTS
 import com.university.marathononline.utils.KEY_EMAIL
-import com.university.marathononline.utils.KEY_REWARDS
 import com.university.marathononline.utils.startNewActivity
 import handleApiError
 import kotlinx.coroutines.flow.first
@@ -49,10 +47,10 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
     override fun getFragmentRepositories():  List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
         val apiAuth = retrofitInstance.buildApi(AuthApiService::class.java, token)
-        val apiRace = retrofitInstance.buildApi(RaceApiService::class.java, token)
+        val apiRecord = retrofitInstance.buildApi(RecordApiService::class.java, token)
         val apiContest = retrofitInstance.buildApi(ContestApiService::class.java, token)
         return listOf(AuthRepository(apiAuth, userPreferences),
-            RaceRepository(apiRace), ContestRepository(apiContest))
+            RecordRepository(apiRecord), ContestRepository(apiContest))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -131,13 +129,13 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
         }
     }
 
-    private fun setUpViewPager(races: List<Race>, user: User) {
-        adapter = ProfilePagerAdapter(childFragmentManager, lifecycle, races, user)
+    private fun setUpViewPager(records: List<Record>, user: User) {
+        adapter = ProfilePagerAdapter(childFragmentManager, lifecycle, records, user)
         binding.viewPager2.adapter = adapter
     }
 
     private fun observeViewModel() {
-        viewModel.getRaceResponse.observe(viewLifecycleOwner) {
+        viewModel.getRecordResponse.observe(viewLifecycleOwner) {
             when(it){
                 is Resource.Success ->{
                     setUpViewPager(it.value, viewModel.user.value!!)
@@ -153,7 +151,7 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
                 is Resource.Success -> {
                     viewModel.setUser(it.value)
                     viewModel.getMyContest()
-                    viewModel.getRaces()
+                    viewModel.getRecords()
                 }
                 is Resource.Failure -> {
                     handleApiError(it)

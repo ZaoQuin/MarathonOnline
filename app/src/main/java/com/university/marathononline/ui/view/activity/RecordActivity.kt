@@ -1,6 +1,7 @@
 package com.university.marathononline.ui.view.activity
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -32,9 +33,9 @@ import com.university.marathononline.R
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
-import com.university.marathononline.data.api.race.RaceApiService
+import com.university.marathononline.data.api.record.RecordApiService
 import com.university.marathononline.data.api.registration.RegistrationApiService
-import com.university.marathononline.data.repository.RaceRepository
+import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.databinding.ActivityRecordBinding
 import com.university.marathononline.ui.viewModel.RecordViewModel
@@ -44,6 +45,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import com.university.marathononline.R.id.*
+import com.university.marathononline.data.api.trainingDay.TrainingDayApiService
+import com.university.marathononline.data.models.TrainingDay
+import com.university.marathononline.data.repository.TrainingDayRepository
+import com.university.marathononline.ui.components.ModeSelectionDialog
 
 class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), OnMapReadyCallback {
 
@@ -51,6 +56,8 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
     private var currentMarker: Marker? = null
     private var polyline: Polyline? = null
     private val handler = Handler(Looper.getMainLooper())
+    private var isGuidedMode = false
+
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -84,12 +91,22 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
+        handleIntentExtras(intent)
+        showModeSelectionDialog()
         initializeUI()
         setupObservers()
         checkAndRequestPermissions()
         viewModel.initializeLocationTracking(this)
+    }
+
+    private fun handleIntentExtras(intent: Intent) {
+        intent.apply {
+            viewModel.apply {
+                (getSerializableExtra(KEY_TRAINING_DAY) as? TrainingDay)?.let { trainingDay ->
+                    setCurrentTrainingDay(trainingDay)
+                }
+            }
+        }
     }
 
     private fun setupObservers() {
@@ -105,15 +122,15 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
             }
         }
 
-        viewModel.createRaceResponse.observe(this) {
+        viewModel.createRecordResponse.observe(this) {
             when (it) {
-                is Resource.Success -> viewModel.saveRaceIntoRegistration(it.value)
+                is Resource.Success -> viewModel.saveRecordIntoRegistration(it.value)
                 is Resource.Failure -> handleApiError(it)
                 else -> Unit
             }
         }
 
-        viewModel.saveRaceIntoRegistration.observe(this) {
+        viewModel.saveRecordIntoRegistration.observe(this) {
             when (it) {
                 is Resource.Success -> Toast.makeText(this, "Save Completed", Toast.LENGTH_SHORT)
                     .show()
@@ -137,13 +154,36 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                 binding.checkGPS.text = "GPS is Disabled"
             }
         })
+
+        viewModel.getCurrentTrainingDay.observe(this) {
+            when(it){
+                is Resource.Success -> {
+                    setUpGuidedUI(it.value)
+                }
+                is Resource.Failure -> {
+                    handleApiError(it)
+                    it.fetchErrorMessage()
+                }
+                else -> Unit
+            }
+        }
+    }
+
+    private fun setUpGuidedUI(trainingDay: TrainingDay){
+        binding.guidedModeIndicator.visible(true)
+        binding.apply {
+            targetPace.text = trainingDay.session.pace.toString()
+            targetDistance.text = trainingDay.session.distance.toString()
+        }
     }
 
     private fun initializeUI() {
         binding.apply {
             playButton.enable(hasLocationPermissions())
             buttonBack.setOnClickListener { finishAndGoBack() }
-            playButton.setOnClickListener { viewModel.startRecording(this@RecordActivity) }
+            playButton.setOnClickListener {
+                viewModel.startRecording(this@RecordActivity)
+            }
             stopButton.setOnClickListener { viewModel.stopRecording() }
         }
 
@@ -153,7 +193,37 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
     private fun initMap(){
         val mapFragment = supportFragmentManager.findFragmentById(map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+    }
 
+    private fun showModeSelectionDialog() {
+        println("Attempting to show mode selection dialog")
+        ModeSelectionDialog(
+            this,
+            onNormalModeSelected = {
+                println("Normal mode selected")
+                isGuidedMode = false
+            },
+            onGuidedModeSelected = {
+                println("Guided mode selected")
+                isGuidedMode = true
+                initGuidedMode()
+            }
+        ).show()
+    }
+
+    private fun initGuidedMode() {
+        // Add guided mode initialization logic here
+        // This could include setting up pace guidance, route suggestions, etc.
+        Toast.makeText(
+            this,
+            "Chế độ luyện tập có hướng dẫn được kích hoạt",
+            Toast.LENGTH_SHORT
+        ).show()
+
+        if(viewModel.trainingDay.value == null)
+            viewModel.getCurrentTrainingDay()
+        else
+            setUpGuidedUI(viewModel.trainingDay.value!!)
     }
 
     private fun requestLocationPermissions() {
@@ -208,10 +278,12 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
     override fun getActivityRepositories(): List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
         val apiRegistration = retrofitInstance.buildApi(RegistrationApiService::class.java, token)
-        val apiRace = retrofitInstance.buildApi(RaceApiService::class.java, token)
+        val apiRecord = retrofitInstance.buildApi(RecordApiService::class.java, token)
+        val apiTrainingDay = retrofitInstance.buildApi(TrainingDayApiService::class.java, token)
         return listOf(
             RegistrationRepository(apiRegistration),
-            RaceRepository(apiRace)
+            RecordRepository(apiRecord),
+            TrainingDayRepository(apiTrainingDay)
         )
     }
 

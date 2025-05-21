@@ -14,15 +14,15 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.university.marathononline.R
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
-import com.university.marathononline.data.api.race.RaceApiService
-import com.university.marathononline.data.models.Race
+import com.university.marathononline.data.api.record.RecordApiService
+import com.university.marathononline.data.models.Record
 import com.university.marathononline.data.models.User
 import com.university.marathononline.databinding.FragmentDailyStatisticsBinding
 import com.university.marathononline.ui.viewModel.DailyStatisticsViewModel
 import com.university.marathononline.ui.components.DatePickerBottomSheetFragment
 import com.university.marathononline.utils.DateUtils
-import com.university.marathononline.data.repository.RaceRepository
-import com.university.marathononline.utils.KEY_RACES
+import com.university.marathononline.data.repository.RecordRepository
+import com.university.marathononline.utils.KEY_RECORDS
 import com.university.marathononline.utils.KEY_USER
 import com.university.marathononline.utils.formatCalogies
 import com.university.marathononline.utils.formatDistance
@@ -42,14 +42,14 @@ class DailyStatisticsFragment : BaseFragment<DailyStatisticsViewModel, FragmentD
 
     override fun getFragmentRepositories():  List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
-        val api = retrofitInstance.buildApi(RaceApiService::class.java, token)
-        return listOf(RaceRepository(api))
+        val api = retrofitInstance.buildApi(RecordApiService::class.java, token)
+        return listOf(RecordRepository(api))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (arguments?.getSerializable(KEY_USER) as? User)?.let { viewModel.setUser(it)
-            (arguments?.getSerializable(KEY_RACES) as? List<Race>)?.let { viewModel.setRaces(it) }
+            (arguments?.getSerializable(KEY_RECORDS) as? List<Record>)?.let { viewModel.setRecords(it) }
         }
 
         initUI()
@@ -57,7 +57,7 @@ class DailyStatisticsFragment : BaseFragment<DailyStatisticsViewModel, FragmentD
     }
 
     private fun observeViewModel() {
-        viewModel.races.observe(viewLifecycleOwner){
+        viewModel.records.observe(viewLifecycleOwner){
             viewModel.filterDataByDay(Date())
         }
 
@@ -103,7 +103,7 @@ class DailyStatisticsFragment : BaseFragment<DailyStatisticsViewModel, FragmentD
             .into(binding.calogiesIcon)
     }
 
-    private fun setUpLineChart(races: List<Race>) {
+    private fun setUpLineChart(records: List<Record>) {
         binding.apply {
             val xAxis = lineChart.xAxis
             val leftAxis = lineChart.axisLeft
@@ -127,10 +127,10 @@ class DailyStatisticsFragment : BaseFragment<DailyStatisticsViewModel, FragmentD
             rightAxis.isEnabled = false
 
             val hourlyDistances = mutableMapOf<Int, Double>()
-            races.forEach { race ->
-                val raceTime = DateUtils.convertStringToLocalDateTime(race.timestamp)
-                val hour = raceTime.hour
-                hourlyDistances[hour] = hourlyDistances.getOrDefault(hour, 0.0) + race.distance
+            records.forEach { record ->
+                val recordTime = DateUtils.convertStringToLocalDateTime(record.timestamp)
+                val hour = recordTime.hour
+                hourlyDistances[hour] = hourlyDistances.getOrDefault(hour, 0.0) + record.distance
             }
 
             for (hour in 0..23) {

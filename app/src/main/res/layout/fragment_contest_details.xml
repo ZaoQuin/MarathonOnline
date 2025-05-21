@@ -63,7 +63,7 @@
                                 android:src="@drawable/ic_calendar" />
 
                             <TextView
-                                android:id="@+id/raceDateTextView"
+                                android:id="@+id/recordDateTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="2dp"

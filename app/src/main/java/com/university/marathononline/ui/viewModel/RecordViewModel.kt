@@ -26,10 +26,12 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
-import com.university.marathononline.data.models.Race
+import com.university.marathononline.data.models.Record
+import com.university.marathononline.data.models.TrainingDay
 import com.university.marathononline.data.repository.RegistrationRepository
-import com.university.marathononline.data.repository.RaceRepository
-import com.university.marathononline.data.request.CreateRaceRequest
+import com.university.marathononline.data.repository.RecordRepository
+import com.university.marathononline.data.repository.TrainingDayRepository
+import com.university.marathononline.data.request.CreateRecordRequest
 import com.university.marathononline.data.response.RegistrationsResponse
 import com.university.marathononline.utils.KalmanFilter
 import com.university.marathononline.utils.formatDistance
@@ -44,16 +46,24 @@ import java.time.LocalDateTime
 
 class RecordViewModel(
     private val registrationRepository: RegistrationRepository,
-    private val raceRepository: RaceRepository
-) : BaseViewModel(listOf(registrationRepository, raceRepository)) {
+    private val recordRepository: RecordRepository,
+    private val trainingDayRepository: TrainingDayRepository
+) : BaseViewModel(listOf(registrationRepository, recordRepository, trainingDayRepository)) {
+
+    private val _trainingDay = MutableLiveData<TrainingDay>()
+    val trainingDay: LiveData<TrainingDay> get() = _trainingDay
+
     private val _isGPSEnabled = MutableLiveData<Boolean>()
     val isGPSEnabled: LiveData<Boolean> get() = _isGPSEnabled
 
-    private val _createRaceResponse: MutableLiveData<Resource<Race>> = MutableLiveData()
-    val createRaceResponse: LiveData<Resource<Race>> get() = _createRaceResponse
+    private val _createRecordResponse: MutableLiveData<Resource<Record>> = MutableLiveData()
+    val createRecordResponse: LiveData<Resource<Record>> get() = _createRecordResponse
 
-    private val _saveRaceIntoRegistration: MutableLiveData<Resource<RegistrationsResponse>> = MutableLiveData()
-    val saveRaceIntoRegistration: LiveData<Resource<RegistrationsResponse>> get() = _saveRaceIntoRegistration
+    private val _saveRecordIntoRegistration: MutableLiveData<Resource<RegistrationsResponse>> = MutableLiveData()
+    val saveRecordIntoRegistration: LiveData<Resource<RegistrationsResponse>> get() = _saveRecordIntoRegistration
+
+    private val _getCurrentTrainingDay: MutableLiveData<Resource<TrainingDay>> = MutableLiveData()
+    val getCurrentTrainingDay: LiveData<Resource<TrainingDay>> get() = _getCurrentTrainingDay
 
     private val _time = MutableStateFlow("0:00:00")
     val time = _time.asStateFlow()
@@ -171,7 +181,7 @@ class RecordViewModel(
         val timeTakenInSeconds = (SystemClock.elapsedRealtime() - startTime) / 1000
         val avgSpeed = if (totalDistance > 0) totalDistance / (timeTakenInSeconds / 3600f) else 0.0
 
-        val createRaceRequest = CreateRaceRequest(
+        val createRecordRequest = CreateRecordRequest(
             steps = _steps.value,
             distance = totalDistance,
             timeTaken = timeTakenInSeconds,
@@ -186,7 +196,7 @@ class RecordViewModel(
         println("Speed: $avgSpeed km/h")
         println("Steps: ${_steps.value}")
 
-        createRace(createRaceRequest)
+        createRecord(createRecordRequest)
     }
 
     @SuppressLint("DefaultLocale")
@@ -227,17 +237,28 @@ class RecordViewModel(
         _time.value = String.format("%02d:%02d:%02d", hours, minutes, seconds)
     }
 
-    private fun createRace(request: CreateRaceRequest){
+    private fun createRecord(request: CreateRecordRequest){
         viewModelScope.launch {
-            _createRaceResponse.value = Resource.Loading
-            _createRaceResponse.value = raceRepository.addRaceAndSaveIntoRegistration(request)
+            _createRecordResponse.value = Resource.Loading
+            _createRecordResponse.value = recordRepository.addRecordAndSaveIntoRegistration(request)
         }
     }
 
-    fun saveRaceIntoRegistration(race: Race) {
+    fun saveRecordIntoRegistration(record: Record) {
         viewModelScope.launch {
-            _saveRaceIntoRegistration.value = Resource.Loading
-            _saveRaceIntoRegistration.value = registrationRepository.saveRaceIntoRegistration(race)
+            _saveRecordIntoRegistration.value = Resource.Loading
+            _saveRecordIntoRegistration.value = registrationRepository.saveRecordIntoRegistration(record)
+        }
+    }
+
+    fun setCurrentTrainingDay(trainingDay: TrainingDay){
+        _trainingDay.value = trainingDay
+    }
+
+    fun getCurrentTrainingDay(){
+        viewModelScope.launch {
+            _getCurrentTrainingDay.value = Resource.Loading
+            _getCurrentTrainingDay.value = trainingDayRepository.getCurrentTrainingDay()
         }
     }
 }

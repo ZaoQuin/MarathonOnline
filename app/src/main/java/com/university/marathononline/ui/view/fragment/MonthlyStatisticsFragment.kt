@@ -14,15 +14,15 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.university.marathononline.R
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
-import com.university.marathononline.data.api.race.RaceApiService
-import com.university.marathononline.data.models.Race
+import com.university.marathononline.data.api.record.RecordApiService
+import com.university.marathononline.data.models.Record
 import com.university.marathononline.data.models.User
-import com.university.marathononline.data.repository.RaceRepository
+import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.databinding.FragmentMonthlyStatisticsBinding
 import com.university.marathononline.ui.components.MonthPickerBottomSheetFragment
 import com.university.marathononline.ui.viewModel.MonthlyStatisticsViewModel
 import com.university.marathononline.utils.DateUtils
-import com.university.marathononline.utils.KEY_RACES
+import com.university.marathononline.utils.KEY_RECORDS
 import com.university.marathononline.utils.KEY_USER
 import com.university.marathononline.utils.formatCalogies
 import com.university.marathononline.utils.formatDistance
@@ -47,14 +47,14 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
 
     override fun getFragmentRepositories():  List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
-        val api = retrofitInstance.buildApi(RaceApiService::class.java, token)
-        return listOf(RaceRepository(api))
+        val api = retrofitInstance.buildApi(RecordApiService::class.java, token)
+        return listOf(RecordRepository(api))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (arguments?.getSerializable(KEY_USER) as? User)?.let { viewModel.setUser(it)
-            (arguments?.getSerializable(KEY_RACES) as? List<Race>)?.let { viewModel.setRaces(it) }
+            (arguments?.getSerializable(KEY_RECORDS) as? List<Record>)?.let { viewModel.setRecords(it) }
         }
         initUI()
         observeViewModel()
@@ -74,7 +74,7 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
             .into(binding.calogiesIcon)
     }
 
-    private fun setUpLineChart(race: Map<String, String>) {
+    private fun setUpLineChart(record: Map<String, String>) {
         val lineChart = binding.lineChart
         val year = viewModel.selectedYear.value?: LocalDate.now().year
         val month = viewModel.selectedMonth.value?: LocalDate.now().monthValue
@@ -109,7 +109,7 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
             val formattedMonth = month.toString().padStart(2, '0')
             val key = "2024-$formattedMonth-$formattedDay"
 
-            val distance = race[key]?.toFloatOrNull() ?: 0f
+            val distance = record[key]?.toFloatOrNull() ?: 0f
             entries.add(Entry(day.toFloat(), distance))
         }
 
@@ -146,7 +146,7 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
     }
 
     private fun observeViewModel() {
-        viewModel.races.observe(viewLifecycleOwner){
+        viewModel.records.observe(viewLifecycleOwner){
             val current = DateUtils.convertDateToLocalDate(Date())
             viewModel.filterDataByMonth(current.monthValue, current.year)
         }

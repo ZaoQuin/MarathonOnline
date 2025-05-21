@@ -14,9 +14,9 @@
         android:title=""
         android:enabled="false"/>
 
-    <item android:id="@+id/tabNotify"
-        android:title="Thông báo"
-        android:icon="@drawable/ic_notify"/>
+    <item android:id="@+id/tabTrain"
+        android:title="Luyện tập"
+        android:icon="@drawable/ic_weight"/>
 
     <item android:id="@+id/tabProfile"
         android:title="Cá nhân"

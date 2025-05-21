@@ -4,9 +4,9 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.university.marathononline.base.BaseViewModel
-import com.university.marathononline.data.models.Race
+import com.university.marathononline.data.models.Record
 import com.university.marathononline.data.models.User
-import com.university.marathononline.data.repository.RaceRepository
+import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_AVG_SPEED
 import com.university.marathononline.utils.KEY_CALORIES
@@ -22,13 +22,13 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 
 class MonthlyStatisticsViewModel(
-    private val repository: RaceRepository
+    private val repository: RecordRepository
 ): BaseViewModel(listOf(repository)) {
     private val _user: MutableLiveData<User> = MutableLiveData()
     val user: LiveData<User> get() = _user
 
-    private val _races: MutableLiveData<List<Race>> = MutableLiveData()
-    val races: LiveData<List<Race>> get() = _races
+    private val _records: MutableLiveData<List<Record>> = MutableLiveData()
+    val records: LiveData<List<Record>> get() = _records
 
     private val _distance: MutableLiveData<Double> = MutableLiveData(0.0)
     val distance: LiveData<Double> get() = _distance
@@ -56,7 +56,7 @@ class MonthlyStatisticsViewModel(
 
     private var statsByMonth: Map<String,  Map<String, Any>> = emptyMap()
 
-    private var groupedByMonth: Map<String,  List<Race>> = emptyMap()
+    private var groupedByMonth: Map<String,  List<Record>> = emptyMap()
 
     private var _dataLineChart: MutableLiveData<Map<String, String>> = MutableLiveData(emptyMap())
     val dataLineChart: LiveData<Map<String, String>> get() = _dataLineChart
@@ -74,8 +74,8 @@ class MonthlyStatisticsViewModel(
             _steps.value = result[KEY_TOTAL_STEPS] as? Int ?: 0
             _calories.value = result?.get(KEY_CALORIES) as? Double ?: 0.0
             _pace.value = result?.get(KEY_PACE) as? Double ?: 0.0
-            val raceOfMonth = groupedByMonth[dateKey]
-            val groupedByDate = raceOfMonth?.groupBy {
+            val recordOfMonth = groupedByMonth[dateKey]
+            val groupedByDate = recordOfMonth?.groupBy {
                 DateUtils.convertStringToLocalDateTime(it.timestamp).toLocalDate().toString()
             }
             val dailyDistances = groupedByDate?.mapValues { entry ->
@@ -93,9 +93,9 @@ class MonthlyStatisticsViewModel(
         }
     }
 
-    fun setRaces(races: List<Race>) {
-        _races.value = races
-        groupedByMonth = races.groupBy {
+    fun setRecords(records: List<Record>) {
+        _records.value = records
+        groupedByMonth = records.groupBy {
             val dateTime = DateUtils.convertStringToLocalDateTime(it.timestamp)
             "${dateTime.year}-${dateTime.monthValue}"
         }
@@ -107,7 +107,7 @@ class MonthlyStatisticsViewModel(
         _selectedYear.value = year
     }
 
-    private fun calculateStats(group: List<Race>): Map<String, Any> {
+    private fun calculateStats(group: List<Record>): Map<String, Any> {
         val totalDistance = group.sumOf { it.distance }
         val totalTime = group.sumOf { it.timeTaken }
         val totalSteps = group.sumOf { it.steps }

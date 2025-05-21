@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.university.marathononline.data.models.ERewardType
 import com.university.marathononline.databinding.ItemRewardGroupBinding
 import com.university.marathononline.databinding.ItemRewardBinding
 import com.university.marathononline.data.models.Reward

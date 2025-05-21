@@ -23,10 +23,10 @@ class ContestAdapter(private var contests: List<Contest>) :
 
         fun bind(item: Contest) {
             binding.apply {
-                raceNameTextView.text = item.name
-                raceStartDateTextView.text = DateUtils.convertToVietnameseDate(item.startDate!!)
-                raceEndDateTextView.text = DateUtils.convertToVietnameseDate(item.endDate!!)
-                raceDeadlineRegisterTextView.text = DateUtils.convertToVietnameseDate(item.registrationDeadline!!)
+                recordNameTextView.text = item.name
+                recordStartDateTextView.text = DateUtils.convertToVietnameseDate(item.startDate!!)
+                recordEndDateTextView.text = DateUtils.convertToVietnameseDate(item.endDate!!)
+                recordDeadlineRegisterTextView.text = DateUtils.convertToVietnameseDate(item.registrationDeadline!!)
 
                 countMembersText.text = "${item.registrations?.size.toString()}/ ${item.maxMembers}"
                 registrationFee.text = item.fee?.let { convertToVND(it) }

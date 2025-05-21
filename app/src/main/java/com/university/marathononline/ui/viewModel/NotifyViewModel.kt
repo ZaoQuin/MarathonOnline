@@ -21,7 +21,7 @@ class NotifyViewModel(
     private val _getNotificationResponse = MutableLiveData<Resource<List<Notification>>>()
     val getNotificationResponse: LiveData<Resource<List<Notification>>> get() = _getNotificationResponse
 
-    fun setNotification(notifications: List<Notification>){
+    fun setNotifications(notifications: List<Notification>){
         _notifies.value = notifications
     }
 

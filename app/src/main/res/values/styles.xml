@@ -5,4 +5,9 @@
         <item name="android:padding">8dp</item>
     </style>
 
+    <style name="RoundedImageView" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/_8sdp</item>
+    </style>
+
 </resources>
