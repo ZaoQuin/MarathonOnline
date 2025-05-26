@@ -12,10 +12,13 @@ import com.university.marathononline.R
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
+import com.university.marathononline.data.api.trainingDay.TrainingDayApiService
 import com.university.marathononline.data.api.trainingPlan.TrainingPlanApiService
+import com.university.marathononline.data.models.ETraingDayStatus
 import com.university.marathononline.data.models.ETrainingSessionType
 import com.university.marathononline.data.models.TrainingDay
 import com.university.marathononline.data.models.TrainingPlan
+import com.university.marathononline.data.repository.TrainingDayRepository
 import com.university.marathononline.data.repository.TrainingPlanRepository
 import com.university.marathononline.databinding.FragmentTrainingPlanBinding
 import com.university.marathononline.ui.components.CreateTrainingPlanDialog
@@ -26,6 +29,7 @@ import com.university.marathononline.utils.startNewActivity
 import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 
 class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTrainingPlanBinding>() {
@@ -34,12 +38,21 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
     private var endDate: String = ""
     private var currentDateString: String = DateUtils.getCurrentDateString()
 
+    override fun onResume() {
+        super.onResume()
+        fetchFreshTrainingPlan()
+    }
+
+    private fun fetchFreshTrainingPlan() {
+        currentDateString = DateUtils.getCurrentDateString()
+        showLoadingState(true)
+        viewModel.getCurrentTrainingPlan()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        showLoadingState(true)
         setUpButton()
         setUpDateNavigation()
-        viewModel.getCurrentTrainingPlan()
         observeViewModel()
     }
 
@@ -199,6 +212,25 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
                 else -> Unit
             }
         }
+
+        viewModel.resetTrainingDay.observe(viewLifecycleOwner){
+            showLoadingState(it == Resource.Loading)
+            when(it){
+                is Resource.Loading -> Unit
+                is Resource.Success -> {
+                    Toast.makeText(
+                        requireContext(),
+                        it.value.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    viewModel.getCurrentTrainingPlan()
+                }
+                is Resource.Failure -> {
+                    handleApiError(it)
+                }
+                else -> Unit
+            }
+        }
     }
 
     private fun setUpCurrentTrainingPlan(trainingPlan: TrainingPlan) {
@@ -215,7 +247,6 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
             infoButton.setOnClickListener {
                 showTrainingInputDialog(trainingPlan)
             }
-
         }
 
         // Save training plan data for filtering
@@ -263,18 +294,24 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
                     sessionNotes.text = filteredDay.session.notes
                     sessionPace.text = filteredDay.session.pace.toString()
                     sessionDistance.text = filteredDay.session.distance.toString()
-                    trainingStatus.text = filteredDay.status.toString()
 
                     if (filteredDay.session.type == ETrainingSessionType.REST) {
                         sessionDetails.visibility = View.GONE
                         trainingSessionCard.progressDetails.root.visibility = View.GONE
                     } else {
+                        updateSessionProgress(filteredDay)
                         sessionDetails.visibility = View.VISIBLE
                         trainingSessionCard.progressDetails.root.visibility = View.VISIBLE
-                        updateSessionProgress(filteredDay)
                     }
                 }
             }
+
+            // Update status display based on training day status
+            updateTrainingStatusDisplay(filteredDay)
+
+            // Update navigation buttons
+            updateNavigationButtons()
+
         } else {
             println("Không tìm thấy bài tập phù hợp hoặc ngoài khoảng thời gian của kế hoạch")
             binding.itemDetails.itemTrainingDay.apply {
@@ -282,6 +319,109 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
                 emptyState.visibility = View.VISIBLE
             }
         }
+    }
+
+    private fun updateTrainingStatusDisplay(trainingDay: TrainingDay) {
+        binding.itemDetails.itemTrainingDay.trainingSessionCard.apply {
+            trainingStatus.text = trainingDay.status.toString()
+
+            // Update status appearance based on status
+            when (trainingDay.status) {
+                ETraingDayStatus.COMPLETED -> {
+                    trainingStatus.apply {
+                        setBackgroundResource(R.drawable.status_completed_bg)
+                        setTextColor(ContextCompat.getColor(context, R.color.white))
+                    }
+                    // Hide reset button for completed sessions
+                    btnResetTraining.visibility = View.GONE
+                }
+                ETraingDayStatus.ACTIVE -> {
+                    trainingStatus.apply {
+                        setBackgroundResource(R.drawable.status_active_bg)
+                        setTextColor(ContextCompat.getColor(context, R.color.white))
+                    }
+                    // Show reset button only for today's active sessions with progress
+                    val trainingDate = DateUtils.parseLocalDateTimeStr(trainingDay.dateTime)
+                    val isToday = trainingDate == LocalDate.now()
+                    val isNotRest = trainingDay.session.type != ETrainingSessionType.REST
+                    val hasProgress = trainingDay.records.isNotEmpty()
+
+                    if (isToday && isNotRest && hasProgress) {
+                        setUpResetButton(trainingDay)
+                    } else {
+                        hideResetButton()
+                    }
+                }
+                ETraingDayStatus.MISSED -> {
+                    trainingStatus.apply {
+                        setBackgroundResource(R.drawable.status_missed_bg)
+                        setTextColor(ContextCompat.getColor(context, R.color.white))
+                    }
+                    // Hide reset button for missed sessions
+                    btnResetTraining.visibility = View.GONE
+                }
+            }
+
+            // Update session card appearance based on status
+            updateSessionCardAppearance(trainingDay)
+        }
+    }
+
+    private fun updateSessionCardAppearance(trainingDay: TrainingDay) {
+        // Get reference to the CardView - you need to access the actual CardView from the included layout
+        val cardView = binding.itemDetails.itemTrainingDay.trainingSessionCard.root as androidx.cardview.widget.CardView
+
+        when (trainingDay.status) {
+            ETraingDayStatus.COMPLETED -> {
+                // Completed sessions - subtle green tint
+                cardView.setCardBackgroundColor(ContextCompat.getColor(requireContext(), R.color.completed_card_bg))
+                cardView.alpha = 1.0f
+            }
+            ETraingDayStatus.ACTIVE -> {
+                // Active sessions - normal appearance
+                cardView.setCardBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
+                cardView.alpha = 1.0f
+            }
+            ETraingDayStatus.MISSED -> {
+                // Missed sessions - slightly faded with red tint
+                cardView.setCardBackgroundColor(ContextCompat.getColor(requireContext(), R.color.missed_card_bg))
+                cardView.alpha = 0.8f
+            }
+        }
+    }
+
+    private fun setUpResetButton(trainingDay: TrainingDay) {
+        binding.itemDetails.itemTrainingDay.trainingSessionCard.btnResetTraining.apply {
+            visibility = View.VISIBLE
+            setOnClickListener {
+                showResetConfirmationDialog(trainingDay)
+            }
+        }
+    }
+
+    private fun hideResetButton() {
+        binding.itemDetails.itemTrainingDay.trainingSessionCard.btnResetTraining.visibility = View.GONE
+    }
+
+    private fun showResetConfirmationDialog(currentDay: TrainingDay) {
+        val message = """
+            Bạn có chắc chắn muốn reset tiến trình tập luyện này không?
+            
+            📅 Ngày: ${DateUtils.formatTrainingDayString(currentDay)}
+            🏃‍♂️ Bài tập: ${currentDay.session.name}
+            
+            ⚠️ Tất cả dữ liệu tiến trình sẽ bị xóa và không thể khôi phục!
+        """.trimIndent()
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Xác nhận Reset")
+            .setMessage(message)
+            .setIcon(R.drawable.ic_info)
+            .setPositiveButton("Reset") { _, _ ->
+                viewModel.resetTrainingDay()
+            }
+            .setNegativeButton("Hủy", null)
+            .show()
     }
 
     private fun updateSessionProgress(trainingDay: TrainingDay) {
@@ -371,6 +511,8 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
     override fun getFragmentRepositories(): List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
         val api = retrofitInstance.buildApi(TrainingPlanApiService::class.java, token)
-        return listOf(TrainingPlanRepository(api))
+        val trainingDayApi = retrofitInstance.buildApi(TrainingDayApiService::class.java, token)
+        return listOf(TrainingPlanRepository(api),
+            TrainingDayRepository(trainingDayApi))
     }
 }

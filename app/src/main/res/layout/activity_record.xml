@@ -161,18 +161,18 @@
                                 android:layout_marginBottom="8dp"/>
 
                             <TextView
-                                android:id="@+id/tvSpeed"
+                                android:id="@+id/tvPace"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/white"
                                 android:textSize="18sp"
                                 android:textStyle="bold"
-                                tools:text="0.0 km/h"/>
+                                android:text="-- min/km"/>
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Tốc độ"
+                                android:text="Pace"
                                 android:textColor="@color/white"
                                 android:textSize="12sp"
                                 android:alpha="0.9"/>
@@ -180,100 +180,14 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- Guided Mode Indicator -->
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/guided_mode_indicator"
+                <!-- Guided Mode Fragment Container -->
+                <FrameLayout
+                    android:id="@+id/guided_mode_container"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="12dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="4dp"
-                    android:visibility="gone"
                     app:layout_constraintBottom_toTopOf="@id/play_button"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="12dp"
-                        android:background="@color/dark_main_color">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Luyện tập có hướng dẫn"
-                            android:textColor="@color/white"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:gravity="center"/>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginTop="8dp">
-
-                            <!-- Target Pace Card -->
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical"
-                                android:gravity="center"
-                                android:padding="8dp"
-                                android:background="@color/main_color"
-                                android:layout_marginEnd="4dp">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Nhịp độ mục tiêu"
-                                    android:textColor="@color/white"
-                                    android:textSize="12sp"/>
-
-                                <TextView
-                                    android:id="@+id/target_pace"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:textColor="@color/white"
-                                    android:textSize="16sp"
-                                    android:textStyle="bold"
-                                    android:layout_marginTop="4dp"
-                                    tools:text="5:30 min/km"/>
-                            </LinearLayout>
-
-                            <!-- Target Distance Card -->
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical"
-                                android:gravity="center"
-                                android:padding="8dp"
-                                android:background="@color/main_color">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Khoảng cách mục tiêu"
-                                    android:textColor="@color/white"
-                                    android:textSize="12sp"/>
-
-                                <TextView
-                                    android:id="@+id/target_distance"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:textColor="@color/white"
-                                    android:textSize="16sp"
-                                    android:textStyle="bold"
-                                    android:layout_marginTop="4dp"
-                                    tools:text="5.0 km"/>
-                            </LinearLayout>
-                        </LinearLayout>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                    app:layout_constraintEnd_toEndOf="parent" />
 
                 <!-- FAB Play/Stop Button -->
                 <com.google.android.material.floatingactionbutton.FloatingActionButton

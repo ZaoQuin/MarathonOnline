@@ -36,11 +36,9 @@ import com.university.marathononline.ui.view.activity.NotificationsActivity
 import com.university.marathononline.ui.view.activity.RecordActivity
 import com.university.marathononline.ui.viewModel.HomeViewModel
 import com.university.marathononline.utils.DateUtils
-import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.KEY_CONTESTS
 import com.university.marathononline.utils.KEY_TRAINING_DAY
 import com.university.marathononline.utils.startNewActivity
-import com.university.marathononline.utils.visible
 import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -165,6 +163,7 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
             when(it){
                 is Resource.Success -> {
                     setUpTrainingDayUI(it.value)
+                    println("current training day " + it.value)
                 }
                 is Resource.Failure -> {
                     handleApiError(it)

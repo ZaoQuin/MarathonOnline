@@ -9,14 +9,17 @@ import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.models.SingleTrainingPlan
 import com.university.marathononline.data.models.TrainingDay
 import com.university.marathononline.data.models.TrainingPlan
+import com.university.marathononline.data.repository.TrainingDayRepository
 import com.university.marathononline.data.repository.TrainingPlanRepository
 import com.university.marathononline.data.request.InputTrainingPlanRequest
 import com.university.marathononline.data.response.PageResponse
+import com.university.marathononline.data.response.StringResponse
 import kotlinx.coroutines.launch
 
 class TrainingPlanViewModel (
-    private val repository: TrainingPlanRepository
-): BaseViewModel(listOf(repository)) {
+    private val repository: TrainingPlanRepository,
+    private val trainingDayRepository: TrainingDayRepository
+): BaseViewModel(listOf(repository, trainingDayRepository)) {
 
     private val _currentTrainingPlan: MutableLiveData<TrainingPlan> = MutableLiveData()
     val currentTrainingPlan: LiveData<TrainingPlan> get() = _currentTrainingPlan
@@ -35,6 +38,9 @@ class TrainingPlanViewModel (
 
     private val _createTrainingPlan: MutableLiveData<Resource<TrainingPlan>> = MutableLiveData()
     val createTrainingPlan: LiveData<Resource<TrainingPlan>> = _createTrainingPlan.distinctUntilChanged()
+
+    private val _resetTrainingDay: MutableLiveData<Resource<StringResponse>> = MutableLiveData()
+    val resetTrainingDay: LiveData<Resource<StringResponse>> = _resetTrainingDay.distinctUntilChanged()
 
     private val _getById: MutableLiveData<Resource<TrainingPlan>> = MutableLiveData()
     val getById: LiveData<Resource<TrainingPlan>> = _getById.distinctUntilChanged()
@@ -65,6 +71,13 @@ class TrainingPlanViewModel (
         viewModelScope.launch {
             _createTrainingPlan.value = Resource.Loading
             _createTrainingPlan.value = repository.generateTrainingPlan(request);
+        }
+    }
+
+    fun resetTrainingDay(){
+        viewModelScope.launch {
+            _resetTrainingDay.value = Resource.Loading
+            _resetTrainingDay.value = trainingDayRepository.resetTrainingDay();
         }
     }
 

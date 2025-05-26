@@ -1,6 +1,6 @@
 package com.university.marathononline.data.response
 
-data class DeleteResponse(
+data class StringResponse(
     val message: String
 )
 

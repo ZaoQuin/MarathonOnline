@@ -13,6 +13,7 @@ import android.location.LocationManager
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -26,6 +27,8 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
+import com.university.marathononline.data.models.GuidedModeStats
+import com.university.marathononline.data.models.PaceStatus
 import com.university.marathononline.data.models.Record
 import com.university.marathononline.data.models.TrainingDay
 import com.university.marathononline.data.repository.RegistrationRepository
@@ -34,8 +37,9 @@ import com.university.marathononline.data.repository.TrainingDayRepository
 import com.university.marathononline.data.request.CreateRecordRequest
 import com.university.marathononline.data.response.RegistrationsResponse
 import com.university.marathononline.utils.KalmanFilter
+import com.university.marathononline.utils.TrainingSessionManager
+import com.university.marathononline.utils.VoiceGuidanceService
 import com.university.marathononline.utils.formatDistance
-import com.university.marathononline.utils.formatSpeed
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -62,14 +66,17 @@ class RecordViewModel(
     private val _saveRecordIntoRegistration: MutableLiveData<Resource<RegistrationsResponse>> = MutableLiveData()
     val saveRecordIntoRegistration: LiveData<Resource<RegistrationsResponse>> get() = _saveRecordIntoRegistration
 
+    private val _saveRecordIntoTrainingDay: MutableLiveData<Resource<TrainingDay>> = MutableLiveData()
+    val saveRecordIntoTrainingDay: LiveData<Resource<TrainingDay>> get() = _saveRecordIntoTrainingDay
+
     private val _getCurrentTrainingDay: MutableLiveData<Resource<TrainingDay>> = MutableLiveData()
     val getCurrentTrainingDay: LiveData<Resource<TrainingDay>> get() = _getCurrentTrainingDay
 
     private val _time = MutableStateFlow("0:00:00")
     val time = _time.asStateFlow()
 
-    private val _speed = MutableStateFlow("0 km/h")
-    val speed = _speed.asStateFlow()
+    private val _averagePace = MutableStateFlow("-- min/km")
+    val averagePace = _averagePace.asStateFlow()
 
     private val _distance = MutableStateFlow("0 km")
     val distance = _distance.asStateFlow()
@@ -85,9 +92,15 @@ class RecordViewModel(
     private var totalDistance: Double = 0.0
     private lateinit var sensorManager: SensorManager
     private var stepSensor: Sensor? = null
+    private var isGuidedMode: Boolean = false
+    private var trainingSessionManager: TrainingSessionManager? = null
+
+    // Store application context to avoid context leaks
+    private var applicationContext: Context? = null
 
     private val kalmanLatitude = KalmanFilter(q = 0.001, r = 1.0)
     private val kalmanLongitude = KalmanFilter(q = 0.001, r = 1.0)
+    private val speedFilter = KalmanFilter(q = 0.001, r = 1.0)
 
     private val _position = MutableStateFlow("")
     val position: StateFlow<String> get() = _position
@@ -95,11 +108,20 @@ class RecordViewModel(
     private val _routes = MutableStateFlow<List<LatLng>>(emptyList())
     val routes: StateFlow<List<LatLng>> get() = _routes
 
+    private val _guidedModeStats = MutableStateFlow(GuidedModeStats())
+    val guidedModeStats = _guidedModeStats.asStateFlow()
+
+    // Track the current pace for real-time updates
+    private var currentAvgPace: Double = 0.0
+
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
 
     fun initializeLocationTracking(context: Context) {
+        // Store application context to use it later
+        applicationContext = context.applicationContext
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
         locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000).build()
 
@@ -116,9 +138,37 @@ class RecordViewModel(
             sensorManager.registerListener(stepListener, it, SensorManager.SENSOR_DELAY_UI)
         }
 
-
         viewModelScope.launch(Dispatchers.IO) {
             setupGPSStatusObserver(context)
+        }
+    }
+
+    fun setGuidedMode(enabled: Boolean, context: Context? = null) {
+        isGuidedMode = enabled
+
+        // Always clean up existing manager if present to avoid resource leaks
+        trainingSessionManager?.clear()
+        trainingSessionManager = null
+
+        // Only initialize if enabling guided mode and context is provided
+        if (enabled) {
+            // Use provided context, or fall back to stored applicationContext
+            val contextToUse = context?.applicationContext ?: applicationContext
+
+            if (contextToUse != null) {
+                if (_trainingDay.value != null) {
+                    Log.d("RecordViewModel", "Initializing guided mode with existing training day")
+                    // Create new voice service each time to ensure clean initialization
+                    val voiceService = VoiceGuidanceService(contextToUse)
+                    trainingSessionManager = TrainingSessionManager(_trainingDay.value!!.session, voiceService)
+                } else {
+                    Log.d("RecordViewModel", "Fetching current training day for guided mode")
+                    // Fetch training day first - will initialize manager when data arrives
+                    getCurrentTrainingDay()
+                }
+            } else {
+                Log.e("RecordViewModel", "Cannot initialize guided mode: no context available")
+            }
         }
     }
 
@@ -152,6 +202,12 @@ class RecordViewModel(
     }
 
     fun startRecording(context: Context) {
+        // Store context for future use
+        applicationContext = context.applicationContext
+
+        // Reset all data to initial state
+        resetAllData()
+
         currentLocation = null
         if (ActivityCompat.checkSelfPermission(
                 context,
@@ -164,7 +220,6 @@ class RecordViewModel(
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
         startTime = SystemClock.elapsedRealtime()
         _isRecording.value = true
-        _steps.value = 0
 
         viewModelScope.launch {
             while (_isRecording.value) {
@@ -174,8 +229,26 @@ class RecordViewModel(
         }
     }
 
+    // New function to reset all data to initial state
+    private fun resetAllData() {
+        _time.value = "0:00:00"
+        _averagePace.value = "-- min/km"
+        _distance.value = "0 km"
+        _steps.value = 0
+        _routes.value = emptyList()
+        _position.value = ""
+        _guidedModeStats.value = GuidedModeStats() // Reset guided mode stats
+        totalDistance = 0.0
+        currentLocation = null
+        currentAvgPace = 0.0
+    }
+
     fun stopRecording() {
+        if (!_isRecording.value) return
+
         fusedLocationClient.removeLocationUpdates(locationCallback)
+        sensorManager.unregisterListener(stepListener)
+        trainingSessionManager?.clear()
         _isRecording.value = false
 
         val timeTakenInSeconds = (SystemClock.elapsedRealtime() - startTime) / 1000
@@ -189,7 +262,6 @@ class RecordViewModel(
             timestamp = LocalDateTime.now().toString()
         )
 
-        // Log the data
         println("Recording stopped:")
         println("Time: $timeTakenInSeconds seconds")
         println("Distance: ${formatDistance(totalDistance)}")
@@ -212,7 +284,8 @@ class RecordViewModel(
             val newRoutes = _routes.value + newPoint
             _routes.emit(newRoutes)
 
-            val speedInKmH = location.speed * 3.6
+            val filteredSpeed = speedFilter.processMeasurement(location.speed.toDouble()).toFloat()
+            val speedInKmH = filteredSpeed * 3.6
             val distance = currentLocation?.distanceTo(location) ?: 0f
 
             if (currentLocation == null) {
@@ -221,10 +294,55 @@ class RecordViewModel(
 
             if (distance >= 1) {
                 totalDistance += distance.div(1000)
-                _speed.value = formatSpeed(speedInKmH)
                 _distance.value = formatDistance(totalDistance)
                 currentLocation = location
+
+                // Calculate current instantaneous pace (min/km)
+                val instantPace = if (speedInKmH > 0) 60.0 / speedInKmH else 0.0
+
+                // Calculate overall average pace
+                currentAvgPace = calculateAveragePace()
+
+                // Update the UI with the average pace
+                val avgPaceMinutes = currentAvgPace.toInt()
+                val avgPaceSeconds = ((currentAvgPace - avgPaceMinutes) * 60).toInt()
+                _averagePace.value = String.format("%d:%02d min/km", avgPaceMinutes, avgPaceSeconds)
+
+                // Update guided mode statistics
+                updateGuidedModeStats()
+
+                // Pass the AVERAGE pace to the training session manager
+                if (isGuidedMode && trainingSessionManager != null) {
+                    try {
+                        Log.d("RecordViewModel", "Updating training session with pace: $currentAvgPace min/km")
+                        trainingSessionManager?.update(
+                            currentAvgPace,  // Using the average pace instead of instantaneous
+                            totalDistance,
+                            SystemClock.elapsedRealtime() - startTime
+                        )
+                    } catch (e: Exception) {
+                        Log.e("RecordViewModel", "Error updating training session", e)
+                    }
+                }
             }
+        }
+    }
+
+    private fun calculateAveragePace(): Double {
+        val timeTakenInSeconds = (SystemClock.elapsedRealtime() - startTime) / 1000
+
+        val elapsedTimeInHours = timeTakenInSeconds / 3600.0
+
+        val averageSpeedKmH = if (totalDistance > 0 && elapsedTimeInHours > 0) {
+            totalDistance / elapsedTimeInHours
+        } else {
+            0.0
+        }
+
+        return if (averageSpeedKmH > 0) {
+            60.0 / averageSpeedKmH
+        } else {
+            0.0
         }
     }
 
@@ -234,10 +352,22 @@ class RecordViewModel(
         val hours = (elapsedTime / 3600).toInt()
         val minutes = ((elapsedTime % 3600) / 60).toInt()
         val seconds = (elapsedTime % 60).toInt()
-        _time.value = String.format("%02d:%02d:%02d", hours, minutes, seconds)
+        _time.value = String.format("%d:%02d:%02d", hours, minutes, seconds)
+
+        // Update average pace if distance has changed
+        if (totalDistance > 0) {
+            // Calculate average pace using actual elapsed time and distance
+            currentAvgPace = calculateAveragePace()
+            val avgPaceMinutes = currentAvgPace.toInt()
+            val avgPaceSeconds = ((currentAvgPace - avgPaceMinutes) * 60).toInt()
+            _averagePace.value = String.format("%d:%02d min/km", avgPaceMinutes, avgPaceSeconds)
+
+            // Update guided mode statistics
+            updateGuidedModeStats()
+        }
     }
 
-    private fun createRecord(request: CreateRecordRequest){
+    private fun createRecord(request: CreateRecordRequest) {
         viewModelScope.launch {
             _createRecordResponse.value = Resource.Loading
             _createRecordResponse.value = recordRepository.addRecordAndSaveIntoRegistration(request)
@@ -251,14 +381,120 @@ class RecordViewModel(
         }
     }
 
-    fun setCurrentTrainingDay(trainingDay: TrainingDay){
-        _trainingDay.value = trainingDay
+    fun saveRecordIntoTrainingDay(record: Record) {
+        viewModelScope.launch {
+            _saveRecordIntoTrainingDay.value = Resource.Loading
+            _saveRecordIntoTrainingDay.value = trainingDayRepository.saveRecordIntoTrainingDay(record)
+        }
     }
 
-    fun getCurrentTrainingDay(){
+    fun setCurrentTrainingDay(trainingDay: TrainingDay) {
+        _trainingDay.value = trainingDay
+        Log.d("RecordViewModel", "Training day set: ${trainingDay.session.type} - pace: ${trainingDay.session.pace}")
+
+        if (isGuidedMode) {
+            trainingSessionManager?.clear()
+            trainingSessionManager = null
+
+            // Use the stored application context instead of trying to get it from trainingSessionManager
+            if (applicationContext != null) {
+                Log.d("RecordViewModel", "Reinitializing TrainingSessionManager with new training day")
+                val voiceService = VoiceGuidanceService(applicationContext!!)
+                trainingSessionManager = TrainingSessionManager(trainingDay.session, voiceService)
+            } else {
+                Log.w("RecordViewModel", "Cannot initialize TrainingSessionManager: no context available")
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        try {
+            trainingSessionManager?.clear()
+            trainingSessionManager = null
+            // Don't clear applicationContext here, as it may be needed until the ViewModel is completely destroyed
+        } catch (e: Exception) {
+            Log.e("RecordViewModel", "Error clearing training session", e)
+        }
+    }
+
+    fun getCurrentTrainingDay() {
         viewModelScope.launch {
             _getCurrentTrainingDay.value = Resource.Loading
-            _getCurrentTrainingDay.value = trainingDayRepository.getCurrentTrainingDay()
+            val result = trainingDayRepository.getCurrentTrainingDay()
+            _getCurrentTrainingDay.value = result
+
+            if (isGuidedMode && result is Resource.Success) {
+                setCurrentTrainingDay(result.value)
+            }
+        }
+    }
+
+    private fun updateGuidedModeStats() {
+        if (!isGuidedMode || _trainingDay.value == null) return
+
+        val trainingDay = _trainingDay.value!!
+        val targetPace = trainingDay.session.pace
+        val targetDistance = trainingDay.session.distance
+
+        val progress = if (targetDistance > 0) (totalDistance / targetDistance) * 100 else 0.0
+        val paceDifference = currentAvgPace - targetPace
+        val toleranceThreshold = 0.5 // 30 seconds tolerance
+
+        val paceStatus = when {
+            currentAvgPace == 0.0 -> PaceStatus.NOT_STARTED
+            kotlin.math.abs(paceDifference) <= toleranceThreshold -> PaceStatus.ON_TARGET
+            paceDifference > toleranceThreshold -> PaceStatus.TOO_SLOW
+            else -> PaceStatus.TOO_FAST
+        }
+
+        val stats = GuidedModeStats(
+            currentPace = currentAvgPace,
+            targetPace = targetPace,
+            currentDistance = totalDistance,
+            targetDistance = targetDistance,
+            progressPercentage = progress.coerceAtMost(100.0),
+            paceStatus = paceStatus,
+            isOnTrack = paceStatus == PaceStatus.ON_TARGET
+        )
+
+        _guidedModeStats.value = stats
+    }
+
+    fun getPerformanceFeedback(): String {
+        if (!isGuidedMode || _trainingDay.value == null) return ""
+
+        val stats = _guidedModeStats.value
+        return when (stats.paceStatus) {
+            PaceStatus.NOT_STARTED -> "Bắt đầu chạy để theo dõi tiến độ"
+            PaceStatus.ON_TARGET -> when {
+                stats.progressPercentage >= 100 -> "Xuất sắc! Bạn đã hoàn thành mục tiêu!"
+                stats.progressPercentage >= 75 -> "Tuyệt vời! Sắp hoàn thành rồi!"
+                else -> "Tuyệt vời! Duy trì nhịp độ này để đạt mục tiêu"
+            }
+            PaceStatus.TOO_SLOW -> "Tăng tốc một chút để đạt được nhịp độ mục tiêu"
+            PaceStatus.TOO_FAST -> "Giảm tốc một chút để tiết kiệm năng lượng"
+        }
+    }
+
+    // Add function to get pace comparison text
+    fun getPaceComparisonText(): String {
+        if (!isGuidedMode || _trainingDay.value == null || currentAvgPace == 0.0) return "Chưa bắt đầu"
+
+        val targetPace = _trainingDay.value!!.session.pace
+        val paceDifference = currentAvgPace - targetPace
+        val toleranceThreshold = 0.5
+
+        return when {
+            kotlin.math.abs(paceDifference) <= toleranceThreshold -> "Đúng mục tiêu!"
+            paceDifference > toleranceThreshold -> {
+                val diff = (paceDifference * 60).toInt()
+                "Chậm hơn ${diff}s"
+            }
+            else -> {
+                val diff = (kotlin.math.abs(paceDifference) * 60).toInt()
+                "Nhanh hơn ${diff}s"
+            }
         }
     }
 }
