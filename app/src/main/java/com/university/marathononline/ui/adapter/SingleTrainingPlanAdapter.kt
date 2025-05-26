@@ -8,11 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.university.marathononline.data.models.ETrainingPlanStatus
 import com.university.marathononline.data.models.SingleTrainingPlan
 import com.university.marathononline.databinding.ItemTrainingPlanBinding
-import com.university.marathononline.ui.view.activity.ContestDetailsActivity
 import com.university.marathononline.ui.view.activity.TrainingPlanDetailsActivity
 import com.university.marathononline.utils.DateUtils
-import com.university.marathononline.utils.KEY_CONTEST
-import com.university.marathononline.utils.KEY_TRAINING_PLAN
 import com.university.marathononline.utils.KEY_TRAINING_PLAN_ID
 import com.university.marathononline.utils.startNewActivity
 

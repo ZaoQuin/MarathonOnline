@@ -35,20 +35,23 @@ import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.record.RecordApiService
 import com.university.marathononline.data.api.registration.RegistrationApiService
+import com.university.marathononline.data.api.trainingDay.TrainingDayApiService
+import com.university.marathononline.data.models.TrainingDay
 import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.data.repository.RegistrationRepository
+import com.university.marathononline.data.repository.TrainingDayRepository
 import com.university.marathononline.databinding.ActivityRecordBinding
+import com.university.marathononline.ui.components.ModeSelectionDialog
+import com.university.marathononline.ui.view.fragment.GuidedModeFragment
 import com.university.marathononline.ui.viewModel.RecordViewModel
-import com.university.marathononline.utils.*
+import com.university.marathononline.utils.KEY_TRAINING_DAY
+import com.university.marathononline.utils.enable
+import com.university.marathononline.utils.finishAndGoBack
+import com.university.marathononline.utils.visible
 import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import com.university.marathononline.R.id.*
-import com.university.marathononline.data.api.trainingDay.TrainingDayApiService
-import com.university.marathononline.data.models.TrainingDay
-import com.university.marathononline.data.repository.TrainingDayRepository
-import com.university.marathononline.ui.components.ModeSelectionDialog
 
 class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), OnMapReadyCallback {
 
@@ -56,7 +59,8 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
     private var currentMarker: Marker? = null
     private var polyline: Polyline? = null
     private val handler = Handler(Looper.getMainLooper())
-    private var isGuidedMode = false
+
+    private var guidedModeFragment: GuidedModeFragment? = null
 
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -113,8 +117,20 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { viewModel.time.collect { binding.tvTime.text = it } }
-                launch { viewModel.speed.collect { binding.tvSpeed.text = it } }
-                launch { viewModel.distance.collect { binding.tvDistance.text = it } }
+                launch {
+                    viewModel.averagePace.collect { pace ->
+                        binding.tvPace.text = pace
+                        // Update guided mode fragment if active
+                        guidedModeFragment?.updateCurrentStats(pace, binding.tvDistance.text.toString())
+                    }
+                }
+                launch {
+                    viewModel.distance.collect { distance ->
+                        binding.tvDistance.text = distance
+                        // Update guided mode fragment if active
+                        guidedModeFragment?.updateCurrentStats(binding.tvPace.text.toString(), distance)
+                    }
+                }
                 viewModel.isRecording.collect { isRecording ->
                     binding.playButton.visible(!isRecording)
                     binding.stopButton.visible(isRecording)
@@ -124,7 +140,10 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
 
         viewModel.createRecordResponse.observe(this) {
             when (it) {
-                is Resource.Success -> viewModel.saveRecordIntoRegistration(it.value)
+                is Resource.Success -> {
+                    viewModel.saveRecordIntoRegistration(it.value)
+                    viewModel.saveRecordIntoTrainingDay(it.value)
+                }
                 is Resource.Failure -> handleApiError(it)
                 else -> Unit
             }
@@ -132,9 +151,17 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
 
         viewModel.saveRecordIntoRegistration.observe(this) {
             when (it) {
-                is Resource.Success -> Toast.makeText(this, "Save Completed", Toast.LENGTH_SHORT)
+                is Resource.Success -> Toast.makeText(this, "Save to Registration Completed", Toast.LENGTH_SHORT)
                     .show()
+                is Resource.Failure -> handleApiError(it)
+                else -> Unit
+            }
+        }
 
+        viewModel.saveRecordIntoTrainingDay.observe(this) {
+            when (it) {
+                is Resource.Success -> Toast.makeText(this, "Save to Training Day Completed", Toast.LENGTH_SHORT)
+                    .show()
                 is Resource.Failure -> handleApiError(it)
                 else -> Unit
             }
@@ -143,7 +170,6 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         viewModel.isGPSEnabled.observe(this, Observer { isEnabled ->
             if (isEnabled) {
                 binding.checkGPS.text = "GPS is Enabled"
-
                 handler.postDelayed({
                     binding.checkGPS.visible(false)
                     binding.recordLayout.visible(true)
@@ -154,27 +180,6 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                 binding.checkGPS.text = "GPS is Disabled"
             }
         })
-
-        viewModel.getCurrentTrainingDay.observe(this) {
-            when(it){
-                is Resource.Success -> {
-                    setUpGuidedUI(it.value)
-                }
-                is Resource.Failure -> {
-                    handleApiError(it)
-                    it.fetchErrorMessage()
-                }
-                else -> Unit
-            }
-        }
-    }
-
-    private fun setUpGuidedUI(trainingDay: TrainingDay){
-        binding.guidedModeIndicator.visible(true)
-        binding.apply {
-            targetPace.text = trainingDay.session.pace.toString()
-            targetDistance.text = trainingDay.session.distance.toString()
-        }
     }
 
     private fun initializeUI() {
@@ -190,8 +195,8 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         initMap()
     }
 
-    private fun initMap(){
-        val mapFragment = supportFragmentManager.findFragmentById(map) as SupportMapFragment
+    private fun initMap() {
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
     }
 
@@ -201,29 +206,42 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
             this,
             onNormalModeSelected = {
                 println("Normal mode selected")
-                isGuidedMode = false
+                viewModel.setGuidedMode(false)
+                hideGuidedModeFragment()
             },
             onGuidedModeSelected = {
                 println("Guided mode selected")
-                isGuidedMode = true
+                viewModel.setGuidedMode(true, this)
                 initGuidedMode()
             }
         ).show()
     }
 
     private fun initGuidedMode() {
-        // Add guided mode initialization logic here
-        // This could include setting up pace guidance, route suggestions, etc.
         Toast.makeText(
             this,
             "Chế độ luyện tập có hướng dẫn được kích hoạt",
             Toast.LENGTH_SHORT
         ).show()
 
-        if(viewModel.trainingDay.value == null)
-            viewModel.getCurrentTrainingDay()
-        else
-            setUpGuidedUI(viewModel.trainingDay.value!!)
+        showGuidedModeFragment()
+    }
+
+    private fun showGuidedModeFragment() {
+        if (!isFinishing && !supportFragmentManager.isStateSaved) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.guided_mode_container, GuidedModeFragment())
+                .commit()
+        }
+    }
+
+    private fun hideGuidedModeFragment() {
+        guidedModeFragment?.let {
+            supportFragmentManager.beginTransaction()
+                .remove(it)
+                .commit()
+        }
+        guidedModeFragment = null
     }
 
     private fun requestLocationPermissions() {
@@ -296,12 +314,9 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                         drawRoute(routes)
 
                         val lastPoint = routes.last()
-
                         if (currentMarker == null) {
                             val originalBitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_runner)
-
                             val scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, 48, 48, false)
-
                             val customIcon = BitmapDescriptorFactory.fromBitmap(scaledBitmap)
                             currentMarker = googleMap.addMarker(
                                 MarkerOptions()
@@ -322,7 +337,6 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
 
     private fun drawRoute(route: List<LatLng>) {
         polyline?.remove()
-
         if (route.size > 1) {
             val polylineOptions = PolylineOptions()
                 .addAll(route)
@@ -331,7 +345,6 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                 .jointType(JointType.ROUND)
                 .startCap(RoundCap())
                 .endCap(RoundCap())
-
             polyline = googleMap.addPolyline(polylineOptions)
         }
 
@@ -339,8 +352,13 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
             val bounds = LatLngBounds.builder()
             route.forEach { bounds.include(it) }
             val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds.build(), 100)
-
             googleMap.animateCamera(cameraUpdate, 1000, null)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.stopRecording() // Đảm bảo tắt các dịch vụ khi activity bị hủy
+        hideGuidedModeFragment()
     }
 }

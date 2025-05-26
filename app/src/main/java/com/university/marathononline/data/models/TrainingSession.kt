@@ -11,10 +11,13 @@ data class TrainingSession(
     var notes: String
 ): Serializable
 
-enum class ETrainingSessionType(val value: String) {
-    LONG_RUN("Chạy dài"),
-    RECOVERY_RUN("Chạy hồi phục"),
-    SPEED_WORK("Tập tốc độ"),
-    REST("Nghỉ");
+enum class ETrainingSessionType(val value: String, val maxRestMinutes: Long) {
+    LONG_RUN("Chạy dài", 5),
+    RECOVERY_RUN("Chạy hồi phục", 10),
+    SPEED_WORK("Tập tốc độ", 3),
+    REST("Nghỉ", Long.MAX_VALUE);
     override fun toString(): String = value
+    fun canRestWithin(minutes: Long): Boolean {
+        return minutes <= maxRestMinutes
+    }
 }

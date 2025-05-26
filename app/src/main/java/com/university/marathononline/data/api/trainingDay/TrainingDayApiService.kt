@@ -2,6 +2,7 @@ package com.university.marathononline.data.api.trainingDay
 
 import com.university.marathononline.data.models.Record
 import com.university.marathononline.data.models.TrainingDay
+import com.university.marathononline.data.response.StringResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -16,5 +17,5 @@ interface TrainingDayApiService {
     ): TrainingDay
 
     @POST("/api/v1/training-day/reset")
-    suspend fun resetTrainingDay(): String
+    suspend fun resetTrainingDay(): StringResponse
 }
