@@ -102,6 +102,20 @@ dependencies {
 
     // GG Map
     implementation("com.google.android.gms:play-services-maps:19.0.0")
+
+    // Wear OS connectivity
+    implementation("com.google.android.gms:play-services-wearable:18.1.0")
+    implementation("androidx.wear:wear-remote-interactions:1.0.0")
+
+    // Health Connect (optional, for additional health data)
+    implementation("androidx.health.connect:connect-client:1.1.0-alpha07")
+
+    // Serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.7.3")
 }
 
 buildscript {

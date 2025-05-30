@@ -48,6 +48,35 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"/>
 
+                <!-- THÊM: Trạng thái kết nối Wear OS -->
+                <LinearLayout
+                    android:id="@+id/wearStatusLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="4dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent">
+
+                    <ImageView
+                        android:id="@+id/wearStatusIcon"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_watch"
+                        app:tint="@color/text_color"
+                        android:layout_marginEnd="4dp"/>
+
+                    <TextView
+                        android:id="@+id/wearStatusText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Đang kết nối..."
+                        android:textSize="12sp"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.appbar.MaterialToolbar>
 
@@ -112,7 +141,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginEnd="4dp"
+                            android:layout_marginEnd="2dp"
                             android:orientation="vertical"
                             android:gravity="center"
                             android:padding="12dp"
@@ -148,6 +177,8 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:layout_marginStart="2dp"
+                            android:layout_marginEnd="2dp"
                             android:orientation="vertical"
                             android:gravity="center"
                             android:padding="12dp"
@@ -177,6 +208,90 @@
                                 android:textSize="12sp"
                                 android:alpha="0.9"/>
                         </LinearLayout>
+
+                        <!-- THÊM: Heart Rate Card (chỉ hiện khi có đồng hồ) -->
+                        <LinearLayout
+                            android:id="@+id/heartRateCard"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="2dp"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="12dp"
+                            android:background="@color/light_red"
+                            android:visibility="gone">
+
+                            <ImageView
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:src="@drawable/ic_heart"
+                                app:tint="@color/white"
+                                android:layout_marginBottom="8dp"/>
+
+                            <TextView
+                                android:id="@+id/tvHeartRate"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/white"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:text="-- bpm"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Nhịp tim"
+                                android:textColor="@color/white"
+                                android:textSize="12sp"
+                                android:alpha="0.9"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- THÊM: Wear Connection Status Card -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/wearConnectionCard"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="12dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="12dp"
+                        android:gravity="center_vertical"
+                        android:background="@color/light_main_color">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_watch"
+                            app:tint="@color/white"
+                            android:layout_marginEnd="8dp"/>
+
+                        <TextView
+                            android:id="@+id/wearConnectionText"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Đồng hồ Wear OS đã kết nối"
+                            android:textColor="@color/white"
+                            android:textSize="14sp"
+                            android:textStyle="bold"/>
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_completed"
+                            app:tint="@color/white"/>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 

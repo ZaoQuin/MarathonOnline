@@ -257,7 +257,7 @@ class TrainingPlanDetailsActivity : BaseActivity<TrainingPlanViewModel, Activity
             totalDistance += record.distance
             totalSteps += record.steps
             totalTime += record.timeTaken
-            avgHeartRate += record.heartRace
+            avgHeartRate += record.heartRate
         }
 
         // Calculate averages

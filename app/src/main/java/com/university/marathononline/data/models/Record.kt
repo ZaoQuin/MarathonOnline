@@ -10,5 +10,5 @@ data class Record(
     var timeTaken: Long,
     var avgSpeed: Double,
     var timestamp: String,
-    var heartRace: Double
+    var heartRate: Double
 ): Serializable

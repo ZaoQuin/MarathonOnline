@@ -435,7 +435,7 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
             totalDistance += record.distance
             totalSteps += record.steps
             totalTime += record.timeTaken
-            avgHeartRate += record.heartRace
+            avgHeartRate += record.heartRate
         }
 
         // Calculate averages
