@@ -8,7 +8,10 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -37,6 +40,7 @@ import com.university.marathononline.data.api.record.RecordApiService
 import com.university.marathononline.data.api.registration.RegistrationApiService
 import com.university.marathononline.data.api.trainingDay.TrainingDayApiService
 import com.university.marathononline.data.models.TrainingDay
+import com.university.marathononline.data.models.WearHealthData
 import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.data.repository.TrainingDayRepository
@@ -101,6 +105,7 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         setupObservers()
         checkAndRequestPermissions()
         viewModel.initializeLocationTracking(this)
+        viewModel.initializeWearIntegration()
     }
 
     private fun handleIntentExtras(intent: Intent) {
@@ -121,16 +126,39 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                     viewModel.averagePace.collect { pace ->
                         binding.tvPace.text = pace
                         // Update guided mode fragment if active
-                        guidedModeFragment?.updateCurrentStats(pace, binding.tvDistance.text.toString())
+                        guidedModeFragment?.updateCurrentStats(
+                            pace,
+                            binding.tvDistance.text.toString()
+                        )
                     }
                 }
                 launch {
                     viewModel.distance.collect { distance ->
                         binding.tvDistance.text = distance
                         // Update guided mode fragment if active
-                        guidedModeFragment?.updateCurrentStats(binding.tvPace.text.toString(), distance)
+                        guidedModeFragment?.updateCurrentStats(
+                            binding.tvPace.text.toString(),
+                            distance
+                        )
                     }
                 }
+
+                // THÊM: Observer cho trạng thái kết nối Wear
+                launch {
+                    viewModel.isWearConnected.collect { isConnected ->
+                        updateWearConnectionStatus(isConnected)
+                    }
+                }
+
+                // THÊM: Observer cho dữ liệu sức khỏe từ Wear
+                launch {
+                    viewModel.wearHealthData.collect { wearData ->
+                        wearData?.let {
+                            updateUIWithWearData(it)
+                        }
+                    }
+                }
+
                 viewModel.isRecording.collect { isRecording ->
                     binding.playButton.visible(!isRecording)
                     binding.stopButton.visible(isRecording)
@@ -180,6 +208,104 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                 binding.checkGPS.text = "GPS is Disabled"
             }
         })
+    }
+
+    private fun updateWearConnectionStatus(isConnected: Boolean) {
+        binding.apply {
+            if (isConnected) {
+                // Hiển thị trạng thái đã kết nối
+                wearStatusIcon.setImageResource(R.drawable.ic_watch)
+                wearStatusIcon.setColorFilter(ContextCompat.getColor(this@RecordActivity, R.color.light_main_color))
+                wearStatusText.text = "Đã kết nối"
+                wearStatusText.setTextColor(ContextCompat.getColor(this@RecordActivity, R.color.light_main_color))
+
+                // Hiển thị card thông báo kết nối thành công
+                wearConnectionCard.visible(true)
+                wearConnectionText.text = "Đồng hồ Wear OS đã kết nối"
+
+                // Ẩn card sau 3 giây
+                Handler(Looper.getMainLooper()).postDelayed({
+                    wearConnectionCard.visible(false)
+                }, 3000)
+
+            } else {
+                // Hiển thị trạng thái chưa kết nối
+                wearStatusIcon.setImageResource(R.drawable.ic_watch)
+                wearStatusIcon.setColorFilter(ContextCompat.getColor(this@RecordActivity, R.color.text_color))
+                wearStatusText.text = "Chưa kết nối"
+                wearStatusText.setTextColor(ContextCompat.getColor(this@RecordActivity, R.color.text_color))
+
+                wearConnectionCard.visible(false)
+            }
+        }
+    }
+
+    private fun updateUIWithWearData(wearData: WearHealthData) {
+        binding.apply {
+            // Hiển thị heart rate card nếu có dữ liệu nhịp tim
+            if (wearData.heartRate > 0) {
+                heartRateCard.visible(true)
+                tvHeartRate.text = "${wearData.heartRate.toInt()} bpm"
+
+                // Thay đổi màu theo nhịp tim
+                val heartRateColor = when {
+                    wearData.heartRate < 60 -> R.color.main_color  // Nhịp tim thấp
+                    wearData.heartRate > 160 -> R.color.light_red  // Nhịp tim cao
+                    else -> R.color.dark_main_color                // Nhịp tim bình thường
+                }
+                heartRateCard.setBackgroundColor(ContextCompat.getColor(this@RecordActivity, heartRateColor))
+            } else {
+                heartRateCard.visible(false)
+            }
+
+            // Cập nhật layout để phù hợp với việc hiển thị heart rate
+            if (heartRateCard.visibility == View.VISIBLE) {
+                // Điều chỉnh weight cho các LinearLayout con trong recordLayout
+                try {
+                    // Lấy các LinearLayout con của recordLayout
+                    val recordLayoutChildren = recordLayout.childCount
+                    for (i in 0 until recordLayoutChildren) {
+                        val child = recordLayout.getChildAt(i)
+                        if (child is LinearLayout) {
+                            val layoutParams = child.layoutParams as? LinearLayout.LayoutParams
+                            layoutParams?.weight = 1f
+                            child.layoutParams = layoutParams
+                        }
+                    }
+                } catch (e: ClassCastException) {
+                    Log.e("RecordActivity", "Error adjusting layout weights: ${e.message}")
+                    // Fallback: don't adjust weights if casting fails
+                }
+            } else {
+                // Khi heart rate card ẩn, reset weight cho distance và pace cards
+                try {
+                    val recordLayoutChildren = recordLayout.childCount
+                    var visibleCardCount = 0
+
+                    // Đếm số card visible (không bao gồm heart rate card)
+                    for (i in 0 until recordLayoutChildren) {
+                        val child = recordLayout.getChildAt(i)
+                        if (child is LinearLayout && child != heartRateCard && child.visibility == View.VISIBLE) {
+                            visibleCardCount++
+                        }
+                    }
+
+                    // Điều chỉnh weight cho các card visible
+                    for (i in 0 until recordLayoutChildren) {
+                        val child = recordLayout.getChildAt(i)
+                        if (child is LinearLayout && child != heartRateCard && child.visibility == View.VISIBLE) {
+                            val layoutParams = child.layoutParams as? LinearLayout.LayoutParams
+                            layoutParams?.weight = 1f
+                            child.layoutParams = layoutParams
+                        }
+                    }
+                } catch (e: ClassCastException) {
+                    Log.e("RecordActivity", "Error resetting layout weights: ${e.message}")
+                }
+            }
+        }
+
+        Log.d("RecordActivity", "Updated UI with wear data: HR=${wearData.heartRate}, Steps=${wearData.steps}")
     }
 
     private fun initializeUI() {

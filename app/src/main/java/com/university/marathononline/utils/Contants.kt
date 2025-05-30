@@ -45,3 +45,17 @@ const val KEY_REMEMBER_ME = "remember_me"
 
 const val SORT_BY_ASC = "SORT_BY_ASC"
 const val SORT_BY_DES = "SORT_BY_DES"
+
+object WearableConstants {
+    const val DATA_PATH = "/wear_health_data"
+    const val START_RECORDING_PATH = "/start_recording"
+    const val STOP_RECORDING_PATH = "/stop_recording"
+
+    const val KEY_HEART_RATE = "heartRate"
+    const val KEY_STEPS = "steps"
+    const val KEY_DISTANCE = "distance"
+    const val KEY_SPEED = "speed"
+    const val KEY_CALORIES = "calories"
+    const val KEY_TIMESTAMP = "timestamp"
+    const val KEY_IS_RECORDING = "isRecording"
+}
