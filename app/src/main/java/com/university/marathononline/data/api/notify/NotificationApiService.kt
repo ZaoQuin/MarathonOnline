@@ -4,6 +4,7 @@ import com.university.marathononline.data.models.Notification
 import com.university.marathononline.data.request.CreateAllNotificationRequest
 import com.university.marathononline.data.request.CreateGroupNotificationRequest
 import com.university.marathononline.data.request.CreateIndividualNotificationRequest
+import com.university.marathononline.data.request.UpdateFCMTokenRequest
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -25,4 +26,13 @@ interface NotificationApiService {
 
     @PUT("/api/v1/notification/readed")
     suspend fun readNotify(@Body notification: Notification): Notification
+
+    @POST("/api/v1/notification/fcm-token")
+    suspend fun updateFCMToken(@Body request: UpdateFCMTokenRequest): Any
+
+    @PUT("/api/v1/notification/mark-all-read")
+    suspend fun markAllAsRead(): List<Notification>
+
+    @GET("/api/v1/notification/unread-count")
+    suspend fun getUnreadCount(): Int
 }

@@ -41,30 +41,28 @@ class NotifyAdapter(private var notifies: List<Notification>,
                                 mapOf(KEY_CONTEST to contest)
                             )
                         else
-                        if(item.type == ENotificationType.NEW_CONTEST ||
-                            item.type == ENotificationType.BLOCK_CONTEST)
-                            it.context.startNewActivity(
-                                ContestDetailsActivity::class.java,
-                                mapOf(KEY_CONTEST to contest)
-                            )
-                        else {
-                            val email = item.receiver?.email
-                            val contests = listOf(contest)
-                            if(email != null && contests != null) {
+                            if(item.type == ENotificationType.NEW_CONTEST ||
+                                item.type == ENotificationType.BLOCK_CONTEST)
                                 it.context.startNewActivity(
-                                    RunnerRewardsActivity::class.java,
-                                    mapOf(
-                                        KEY_EMAIL to email,
-                                        KEY_CONTESTS to contests
-                                    )
+                                    ContestDetailsActivity::class.java,
+                                    mapOf(KEY_CONTEST to contest)
                                 )
+                            else {
+                                val email = item.receiver?.email
+                                val contests = listOf(contest)
+                                if(email != null && contests != null) {
+                                    it.context.startNewActivity(
+                                        RunnerRewardsActivity::class.java,
+                                        mapOf(
+                                            KEY_EMAIL to email,
+                                            KEY_CONTESTS to contests
+                                        )
+                                    )
+                                }
                             }
-                        }
                     }
                 }
             }
-
-
         }
     }
 
@@ -76,7 +74,18 @@ class NotifyAdapter(private var notifies: List<Notification>,
     override fun getItemCount(): Int = notifies.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val sortedNotifies = notifies.sortedByDescending { DateUtils.convertStringToLocalDateTime(it.createAt!!) }
+        // Fix: Handle null createAt values safely
+        val sortedNotifies = notifies.sortedByDescending { notification ->
+            notification.createAt?.let {
+                try {
+                    DateUtils.convertStringToLocalDateTime(it)
+                } catch (e: Exception) {
+                    // If date parsing fails, treat as oldest date
+                    null
+                }
+            }
+            // Notifications with null createAt will be sorted to the end
+        }
         holder.bind(sortedNotifies[position], setRead)
     }
 

@@ -22,6 +22,7 @@ import com.university.marathononline.ui.viewModel.tracking.RecordingManager
 import com.university.marathononline.ui.viewModel.tracking.StepCounter
 import com.university.marathononline.ui.viewModel.tracking.WearIntegrationManager
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -59,6 +60,12 @@ class RecordViewModel(
 
     private var applicationContext: Context? = null
 
+    // Thêm flag để kiểm soát việc sử dụng GPS
+    private var isUsingWearForTracking = false
+
+    // Override routes để kiểm soát hiển thị GPS khi dùng Wear
+    private val _routesOverride = MutableStateFlow<List<LatLng>>(emptyList())
+
     // Expose StateFlows from managers
     val time: StateFlow<String> get() = recordingManager.time
     val averagePace: StateFlow<String> get() = recordingManager.averagePace
@@ -66,7 +73,11 @@ class RecordViewModel(
     val steps: StateFlow<Int> get() = stepCounter.steps
     val isRecording: StateFlow<Boolean> get() = recordingManager.isRecording
     val position: StateFlow<String> get() = locationTracker.position
-    val routes: StateFlow<List<LatLng>> get() = locationTracker.routes
+
+    // Modified routes property - return empty list when using Wear
+    val routes: StateFlow<List<LatLng>> get() =
+        if (isUsingWearForTracking) _routesOverride else locationTracker.routes
+
     val guidedModeStats: StateFlow<GuidedModeStats> get() = guidedModeManager.guidedModeStats
     val wearHealthData: StateFlow<WearHealthData?> get() = wearIntegrationManager.wearHealthData
     val isWearConnected: StateFlow<Boolean> get() = wearIntegrationManager.isWearConnected
@@ -79,22 +90,65 @@ class RecordViewModel(
         recordingManager = RecordingManager()
         wearIntegrationManager = WearIntegrationManager(context, viewModelScope)
 
+        // If training day was set before initialization, set it now
+        _trainingDay.value?.let { trainingDay ->
+            guidedModeManager.setTrainingDay(trainingDay)
+            Log.d("RecordViewModel", "Set pending training day after initialization")
+        }
+
         // Set up location update callback
         locationTracker.onLocationUpdate = { _, distanceInKm ->
-            recordingManager.updateDistance(distanceInKm)
-            if (guidedModeManager.isEnabled()) {
-                guidedModeManager.updateStats(
-                    currentPace = recordingManager.currentAvgPace,
-                    currentDistance = recordingManager.totalDistance,
-                    elapsedTime = recordingManager.getElapsedTimeInSeconds() * 1000
-                )
+            // Only update distance from GPS when not using Wear
+            if (!isUsingWearForTracking) {
+                recordingManager.updateDistance(distanceInKm)
+                if (guidedModeManager.isEnabled()) {
+                    guidedModeManager.updateStats(
+                        currentPace = recordingManager.currentAvgPace,
+                        currentDistance = recordingManager.totalDistance,
+                        elapsedTime = recordingManager.getElapsedTimeInSeconds() * 1000
+                    )
+                }
             }
         }
 
-        // Observe GPS status
+        // Rest of the initialization code remains the same...
         viewModelScope.launch {
             locationTracker.isGPSEnabled.collect { isEnabled ->
                 _isGPSEnabled.postValue(isEnabled)
+            }
+        }
+
+        viewModelScope.launch {
+            wearIntegrationManager.isWearConnected.collect { isConnected ->
+                handleWearConnectionChange(isConnected)
+            }
+        }
+    }
+
+    private fun handleWearConnectionChange(isConnected: Boolean) {
+        if (isConnected) {
+            // Khi Wear kết nối, chuyển sang chế độ dùng Wear
+            Log.d("RecordViewModel", "Wear connected - switching to wear tracking mode")
+            isUsingWearForTracking = true
+
+            // Dừng GPS tracking nếu đang recording
+            if (recordingManager.isRecording.value) {
+                locationTracker.stopLocationUpdates()
+                stepCounter.stopCounting()
+            }
+
+            // Clear current routes to hide GPS path
+            _routesOverride.value = emptyList()
+
+        } else {
+            // Khi Wear ngắt kết nối, chuyển về chế độ dùng phone
+            Log.d("RecordViewModel", "Wear disconnected - switching to phone tracking mode")
+            isUsingWearForTracking = false
+
+            // Khởi động lại GPS tracking nếu đang recording
+            if (recordingManager.isRecording.value) {
+                locationTracker.startLocationUpdates()
+                stepCounter.startCounting()
             }
         }
     }
@@ -109,7 +163,7 @@ class RecordViewModel(
             stopRecording()
         }
         wearIntegrationManager.onHealthDataUpdate = { wearData ->
-            if (isRecording.value) {
+            if (isRecording.value && isUsingWearForTracking) {
                 updateUIFromWearData(wearData)
             }
         }
@@ -131,23 +185,24 @@ class RecordViewModel(
 
     fun startRecording(context: Context) {
         applicationContext = context.applicationContext
-        if (!locationTracker.startLocationUpdates()) {
-            Log.w("RecordViewModel", "Cannot start recording: location permissions not granted")
-            return
-        }
-
-        if (wearIntegrationManager.isWearConnected.value) {
-            // Chỉ dựa vào dữ liệu từ đồng hồ
-            Log.d("RecordViewModel", "Using wear data, disabling phone sensors")
-            locationTracker.stopLocationUpdates()
-            stepCounter.stopCounting()
-        } else if (!locationTracker.startLocationUpdates()) {
-            Log.w("RecordViewModel", "Cannot start recording: location permissions not granted")
-            return
-        }
 
         recordingManager.startRecording()
-        stepCounter.startCounting()
+
+        if (isUsingWearForTracking) {
+            // Chỉ dựa vào dữ liệu từ đồng hồ
+            Log.d("RecordViewModel", "Using wear data for tracking - GPS disabled")
+            locationTracker.stopLocationUpdates()
+            stepCounter.stopCounting()
+            _routesOverride.value = emptyList() // Clear routes immediately
+        } else {
+            // Sử dụng GPS và sensors của phone
+            Log.d("RecordViewModel", "Using phone sensors for tracking")
+            if (!locationTracker.startLocationUpdates()) {
+                Log.w("RecordViewModel", "Cannot start recording: location permissions not granted")
+                return
+            }
+            stepCounter.startCounting()
+        }
 
         // Start time updater
         viewModelScope.launch {
@@ -159,14 +214,19 @@ class RecordViewModel(
     }
 
     private fun updateUIFromWearData(wearData: WearHealthData) {
+        // Chỉ update UI từ Wear data khi đang dùng Wear cho tracking
+        if (!isUsingWearForTracking) return
+
+        Log.d("RecordViewModel", "Updating UI from Wear data: distance=${wearData.distance}, steps=${wearData.steps}, speed=${wearData.speed}")
+
         if (wearData.distance > 0) {
-            recordingManager.setDistance(maxOf(recordingManager.totalDistance, wearData.distance))
+            recordingManager.setDistance(wearData.distance)
         }
         if (wearData.steps > 0) {
-            stepCounter.setSteps(maxOf(stepCounter.steps.value, wearData.steps))
+            stepCounter.setSteps(wearData.steps)
         }
         if (wearData.speed > 0) {
-            recordingManager.currentAvgPace = 60.0 / wearData.speed
+            recordingManager.currentAvgPace = if (wearData.speed > 0) 60.0 / wearData.speed else 0.0
             recordingManager.updateTime()
         }
         if (guidedModeManager.isEnabled()) {
@@ -198,6 +258,7 @@ class RecordViewModel(
         Log.d("RecordViewModel", "Distance: ${createRecordRequest.distance} km")
         Log.d("RecordViewModel", "Speed: ${createRecordRequest.avgSpeed} km/h")
         Log.d("RecordViewModel", "Steps: ${createRecordRequest.steps}")
+        Log.d("RecordViewModel", "Data source: ${if (isUsingWearForTracking) "Wear OS" else "Phone sensors"}")
 
         createRecord(createRecordRequest)
     }
@@ -226,7 +287,13 @@ class RecordViewModel(
     fun setCurrentTrainingDay(trainingDay: TrainingDay) {
         _trainingDay.value = trainingDay
         Log.d("RecordViewModel", "Training day set: ${trainingDay.session.type} - pace: ${trainingDay.session.pace}")
-        guidedModeManager.setTrainingDay(trainingDay)
+
+        // Check if guidedModeManager is initialized before using it
+        if (::guidedModeManager.isInitialized) {
+            guidedModeManager.setTrainingDay(trainingDay)
+        } else {
+            Log.w("RecordViewModel", "GuidedModeManager not initialized yet, will set training day when initialized")
+        }
     }
 
     fun getCurrentTrainingDay() {
@@ -244,10 +311,34 @@ class RecordViewModel(
         wearIntegrationManager.refreshConnection()
     }
 
+    // Thêm method để kiểm tra trạng thái tracking
+    fun isUsingWearTracking(): Boolean = isUsingWearForTracking
+
     override fun onCleared() {
         super.onCleared()
-        guidedModeManager.clear()
-        locationTracker.reset()
-        stepCounter.reset()
+
+        // Check if properties are initialized before accessing them
+        if (::guidedModeManager.isInitialized) {
+            guidedModeManager.clear()
+        }
+
+        if (::locationTracker.isInitialized) {
+            locationTracker.reset()
+        }
+
+        if (::stepCounter.isInitialized) {
+            stepCounter.reset()
+        }
+
+        // Optional: Also handle other lateinit properties for completeness
+        if (::wearIntegrationManager.isInitialized) {
+            // Add cleanup if WearIntegrationManager has a cleanup method
+            // wearIntegrationManager.cleanup()
+        }
+
+        if (::recordingManager.isInitialized) {
+            // Add cleanup if RecordingManager has a cleanup method
+            // recordingManager.cleanup()
+        }
     }
 }

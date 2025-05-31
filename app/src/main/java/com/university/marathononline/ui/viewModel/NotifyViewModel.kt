@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 class NotifyViewModel(
     private val notificationRepository: NotificationRepository
 ): BaseViewModel(listOf(notificationRepository)) {
+
     private val _notifies = MutableLiveData<List<Notification>>()
     val notifies: LiveData<List<Notification>> get() = _notifies
 
@@ -37,5 +38,26 @@ class NotifyViewModel(
             _setReadResponse.value = Resource.Loading
             _setReadResponse.value = notificationRepository.readNotify(notify)
         }
+    }
+
+    fun addNotification(notification: Notification) {
+        val currentNotifications = _notifies.value?.toMutableList() ?: mutableListOf()
+        currentNotifications.add(0, notification)
+        _notifies.value = currentNotifications
+    }
+
+    fun markAllAsRead() {
+        viewModelScope.launch {
+            val currentNotifications = _notifies.value?.map { notification ->
+                notification.copy(isRead = true)
+            } ?: emptyList()
+
+            _notifies.value = currentNotifications
+             notificationRepository.markAllAsRead()
+        }
+    }
+
+    fun getUnreadCount(): Int {
+        return _notifies.value?.count { it.isRead == false } ?: 0
     }
 }

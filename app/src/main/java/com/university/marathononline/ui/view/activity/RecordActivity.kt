@@ -99,13 +99,18 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialize location tracking FIRST, before handling intent extras
+        viewModel.initializeLocationTracking(this)
+        viewModel.initializeWearIntegration()
+
+        // Now it's safe to handle intent extras that might call setCurrentTrainingDay
         handleIntentExtras(intent)
+
         showModeSelectionDialog()
         initializeUI()
         setupObservers()
         checkAndRequestPermissions()
-        viewModel.initializeLocationTracking(this)
-        viewModel.initializeWearIntegration()
     }
 
     private fun handleIntentExtras(intent: Intent) {
@@ -143,14 +148,19 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                     }
                 }
 
-                // THÊM: Observer cho trạng thái kết nối Wear
+                // CẬP NHẬT: Observer cho trạng thái kết nối Wear - ẩn/hiện nút start/stop
                 launch {
                     viewModel.isWearConnected.collect { isConnected ->
                         updateWearConnectionStatus(isConnected)
+                        // Ẩn nút start/stop khi kết nối với Wear
+                        updateButtonVisibility(isConnected)
+
+                        // CẬP NHẬT: Xử lý map khi chuyển đổi giữa Wear và Phone tracking
+                        handleMapTrackingMode(isConnected)
                     }
                 }
 
-                // THÊM: Observer cho dữ liệu sức khỏe từ Wear
+                // Observer cho dữ liệu sức khỏe từ Wear
                 launch {
                     viewModel.wearHealthData.collect { wearData ->
                         wearData?.let {
@@ -159,9 +169,19 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                     }
                 }
 
-                viewModel.isRecording.collect { isRecording ->
-                    binding.playButton.visible(!isRecording)
-                    binding.stopButton.visible(isRecording)
+                // CẬP NHẬT: Chỉ hiển thị nút start/stop khi không kết nối Wear
+                launch {
+                    viewModel.isRecording.collect { isRecording ->
+                        val isWearConnected = viewModel.isWearConnected.value
+                        if (!isWearConnected) {
+                            binding.playButton.visible(!isRecording)
+                            binding.stopButton.visible(isRecording)
+                        } else {
+                            // Khi kết nối Wear, ẩn cả hai nút
+                            binding.playButton.visible(false)
+                            binding.stopButton.visible(false)
+                        }
+                    }
                 }
             }
         }
@@ -210,6 +230,86 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         })
     }
 
+    private fun handleMapTrackingMode(isWearConnected: Boolean) {
+        if (isWearConnected) {
+            // Khi dùng Wear, ẩn marker và route hiện tại
+            currentMarker?.remove()
+            currentMarker = null
+            polyline?.remove()
+            polyline = null
+
+            // Hiển thị thông báo trên map
+            showWearTrackingMessage()
+        } else {
+            // Khi dùng phone, bật lại GPS tracking trên map
+            hideWearTrackingMessage()
+            // Map sẽ tự động cập nhật khi có location data từ GPS
+        }
+    }
+
+    private fun showWearTrackingMessage() {
+        if (::googleMap.isInitialized) {
+            // Có thể thêm một custom info window hoặc overlay
+            // Hoặc chỉ đơn giản là để map trống và hiển thị message
+
+            // Option 1: Zoom về vị trí mặc định
+            val defaultLocation = LatLng(10.762622, 106.660172) // HCM City
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f))
+
+            // Option 2: Có thể thêm marker thông báo
+            val wearTrackingMarker = googleMap.addMarker(
+                MarkerOptions()
+                    .position(defaultLocation)
+                    .title("Tracking với Wear OS")
+                    .snippet("Vị trí đang được theo dõi bởi đồng hồ thông minh")
+            )
+        }
+    }
+
+    private fun hideWearTrackingMessage() {
+        // Remove wear tracking message/marker if any
+        // Map sẽ tự động hiển thị GPS tracking khi có data
+    }
+
+    private fun updateButtonVisibility(isWearConnected: Boolean) {
+        binding.apply {
+            if (isWearConnected) {
+                // Khi kết nối Wear, ẩn cả hai nút và hiển thị thông báo
+                playButton.visible(false)
+                stopButton.visible(false)
+
+                // Có thể thêm một TextView hoặc thông báo cho user biết điều khiển từ Wear
+                showWearControlMessage(true)
+            } else {
+                // Khi không kết nối Wear, hiển thị nút theo trạng thái recording
+                val isRecording = viewModel.isRecording.value
+                playButton.visible(!isRecording)
+                stopButton.visible(isRecording)
+
+                showWearControlMessage(false)
+            }
+        }
+    }
+
+    private fun showWearControlMessage(show: Boolean) {
+        binding.apply {
+            if (show) {
+                // Tạo hoặc hiển thị TextView thông báo (cần thêm vào layout)
+                // wearControlMessage.visible(true)
+                // wearControlMessage.text = "Điều khiển từ đồng hồ Wear OS"
+
+                // Hoặc hiển thị Toast
+                Toast.makeText(
+                    this@RecordActivity,
+                    "Sử dụng đồng hồ Wear OS để bắt đầu/dừng ghi lại",
+                    Toast.LENGTH_LONG
+                ).show()
+            } else {
+                // wearControlMessage.visible(false)
+            }
+        }
+    }
+
     private fun updateWearConnectionStatus(isConnected: Boolean) {
         binding.apply {
             if (isConnected) {
@@ -238,6 +338,9 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                 wearConnectionCard.visible(false)
             }
         }
+
+        // Cập nhật visibility của các nút
+        updateButtonVisibility(isConnected)
     }
 
     private fun updateUIWithWearData(wearData: WearHealthData) {
@@ -436,7 +539,8 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.routes.collect { routes ->
-                    if (routes.isNotEmpty()) {
+                    // Chỉ vẽ route khi không dùng Wear tracking
+                    if (!viewModel.isUsingWearTracking() && routes.isNotEmpty()) {
                         drawRoute(routes)
 
                         val lastPoint = routes.last()
@@ -455,6 +559,12 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                         }
 
                         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastPoint, 16f))
+                    } else if (viewModel.isUsingWearTracking()) {
+                        // Clear map khi dùng Wear tracking
+                        currentMarker?.remove()
+                        currentMarker = null
+                        polyline?.remove()
+                        polyline = null
                     }
                 }
             }
