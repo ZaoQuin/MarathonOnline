@@ -1,21 +1,39 @@
 package com.university.marathononline.ui.view.activity
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ReportFragment.Companion.reportFragment
 import androidx.viewpager2.widget.ViewPager2
+import com.google.firebase.FirebaseApp
+import com.google.firebase.messaging.FirebaseMessaging
 import com.university.marathononline.R
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
+import com.university.marathononline.data.api.Resource
+import com.university.marathononline.data.api.notify.NotificationApiService
+import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.databinding.ActivityMainBinding
 import com.university.marathononline.ui.adapter.MainPagerAdapter
 import com.university.marathononline.ui.viewModel.MainViewModel
+import com.university.marathononline.utils.NotificationUtils
 import com.university.marathononline.utils.startNewActivity
+import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
 class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>(){
+
+    companion object {
+        const val TAG = "Marathon Online"
+        private const val REQUEST_NOTIFICATION_PERMISSION = 100
+    }
 
     private lateinit var adapter: MainPagerAdapter
     private var handlerAnimation = Handler()
@@ -23,6 +41,27 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                setupFirebase()
+            } else {
+                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_NOTIFICATION_PERMISSION)
+            }
+        }
+
+        FirebaseApp.initializeApp(this)
+        NotificationUtils.createNotificationChannels(this)
+        FirebaseMessaging.getInstance().subscribeToTopic("marathon_general")
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    android.util.Log.d("Marathon Online", "Subscribed to general topic")
+                } else {
+                    android.util.Log.e("Marathon Online", "Failed to subscribe to general topic", task.exception)
+                }
+            }
+
 
         adapter = MainPagerAdapter(this, emptyList())
 
@@ -34,13 +73,62 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>(){
         observe()
     }
 
+    private fun setupFirebase() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w(TAG, "Fetching FCM registration token failed", task.exception)
+                return@addOnCompleteListener
+            }
+
+            val token = task.result
+            Log.d(TAG, "FCM Registration Token: $token")
+
+            sendTokenToServer(token)
+        }
+
+        FirebaseMessaging.getInstance().subscribeToTopic("marathon_updates")
+            .addOnCompleteListener { task ->
+                val msg = if (task.isSuccessful) {
+                    "Subscribed to marathon_updates topic"
+                } else {
+                    "Subscribe to marathon_updates failed"
+                }
+                Log.d(TAG, msg)
+            }
+    }
+
+    private fun sendTokenToServer(token: String) {
+         viewModel.updateFCMToken(token, this@MainActivity)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        Log.d(TAG, "onRequestPermissionsResult called for requestCode=$requestCode")
+
+        if (requestCode == REQUEST_NOTIFICATION_PERMISSION) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Notification permission granted")
+            } else {
+                Log.d(TAG, "Notification permission denied")
+            }
+        }
+    }
+
     override fun getViewModel(): Class<MainViewModel> = MainViewModel::class.java
 
     override fun getActivityBinding(inflater: LayoutInflater): ActivityMainBinding {
         return ActivityMainBinding.inflate(inflater)
     }
 
-    override fun getActivityRepositories(): List<BaseRepository> = listOf()
+    override fun getActivityRepositories(): List<BaseRepository> {
+        val token = runBlocking { userPreferences.authToken.first() }
+        val api = retrofitInstance.buildApi(NotificationApiService::class.java, token)
+        return listOf(NotificationRepository(api))
+    }
 
     private fun setUpRecordButton() {
         binding.btnRecord.setOnClickListener {
@@ -86,6 +174,19 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>(){
             binding.bottomNavView.menu
                 .getItem(if (page < 2) page else page + 1).isChecked = true
         })
+
+        viewModel.updateFCMToken.observe(this){
+            when (it){
+                is Resource.Success ->
+                    Log.d(TAG, "Token update successful")
+                is Resource.Failure ->
+                {
+                    Log.e(TAG, "Error while updating token")
+                    handleApiError(it)
+                }
+                else -> Unit
+            }
+        }
     }
 
     private fun setUpBottomNavView() {

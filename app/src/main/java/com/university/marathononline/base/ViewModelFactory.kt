@@ -59,7 +59,7 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(LoginViewModel::class.java) -> LoginViewModel(findRepository(AuthRepository::class.java)) as T
             modelClass.isAssignableFrom(VerifyOTPViewModel::class.java) -> VerifyOTPViewModel(findRepository(AuthRepository::class.java)) as T
             modelClass.isAssignableFrom(OrganizerHomeViewModel::class.java) -> OrganizerHomeViewModel(findRepository(AuthRepository::class.java)) as T
-            modelClass.isAssignableFrom(MainViewModel::class.java) -> MainViewModel() as T
+            modelClass.isAssignableFrom(MainViewModel::class.java) -> MainViewModel(findRepository(NotificationRepository::class.java)) as T
             modelClass.isAssignableFrom(ForgetPasswordViewModel::class.java) -> ForgetPasswordViewModel(findRepository(UserRepository::class.java)) as T
             modelClass.isAssignableFrom(InformationViewModel::class.java) -> InformationViewModel(findRepository(AuthRepository::class.java)) as T
             modelClass.isAssignableFrom(RoleSelectionViewModel::class.java) -> RoleSelectionViewModel(findRepository(UserRepository::class.java)) as T
