@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.university.marathononline.R
@@ -18,6 +19,8 @@ import com.university.marathononline.utils.KEY_NOTIFICATION_DATA
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
@@ -26,6 +29,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         private const val CHANNEL_ID = "marathon_notifications"
         private const val CHANNEL_NAME = "Marathon Notifications"
         private const val NOTIFICATION_ID = 1001
+        const val ACTION_NEW_NOTIFICATION = "com.university.marathononline.NEW_NOTIFICATION"
+        const val ACTION_UPDATE_BADGE = "com.university.marathononline.UPDATE_BADGE"
     }
 
     override fun onCreate() {
@@ -41,87 +46,135 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // Xử lý data payload
         remoteMessage.data.isNotEmpty().let {
             Log.d(TAG, "Message data payload: ${remoteMessage.data}")
-            handleDataPayload(remoteMessage.data)
+            handleDataPayload(remoteMessage.data, remoteMessage.notification)
         }
 
         // Xử lý notification payload
         remoteMessage.notification?.let {
             Log.d(TAG, "Message Notification Body: ${it.body}")
-            showNotification(it.title, it.body, remoteMessage.data)
+            // Note: handleDataPayload already handles both data and notification
         }
     }
 
-    override fun onNewToken(token: String) {
-        super.onNewToken(token)
-        Log.d(TAG, "Refreshed token: $token")
-
-        // Gửi token lên server
-        sendTokenToServer(token)
-    }
-
-    private fun handleDataPayload(data: Map<String, String>) {
+    private fun handleDataPayload(data: Map<String, String>, notification: RemoteMessage.Notification?) {
         try {
-            // Parse dữ liệu từ Firebase
-            val notificationData = parseNotificationData(data)
+            val notificationData = parseNotificationData(data, notification)
 
-            // Lưu notification vào local database hoặc gửi broadcast
-            saveNotificationLocally(notificationData)
+            Log.d(TAG, "Parsed notification: ID=${notificationData.id}, Title='${notificationData.title}', Content='${notificationData.content}'")
 
-            // Hiển thị notification
+            // Gửi broadcast để cập nhật UI real-time
+            sendNotificationBroadcast(notificationData)
+
+            // Hiển thị system notification
             showNotification(
-                notificationData.title ?: "Marathon Online",
-                notificationData.content ?: "Bạn có thông báo mới",
-                data
+                notificationData.title ?: notification?.title ?: "Marathon Online",
+                notificationData.content ?: notification?.body ?: "Bạn có thông báo mới",
+                notificationData
             )
         } catch (e: Exception) {
             Log.e(TAG, "Error handling data payload: ${e.message}")
         }
     }
 
-    private fun parseNotificationData(data: Map<String, String>): Notification {
-        return Notification(
-            id = data["id"]?.toLongOrNull(),
-            title = data["title"],
-            content = data["content"],
-            createAt = data["createAt"],
-            isRead = false,
-            type = data["type"]?.let { ENotificationType.valueOf(it) }
-        )
-    }
+    private fun parseNotificationData(data: Map<String, String>, notification: RemoteMessage.Notification?): Notification {
+        // Get notification ID from data payload
+        val notificationId = data["notificationId"]?.toLongOrNull() ?: data["id"]?.toLongOrNull()
 
-    private fun saveNotificationLocally(notification: Notification) {
-        // Có thể lưu vào Room Database hoặc SharedPreferences
-        // Hoặc gửi broadcast để activity nhận và xử lý
-        val intent = Intent("com.university.marathononline.NEW_NOTIFICATION")
-        intent.putExtra(KEY_NOTIFICATION_DATA, notification)
-        sendBroadcast(intent)
-    }
-
-    private fun showNotification(title: String?, body: String?, data: Map<String, String>) {
-        val intent = Intent(this, NotificationsActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            // Truyền dữ liệu notification nếu cần
-            data.forEach { (key, value) ->
-                putExtra(key, value)
+        // Get type from data payload
+        val notificationType = data["type"]?.let {
+            try {
+                ENotificationType.valueOf(it)
+            } catch (e: Exception) {
+                Log.w(TAG, "Unknown notification type: $it")
+                null
             }
         }
 
+        // Create notification with available data, filling in missing fields
+        return Notification(
+            id = notificationId,
+            title = data["title"] ?: notification?.title ?: getDefaultTitleForType(notificationType),
+            content = data["content"] ?: data["body"] ?: notification?.body ?: getDefaultContentForType(notificationType),
+            createAt = data["createAt"] ?: getCurrentTimestamp(),
+            isRead = false,
+            type = notificationType
+        ).also {
+            Log.d(TAG, "Created notification object: ID=${it.id}, Title='${it.title}', Content='${it.content}', Type=${it.type}")
+        }
+    }
+
+    private fun getDefaultTitleForType(type: ENotificationType?): String {
+        return when (type) {
+            ENotificationType.REWARD -> "Giải thưởng mới"
+            ENotificationType.NEW_CONTEST -> "Cuộc thi mới"
+            ENotificationType.BLOCK_CONTEST -> "Thông báo chặn"
+            ENotificationType.ACCEPT_CONTEST -> "Cuộc thi được duyệt"
+            ENotificationType.NOT_APPROVAL_CONTEST -> "Cuộc thi không được duyệt"
+            null -> "Marathon Online"
+        }
+    }
+
+    private fun getDefaultContentForType(type: ENotificationType?): String {
+        return when (type) {
+            ENotificationType.REWARD -> "Bạn có giải thưởng mới"
+            ENotificationType.NEW_CONTEST -> "Có cuộc thi mới dành cho bạn"
+            ENotificationType.BLOCK_CONTEST -> "Bạn đã bị chặn khỏi cuộc thi"
+            ENotificationType.ACCEPT_CONTEST -> "Cuộc thi của bạn đã được duyệt"
+            ENotificationType.NOT_APPROVAL_CONTEST -> "Cuộc thi của bạn không được duyệt"
+            null -> "Bạn có thông báo mới"
+        }
+    }
+
+    private fun getCurrentTimestamp(): String {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+        return dateFormat.format(Date())
+    }
+
+    private fun sendNotificationBroadcast(notification: Notification) {
+        Log.d(TAG, "Sending broadcast for notification: ${notification.id}")
+
+        // Gửi local broadcast
+        val localIntent = Intent(ACTION_NEW_NOTIFICATION)
+        localIntent.putExtra(KEY_NOTIFICATION_DATA, notification)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent)
+
+        // Gửi global broadcast
+        val globalIntent = Intent(ACTION_NEW_NOTIFICATION)
+        globalIntent.putExtra(KEY_NOTIFICATION_DATA, notification)
+        sendBroadcast(globalIntent)
+
+        // Gửi broadcast để cập nhật badge
+        val badgeIntent = Intent(ACTION_UPDATE_BADGE)
+        sendBroadcast(badgeIntent)
+
+        Log.d(TAG, "Broadcasts sent successfully")
+    }
+
+    private fun showNotification(title: String?, body: String?, notification: Notification) {
+        val intent = Intent(this, NotificationsActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra(KEY_NOTIFICATION_DATA, notification)
+        }
+
         val pendingIntent = PendingIntent.getActivity(
-            this, 0, intent,
+            this, System.currentTimeMillis().toInt(), intent,
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.marathon_online) // Thêm icon notification
+            .setSmallIcon(R.drawable.marathon_online)
             .setContentTitle(title ?: "Marathon Online")
             .setContentText(body ?: "Bạn có thông báo mới")
             .setAutoCancel(true)
             .setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI)
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
+        notificationManager.notify(System.currentTimeMillis().toInt(), notificationBuilder.build())
+
+        Log.d(TAG, "System notification shown: $title")
     }
 
     private fun createNotificationChannel() {
@@ -141,13 +194,16 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
+    override fun onNewToken(token: String) {
+        super.onNewToken(token)
+        Log.d(TAG, "Refreshed token: $token")
+        sendTokenToServer(token)
+    }
+
     private fun sendTokenToServer(token: String) {
-        // Gửi FCM token lên server để lưu trữ
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Gọi API để lưu token
-                // Ví dụ: api.updateFCMToken(token)
-                Log.d(TAG, "Token sent to server successfully")
+                Log.d(TAG, "Token sent to server successfully: $token")
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to send token to server: ${e.message}")
             }

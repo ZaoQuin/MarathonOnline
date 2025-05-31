@@ -1,56 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        app:cardElevation="0dp"
-        app:cardBackgroundColor="@android:color/transparent">
+        android:layout_marginVertical="@dimen/_4sdp"
+        android:layout_marginHorizontal="@dimen/_8sdp"
+        app:cardCornerRadius="@dimen/_12sdp"
+        app:cardElevation="@dimen/_2sdp"
+        app:cardBackgroundColor="@android:color/white"
+        app:strokeWidth="0dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground">
 
         <LinearLayout
             android:id="@+id/notifyCardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/_3sdp"
             android:orientation="vertical"
-            android:background="@drawable/background_radius_12sdp_white"
-            android:padding="@dimen/_10sdp">
+            android:padding="@dimen/_12sdp"
+            android:background="?android:attr/selectableItemBackground">
 
-            <TextView
-                android:id="@+id/time_stamp"
+            <!-- Header with timestamp and status indicator -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Thời gian"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="@dimen/_6sdp">
 
+                <!-- Notification Icon -->
+                <ImageView
+                    android:layout_width="@dimen/_20sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:src="@drawable/ic_notify"
+                    app:tint="@color/main_color"
+                    android:layout_marginEnd="@dimen/_6sdp" />
+
+                <TextView
+                    android:id="@+id/time_stamp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="2 giờ trước"
+                    android:textSize="@dimen/_10ssp"
+                    android:textColor="@color/gray"
+                    tools:text="2 giờ trước" />
+
+                <!-- Unread indicator -->
+                <View
+                    android:id="@+id/unread_indicator"
+                    android:layout_width="@dimen/_6sdp"
+                    android:layout_height="@dimen/_6sdp"
+                    android:background="@drawable/circle"
+                    android:backgroundTint="@color/main_color"
+                    android:visibility="visible" />
+
+            </LinearLayout>
+
+            <!-- Title -->
             <TextView
                 android:id="@+id/title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Tiêu đề"
+                android:text="Thông báo quan trọng"
                 android:textStyle="bold"
-                android:textSize="@dimen/_15sdp"
-                android:textColor="@color/main_color"/>
+                android:textSize="@dimen/_14ssp"
+                android:textColor="@color/dark_main_color"
+                android:layout_marginBottom="@dimen/_4sdp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                tools:text="Thông báo quan trọng về cuộc thi Marathon" />
 
+            <!-- Content -->
             <TextView
                 android:id="@+id/content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Nội dung dài cần hiển thị"
-                android:textSize="@dimen/_13sdp"
-                android:lineSpacingExtra="4dp"
-                android:lineSpacingMultiplier="1.2"
-                android:maxLines="10"
+                android:text="Nội dung thông báo chi tiết sẽ được hiển thị ở đây..."
+                android:textSize="@dimen/_12ssp"
+                android:textColor="@color/text_color"
+                android:lineSpacingExtra="@dimen/_1sdp"
+                android:lineSpacingMultiplier="1.1"
+                android:maxLines="2"
                 android:ellipsize="end"
-                android:scrollbars="vertical"
-                android:padding="8dp"
-                android:breakStrategy="balanced"
-                android:textAlignment="viewStart"
-                android:justificationMode="inter_word"
-                android:hyphenationFrequency="full" />
+                tools:text="Đây là nội dung thông báo mẫu để kiểm tra giao diện." />
+
+            <!-- Action buttons (optional) -->
+            <LinearLayout
+                android:id="@+id/action_buttons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="end"
+                android:layout_marginTop="@dimen/_8sdp"
+                android:visibility="gone">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_dismiss"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/_32sdp"
+                    android:text="Bỏ qua"
+                    android:textSize="@dimen/_10ssp"
+                    android:textColor="@color/text_color"
+                    android:layout_marginEnd="@dimen/_4sdp"
+                    android:minWidth="0dp"
+                    android:paddingHorizontal="@dimen/_12sdp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_action"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/_32sdp"
+                    android:text="Xem"
+                    android:textSize="@dimen/_10ssp"
+                    android:textColor="@color/main_color"
+                    android:minWidth="0dp"
+                    android:paddingHorizontal="@dimen/_12sdp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+        <!-- Ripple effect overlay -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="false"
+            android:focusable="false" />
+
+    </com.google.android.material.card.MaterialCardView>
+
 </layout>

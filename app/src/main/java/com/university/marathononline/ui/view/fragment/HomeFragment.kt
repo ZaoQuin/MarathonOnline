@@ -1,5 +1,9 @@
 package com.university.marathononline.ui.view.fragment
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -9,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.OptIn
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
@@ -25,18 +30,21 @@ import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.api.contest.ContestApiService
 import com.university.marathononline.data.api.notify.NotificationApiService
 import com.university.marathononline.data.api.trainingDay.TrainingDayApiService
+import com.university.marathononline.data.models.Notification
 import com.university.marathononline.data.models.TrainingDay
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.databinding.FragmentHomeBinding
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.data.repository.TrainingDayRepository
+import com.university.marathononline.firebase.MyFirebaseMessagingService
 import com.university.marathononline.ui.adapter.ContestAdapter
 import com.university.marathononline.ui.view.activity.NotificationsActivity
 import com.university.marathononline.ui.view.activity.RecordActivity
 import com.university.marathononline.ui.viewModel.HomeViewModel
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_CONTESTS
+import com.university.marathononline.utils.KEY_NOTIFICATION_DATA
 import com.university.marathononline.utils.KEY_TRAINING_DAY
 import com.university.marathononline.utils.startNewActivity
 import handleApiError
@@ -49,6 +57,10 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
     private lateinit var adapter: ContestAdapter
     private val handler = Handler(Looper.getMainLooper())
     private var currentPage = 0
+    private var badgeDrawable: BadgeDrawable? = null
+
+    private lateinit var notificationReceiver: BroadcastReceiver
+    private lateinit var badgeUpdateReceiver: BroadcastReceiver
 
     private val runnable = object : Runnable {
         override fun run() {
@@ -65,17 +77,89 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.userFullNameText.text = runBlocking { userPreferences.fullName.first() }
-        viewModel.getActiveContests()
-        viewModel.getCurrentTrainingDay()
 
         setupAdapter()
         setupViewPager2()
         setupTabLayout()
         setupNotifyButton()
+        setupNotificationReceivers()
         initializeUI()
         observeViewModel()
 
+        // Load data
+        viewModel.getActiveContests()
+        viewModel.getCurrentTrainingDay()
+        viewModel.getNotifications()
+
         handler.postDelayed(runnable, 3000)
+    }
+
+    private fun setupNotificationReceivers() {
+        // Receiver cho notification mới
+        notificationReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                intent?.getSerializableExtra(KEY_NOTIFICATION_DATA)?.let { notification ->
+                    if (notification is Notification) {
+                        // Thêm notification mới vào danh sách
+                        val currentNotifications = viewModel.notifications.value?.toMutableList() ?: mutableListOf()
+
+                        // Kiểm tra duplicate
+                        val existingIndex = currentNotifications.indexOfFirst { it.id == notification.id }
+                        if (existingIndex == -1) {
+                            currentNotifications.add(0, notification)
+                            viewModel.setNotifications(currentNotifications)
+                            updateBadge(currentNotifications)
+                        }
+                    }
+                }
+            }
+        }
+
+        // Receiver cho cập nhật badge
+        badgeUpdateReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                // Refresh notifications để cập nhật badge
+                viewModel.getNotifications()
+            }
+        }
+
+        // Register receivers
+        val notificationFilter = IntentFilter(MyFirebaseMessagingService.ACTION_NEW_NOTIFICATION)
+        val badgeFilter = IntentFilter(MyFirebaseMessagingService.ACTION_UPDATE_BADGE)
+
+        LocalBroadcastManager.getInstance(requireContext()).apply {
+            registerReceiver(notificationReceiver, notificationFilter)
+            registerReceiver(badgeUpdateReceiver, badgeFilter)
+        }
+
+        // Also register global receivers as fallback
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            requireContext().registerReceiver(notificationReceiver, notificationFilter, Context.RECEIVER_NOT_EXPORTED)
+            requireContext().registerReceiver(badgeUpdateReceiver, badgeFilter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            requireContext().registerReceiver(notificationReceiver, notificationFilter)
+            requireContext().registerReceiver(badgeUpdateReceiver, badgeFilter)
+        }
+    }
+
+    @OptIn(ExperimentalBadgeUtils::class)
+    private fun updateBadge(notifications: List<Notification>) {
+        val unreadCount = notifications.count { it.isRead == false }
+
+        badgeDrawable?.let { badge ->
+            BadgeUtils.detachBadgeDrawable(badge, binding.notifyButton)
+        }
+
+        if (unreadCount > 0) {
+            badgeDrawable = BadgeDrawable.create(requireContext()).apply {
+                isVisible = true
+                number = unreadCount
+                backgroundColor = resources.getColor(R.color.red, null)
+            }
+            badgeDrawable?.let { badge ->
+                BadgeUtils.attachBadgeDrawable(badge, binding.notifyButton)
+            }
+        }
     }
 
     private fun initializeUI(){
@@ -85,19 +169,16 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
     }
 
     private fun navigationNotifications(){
-        val notifications = viewModel.notifications.value?: emptyList()
-
-        if(notifications!=null)
-            startNewActivity(
-                NotificationsActivity::class.java,
-                mapOf(
-                    KEY_CONTESTS to notifications
-                )
-            )
+        val notifications = viewModel.notifications.value ?: emptyList()
+        startNewActivity(
+            NotificationsActivity::class.java,
+            mapOf(KEY_CONTESTS to notifications)
+        )
     }
 
     private fun setupNotifyButton(){
-        viewModel.getNotifications();
+        // Initialize badge
+        updateBadge(emptyList())
     }
 
     private fun setupAdapter() {
@@ -151,7 +232,6 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
                     }
                 }
             }
-
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
@@ -163,25 +243,21 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
             when(it){
                 is Resource.Success -> {
                     setUpTrainingDayUI(it.value)
-                    println("current training day " + it.value)
                 }
                 is Resource.Failure -> {
                     handleApiError(it)
-                    it.fetchErrorMessage()
                 }
                 else -> Unit
             }
         }
 
         viewModel.contests.observe(viewLifecycleOwner) {
-            Log.d("ContestFragment", it.toString())
             when(it){
                 is Resource.Success -> {
                     adapter.updateData(it.value.contests)
                 }
                 is Resource.Failure -> {
                     handleApiError(it)
-                    it.fetchErrorMessage()
                     if(it.errorCode == 500) {
                         Toast.makeText(requireContext(), "Phiên bản làm việc đã hết hạn, vui lòng đăng nhập lại", Toast.LENGTH_LONG).show()
                         logout()
@@ -194,24 +270,36 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
         viewModel.getNotifiesResponse.observe(viewLifecycleOwner) {
             when(it){
                 is Resource.Success -> {
-                    viewModel.setNotifications(it.value);
-                    val unreadCount = it.value.filter { notification -> !notification.isRead!! }.size
-                    val badgeDrawable = BadgeDrawable.create(requireContext()).apply {
-                        isVisible = unreadCount >= 0
-                        number = unreadCount
-                        backgroundColor = resources.getColor(R.color.red, null)
-                    }
-                    BadgeUtils.attachBadgeDrawable(badgeDrawable, binding.notifyButton)
+                    viewModel.setNotifications(it.value)
+                    updateBadge(it.value)
                 }
                 is Resource.Failure -> handleApiError(it)
                 else -> Unit
             }
+        }
+
+        // Observe notifications để cập nhật badge khi có thay đổi
+        viewModel.notifications.observe(viewLifecycleOwner) { notifications ->
+            updateBadge(notifications)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         handler.removeCallbacks(runnable)
+
+        try {
+            LocalBroadcastManager.getInstance(requireContext()).apply {
+                unregisterReceiver(notificationReceiver)
+                unregisterReceiver(badgeUpdateReceiver)
+            }
+            requireContext().apply {
+                unregisterReceiver(notificationReceiver)
+                unregisterReceiver(badgeUpdateReceiver)
+            }
+        } catch (e: Exception) {
+            Log.e("HomeFragment", "Error unregistering receivers: ${e.message}")
+        }
     }
 
     override fun getViewModel() = HomeViewModel::class.java
