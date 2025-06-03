@@ -2,8 +2,11 @@ package com.university.marathononline.ui.components
 
 import android.app.Dialog
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.ViewGroup
 import android.view.Window
 import android.widget.ArrayAdapter
 import android.widget.SeekBar
@@ -21,17 +24,27 @@ class CreateTrainingPlanDialog(
     private lateinit var binding: DialogCreateTrainingPlanBinding
     private var selectedLevel = ETrainingPlanInputLevel.BEGINNER
     private var selectedGoal = ETrainingPlanInputGoal.FIVE_KM_FINISH
-    private var daysPerWeek = 4
+    private var trainingWeeks = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Remove default window features
         requestWindowFeature(Window.FEATURE_NO_TITLE)
+
         binding = DialogCreateTrainingPlanBinding.inflate(LayoutInflater.from(context))
         setContentView(binding.root)
 
+        setupDialog()
         setupUI()
         setupListeners()
+    }
+
+    private fun setupDialog() {
+        window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        setCancelable(true)
+        setCanceledOnTouchOutside(true)
     }
 
     private fun setupUI() {
@@ -42,8 +55,8 @@ class CreateTrainingPlanDialog(
         binding.goalSpinner.adapter = goalAdapter
 
         // Set initial days per week
-        binding.daysPerWeekSeekbar.progress = daysPerWeek
-        binding.daysPerWeekText.text = "$daysPerWeek ngày/tuần"
+        binding.daysPerWeekSeekbar.progress = trainingWeeks
+        binding.daysPerWeekText.text = "$trainingWeeks tuần"
 
         // Set default radio button
         binding.levelBeginner.isChecked = true
@@ -69,8 +82,8 @@ class CreateTrainingPlanDialog(
         binding.daysPerWeekSeekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 // Ensure at least 1 day per week
-                daysPerWeek = if (progress < 1) 1 else progress
-                binding.daysPerWeekText.text = "$daysPerWeek ngày/tuần"
+                trainingWeeks = if (progress < 1) 1 else progress
+                binding.daysPerWeekText.text = "$trainingWeeks tuần"
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
@@ -82,7 +95,7 @@ class CreateTrainingPlanDialog(
             val trainingPlanRequest = InputTrainingPlanRequest(
                 level = selectedLevel,
                 goal = selectedGoal,
-                daysPerWeek = daysPerWeek
+                trainingWeeks = trainingWeeks
             )
 
             onCreatePlan(trainingPlanRequest)

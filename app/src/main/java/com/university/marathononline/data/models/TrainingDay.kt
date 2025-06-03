@@ -8,13 +8,17 @@ data class TrainingDay (
     var dayOfWeek: Int,
     var session: TrainingSession,
     var records: List<Record>,
-    var status: ETraingDayStatus,
-    var dateTime: String
+    var status: ETrainingDayStatus,
+    var dateTime: String,
+    var trainingFeedback: TrainingFeedback?= null,
+    var completionPercentage: Double
 ): Serializable
 
-enum class ETraingDayStatus(val value: String) {
+enum class ETrainingDayStatus(val value: String) {
     ACTIVE("Đang thực hiện"),
     COMPLETED("Hoàn thành"),
+    PARTIALLY_COMPLETED("Hoàn thành một phần"),
+    SKIPPED("Bỏ qua"),
     MISSED("Bỏ lỡ");
     override fun toString(): String = value
 }

@@ -18,5 +18,6 @@ enum class ENotificationType(val value: String) {
     NEW_CONTEST("Cuộc thi mới"),
     BLOCK_CONTEST("Bị chặn khỏi cuộc thi"),
     ACCEPT_CONTEST("Cuộc thi được duyệt"),
-    NOT_APPROVAL_CONTEST("Cuộc thi không được duyệt")
+    NOT_APPROVAL_CONTEST("Cuộc thi không được duyệt"),
+    REJECTED_RECORD("Phát hiện gian lận")
 }

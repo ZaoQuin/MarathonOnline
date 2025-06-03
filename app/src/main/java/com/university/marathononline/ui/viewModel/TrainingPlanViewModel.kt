@@ -8,8 +8,10 @@ import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.models.SingleTrainingPlan
 import com.university.marathononline.data.models.TrainingDay
+import com.university.marathononline.data.models.TrainingFeedback
 import com.university.marathononline.data.models.TrainingPlan
 import com.university.marathononline.data.repository.TrainingDayRepository
+import com.university.marathononline.data.repository.TrainingFeedbackRepository
 import com.university.marathononline.data.repository.TrainingPlanRepository
 import com.university.marathononline.data.request.InputTrainingPlanRequest
 import com.university.marathononline.data.response.PageResponse
@@ -18,7 +20,8 @@ import kotlinx.coroutines.launch
 
 class TrainingPlanViewModel (
     private val repository: TrainingPlanRepository,
-    private val trainingDayRepository: TrainingDayRepository
+    private val trainingDayRepository: TrainingDayRepository,
+    private val trainingFeedbackRepository: TrainingFeedbackRepository
 ): BaseViewModel(listOf(repository, trainingDayRepository)) {
 
     private val _currentTrainingPlan: MutableLiveData<TrainingPlan> = MutableLiveData()
@@ -45,6 +48,11 @@ class TrainingPlanViewModel (
     private val _getById: MutableLiveData<Resource<TrainingPlan>> = MutableLiveData()
     val getById: LiveData<Resource<TrainingPlan>> = _getById.distinctUntilChanged()
 
+    private val _submitFeedback: MutableLiveData<Resource<TrainingFeedback>> = MutableLiveData()
+    val submitFeedback: LiveData<Resource<TrainingFeedback>> = _submitFeedback.distinctUntilChanged()
+
+    private val _getFeedback: MutableLiveData<Resource<TrainingFeedback>> = MutableLiveData()
+    val getFeedback: LiveData<Resource<TrainingFeedback>> = _getFeedback.distinctUntilChanged()
 
     fun getCompletedTrainingPlans(page: Int, size: Int, startDate: String?, endDate: String?){
         viewModelScope.launch {
@@ -92,5 +100,20 @@ class TrainingPlanViewModel (
     fun setCurrentTrainingPlan(trainingPlan: TrainingPlan){
         _currentTrainingPlan.value = trainingPlan
         _currentTrainingDays.value = trainingPlan.trainingDays
+    }
+
+    fun submitTrainingFeedback(trainingDayId: Long, feedback: TrainingFeedback) {
+        viewModelScope.launch {
+            _submitFeedback.value = Resource.Loading
+            _submitFeedback.value = trainingFeedbackRepository.submitFeedback(trainingDayId, feedback)
+        }
+    }
+
+    // Optional: Method to get feedback for a specific training day
+    fun getTrainingDayFeedback(trainingDayId: Long) {
+        viewModelScope.launch {
+            _getFeedback.value = Resource.Loading
+            _getFeedback.value = trainingFeedbackRepository.getFeedback(trainingDayId)
+        }
     }
 }

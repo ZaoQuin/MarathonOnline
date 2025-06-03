@@ -1,7 +1,7 @@
 package com.university.marathononline.data.repository
 
 import com.university.marathononline.base.BaseRepository
-import com.university.marathononline.data.api.trainingDay.TrainingDayApiService
+import com.university.marathononline.data.api.training.TrainingDayApiService
 import com.university.marathononline.data.models.Record
 
 class TrainingDayRepository(

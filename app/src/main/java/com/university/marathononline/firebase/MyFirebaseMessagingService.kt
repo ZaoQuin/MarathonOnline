@@ -110,6 +110,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             ENotificationType.BLOCK_CONTEST -> "Thông báo chặn"
             ENotificationType.ACCEPT_CONTEST -> "Cuộc thi được duyệt"
             ENotificationType.NOT_APPROVAL_CONTEST -> "Cuộc thi không được duyệt"
+            ENotificationType.REJECTED_RECORD -> "Phát hiện gian lận"
             null -> "Marathon Online"
         }
     }
@@ -121,6 +122,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             ENotificationType.BLOCK_CONTEST -> "Bạn đã bị chặn khỏi cuộc thi"
             ENotificationType.ACCEPT_CONTEST -> "Cuộc thi của bạn đã được duyệt"
             ENotificationType.NOT_APPROVAL_CONTEST -> "Cuộc thi của bạn không được duyệt"
+            ENotificationType.REJECTED_RECORD -> "Bản ghi gần đây của bạn có vấn đề."
             null -> "Bạn có thông báo mới"
         }
     }

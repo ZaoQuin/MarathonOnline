@@ -38,7 +38,7 @@ import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.record.RecordApiService
 import com.university.marathononline.data.api.registration.RegistrationApiService
-import com.university.marathononline.data.api.trainingDay.TrainingDayApiService
+import com.university.marathononline.data.api.training.TrainingDayApiService
 import com.university.marathononline.data.models.TrainingDay
 import com.university.marathononline.data.models.WearHealthData
 import com.university.marathononline.data.repository.RecordRepository
