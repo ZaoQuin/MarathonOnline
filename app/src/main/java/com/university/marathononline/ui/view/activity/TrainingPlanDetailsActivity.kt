@@ -11,10 +11,14 @@ import com.university.marathononline.R
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
-import com.university.marathononline.data.api.trainingPlan.TrainingPlanApiService
+import com.university.marathononline.data.api.training.TrainingDayApiService
+import com.university.marathononline.data.api.training.TrainingFeedbackApiService
+import com.university.marathononline.data.api.training.TrainingPlanApiService
 import com.university.marathononline.data.models.ETrainingSessionType
 import com.university.marathononline.data.models.TrainingDay
 import com.university.marathononline.data.models.TrainingPlan
+import com.university.marathononline.data.repository.TrainingDayRepository
+import com.university.marathononline.data.repository.TrainingFeedbackRepository
 import com.university.marathononline.data.repository.TrainingPlanRepository
 import com.university.marathononline.databinding.ActivityTrainingPlanDetailsBinding
 import com.university.marathononline.ui.viewModel.TrainingPlanViewModel
@@ -191,7 +195,7 @@ class TrainingPlanDetailsActivity : BaseActivity<TrainingPlanViewModel, Activity
     private fun showTrainingInputDialog(trainingPlan: TrainingPlan){
         val message = """
             🎯 Mục tiêu quãng đường: ${trainingPlan.input.goal} km
-            🏃‍♂️ Số buổi mỗi tuần: ${trainingPlan.input.daysPerWeek}
+            🏃‍♂️ Số tuần: ${trainingPlan.input.trainingWeeks}
             📈 Mức độ luyện tập: ${trainingPlan.input.level}
             
             📊 Lịch sử:
@@ -331,7 +335,11 @@ class TrainingPlanDetailsActivity : BaseActivity<TrainingPlanViewModel, Activity
 
     override fun getActivityRepositories(): List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
-        val api = retrofitInstance.buildApi(TrainingPlanApiService::class.java, token)
-        return listOf(TrainingPlanRepository(api))
+        val apiTrainingPlan = retrofitInstance.buildApi(TrainingPlanApiService::class.java, token)
+        val apiTrainingDay = retrofitInstance.buildApi(TrainingDayApiService::class.java, token)
+        val apiTrainingFeedback = retrofitInstance.buildApi(TrainingFeedbackApiService::class.java, token)
+        return listOf(TrainingPlanRepository(apiTrainingPlan), TrainingDayRepository(apiTrainingDay),
+            TrainingFeedbackRepository(apiTrainingFeedback)
+        )
     }
 }

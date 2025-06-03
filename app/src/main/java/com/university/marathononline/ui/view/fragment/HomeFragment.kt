@@ -29,7 +29,7 @@ import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.api.contest.ContestApiService
 import com.university.marathononline.data.api.notify.NotificationApiService
-import com.university.marathononline.data.api.trainingDay.TrainingDayApiService
+import com.university.marathononline.data.api.training.TrainingDayApiService
 import com.university.marathononline.data.models.Notification
 import com.university.marathononline.data.models.TrainingDay
 import com.university.marathononline.data.repository.AuthRepository

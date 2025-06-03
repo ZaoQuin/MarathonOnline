@@ -12,8 +12,8 @@ import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.record.RecordApiService
 import com.university.marathononline.data.api.registration.RegistrationApiService
-import com.university.marathononline.data.api.trainingDay.TrainingDayApiService
-import com.university.marathononline.data.models.ETraingDayStatus
+import com.university.marathononline.data.api.training.TrainingDayApiService
+import com.university.marathononline.data.models.ETrainingDayStatus
 import com.university.marathononline.data.models.ETrainingSessionType
 import com.university.marathononline.data.models.TrainingDay
 import com.university.marathononline.data.repository.RecordRepository
@@ -88,10 +88,10 @@ class GuidedModeFragment: BaseFragment<RecordViewModel, FragmentGuidedModeBindin
         }
     }
 
-    private fun updateUIForStatus(status: ETraingDayStatus) {
+    private fun updateUIForStatus(status: ETrainingDayStatus) {
         binding.apply {
             when (status) {
-                ETraingDayStatus.ACTIVE -> {
+                ETrainingDayStatus.ACTIVE -> {
                     // Active state - normal blue/green colors
                     guidedModeContainer.setCardBackgroundColor(
                         ContextCompat.getColor(requireContext(), R.color.dark_main_color)
@@ -111,7 +111,7 @@ class GuidedModeFragment: BaseFragment<RecordViewModel, FragmentGuidedModeBindin
                     headerIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.white))
                 }
 
-                ETraingDayStatus.COMPLETED -> {
+                ETrainingDayStatus.COMPLETED -> {
                     // Completed state - success green colors
                     guidedModeContainer.setCardBackgroundColor(
                         ContextCompat.getColor(requireContext(), R.color.main_color)
@@ -134,7 +134,49 @@ class GuidedModeFragment: BaseFragment<RecordViewModel, FragmentGuidedModeBindin
                     trainingDayDescription.text = "Chúc mừng! Bạn đã hoàn thành buổi tập này."
                 }
 
-                ETraingDayStatus.MISSED  -> {
+                ETrainingDayStatus.PARTIALLY_COMPLETED -> {
+                    // Partially completed state - intermediate yellow/orange colors
+                    guidedModeContainer.setCardBackgroundColor(
+                        ContextCompat.getColor(requireContext(), R.color.partial_complete_color) // Add this color to colors.xml
+                    )
+                    statusIndicator.apply {
+                        visible(true)
+                        setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                    }
+                    targetPaceCard.setCardBackgroundColor(
+                        ContextCompat.getColor(requireContext(), R.color.partial_complete_color)
+                    )
+                    targetDistanceCard.setCardBackgroundColor(
+                        ContextCompat.getColor(requireContext(), R.color.partial_complete_color)
+                    )
+                    headerIcon.setImageResource(R.drawable.ic_partial_complete) // Add this icon to drawables
+                    headerIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.white))
+                }
+
+                ETrainingDayStatus.SKIPPED -> {
+                    // Giao diện màu xám hoặc màu nhẹ báo bỏ qua
+                    guidedModeContainer.setCardBackgroundColor(
+                        ContextCompat.getColor(requireContext(), R.color.gray) // bạn có thể tạo màu phù hợp trong colors.xml
+                    )
+                    statusIndicator.apply {
+                        visible(true)
+                        text = "⏭ ${status.value}"
+                        setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                    }
+                    targetPaceCard.setCardBackgroundColor(
+                        ContextCompat.getColor(requireContext(), R.color.gray)
+                    )
+                    targetDistanceCard.setCardBackgroundColor(
+                        ContextCompat.getColor(requireContext(), R.color.gray)
+                    )
+                    headerIcon.setImageResource(R.drawable.ic_next) // bạn cần thêm icon phù hợp
+                    headerIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.white))
+
+                    // Thông báo bỏ qua
+                    trainingDayDescription.text = "Buổi tập này đã được bỏ qua."
+                }
+
+                ETrainingDayStatus.MISSED  -> {
                     // Missed state - warning/error colors
                     guidedModeContainer.setCardBackgroundColor(
                         ContextCompat.getColor(requireContext(), R.color.light_red)

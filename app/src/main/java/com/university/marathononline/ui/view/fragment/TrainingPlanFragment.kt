@@ -2,6 +2,8 @@ package com.university.marathononline.ui.view.fragment
 
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,16 +14,19 @@ import com.university.marathononline.R
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
-import com.university.marathononline.data.api.trainingDay.TrainingDayApiService
-import com.university.marathononline.data.api.trainingPlan.TrainingPlanApiService
-import com.university.marathononline.data.models.ETraingDayStatus
+import com.university.marathononline.data.api.training.TrainingDayApiService
+import com.university.marathononline.data.api.training.TrainingFeedbackApiService
+import com.university.marathononline.data.api.training.TrainingPlanApiService
+import com.university.marathononline.data.models.ETrainingDayStatus
 import com.university.marathononline.data.models.ETrainingSessionType
 import com.university.marathononline.data.models.TrainingDay
 import com.university.marathononline.data.models.TrainingPlan
 import com.university.marathononline.data.repository.TrainingDayRepository
+import com.university.marathononline.data.repository.TrainingFeedbackRepository
 import com.university.marathononline.data.repository.TrainingPlanRepository
 import com.university.marathononline.databinding.FragmentTrainingPlanBinding
 import com.university.marathononline.ui.components.CreateTrainingPlanDialog
+import com.university.marathononline.ui.components.TrainingFeedbackDialog
 import com.university.marathononline.ui.view.activity.TrainingPlanHistoryActivity
 import com.university.marathononline.ui.viewModel.TrainingPlanViewModel
 import com.university.marathononline.utils.DateUtils
@@ -56,6 +61,14 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
         observeViewModel()
     }
 
+    private fun showFeedbackDialog(trainingDay: TrainingDay) {
+        if (trainingDay.trainingFeedback != null) {
+            showViewFeedbackDialog(trainingDay)
+        } else {
+            showCreateFeedbackDialog(trainingDay)
+        }
+    }
+
     private fun showLoadingState(isLoading: Boolean) {
         if (isLoading) {
             binding.itemDetails.apply {
@@ -63,10 +76,8 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
                 activePlanSection.visibility = View.GONE
                 noActivePlan.root.visibility = View.GONE
             }
-            // Show loading skeleton, hide content
-            binding.fabCreatePlan.hide() // Hide FAB during loading
+            binding.fabCreatePlan.hide()
         } else {
-            // Hide loading skeleton, show appropriate content
             binding.itemDetails.loadingState.visibility = View.GONE
             binding.fabCreatePlan.show()
         }
@@ -90,7 +101,6 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
         val dialog = CreateTrainingPlanDialog(requireContext()) { trainingPlanRequest ->
             viewModel.createTrainingPlan(trainingPlanRequest)
         }
-
         dialog.show()
     }
 
@@ -110,7 +120,6 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
     private fun navigateToNextDay() {
         try {
             val nextDateString = DateUtils.addDaysToDate(currentDateString, 1)
-
             val nextLocalDate = DateUtils.parseStringToLocalDate(nextDateString) ?: return
             val planEnd = DateUtils.parseLocalDateTimeStr(endDate)
 
@@ -124,7 +133,6 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
     private fun navigateToPreviousDay() {
         try {
             val prevDateString = DateUtils.addDaysToDate(currentDateString, -1)
-
             val prevLocalDate = DateUtils.parseStringToLocalDate(prevDateString) ?: return
             val planStart = DateUtils.parseLocalDateTimeStr(startDate)
 
@@ -139,8 +147,43 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
         val currentDate = DateUtils.parseStringToLocalDate(currentDateString) ?: return
         val planStart = DateUtils.parseLocalDateTimeStr(startDate)
         val planEnd = DateUtils.parseLocalDateTimeStr(endDate)
+        val trainingDays = viewModel.currentTrainingDays.value ?: emptyList()
 
-        val isPrevEnabled = !currentDate.isEqual(planStart) && !currentDate.isBefore(planStart)
+        // If there is only one training day, disable both navigation buttons
+        if (trainingDays.size == 1) {
+            binding.itemDetails.itemTrainingDay.previousDay.apply {
+                isEnabled = false
+                backgroundTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(context, R.color.disabled_gray)
+                )
+                imageTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(context, R.color.white)
+                )
+                alpha = 0.5f
+            }
+            binding.itemDetails.itemTrainingDay.nextDay.apply {
+                isEnabled = false
+                backgroundTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(context, R.color.disabled_gray)
+                )
+                imageTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(context, R.color.white)
+                )
+                alpha = 0.5f
+            }
+            return
+        }
+
+        // If there are multiple training days, find the earliest and latest training day dates
+        val trainingDayDates = trainingDays.mapNotNull { day ->
+            DateUtils.convertStringToLocalDateTime(day.dateTime)?.toLocalDate()
+        }.sorted()
+
+        val earliestDate = trainingDayDates.firstOrNull()
+        val latestDate = trainingDayDates.lastOrNull()
+
+        // Previous button: enabled if current date is after the earliest training day
+        val isPrevEnabled = earliestDate != null && currentDate.isAfter(earliestDate) && !currentDate.isBefore(planStart)
         binding.itemDetails.itemTrainingDay.previousDay.apply {
             isEnabled = isPrevEnabled
             backgroundTintList = ColorStateList.valueOf(
@@ -152,8 +195,8 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
             alpha = if (isPrevEnabled) 1f else 0.5f
         }
 
-        // Next button
-        val isNextEnabled = !currentDate.isEqual(planEnd) && !currentDate.isAfter(planEnd)
+        // Next button: enabled if current date is before the latest training day
+        val isNextEnabled = latestDate != null && currentDate.isBefore(latestDate) && !currentDate.isAfter(planEnd)
         binding.itemDetails.itemTrainingDay.nextDay.apply {
             isEnabled = isNextEnabled
             backgroundTintList = ColorStateList.valueOf(
@@ -231,6 +274,28 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
                 else -> Unit
             }
         }
+
+        viewModel.submitFeedback.observe(viewLifecycleOwner) {
+            when(it) {
+                is Resource.Loading -> {
+                    // Show loading if needed
+                }
+                is Resource.Success -> {
+                    Toast.makeText(
+                        requireContext(),
+                        "Phản hồi đã được gửi thành công!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    // Refresh the training plan to show updated feedback
+                    viewModel.getCurrentTrainingPlan()
+                }
+                is Resource.Failure -> {
+                    handleApiError(it)
+                    println(it.fetchErrorMessage())
+                }
+                else -> Unit
+            }
+        }
     }
 
     private fun setUpCurrentTrainingPlan(trainingPlan: TrainingPlan) {
@@ -249,25 +314,22 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
             }
         }
 
-        // Save training plan data for filtering
         this.startDate = trainingPlan.startDate
         this.endDate = trainingPlan.endDate
 
-        // Update training day display for current date
         updateTrainingSessionDisplay()
     }
 
     private fun showTrainingInputDialog(trainingPlan: TrainingPlan){
         val message = """
             🎯 Mục tiêu quãng đường: ${trainingPlan.input.goal} km
-            🏃‍♂️ Số buổi mỗi tuần: ${trainingPlan.input.daysPerWeek}
+            🏃‍♂️ Số tuần: ${trainingPlan.input.trainingWeeks}
             📈 Mức độ luyện tập: ${trainingPlan.input.level}
             
             📊 Lịch sử:
             • Quãng đường dài nhất: ${trainingPlan.input.maxDistance} km
             • Pace trung bình: ${trainingPlan.input.averagePace} phút/km
         """.trimIndent()
-
 
         AlertDialog.Builder(requireContext())
             .setTitle("Thông tin kế hoạch")
@@ -290,7 +352,6 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
                 trainingSessionCard.apply {
                     root.visibility = View.VISIBLE
                     sessionName.text = filteredDay.session.name
-                    sessionType.text = filteredDay.session.type.toString()
                     sessionNotes.text = filteredDay.session.notes
                     sessionPace.text = filteredDay.session.pace.toString()
                     sessionDistance.text = filteredDay.session.distance.toString()
@@ -306,102 +367,158 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
                 }
             }
 
-            // Update status display based on training day status
             updateTrainingStatusDisplay(filteredDay)
-
-            // Update navigation buttons
+            displayFeedbackInSession(filteredDay) // Add this line
             updateNavigationButtons()
 
         } else {
-            println("Không tìm thấy bài tập phù hợp hoặc ngoài khoảng thời gian của kế hoạch")
+            println("Không có bài tập được lên lịch cho ngày này")
             binding.itemDetails.itemTrainingDay.apply {
                 trainingSessionCard.root.visibility = View.GONE
                 emptyState.visibility = View.VISIBLE
+            }
+            updateNavigationButtons()
+        }
+    }
+
+    private fun displayFeedbackInSession(trainingDay: TrainingDay) {
+        binding.itemDetails.itemTrainingDay.trainingSessionCard.apply {
+            if (trainingDay.trainingFeedback != null) {
+                feedbackSection.visibility = View.VISIBLE
+                feedbackDifficulty.text = trainingDay.trainingFeedback!!.difficultyRating.value
+                feedbackFeeling.text = trainingDay.trainingFeedback!!.feelingRating.value
+
+                if (!trainingDay.trainingFeedback!!.notes.isNullOrEmpty()) {
+                    feedbackNotes.visibility = View.VISIBLE
+                    feedbackNotes.text = trainingDay.trainingFeedback!!.notes
+                } else {
+                    feedbackNotes.visibility = View.GONE
+                }
+
+                // Make feedback section clickable to view details
+                feedbackSection.setOnClickListener {
+                    showViewFeedbackDialog(trainingDay)
+                }
+
+                // Add ripple effect for better UX
+                val typedValue = TypedValue()
+                requireContext().theme.resolveAttribute(android.R.attr.selectableItemBackground, typedValue, true)
+            } else {
+                feedbackSection.visibility = View.GONE
             }
         }
     }
 
     private fun updateTrainingStatusDisplay(trainingDay: TrainingDay) {
         binding.itemDetails.itemTrainingDay.trainingSessionCard.apply {
-            trainingStatus.text = trainingDay.status.toString()
+            // Format status text with completion percentage for COMPLETED and PARTIALLY_COMPLETED
+            val statusText = when (trainingDay.status) {
+                ETrainingDayStatus.COMPLETED -> "${trainingDay.status} (${String.format("%.0f%%", trainingDay.completionPercentage)})"
+                ETrainingDayStatus.PARTIALLY_COMPLETED -> "${trainingDay.status} (${String.format("%.0f%%", trainingDay.completionPercentage)})"
+                else -> trainingDay.status.toString()
+            }
+            trainingStatus.text = statusText
 
-            // Update status appearance based on status
             when (trainingDay.status) {
-                ETraingDayStatus.COMPLETED -> {
+                ETrainingDayStatus.COMPLETED -> {
                     trainingStatus.apply {
                         setBackgroundResource(R.drawable.status_completed_bg)
                         setTextColor(ContextCompat.getColor(context, R.color.white))
                     }
-                    // Hide reset button for completed sessions
-                    btnResetTraining.visibility = View.GONE
+                    setupFeedbackButton(trainingDay)
                 }
-                ETraingDayStatus.ACTIVE -> {
+                ETrainingDayStatus.PARTIALLY_COMPLETED -> {
+                    trainingStatus.apply {
+                        setBackgroundResource(R.drawable.status_completed_bg)
+                        setTextColor(ContextCompat.getColor(context, R.color.white))
+                    }
+                    setupFeedbackButton(trainingDay)
+                }
+                ETrainingDayStatus.ACTIVE -> {
                     trainingStatus.apply {
                         setBackgroundResource(R.drawable.status_active_bg)
                         setTextColor(ContextCompat.getColor(context, R.color.white))
                     }
-                    // Show reset button only for today's active sessions with progress
-                    val trainingDate = DateUtils.parseLocalDateTimeStr(trainingDay.dateTime)
-                    val isToday = trainingDate == LocalDate.now()
-                    val isNotRest = trainingDay.session.type != ETrainingSessionType.REST
-                    val hasProgress = trainingDay.records.isNotEmpty()
-
-                    if (isToday && isNotRest && hasProgress) {
-                        setUpResetButton(trainingDay)
-                    } else {
-                        hideResetButton()
-                    }
                 }
-                ETraingDayStatus.MISSED -> {
+                ETrainingDayStatus.SKIPPED -> {
                     trainingStatus.apply {
                         setBackgroundResource(R.drawable.status_missed_bg)
                         setTextColor(ContextCompat.getColor(context, R.color.white))
                     }
-                    // Hide reset button for missed sessions
-                    btnResetTraining.visibility = View.GONE
+                }
+                ETrainingDayStatus.MISSED -> {
+                    trainingStatus.apply {
+                        setBackgroundResource(R.drawable.status_missed_bg)
+                        setTextColor(ContextCompat.getColor(context, R.color.white))
+                    }
                 }
             }
 
-            // Update session card appearance based on status
             updateSessionCardAppearance(trainingDay)
         }
     }
 
+    private fun setupFeedbackButton(trainingDay: TrainingDay) {
+        binding.itemDetails.itemTrainingDay.trainingSessionCard.btnFeedback?.apply {
+
+            if (trainingDay.trainingFeedback == null) {
+                visibility = View.VISIBLE
+                setOnClickListener {
+                    showCreateFeedbackDialog(trainingDay)
+                }
+            } else {
+                visibility = View.GONE
+            }
+        }
+    }
+
+    private fun showCreateFeedbackDialog(trainingDay: TrainingDay) {
+        val dialog = TrainingFeedbackDialog(
+            context = requireContext(),
+            existingFeedback = null
+        ) { feedback ->
+            // Handle feedback submission
+            viewModel.submitTrainingFeedback(trainingDay.id, feedback)
+        }
+        dialog.show()
+    }
+
+    private fun showViewFeedbackDialog(trainingDay: TrainingDay) {
+        val dialog = TrainingFeedbackDialog(
+            context = requireContext(),
+            existingFeedback = trainingDay.trainingFeedback,
+            onFeedbackSubmitted = null // No callback needed for view-only mode
+        )
+        dialog.show()
+    }
+
     private fun updateSessionCardAppearance(trainingDay: TrainingDay) {
-        // Get reference to the CardView - you need to access the actual CardView from the included layout
         val cardView = binding.itemDetails.itemTrainingDay.trainingSessionCard.root as androidx.cardview.widget.CardView
 
         when (trainingDay.status) {
-            ETraingDayStatus.COMPLETED -> {
-                // Completed sessions - subtle green tint
+            ETrainingDayStatus.COMPLETED -> {
                 cardView.setCardBackgroundColor(ContextCompat.getColor(requireContext(), R.color.completed_card_bg))
                 cardView.alpha = 1.0f
             }
-            ETraingDayStatus.ACTIVE -> {
-                // Active sessions - normal appearance
+            ETrainingDayStatus.PARTIALLY_COMPLETED -> {
+                cardView.setCardBackgroundColor(ContextCompat.getColor(requireContext(), R.color.partial_complete_color))
+                cardView.alpha = 0.9f
+            }
+            ETrainingDayStatus.ACTIVE -> {
                 cardView.setCardBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
                 cardView.alpha = 1.0f
             }
-            ETraingDayStatus.MISSED -> {
-                // Missed sessions - slightly faded with red tint
+            ETrainingDayStatus.SKIPPED -> {
+                cardView.setCardBackgroundColor(ContextCompat.getColor(requireContext(), R.color.missed_card_bg))
+                cardView.alpha = 0.8f
+            }
+            ETrainingDayStatus.MISSED -> {
                 cardView.setCardBackgroundColor(ContextCompat.getColor(requireContext(), R.color.missed_card_bg))
                 cardView.alpha = 0.8f
             }
         }
     }
 
-    private fun setUpResetButton(trainingDay: TrainingDay) {
-        binding.itemDetails.itemTrainingDay.trainingSessionCard.btnResetTraining.apply {
-            visibility = View.VISIBLE
-            setOnClickListener {
-                showResetConfirmationDialog(trainingDay)
-            }
-        }
-    }
-
-    private fun hideResetButton() {
-        binding.itemDetails.itemTrainingDay.trainingSessionCard.btnResetTraining.visibility = View.GONE
-    }
 
     private fun showResetConfirmationDialog(currentDay: TrainingDay) {
         val message = """
@@ -425,7 +542,6 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
     }
 
     private fun updateSessionProgress(trainingDay: TrainingDay) {
-        // Calculate total values from all records
         var totalDistance = 0.0
         var totalSteps = 0
         var totalTime = 0L
@@ -438,12 +554,10 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
             avgHeartRate += record.heartRate
         }
 
-        // Calculate averages
         if (trainingDay.records.isNotEmpty()) {
             avgHeartRate /= trainingDay.records.size
         }
 
-        // Calculate average pace (minutes per km)
         val avgPaces = if (totalDistance > 0) {
             val totalMinutes = TimeUnit.MILLISECONDS.toMinutes(totalTime)
             totalMinutes.toDouble() / totalDistance
@@ -451,23 +565,19 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
             0.0
         }
 
-        // Format time (hh:mm:ss)
         val hours = TimeUnit.MILLISECONDS.toHours(totalTime)
         val minutes = TimeUnit.MILLISECONDS.toMinutes(totalTime) % 60
         val seconds = TimeUnit.MILLISECONDS.toSeconds(totalTime) % 60
         val formattedTime = String.format("%02d:%02d:%02d", hours, minutes, seconds)
 
-        // Set the goal distance from the session
         val goal = trainingDay.session.distance
 
-        // Calculate progress percentage
         val progressPercentage = if (goal > 0) {
             ((totalDistance / goal) * 100).toInt().coerceAtMost(100)
         } else {
             0
         }
 
-        // Update UI
         binding.itemDetails.itemTrainingDay.trainingSessionCard.progressDetails.apply{
             completedDistance.text = String.format("%.1f", totalDistance)
             goalDistance.text = String.format("%.1f", goal)
@@ -482,15 +592,12 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
 
     private fun filterTrainingDayByDate(): TrainingDay? {
         try {
-            // Check if current date is within plan range
             val currentDate = DateUtils.parseStringToLocalDate(currentDateString) ?: return null
 
-            // Check date is within plan range
             if (!DateUtils.isDateInRange(currentDateString, startDate, endDate)) {
                 return null
             }
 
-            // Find training day with matching date
             return viewModel.currentTrainingDays.value?.find { day ->
                 val sessionDate = DateUtils.convertStringToLocalDateTime(day.dateTime).toLocalDate()
                 sessionDate == currentDate
@@ -510,9 +617,11 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
 
     override fun getFragmentRepositories(): List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
-        val api = retrofitInstance.buildApi(TrainingPlanApiService::class.java, token)
-        val trainingDayApi = retrofitInstance.buildApi(TrainingDayApiService::class.java, token)
-        return listOf(TrainingPlanRepository(api),
-            TrainingDayRepository(trainingDayApi))
+        val apiTrainingPlan = retrofitInstance.buildApi(TrainingPlanApiService::class.java, token)
+        val apiTrainingDay = retrofitInstance.buildApi(TrainingDayApiService::class.java, token)
+        val apiTrainingFeedback = retrofitInstance.buildApi(TrainingFeedbackApiService::class.java, token)
+        return listOf(TrainingPlanRepository(apiTrainingPlan), TrainingDayRepository(apiTrainingDay),
+            TrainingFeedbackRepository(apiTrainingFeedback)
+        )
     }
 }

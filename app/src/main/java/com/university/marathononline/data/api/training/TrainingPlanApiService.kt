@@ -1,4 +1,4 @@
-package com.university.marathononline.data.api.trainingPlan
+package com.university.marathononline.data.api.training
 
 import com.university.marathononline.data.models.SingleTrainingPlan
 import com.university.marathononline.data.models.TrainingPlan

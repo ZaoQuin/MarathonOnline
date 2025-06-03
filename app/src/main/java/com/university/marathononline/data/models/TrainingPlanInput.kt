@@ -7,7 +7,7 @@ data class TrainingPlanInput (
     var goal: ETrainingPlanInputGoal,
     var maxDistance: Double,
     var averagePace: Double,
-    var daysPerWeek: Int
+    var trainingWeeks: Int
 ): Serializable
 
 enum class ETrainingPlanInputLevel(val value: String) {

@@ -1,7 +1,7 @@
 package com.university.marathononline.data.repository
 
 import com.university.marathononline.base.BaseRepository
-import com.university.marathononline.data.api.trainingPlan.TrainingPlanApiService
+import com.university.marathononline.data.api.training.TrainingPlanApiService
 import com.university.marathononline.data.request.InputTrainingPlanRequest
 
 class TrainingPlanRepository(

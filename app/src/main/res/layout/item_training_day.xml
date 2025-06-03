@@ -57,8 +57,8 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginTop="@dimen/_12sdp">
+            android:layout_marginTop="@dimen/_12sdp"
+            android:layout_weight="1">
 
             <!-- Session Card -->
             <include
@@ -66,7 +66,7 @@
                 layout="@layout/item_training_session"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_10sdp"/>
+                android:layout_margin="@dimen/_10sdp" />
 
             <!-- Empty State View -->
             <LinearLayout
@@ -80,9 +80,9 @@
                 <ImageView
                     android:layout_width="@dimen/_120sdp"
                     android:layout_height="@dimen/_120sdp"
+                    android:contentDescription="No training sessions"
                     android:src="@drawable/ic_empty_training"
-                    app:tint="@color/light_gray"
-                    android:contentDescription="No training sessions" />
+                    app:tint="@color/light_gray" />
 
                 <TextView
                     android:layout_width="wrap_content"
