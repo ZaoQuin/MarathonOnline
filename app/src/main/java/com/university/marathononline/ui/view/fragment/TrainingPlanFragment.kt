@@ -27,6 +27,7 @@ import com.university.marathononline.data.repository.TrainingPlanRepository
 import com.university.marathononline.databinding.FragmentTrainingPlanBinding
 import com.university.marathononline.ui.components.CreateTrainingPlanDialog
 import com.university.marathononline.ui.components.TrainingFeedbackDialog
+import com.university.marathononline.ui.components.TrainingProgressChartDialog
 import com.university.marathononline.ui.view.activity.TrainingPlanHistoryActivity
 import com.university.marathononline.ui.viewModel.TrainingPlanViewModel
 import com.university.marathononline.utils.DateUtils
@@ -34,10 +35,9 @@ import com.university.marathononline.utils.startNewActivity
 import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 
-class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTrainingPlanBinding>() {
+class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainingPlanBinding>() {
 
     private var startDate: String = ""
     private var endDate: String = ""
@@ -83,7 +83,7 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
         }
     }
 
-    private fun setUpButton(){
+    private fun setUpButton() {
         binding.fabCreatePlan.setOnClickListener {
             showCreatePlanDialog()
         }
@@ -92,12 +92,40 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
             showCreatePlanDialog()
         }
 
-        binding.historyButton.setOnClickListener{
+        binding.historyButton.setOnClickListener {
             startNewActivity(TrainingPlanHistoryActivity::class.java)
+        }
+
+        binding.itemDetails.planSummary.chartButton.setOnClickListener {
+            val trainingDays = viewModel.currentTrainingDays.value ?: emptyList()
+            if (trainingDays.isEmpty()) {
+                Toast.makeText(requireContext(), "Không có dữ liệu để hiển thị biểu đồ", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val dialog = TrainingProgressChartDialog(requireContext(), trainingDays)
+            dialog.show()
         }
     }
 
-    private fun showCreatePlanDialog(){
+    private fun calculateConsistencyScore(trainingDays: List<TrainingDay>): Double {
+        // Simple consistency calculation based on completion rate and regularity
+        val completedDays = trainingDays.count {
+            it.status == ETrainingDayStatus.COMPLETED ||
+                    it.status == ETrainingDayStatus.PARTIALLY_COMPLETED
+        }
+        val skippedDays = trainingDays.count { it.status == ETrainingDayStatus.SKIPPED }
+        val missedDays = trainingDays.count { it.status == ETrainingDayStatus.MISSED }
+
+        val totalDays = trainingDays.size
+        if (totalDays == 0) return 0.0
+
+        val completionScore = (completedDays.toDouble() / totalDays) * 5.0
+        val penaltyScore = ((skippedDays + missedDays).toDouble() / totalDays) * 2.0
+
+        return (10.0 + completionScore - penaltyScore).coerceIn(0.0, 10.0)
+    }
+
+    private fun showCreatePlanDialog() {
         val dialog = CreateTrainingPlanDialog(requireContext()) { trainingPlanRequest ->
             viewModel.createTrainingPlan(trainingPlanRequest)
         }
@@ -209,10 +237,10 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
         }
     }
 
-    private fun observeViewModel(){
+    private fun observeViewModel() {
         viewModel.getCurrentTrainingPlan.observe(viewLifecycleOwner) {
             showLoadingState(false)
-            when(it){
+            when (it) {
                 is Resource.Loading -> {
                     showLoadingState(true)
                 }
@@ -232,7 +260,7 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
 
         viewModel.createTrainingPlan.observe(viewLifecycleOwner) {
             showLoadingState(false)
-            when(it){
+            when (it) {
                 is Resource.Loading -> {
                     showLoadingState(true)
                 }
@@ -256,9 +284,9 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
             }
         }
 
-        viewModel.resetTrainingDay.observe(viewLifecycleOwner){
+        viewModel.resetTrainingDay.observe(viewLifecycleOwner) {
             showLoadingState(it == Resource.Loading)
-            when(it){
+            when (it) {
                 is Resource.Loading -> Unit
                 is Resource.Success -> {
                     Toast.makeText(
@@ -276,7 +304,7 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
         }
 
         viewModel.submitFeedback.observe(viewLifecycleOwner) {
-            when(it) {
+            when (it) {
                 is Resource.Loading -> {
                     // Show loading if needed
                 }
@@ -320,7 +348,7 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
         updateTrainingSessionDisplay()
     }
 
-    private fun showTrainingInputDialog(trainingPlan: TrainingPlan){
+    private fun showTrainingInputDialog(trainingPlan: TrainingPlan) {
         val message = """
             🎯 Mục tiêu quãng đường: ${trainingPlan.input.goal} km
             🏃‍♂️ Số tuần: ${trainingPlan.input.trainingWeeks}
@@ -368,9 +396,8 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
             }
 
             updateTrainingStatusDisplay(filteredDay)
-            displayFeedbackInSession(filteredDay) // Add this line
+            displayFeedbackInSession(filteredDay)
             updateNavigationButtons()
-
         } else {
             println("Không có bài tập được lên lịch cho ngày này")
             binding.itemDetails.itemTrainingDay.apply {
@@ -460,8 +487,11 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
 
     private fun setupFeedbackButton(trainingDay: TrainingDay) {
         binding.itemDetails.itemTrainingDay.trainingSessionCard.btnFeedback?.apply {
-
-            if (trainingDay.trainingFeedback == null) {
+            if (trainingDay.trainingFeedback == null &&
+                (trainingDay.status == ETrainingDayStatus.COMPLETED ||
+                        trainingDay.status == ETrainingDayStatus.PARTIALLY_COMPLETED) &&
+                DateUtils.isToday(trainingDay.dateTime)
+            ) {
                 visibility = View.VISIBLE
                 setOnClickListener {
                     showCreateFeedbackDialog(trainingDay)
@@ -518,7 +548,6 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
             }
         }
     }
-
 
     private fun showResetConfirmationDialog(currentDay: TrainingDay) {
         val message = """
@@ -578,7 +607,7 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
             0
         }
 
-        binding.itemDetails.itemTrainingDay.trainingSessionCard.progressDetails.apply{
+        binding.itemDetails.itemTrainingDay.trainingSessionCard.progressDetails.apply {
             completedDistance.text = String.format("%.1f", totalDistance)
             goalDistance.text = String.format("%.1f", goal)
             distanceProgress.progress = progressPercentage
@@ -620,7 +649,9 @@ class TrainingPlanFragment: BaseFragment<TrainingPlanViewModel, FragmentTraining
         val apiTrainingPlan = retrofitInstance.buildApi(TrainingPlanApiService::class.java, token)
         val apiTrainingDay = retrofitInstance.buildApi(TrainingDayApiService::class.java, token)
         val apiTrainingFeedback = retrofitInstance.buildApi(TrainingFeedbackApiService::class.java, token)
-        return listOf(TrainingPlanRepository(apiTrainingPlan), TrainingDayRepository(apiTrainingDay),
+        return listOf(
+            TrainingPlanRepository(apiTrainingPlan),
+            TrainingDayRepository(apiTrainingDay),
             TrainingFeedbackRepository(apiTrainingFeedback)
         )
     }

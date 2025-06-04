@@ -66,6 +66,12 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
 
     private var guidedModeFragment: GuidedModeFragment? = null
 
+    // Loading state management
+    private var isSavingRecord = false
+    private var saveRecordCompleted = false
+    private var saveRegistrationCompleted = false
+    private var saveTrainingDayCompleted = false
+
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -169,15 +175,15 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                     }
                 }
 
-                // CẬP NHẬT: Chỉ hiển thị nút start/stop khi không kết nối Wear
+                // CẬP NHẬT: Chỉ hiển thị nút start/stop khi không kết nối Wear và không đang save
                 launch {
                     viewModel.isRecording.collect { isRecording ->
                         val isWearConnected = viewModel.isWearConnected.value
-                        if (!isWearConnected) {
+                        if (!isWearConnected && !isSavingRecord) {
                             binding.playButton.visible(!isRecording)
                             binding.stopButton.visible(isRecording)
                         } else {
-                            // Khi kết nối Wear, ẩn cả hai nút
+                            // Khi kết nối Wear hoặc đang save, ẩn cả hai nút
                             binding.playButton.visible(false)
                             binding.stopButton.visible(false)
                         }
@@ -186,31 +192,60 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
             }
         }
 
+        // Observer cho Create Record Response
         viewModel.createRecordResponse.observe(this) {
             when (it) {
+                is Resource.Loading -> {
+                    startSavingProcess()
+                }
                 is Resource.Success -> {
+                    saveRecordCompleted = true
+                    checkSavingComplete()
                     viewModel.saveRecordIntoRegistration(it.value)
                     viewModel.saveRecordIntoTrainingDay(it.value)
                 }
-                is Resource.Failure -> handleApiError(it)
+                is Resource.Failure -> {
+                    completeSavingProcess()
+                    handleApiError(it)
+                }
                 else -> Unit
             }
         }
 
+        // Observer cho Save Registration Response
         viewModel.saveRecordIntoRegistration.observe(this) {
             when (it) {
-                is Resource.Success -> Toast.makeText(this, "Save to Registration Completed", Toast.LENGTH_SHORT)
-                    .show()
-                is Resource.Failure -> handleApiError(it)
+                is Resource.Loading -> {
+                    // Loading đã được bắt đầu từ createRecord
+                }
+                is Resource.Success -> {
+                    saveRegistrationCompleted = true
+                    checkSavingComplete()
+                    Toast.makeText(this, "Lưu vào đăng ký thành công", Toast.LENGTH_SHORT).show()
+                }
+                is Resource.Failure -> {
+                    completeSavingProcess()
+                    handleApiError(it)
+                }
                 else -> Unit
             }
         }
 
+        // Observer cho Save Training Day Response
         viewModel.saveRecordIntoTrainingDay.observe(this) {
             when (it) {
-                is Resource.Success -> Toast.makeText(this, "Save to Training Day Completed", Toast.LENGTH_SHORT)
-                    .show()
-                is Resource.Failure -> handleApiError(it)
+                is Resource.Loading -> {
+                    // Loading đã được bắt đầu từ createRecord
+                }
+                is Resource.Success -> {
+                    saveTrainingDayCompleted = true
+                    checkSavingComplete()
+                    Toast.makeText(this, "Lưu vào kế hoạch tập luyện thành công", Toast.LENGTH_SHORT).show()
+                }
+                is Resource.Failure -> {
+                    completeSavingProcess()
+                    handleApiError(it)
+                }
                 else -> Unit
             }
         }
@@ -221,7 +256,9 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                 handler.postDelayed({
                     binding.checkGPS.visible(false)
                     binding.recordLayout.visible(true)
-                    binding.playButton.enable(true)
+                    if (!isSavingRecord) {
+                        binding.playButton.enable(true)
+                    }
                 }, 3000)
             } else {
                 binding.playButton.enable(false)
@@ -230,9 +267,70 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         })
     }
 
+    private fun startSavingProcess() {
+        isSavingRecord = true
+        saveRecordCompleted = false
+        saveRegistrationCompleted = false
+        saveTrainingDayCompleted = false
+
+        updateUIForSaving(true)
+
+        Toast.makeText(this, "Đang lưu kết quả...", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun checkSavingComplete() {
+        if (saveRecordCompleted && saveRegistrationCompleted && saveTrainingDayCompleted) {
+            completeSavingProcess()
+        }
+    }
+
+    private fun completeSavingProcess() {
+        isSavingRecord = false
+        updateUIForSaving(false)
+
+        if (saveRecordCompleted && saveRegistrationCompleted && saveTrainingDayCompleted) {
+            Toast.makeText(this, "Lưu kết quả hoàn tất!", Toast.LENGTH_LONG).show()
+
+            // Optional: Auto close activity after successful save
+            handler.postDelayed({
+                finishAndGoBack()
+            }, 2000)
+        }
+    }
+
+    private fun updateUIForSaving(isSaving: Boolean) {
+        binding.apply {
+            buttonBack.isEnabled = !isSaving
+            buttonBack.alpha = if (isSaving) 0.5f else 1.0f
+
+            playButton.isEnabled = !isSaving
+            stopButton.isEnabled = !isSaving
+            playButton.alpha = if (isSaving) 0.5f else 1.0f
+            stopButton.alpha = if (isSaving) 0.5f else 1.0f
+
+            if (isSaving) {
+                checkGPS.visible(true)
+                checkGPS.text = "Đang lưu kết quả tập luyện..."
+                checkGPS.setBackgroundColor(ContextCompat.getColor(this@RecordActivity, R.color.light_main_color))
+                recordLayout.visible(false)
+            } else {
+                checkGPS.visible(false)
+                recordLayout.visible(true)
+            }
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (isSavingRecord) {
+            Toast.makeText(this, "Vui lòng chờ quá trình lưu hoàn tất", Toast.LENGTH_SHORT).show()
+            return
+        }
+        super.onBackPressed()
+    }
+
     private fun handleMapTrackingMode(isWearConnected: Boolean) {
         if (isWearConnected) {
-            // Khi dùng Wear, ẩn marker và route hiện tại
             currentMarker?.remove()
             currentMarker = null
             polyline?.remove()
@@ -273,15 +371,17 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
 
     private fun updateButtonVisibility(isWearConnected: Boolean) {
         binding.apply {
-            if (isWearConnected) {
-                // Khi kết nối Wear, ẩn cả hai nút và hiển thị thông báo
+            if (isWearConnected || isSavingRecord) {
+                // Khi kết nối Wear hoặc đang save, ẩn cả hai nút và hiển thị thông báo
                 playButton.visible(false)
                 stopButton.visible(false)
 
                 // Có thể thêm một TextView hoặc thông báo cho user biết điều khiển từ Wear
-                showWearControlMessage(true)
+                if (isWearConnected && !isSavingRecord) {
+                    showWearControlMessage(true)
+                }
             } else {
-                // Khi không kết nối Wear, hiển thị nút theo trạng thái recording
+                // Khi không kết nối Wear và không đang save, hiển thị nút theo trạng thái recording
                 val isRecording = viewModel.isRecording.value
                 playButton.visible(!isRecording)
                 stopButton.visible(isRecording)
@@ -414,11 +514,23 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
     private fun initializeUI() {
         binding.apply {
             playButton.enable(hasLocationPermissions())
-            buttonBack.setOnClickListener { finishAndGoBack() }
-            playButton.setOnClickListener {
-                viewModel.startRecording(this@RecordActivity)
+            buttonBack.setOnClickListener {
+                if (isSavingRecord) {
+                    Toast.makeText(this@RecordActivity, "Vui lòng chờ quá trình lưu hoàn tất", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                finishAndGoBack()
             }
-            stopButton.setOnClickListener { viewModel.stopRecording() }
+            playButton.setOnClickListener {
+                if (!isSavingRecord) {
+                    viewModel.startRecording(this@RecordActivity)
+                }
+            }
+            stopButton.setOnClickListener {
+                if (!isSavingRecord) {
+                    viewModel.stopRecording()
+                }
+            }
         }
 
         initMap()
@@ -511,7 +623,9 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                 Manifest.permission.ACTIVITY_RECOGNITION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            binding.playButton.enable(true)
+            if (!isSavingRecord) {
+                binding.playButton.enable(true)
+            }
         } else {
             requestActivityRecognitionPermission()
         }
