@@ -47,7 +47,6 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-
             <ImageView
                 android:id="@+id/info_button"
                 android:layout_width="@dimen/_20sdp"
@@ -57,6 +56,17 @@
                 android:contentDescription="Thông tin kế hoạch"
                 android:layout_marginTop="@dimen/_2sdp"
                 android:layout_marginEnd="@dimen/_2sdp"
+                android:tint="@color/white" />
+
+            <ImageView
+                android:id="@+id/chart_button"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:layout_alignParentEnd="true"
+                android:src="@drawable/ic_statistics"
+                android:contentDescription="Thống kê"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginEnd="@dimen/_27sdp"
                 android:tint="@color/white" />
         </RelativeLayout>
 

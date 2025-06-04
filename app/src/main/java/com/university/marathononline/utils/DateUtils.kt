@@ -252,4 +252,13 @@ object DateUtils {
     fun formatToApiDateTimeString(dateTime: LocalDateTime?): String? {
         return dateTime?.format(API_DATE_TIME_FORMATTER)
     }
+
+    fun isToday(trainingDateTimeStr: String): Boolean {
+        return try {
+            val trainingDate = LocalDateTime.parse(trainingDateTimeStr).toLocalDate()
+            trainingDate == LocalDate.now()
+        } catch (e: Exception) {
+            false
+        }
+    }
 }
