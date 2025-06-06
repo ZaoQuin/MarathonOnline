@@ -7,12 +7,13 @@ import androidx.datastore.preferences.Preferences
 import androidx.datastore.preferences.createDataStore
 import androidx.datastore.preferences.edit
 import androidx.datastore.preferences.preferencesKey
-import androidx.datastore.preferences.preferencesOf
 import androidx.datastore.preferences.remove
 import com.university.marathononline.data.models.ERole
 import com.university.marathononline.utils.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
@@ -29,7 +30,6 @@ class UserPreferences(
     private fun encryptData(data: String): Pair<ByteArray, ByteArray> {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, secretKey)
-
         val iv = cipher.iv
         val encryptedData = cipher.doFinal(data.toByteArray(Charsets.UTF_8))
         return Pair(iv, encryptedData)
@@ -39,7 +39,6 @@ class UserPreferences(
         try {
             val cipher = Cipher.getInstance("AES/GCM/NoPadding")
             val spec = GCMParameterSpec(128, iv)
-
             cipher.init(Cipher.DECRYPT_MODE, secretKey, spec)
             val decryptedData = cipher.doFinal(encryptedData)
             return String(decryptedData, Charsets.UTF_8)
@@ -48,6 +47,13 @@ class UserPreferences(
             throw e
         }
     }
+
+    val lastSyncTime: Flow<LocalDateTime?>
+        get() = dataStore.data.map { preferences ->
+            preferences[KEY_LAST_SYNC_TIME]?.let {
+                LocalDateTime.parse(it, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            }
+        }
 
     val authToken: Flow<String?>
         get() = dataStore.data.map { preferences ->
@@ -86,7 +92,6 @@ class UserPreferences(
             try {
                 val encryptedPassword = preferences[KEY_AUTH_PASSWORD_PRE]?.let { Base64.getDecoder().decode(it) }
                 val iv = preferences[KEY_AUTH_PASSWORD_IV_PRE]?.let { Base64.getDecoder().decode(it) }
-
                 if (encryptedPassword != null && iv != null) {
                     decryptData(encryptedPassword, iv)
                 } else {
@@ -104,57 +109,50 @@ class UserPreferences(
             preferences[KEY_AUTH_REMEMBER]
         }
 
-    suspend fun saveAuthToken(authToken: String){
-        dataStore.edit {
-            preferences ->
+    suspend fun saveAuthToken(authToken: String) {
+        dataStore.edit { preferences ->
             preferences[KEY_AUTH_TOKEN_PRE] = authToken
         }
     }
 
-    suspend fun saveRoleUser(role: ERole) {
-        dataStore.edit {
-                preferences ->
-            preferences[KEY_AUTH_ROLE_PRE] = role.name
-        }
-    }
-
-    suspend fun saveFullName(fullName: String) {
-        dataStore.edit {
-                preferences ->
-            preferences[KEY_AUTH_FULL_NAME_PRE] = fullName
+    suspend fun updateLastSyncTime() {
+        dataStore.edit { preferences ->
+            preferences[KEY_LAST_SYNC_TIME] = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         }
     }
 
     suspend fun saveStatusUser(verified: Boolean) {
-        dataStore.edit {
-                preferences ->
+        dataStore.edit { preferences ->
             preferences[KEY_AUTH_STATUS_PRE] = verified
         }
     }
 
-    suspend fun saveDeleted(isDeleted: Boolean){
-        dataStore.edit {
-                preferences ->
+    suspend fun saveDeleted(isDeleted: Boolean) {
+        dataStore.edit { preferences ->
             preferences[KEY_AUTH_DELETED_PRE] = isDeleted
         }
     }
 
-    suspend fun saveAuthenticated(fullName: String, accessToken: String, email: String, role: ERole, isVerified: Boolean, isDeleted: Boolean){
-        dataStore.edit {
-            preferences ->
+    suspend fun saveAuthenticated(fullName: String, accessToken: String, email: String, role: ERole, isVerified: Boolean, isDeleted: Boolean) {
+        dataStore.edit { preferences ->
+            val currentEmail = preferences[KEY_AUTH_EMAIL_PRE]
             preferences[KEY_AUTH_FULL_NAME_PRE] = fullName
             preferences[KEY_AUTH_EMAIL_PRE] = email
             preferences[KEY_AUTH_TOKEN_PRE] = accessToken
             preferences[KEY_AUTH_ROLE_PRE] = role.name
             preferences[KEY_AUTH_STATUS_PRE] = isVerified
             preferences[KEY_AUTH_DELETED_PRE] = isDeleted
+
+            if (currentEmail != email || currentEmail.isNullOrEmpty()) {
+                preferences[KEY_LAST_SYNC_TIME] = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            }
         }
     }
 
     suspend fun saveLoginInfo(email: String, password: String) {
         val (passwordIv, encryptedPassword) = encryptData(password)
-        dataStore.edit {
-                preferences ->
+        dataStore.edit { preferences ->
+            val currentEmail = preferences[KEY_AUTH_EMAIL_PRE]
             preferences[KEY_AUTH_EMAIL_PRE] = email
             preferences[KEY_AUTH_PASSWORD_PRE] = Base64.getEncoder().encodeToString(encryptedPassword)
             preferences[KEY_AUTH_PASSWORD_IV_PRE] = Base64.getEncoder().encodeToString(passwordIv)
@@ -196,7 +194,7 @@ class UserPreferences(
         }
     }
 
-    companion object{
+    companion object {
         private val KEY_AUTH_TOKEN_PRE = preferencesKey<String>(KEY_AUTH_TOKEN)
         private val KEY_AUTH_ROLE_PRE = preferencesKey<String>(KEY_AUTH_ROLE)
         private val KEY_AUTH_STATUS_PRE = preferencesKey<Boolean>(KEY_AUTH_STATUS)
@@ -206,5 +204,6 @@ class UserPreferences(
         private val KEY_AUTH_PASSWORD_PRE = preferencesKey<String>(KEY_PASSWORD)
         private val KEY_AUTH_PASSWORD_IV_PRE = preferencesKey<String>(KEY_PASSWORD_IV)
         private val KEY_AUTH_REMEMBER = preferencesKey<Boolean>(KEY_REMEMBER_ME)
+        private val KEY_LAST_SYNC_TIME = preferencesKey<String>(LAST_SYNC_TIME)
     }
 }

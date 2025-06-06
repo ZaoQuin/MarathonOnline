@@ -32,7 +32,7 @@ class LeaderBoardViewModel(): BaseViewModel(listOf()) {
             compareByDescending<Registration> { reg ->
                 reg.records?.sumOf { it.distance } ?: 0.0
             }.thenBy { reg ->
-                reg.records?.sumOf { it.timeTaken } ?: 0L
+                reg.records?.sumOf { DateUtils.getDurationBetween(it.startTime, it.endTime).seconds } ?: 0L
             }.thenBy { reg ->
                 reg.records?.map { it.avgSpeed }?.average() ?: 0.0
             }.thenBy { reg ->

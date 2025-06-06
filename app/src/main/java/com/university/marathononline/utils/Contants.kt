@@ -42,6 +42,7 @@ const val KEY_AUTH_STATUS = "auth_status"
 const val KEY_AUTH_DELETED = "deleted"
 const val KEY_PASSWORD_IV = "password_iv"
 const val KEY_REMEMBER_ME = "remember_me"
+const val LAST_SYNC_TIME = "last_sync_time"
 
 
 const val SORT_BY_ASC = "SORT_BY_ASC"

@@ -76,7 +76,7 @@ class MonthlyStatisticsViewModel(
             _pace.value = result?.get(KEY_PACE) as? Double ?: 0.0
             val recordOfMonth = groupedByMonth[dateKey]
             val groupedByDate = recordOfMonth?.groupBy {
-                DateUtils.convertStringToLocalDateTime(it.timestamp).toLocalDate().toString()
+                DateUtils.convertStringToLocalDateTime(it.startTime).toLocalDate().toString()
             }
             val dailyDistances = groupedByDate?.mapValues { entry ->
                 val totalDistanceForDay = entry.value.sumOf { it.distance }
@@ -96,7 +96,7 @@ class MonthlyStatisticsViewModel(
     fun setRecords(records: List<Record>) {
         _records.value = records
         groupedByMonth = records.groupBy {
-            val dateTime = DateUtils.convertStringToLocalDateTime(it.timestamp)
+            val dateTime = DateUtils.convertStringToLocalDateTime(it.startTime)
             "${dateTime.year}-${dateTime.monthValue}"
         }
         statsByMonth = groupedByMonth.mapValues { calculateStats(it.value) }
@@ -109,14 +109,14 @@ class MonthlyStatisticsViewModel(
 
     private fun calculateStats(group: List<Record>): Map<String, Any> {
         val totalDistance = group.sumOf { it.distance }
-        val totalTime = group.sumOf { it.timeTaken }
+        val totalTime = group.sumOf { DateUtils.getDurationBetween(it.startTime, it.endTime).seconds }
         val totalSteps = group.sumOf { it.steps }
         val avgSpeed = (totalDistance/ (totalTime /3600.0))
         val currUser = _user.value
         val age = currUser?.let { getAge(it.birthday) }
         val gender = currUser?.let { it.gender }
         val avgWeight = getAvgWeightByGenderAndAge(gender!!, age!!)
-        val calories = group.sumOf { calCalogies(it.avgSpeed, avgWeight, it.timeTaken) }
+        val calories = group.sumOf { calCalogies(it.avgSpeed, avgWeight, DateUtils.getDurationBetween(it.startTime, it.endTime).seconds) }
         val pace = calPace(avgSpeed)
         val roundedTotalDistance = BigDecimal(totalDistance).setScale(2, RoundingMode.HALF_UP).toDouble()
         val roundedAvgSpeed = BigDecimal(avgSpeed).setScale(2, RoundingMode.HALF_UP).toDouble()

@@ -29,7 +29,7 @@ class RegistrationAdapter(private var registrations: List<Registration>,
                 tvFullName.text = item.runner.fullName
                 tvUsername.text = itemView.context.getString(registration_username, item.runner.username)
                 val totalDistance = item.records.sumOf { it.distance }
-                val totalTime = item.records.sumOf { it.timeTaken }
+                val totalTime = item.records.sumOf { DateUtils.getDurationBetween(it.startTime, it.endTime).seconds }
                 tvTotalDistance.text =  itemView.context.getString(registration_totalDistance, formatDistance(totalDistance))
                 tvTotalTime.text =  itemView.context.getString(registration_totalTime, DateUtils.convertSecondsToHHMMSS(totalTime))
                 tvStatus.text = itemView.context.getString(registration_status, item.status.value)

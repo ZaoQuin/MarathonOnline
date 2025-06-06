@@ -9,6 +9,12 @@ data class Record(
     var distance: Double,
     var timeTaken: Long,
     var avgSpeed: Double,
-    var timestamp: String,
-    var heartRate: Double
+    var heartRate: Double,
+    var startTime: String,
+    var endTime: String,
+    var source: ERecordSource,
 ): Serializable
+
+enum class ERecordSource {
+    DEVICE, THIRD, MERGED
+}

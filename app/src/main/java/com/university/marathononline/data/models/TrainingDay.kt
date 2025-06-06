@@ -7,7 +7,7 @@ data class TrainingDay (
     var week: Int,
     var dayOfWeek: Int,
     var session: TrainingSession,
-    var records: List<Record>,
+    var record: Record,
     var status: ETrainingDayStatus,
     var dateTime: String,
     var trainingFeedback: TrainingFeedback?= null,

@@ -82,13 +82,6 @@ class TrainingPlanViewModel (
         }
     }
 
-    fun resetTrainingDay(){
-        viewModelScope.launch {
-            _resetTrainingDay.value = Resource.Loading
-            _resetTrainingDay.value = trainingDayRepository.resetTrainingDay();
-        }
-    }
-
     fun getById(id: Long){
         viewModelScope.launch {
             println("Fetching plan with ID: $id")

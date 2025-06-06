@@ -128,7 +128,7 @@ class DailyStatisticsFragment : BaseFragment<DailyStatisticsViewModel, FragmentD
 
             val hourlyDistances = mutableMapOf<Int, Double>()
             records.forEach { record ->
-                val recordTime = DateUtils.convertStringToLocalDateTime(record.timestamp)
+                val recordTime = DateUtils.convertStringToLocalDateTime(record.startTime)
                 val hour = recordTime.hour
                 hourlyDistances[hour] = hourlyDistances.getOrDefault(hour, 0.0) + record.distance
             }

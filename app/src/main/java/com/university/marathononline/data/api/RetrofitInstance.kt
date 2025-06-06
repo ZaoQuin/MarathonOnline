@@ -12,6 +12,7 @@ object RetrofitInstance {
 //    private const val BASE_URL = "https://marathononlineapi.onrender.com"
     private const val BASE_URL = "http://192.168.9.73:8080"
 //    private const val BASE_URL = "http://192.168.1.165:8080"
+//    private const val BASE_URL = "http://192.168.2.25:8080"
 
     fun <Api> buildApi(
         api: Class <Api>,

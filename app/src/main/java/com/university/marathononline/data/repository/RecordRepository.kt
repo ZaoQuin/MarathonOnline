@@ -15,4 +15,8 @@ class RecordRepository(
     suspend fun getByRunner() = safeApiCall {
         api.getByRunner()
     }
+
+    suspend fun sync(records: List<CreateRecordRequest>) = safeApiCall {
+        api.sync(records)
+    }
 }

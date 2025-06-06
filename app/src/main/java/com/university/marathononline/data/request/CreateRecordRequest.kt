@@ -1,9 +1,13 @@
 package com.university.marathononline.data.request
 
+import com.university.marathononline.data.models.ERecordSource
+
 data class CreateRecordRequest(
-    val steps: Int,
-    val distance: Double,
-    val timeTaken: Long,
-    val avgSpeed: Double,
-    val timestamp: String
+    var steps: Int,
+    var distance: Double,
+    var avgSpeed: Double,
+    var heartRate: Double,
+    var startTime: String,
+    var endTime: String,
+    var source: ERecordSource
 )

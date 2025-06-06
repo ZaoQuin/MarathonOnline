@@ -59,7 +59,6 @@ dependencies {
     implementation(libs.ssp.android)
 
     implementation(libs.play.services.location)
-    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.fragment.ktx)
 
     // ViewModel & LiveData
@@ -72,7 +71,6 @@ dependencies {
     implementation(libs.lottie)
 
     implementation(libs.mpandroidchart)
-    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
     // Retrofit & GSON
     implementation(libs.retrofit)
@@ -83,8 +81,6 @@ dependencies {
     // Android Navigation Architecture
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.navigation.fragment)
-
-    implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
 
     implementation("androidx.datastore:datastore-preferences:1.0.0-alpha01")
 
@@ -126,6 +122,9 @@ dependencies {
 
     // Firebase Message
     implementation("com.google.firebase:firebase-messaging:23.4.0")
+
+    // Health Connect
+    implementation("androidx.health.connect:connect-client:1.1.0-alpha08")
 }
 
 buildscript {

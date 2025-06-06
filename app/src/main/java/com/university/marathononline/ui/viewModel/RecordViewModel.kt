@@ -22,9 +22,9 @@ import com.university.marathononline.ui.viewModel.tracking.RecordingManager
 import com.university.marathononline.ui.viewModel.tracking.StepCounter
 import com.university.marathononline.ui.viewModel.tracking.WearIntegrationManager
 import com.google.android.gms.maps.model.LatLng
+import com.university.marathononline.data.models.ERecordSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -73,6 +73,7 @@ class RecordViewModel(
     val steps: StateFlow<Int> get() = stepCounter.steps
     val isRecording: StateFlow<Boolean> get() = recordingManager.isRecording
     val position: StateFlow<String> get() = locationTracker.position
+    private var startTime: LocalDateTime? = null
 
     // Modified routes property - return empty list when using Wear
     val routes: StateFlow<List<LatLng>> get() =
@@ -186,6 +187,9 @@ class RecordViewModel(
     fun startRecording(context: Context) {
         applicationContext = context.applicationContext
 
+        // Lưu thời gian bắt đầu
+        startTime = LocalDateTime.now()
+
         recordingManager.startRecording()
 
         if (isUsingWearForTracking) {
@@ -248,13 +252,17 @@ class RecordViewModel(
         val createRecordRequest = CreateRecordRequest(
             steps = stepCounter.steps.value,
             distance = recordingManager.totalDistance,
-            timeTaken = recordingManager.getElapsedTimeInSeconds(),
             avgSpeed = recordingManager.getAverageSpeed(),
-            timestamp = LocalDateTime.now().toString()
+            heartRate = 0.0,
+            startTime = startTime?.toString() ?: LocalDateTime.now().toString(),
+            endTime = LocalDateTime.now().toString(),
+            source = ERecordSource.DEVICE
         )
 
+
         Log.d("RecordViewModel", "Recording stopped:")
-        Log.d("RecordViewModel", "Time: ${createRecordRequest.timeTaken} seconds")
+        Log.d("RecordViewModel", "Start Time: ${createRecordRequest.startTime}")
+        Log.d("RecordViewModel", "End Time: ${createRecordRequest.endTime}")
         Log.d("RecordViewModel", "Distance: ${createRecordRequest.distance} km")
         Log.d("RecordViewModel", "Speed: ${createRecordRequest.avgSpeed} km/h")
         Log.d("RecordViewModel", "Steps: ${createRecordRequest.steps}")

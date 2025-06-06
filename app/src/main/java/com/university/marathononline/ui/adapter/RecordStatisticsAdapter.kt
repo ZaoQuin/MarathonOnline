@@ -18,11 +18,11 @@ class RecordStatisticsAdapter (private var records: List<Record>) :
 
         fun bind(item: Record) {
             binding.apply {
-                tvTimestamp.text = DateUtils.formatLocalDateTimeStrToDateTimeString(item.timestamp)
+                tvTimestamp.text = DateUtils.formatLocalDateTimeStrToDateTimeString(item.startTime)
 
                 tvDistance.text = formatDistance(item.distance)
 
-                tvTimeTaken.text = DateUtils.convertSecondsToHHMMSS(item.timeTaken)
+                tvTimeTaken.text = DateUtils.convertSecondsToHHMMSS(DateUtils.getDurationBetween(item.startTime, item.endTime).seconds)
 
                 tvAvgSpeed.text = formatSpeed(item.avgSpeed)
 

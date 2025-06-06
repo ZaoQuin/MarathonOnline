@@ -252,22 +252,12 @@ class TrainingPlanDetailsActivity : BaseActivity<TrainingPlanViewModel, Activity
 
     private fun updateSessionProgress(trainingDay: TrainingDay) {
         // Calculate total values from all records
-        var totalDistance = 0.0
-        var totalSteps = 0
-        var totalTime = 0L
-        var avgHeartRate = 0.0
-
-        trainingDay.records.forEach { record ->
-            totalDistance += record.distance
-            totalSteps += record.steps
-            totalTime += record.timeTaken
-            avgHeartRate += record.heartRate
-        }
-
-        // Calculate averages
-        if (trainingDay.records.isNotEmpty()) {
-            avgHeartRate /= trainingDay.records.size
-        }
+        var totalDistance = trainingDay.record.distance
+        var totalSteps = trainingDay.record.steps
+        var totalTime = DateUtils.getDurationBetween(
+            trainingDay.record.startTime,
+            trainingDay.record.endTime).seconds
+        var avgHeartRate = trainingDay.record.heartRate
 
         // Calculate average pace (minutes per km)
         val avgPaces = if (totalDistance > 0) {
