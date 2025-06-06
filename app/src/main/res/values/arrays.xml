@@ -14,4 +14,13 @@
         <item>Tháng 11</item>
         <item>Tháng 12</item>
     </string-array>
+
+
+    <string-array name="health_permissions">
+        <item>android.permission.health.READ_STEPS</item>
+        <item>android.permission.health.READ_DISTANCE</item>
+        <item>android.permission.health.READ_HEART_RATE</item>
+        <item>android.permission.health.WRITE_STEPS</item>
+        <item>android.permission.health.WRITE_DISTANCE</item>
+    </string-array>
 </resources>

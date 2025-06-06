@@ -13,6 +13,7 @@ import com.university.marathononline.data.models.ERegistrationStatus
 import com.university.marathononline.data.models.Registration
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.utils.DateUtils
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
@@ -85,7 +86,7 @@ class OrganizerStatisticsViewModel(
 
             val records = activeRegistrations.flatMap { it.records }
             val totalDistance = records.sumOf { it.distance }
-            val totalTime = records.sumOf { it.timeTaken }
+            val totalTime = records.sumOf { DateUtils.getDurationBetween(it.startTime, it.endTime).seconds }
             Log.d("OrganizerStatistics", "Total distance: $totalDistance")
             Log.d("OrganizerStatistics", "Total time: $totalTime")
             _totalDistance.value = totalDistance

@@ -33,6 +33,16 @@
                 android:layout_gravity="right"
                 app:civ_border_width="2dp"
                 android:foreground="?attr/selectableItemBackground"/>
+
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/setting_button"
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:src="@drawable/ic_setting"
+                android:layout_gravity="right"
+                android:layout_marginEnd="@dimen/_5sdp"
+                android:foreground="?attr/selectableItemBackground"/>
         </Toolbar>
 
 

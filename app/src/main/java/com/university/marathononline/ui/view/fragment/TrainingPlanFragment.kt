@@ -2,7 +2,6 @@ package com.university.marathononline.ui.view.fragment
 
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -279,6 +278,7 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
                     binding.itemDetails.noActivePlan.root.visibility = View.VISIBLE
                     binding.itemDetails.activePlanSection.visibility = View.GONE
                     handleApiError(it)
+                    println("Add Training Plan" + it.fetchErrorMessage())
                 }
                 else -> Unit
             }
@@ -549,43 +549,15 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
         }
     }
 
-    private fun showResetConfirmationDialog(currentDay: TrainingDay) {
-        val message = """
-            Bạn có chắc chắn muốn reset tiến trình tập luyện này không?
-            
-            📅 Ngày: ${DateUtils.formatTrainingDayString(currentDay)}
-            🏃‍♂️ Bài tập: ${currentDay.session.name}
-            
-            ⚠️ Tất cả dữ liệu tiến trình sẽ bị xóa và không thể khôi phục!
-        """.trimIndent()
-
-        AlertDialog.Builder(requireContext())
-            .setTitle("Xác nhận Reset")
-            .setMessage(message)
-            .setIcon(R.drawable.ic_info)
-            .setPositiveButton("Reset") { _, _ ->
-                viewModel.resetTrainingDay()
-            }
-            .setNegativeButton("Hủy", null)
-            .show()
-    }
-
     private fun updateSessionProgress(trainingDay: TrainingDay) {
-        var totalDistance = 0.0
-        var totalSteps = 0
-        var totalTime = 0L
-        var avgHeartRate = 0.0
-
-        trainingDay.records.forEach { record ->
-            totalDistance += record.distance
-            totalSteps += record.steps
-            totalTime += record.timeTaken
-            avgHeartRate += record.heartRate
-        }
-
-        if (trainingDay.records.isNotEmpty()) {
-            avgHeartRate /= trainingDay.records.size
-        }
+        if(trainingDay.record == null)
+            return
+        var totalDistance = trainingDay.record.distance
+        var totalSteps = trainingDay.record.steps
+        var totalTime = DateUtils.getDurationBetween(
+            trainingDay.record.startTime,
+            trainingDay.record.endTime).seconds
+        var avgHeartRate = trainingDay.record.heartRate
 
         val avgPaces = if (totalDistance > 0) {
             val totalMinutes = TimeUnit.MILLISECONDS.toMinutes(totalTime)

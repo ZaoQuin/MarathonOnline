@@ -9,6 +9,7 @@ import com.university.marathononline.data.models.LoginInfo
 import com.university.marathononline.data.response.AuthResponse
 import com.university.marathononline.data.response.UserPreferences
 import kotlinx.coroutines.flow.first
+import java.time.LocalDateTime
 
 class AuthRepository(
     private var api: AuthApiService,
@@ -62,6 +63,10 @@ class AuthRepository(
         val password = preferences.password.first() ?: ""
         val remember = preferences.remember.first() ?: false
         return LoginInfo(email, password, remember)
+    }
+
+    suspend fun getLastSyncTime(): LocalDateTime {
+        return preferences.lastSyncTime.first()!!
     }
 
     suspend fun saveLoginInfo(email: String, password: String) {

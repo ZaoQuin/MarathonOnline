@@ -67,14 +67,14 @@
 
         private fun calculateStats(group: List<Record>): Map<String, Any> {
             val totalDistance = group.sumOf { it.distance }
-            val totalTime = group.sumOf { it.timeTaken }
+            val totalTime = group.sumOf { DateUtils.getDurationBetween(it.startTime, it.endTime).seconds }
             val totalSteps = group.sumOf { it.steps }
             val avgSpeed = (totalDistance/ (totalTime /3600.0))
             val currUser = _user.value
             val age = currUser?.let { getAge(it.birthday) }
             val gender = currUser?.let { it.gender }
             val avgWeight = getAvgWeightByGenderAndAge(gender!!, age!!)
-            val calories = group.sumOf { calCalogies(it.avgSpeed, avgWeight, it.timeTaken) }
+            val calories = group.sumOf { calCalogies(it.avgSpeed, avgWeight, DateUtils.getDurationBetween(it.startTime, it.endTime).seconds) }
             val pace = calPace(avgSpeed)
             val roundedTotalDistance = BigDecimal(totalDistance).setScale(2, RoundingMode.HALF_UP).toDouble()
             val roundedAvgSpeed = BigDecimal(avgSpeed).setScale(2, RoundingMode.HALF_UP).toDouble()
@@ -95,8 +95,8 @@
         fun setRecords(records: List<Record>) {
             _records.value = records
             groupedByDay = records.groupBy {
-                Log.d("DateTimeTest", "Original timestamp: ${it.timestamp}")
-                DateUtils.convertStringToLocalDateTime(it.timestamp).toLocalDate().toString()
+                Log.d("DateTimeTest", "Original timestamp: ${it.startTime}")
+                DateUtils.convertStringToLocalDateTime(it.startTime).toLocalDate().toString()
             }
         }
 
@@ -120,7 +120,7 @@
             _pace.value = calPace(avgSpeed)
             var recordOfWeek = groupedByWeek.filter { it.key in dateKeys }.values.flatten()
             val groupedByDate = recordOfWeek?.groupBy {
-                DateUtils.convertStringToLocalDateTime(it.timestamp).toLocalDate().toString()
+                DateUtils.convertStringToLocalDateTime(it.startTime).toLocalDate().toString()
             }
             val dailyDistances = groupedByDate?.mapValues { entry ->
                 val totalDistanceForDay = entry.value.sumOf { it.distance }

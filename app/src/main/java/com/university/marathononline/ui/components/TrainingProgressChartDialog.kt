@@ -78,7 +78,7 @@ class TrainingProgressChartDialog(
         trainingDays.sortedBy { DateUtils.convertStringToLocalDateTime(it.dateTime) }
             .forEachIndexed { index, trainingDay ->
                 // Calculate total actual distance from records (0 if no records)
-                val actualDistance = trainingDay.records.sumOf { it.distance }.toFloat()
+                val actualDistance = trainingDay.record.distance.toFloat()
                 // Goal distance from the session
                 val goalDistance = trainingDay.session.distance.toFloat()
 

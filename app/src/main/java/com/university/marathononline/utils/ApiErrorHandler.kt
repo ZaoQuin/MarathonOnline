@@ -44,7 +44,6 @@ fun <T> Fragment.handleApiError(
                 showToast(errorMessage)
                 logError("API Error: $errorMessage", failure)
             } else {
-                showToast("An unknown error occurred.")
                 logError("Unknown Error", failure)
             }
         }
@@ -105,7 +104,6 @@ fun <T> AppCompatActivity.handleApiError(
                 showToast(errorMessage)
                 logError("API Error: $errorMessage", failure)
             } else {
-                showToast("An unknown error occurred.")
                 logError("Unknown Error", failure)
             }
         }
