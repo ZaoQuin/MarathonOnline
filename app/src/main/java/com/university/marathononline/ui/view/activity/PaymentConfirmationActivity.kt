@@ -1,6 +1,7 @@
 package com.university.marathononline.ui.view.activity
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -8,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.lifecycle.Observer
+import com.university.marathononline.VNPayWebViewActivity
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
@@ -36,7 +38,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
 
-class PaymentConfirmationActivity : BaseActivity<PaymentConfirmationViewModel, ActivityPaymentConfirmationBinding>() {
+class PaymentConfirmationActivity: BaseActivity<PaymentConfirmationViewModel, ActivityPaymentConfirmationBinding>() {
+
+    private val VNPAY_REQUEST_CODE = 1001
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleIntentExtras(intent)
@@ -67,7 +72,7 @@ class PaymentConfirmationActivity : BaseActivity<PaymentConfirmationViewModel, A
         viewModel.registration.observe(this){
 
             if(viewModel.registration.value?.status == ERegistrationStatus.PENDING) {
-                viewModel.payment()
+                viewModel.createVNPayPayment()
             }
         }
 
@@ -75,12 +80,27 @@ class PaymentConfirmationActivity : BaseActivity<PaymentConfirmationViewModel, A
             when(it){
                 is Resource.Success -> {
                     Log.d("PaymentActivity", it.toString())
-                    showToastWithDelay("Đăng ký thành công", 2500)
+                    Toast.makeText(this, "Đăng ký thành công", Toast.LENGTH_SHORT).show()
                     viewModel.getContestById()
                 }
                 is Resource.Failure -> {handleApiError(it)
                     Log.e("PaymentActivity",
                         it.fetchErrorMessage())
+                }
+                else -> Unit
+            }
+        }
+
+        viewModel.processVNPayResult.observe(this) {
+            when(it) {
+                is Resource.Success -> {
+                    Log.d("PaymentActivity", "Payment processed successfully: ${it.value}")
+                    viewModel.addPayment(it.value)
+                }
+                is Resource.Failure -> {
+                    handleApiError(it)
+                    binding.btnPayment.enable(true)
+                    Log.e("PaymentActivity", "Payment processing failed: ${it.fetchErrorMessage()}")
                 }
                 else -> Unit
             }
@@ -98,7 +118,105 @@ class PaymentConfirmationActivity : BaseActivity<PaymentConfirmationViewModel, A
                 else -> Unit
             }
         }
+
+        viewModel.vnpayPaymentUrl.observe(this) {
+            when(it) {
+                is Resource.Success -> {
+                    Log.d("VNPay", "Payment URL: ${it.value}")
+                    openVNPayPayment(it.value.str)
+                }
+                is Resource.Failure -> {
+                    handleApiError(it)
+                    binding.btnPayment.enable(true)
+                    Log.e("VNPay", "Error creating payment URL: ${it.fetchErrorMessage()}")
+                }
+                else -> Unit
+            }
+        }
+
     }
+
+    private fun openVNPayPayment(paymentUrl: String) {
+        try {
+            VNPayWebViewActivity.startForResult(this, paymentUrl, VNPAY_REQUEST_CODE)
+
+        } catch (e: Exception) {
+            Log.e("VNPay", "Error opening payment", e)
+            Toast.makeText(this, "Lỗi mở trang thanh toán", Toast.LENGTH_SHORT).show()
+            binding.btnPayment.enable(true)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == VNPAY_REQUEST_CODE) {
+            when (resultCode) {
+                RESULT_OK -> {
+                    val paymentResultUrl = data?.getStringExtra("payment_result_url")
+                    paymentResultUrl?.let { url ->
+                        handleVNPayReturn(url)
+                    }
+                }
+                RESULT_CANCELED -> {
+                    Log.d("VNPay", "Payment cancelled by user")
+                    Toast.makeText(this, "Thanh toán đã bị hủy", Toast.LENGTH_SHORT).show()
+                    binding.btnPayment.enable(true)
+                }
+                else -> {
+                    Log.e("VNPay", "Payment failed with result code: $resultCode")
+                    Toast.makeText(this, "Thanh toán thất bại", Toast.LENGTH_SHORT).show()
+                    binding.btnPayment.enable(true)
+                }
+            }
+        }
+    }
+
+    private fun handleVNPayReturn(url: String) {
+        try {
+            Log.d("VNPay", "Processing return URL: $url")
+
+            // Parse parameters từ return URL
+            val uri = Uri.parse(url)
+            val params = mutableMapOf<String, String>()
+
+            uri.queryParameterNames.forEach { paramName ->
+                uri.getQueryParameter(paramName)?.let { paramValue ->
+                    params[paramName] = paramValue
+                }
+            }
+
+            Log.d("VNPay", "Payment parameters: $params")
+
+            // Kiểm tra response code
+            val responseCode = params["vnp_ResponseCode"]
+            when (responseCode) {
+                "00" -> {
+                    // Thanh toán thành công
+                    Log.d("VNPay", "Payment successful")
+                    viewModel.processVNPayReturn(params)
+                }
+                "24" -> {
+                    // Giao dịch bị hủy
+                    Log.d("VNPay", "Payment cancelled")
+                    Toast.makeText(this, "Giao dịch đã bị hủy", Toast.LENGTH_SHORT).show()
+                    binding.btnPayment.enable(true)
+                }
+                else -> {
+                    // Thanh toán thất bại
+                    Log.e("VNPay", "Payment failed with code: $responseCode")
+                    Toast.makeText(this, "Thanh toán thất bại. Mã lỗi: $responseCode", Toast.LENGTH_SHORT).show()
+                    binding.btnPayment.enable(true)
+                }
+            }
+
+        } catch (e: Exception) {
+            Log.e("VNPay", "Error processing payment return", e)
+            Toast.makeText(this, "Lỗi xử lý kết quả thanh toán", Toast.LENGTH_SHORT).show()
+            binding.btnPayment.enable(true)
+        }
+    }
+
     private fun updateUserUI(user: User) {
         binding.apply {
             tvFullName.text = user.fullName
@@ -132,9 +250,9 @@ class PaymentConfirmationActivity : BaseActivity<PaymentConfirmationViewModel, A
             tvRegisterDate.text = DateUtils.convertToVietnameseDate(LocalDateTime.now().toString())
 
             btnPayment.setOnClickListener{
+                btnPayment.enable(false)
                 viewModel.registerContest()
             }
-
         }
     }
 
@@ -161,5 +279,4 @@ class PaymentConfirmationActivity : BaseActivity<PaymentConfirmationViewModel, A
         Handler(Looper.getMainLooper()).postDelayed({
         }, delayMillis)
     }
-
 }

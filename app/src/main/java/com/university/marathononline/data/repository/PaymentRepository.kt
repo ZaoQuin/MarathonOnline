@@ -11,4 +11,12 @@ class PaymentRepository (
     suspend fun addPayment(newPaymentRequest: CreatePaymentRequest) = safeApiCall {
         api.addPayment(newPaymentRequest)
     }
+
+    suspend fun createVNPay(amount: Int, registrationId: Long) = safeApiCall {
+        api.createVNPay(amount, registrationId)
+    }
+
+    suspend fun getVNPayReturn(params: Map<String, String>) = safeApiCall {
+        api.getVNPayReturn(params)
+    }
 }

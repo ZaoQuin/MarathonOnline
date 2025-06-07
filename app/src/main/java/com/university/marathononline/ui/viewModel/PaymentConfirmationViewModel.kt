@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.models.Contest
-import com.university.marathononline.data.models.ERegistrationStatus
 import com.university.marathononline.data.models.Payment
 import com.university.marathononline.data.models.Registration
 import com.university.marathononline.data.models.User
@@ -16,15 +15,15 @@ import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.data.repository.PaymentRepository
 import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.data.request.CreatePaymentRequest
+import com.university.marathononline.data.response.StringResponse
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 
 class PaymentConfirmationViewModel(
     private val authRepository: AuthRepository,
     private val registrationRepository: RegistrationRepository,
     private val paymentRepository: PaymentRepository,
     private val contestRepository: ContestRepository
-): BaseViewModel(listOf(authRepository, registrationRepository, paymentRepository)){
+) : BaseViewModel(listOf(authRepository, registrationRepository, paymentRepository)) {
     private val _contest: MutableLiveData<Contest> = MutableLiveData()
     val contest: LiveData<Contest> get() = _contest
 
@@ -41,17 +40,24 @@ class PaymentConfirmationViewModel(
     val addPayment: LiveData<Resource<Payment>> get() = _addPayment
 
     private val _getContestById: MutableLiveData<Resource<Contest>> = MutableLiveData()
-    val getContestById : LiveData<Resource<Contest>> get() = _getContestById
+    val getContestById: LiveData<Resource<Contest>> get() = _getContestById
 
-    fun setContest(contest: Contest){
+    private val _vnpayPaymentUrl: MutableLiveData<Resource<StringResponse>> = MutableLiveData()
+    val vnpayPaymentUrl: LiveData<Resource<StringResponse>> get() = _vnpayPaymentUrl
+
+    private val _processVNPayResult: MutableLiveData<Resource<CreatePaymentRequest>> =
+        MutableLiveData()
+    val processVNPayResult: LiveData<Resource<CreatePaymentRequest>> get() = _processVNPayResult
+
+    fun setContest(contest: Contest) {
         _contest.value = contest
     }
 
-    fun setRegistration(registration: Registration){
+    fun setRegistration(registration: Registration) {
         _registration.value = registration
     }
 
-    fun getUser(){
+    fun getUser() {
         viewModelScope.launch {
             _user.value = Resource.Loading
             _user.value = authRepository.getUser()
@@ -69,35 +75,37 @@ class PaymentConfirmationViewModel(
         }
     }
 
-    fun payment(){
-        viewModelScope.launch {
-            try {
-                Log.d("Payment", "Registration: ${registration.value}")
-                Log.d("Payment", "Contest Fee: ${contest.value?.fee}")
-
-                _addPayment.value = Resource.Loading
-
-                val paymentRequest = CreatePaymentRequest(
-                    amount = contest.value?.fee,
-                    registration = registration.value
-                )
-
-                Log.d("Payment", "Payment Request: $paymentRequest")
-
-                val result = paymentRepository.addPayment(paymentRequest)
-                _addPayment.value = result
-            } catch (e: HttpException) {
-                val errorResponse = e.response()?.errorBody()?.string()
-                Log.e("HTTP Error", "Error: $errorResponse")
-            }catch (e: Exception) {
-                Log.e("Payment", "Error adding payment", e)
-            }
-        }
-    }
-    fun getContestById(){
+    fun getContestById() {
         viewModelScope.launch {
             _getContestById.value = Resource.Loading
             _getContestById.value = contest.value?.id?.let { contestRepository.getById(it) }
+        }
+    }
+
+    // Tạo VNPay payment URL
+    fun createVNPayPayment() {
+        viewModelScope.launch {
+            Log.d("VNPay", "Creating VNPay payment...")
+            Log.d("VNPay", "Registration: ${registration.value}")
+            Log.d("VNPay", "Contest Fee: ${contest.value?.fee}")
+
+            _vnpayPaymentUrl.value = Resource.Loading
+            _vnpayPaymentUrl.value =
+                paymentRepository.createVNPay(contest.value?.fee!!.toInt(), registration.value!!.id)
+        }
+    }
+
+    fun processVNPayReturn(params: Map<String, String>) {
+        viewModelScope.launch {
+            _processVNPayResult.value = Resource.Loading
+            _processVNPayResult.value = paymentRepository.getVNPayReturn(params)
+        }
+    }
+
+    fun addPayment(request: CreatePaymentRequest) {
+        viewModelScope.launch {
+            _addPayment.value = Resource.Loading
+            _addPayment.value = paymentRepository.addPayment(request)
         }
     }
 }

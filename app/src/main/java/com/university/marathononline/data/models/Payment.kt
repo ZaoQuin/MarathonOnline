@@ -6,8 +6,16 @@ import java.time.LocalDateTime
 
 data class Payment(
     var id: Long? = null,
-    var amount: BigDecimal? = null,
-    var paymentDate: String? = null
+    var amount: BigDecimal,
+    var paymentDate: LocalDateTime,
+    val transactionRef: String,
+    val responseCode: String,
+    val bankCode: String,
+    var status: EPaymentStatus
 ): Serializable
+
+enum class EPaymentStatus {
+    SUCCESS, FAILED, PENDING
+}
 
 
