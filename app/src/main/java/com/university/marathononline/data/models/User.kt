@@ -3,7 +3,7 @@ package com.university.marathononline.data.models
 import java.io.Serializable
 
 data class User(
-    val id: Long?,
+    val id: Long,
     var fullName: String,
     val email: String,
     val phoneNumber: String,
@@ -11,10 +11,10 @@ data class User(
     val birthday: String,
     val address: String,
     val username: String,
-    val role: ERole?,
+    val role: ERole,
     val refreshToken: String,
-    val status: EUserStatus?,
-    val avatarUrl: String? = null
+    val status: EUserStatus,
+    val avatarUrl: String
 ): Serializable
 
 enum class EGender(val value: String) {

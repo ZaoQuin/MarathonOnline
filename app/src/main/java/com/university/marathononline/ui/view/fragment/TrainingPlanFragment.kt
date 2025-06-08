@@ -291,7 +291,7 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
                 is Resource.Success -> {
                     Toast.makeText(
                         requireContext(),
-                        it.value.message,
+                        it.value.str,
                         Toast.LENGTH_SHORT
                     ).show()
                     viewModel.getCurrentTrainingPlan()

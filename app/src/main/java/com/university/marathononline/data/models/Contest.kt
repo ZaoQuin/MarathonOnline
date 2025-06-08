@@ -4,21 +4,21 @@ import java.io.Serializable
 import java.math.BigDecimal
 
 data class Contest(
-    var id: Long? = null,
-    var organizer: User? = null,
-    var rules: List<Rule>? = null,
-    var rewards: List<Reward>? = null,
-    var registrations: List<Registration>? = null,
-    var name: String? = null,
-    var description: String? = null,
-    var distance: Double? = null,
-    var startDate: String? = null,
-    var endDate: String? = null,
-    var fee: BigDecimal? = null,
-    var maxMembers: Int? = null,
-    var status: EContestStatus? = null,
-    var createDate: String? = null,
-    var registrationDeadline: String? = null
+    var id: Long,
+    var organizer: User,
+    var rules: List<Rule>,
+    var rewards: List<Reward>,
+    var registrations: List<Registration>,
+    var name: String,
+    var description: String,
+    var distance: Double,
+    var startDate: String,
+    var endDate: String,
+    var fee: BigDecimal,
+    var maxMembers: Int,
+    var status: EContestStatus,
+    var createDate: String,
+    var registrationDeadline: String
 ): Serializable
 
 enum class EContestStatus(val value: String){

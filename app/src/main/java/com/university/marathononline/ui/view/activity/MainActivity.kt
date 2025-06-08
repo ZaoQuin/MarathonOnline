@@ -248,7 +248,7 @@ class MainActivity: BaseActivity<MainViewModel, ActivityMainBinding>() {
         viewModel.syncRecords.observe(this){
 
             when (it) {
-                is Resource.Success -> Toast.makeText(this@MainActivity, it.value.message, Toast.LENGTH_SHORT).show()
+                is Resource.Success -> Toast.makeText(this@MainActivity, it.value.str, Toast.LENGTH_SHORT).show()
                 is Resource.Failure -> {
                     Log.e(TAG, "Error while sync record")
                     handleApiError(it)

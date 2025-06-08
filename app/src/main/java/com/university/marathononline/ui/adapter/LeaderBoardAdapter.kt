@@ -5,11 +5,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.university.marathononline.data.models.Contest
 import com.university.marathononline.databinding.ItemLeaderBoardBinding
 import com.university.marathononline.data.models.Registration
 import com.university.marathononline.utils.formatDistance
 
-class LeaderBoardAdapter (private val registrations: List<Registration>) : RecyclerView.Adapter<LeaderBoardAdapter.ViewHolder>(){
+class LeaderBoardAdapter (private var registrations: List<Registration>) : RecyclerView.Adapter<LeaderBoardAdapter.ViewHolder>(){
 
     class ViewHolder(private val binding: ItemLeaderBoardBinding): RecyclerView.ViewHolder(binding.root) {
         @SuppressLint("SetTextI18n")
@@ -38,5 +39,11 @@ class LeaderBoardAdapter (private val registrations: List<Registration>) : Recyc
             // Xử lý khi `reg` là null (nếu cần thiết, ví dụ: ghi log hoặc thông báo người dùng)
             Log.e("LeaderBoardAdapter", "Registration at position $position is null")
         }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateData(registrations: List<Registration>) {
+        this.registrations = registrations
+        notifyDataSetChanged()
     }
 }

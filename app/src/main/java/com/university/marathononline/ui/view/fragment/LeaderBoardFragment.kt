@@ -1,6 +1,7 @@
 package com.university.marathononline.ui.view.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,7 @@ import com.university.marathononline.ui.adapter.LeaderBoardAdapter
 import com.university.marathononline.ui.viewModel.LeaderBoardViewModel
 import com.university.marathononline.utils.KEY_REGISTRATIONS
 import com.university.marathononline.utils.formatDistance
+import com.university.marathononline.utils.visible
 
 class LeaderBoardFragment : BaseFragment<LeaderBoardViewModel, FragmentLeaderBoardBinding>() {
 
@@ -62,6 +64,24 @@ class LeaderBoardFragment : BaseFragment<LeaderBoardViewModel, FragmentLeaderBoa
                     top3Distance.text = it.records?.sumOf { it1 -> it1.distance }
                         ?.let { it2 -> formatDistance(it2) }
                 }
+        }
+    }
+
+    fun updateRegistrations(newRegistrations: List<Registration>?) {
+        if (newRegistrations != null) {
+            // Cập nhật adapter với data mới
+            adapter.updateData(newRegistrations)
+
+            // Cập nhật UI state
+            binding?.apply {
+                if (newRegistrations.isEmpty()) {
+                    leaderBoards.visible(false)
+                } else {
+                    leaderBoards.visible(true)
+                }
+            }
+
+            Log.d("LeaderBoardFragment", "Updated with ${newRegistrations.size} registrations")
         }
     }
 

@@ -7,21 +7,23 @@ import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
+import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.contest.ContestApiService
 import com.university.marathononline.data.models.Contest
-import com.university.marathononline.data.models.EContestStatus
-import com.university.marathononline.data.models.ERegistrationStatus
+import com.university.marathononline.data.models.Registration
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.ui.viewModel.ContestDetailsViewModel
 import com.university.marathononline.databinding.ActivityContestDetailsBinding
 import com.university.marathononline.ui.adapter.RewardAdapter
 import com.university.marathononline.ui.adapter.RuleAdapter
 import com.university.marathononline.ui.view.fragment.LeaderBoardFragment
+import com.university.marathononline.utils.ContestUserStatusManager
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.KEY_REGISTRATIONS
@@ -30,19 +32,27 @@ import com.university.marathononline.utils.enable
 import com.university.marathononline.utils.formatDistance
 import com.university.marathononline.utils.startNewActivity
 import com.university.marathononline.utils.visible
+import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.Serializable
-import java.time.LocalDateTime
 
 class ContestDetailsActivity :
     BaseActivity<ContestDetailsViewModel, ActivityContestDetailsBinding>() {
+
+    companion object {
+        const val PAYMENT_REQUEST_CODE = 1001
+        private const val REFRESH_DELAY_MS = 1000L // Tăng delay để đảm bảo server đã cập nhật
+    }
 
     private lateinit var ruleAdapter: RuleAdapter
     private lateinit var rewardAdapter: RewardAdapter
     private val handler = Handler(Looper.getMainLooper())
     private var isTabSelected = false
+    private var statusManager: ContestUserStatusManager? = null
+    private var leaderBoardFragment: LeaderBoardFragment? = null
+    private var isDataRefreshing = false // Flag để tránh refresh đồng thời
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,7 +67,7 @@ class ContestDetailsActivity :
 
     private fun setUpLeaderBoard(savedInstanceState: Bundle?) {
         val registrations = viewModel.contest.value?.registrations
-        val fragment = LeaderBoardFragment().apply {
+        leaderBoardFragment = LeaderBoardFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(KEY_REGISTRATIONS, registrations as Serializable)
             }
@@ -65,7 +75,7 @@ class ContestDetailsActivity :
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(binding.fragmentContainer.id, fragment)
+                .replace(binding.fragmentContainer.id, leaderBoardFragment!!)
                 .commit()
         }
     }
@@ -74,32 +84,186 @@ class ContestDetailsActivity :
         viewModel.rules.observe(this) {
             ruleAdapter.updateData(it)
         }
+
         viewModel.rewardGroup.observe(this) {
             rewardAdapter.updateData(it)
         }
+
         viewModel.deadlineTime.observe(this) {
             viewModel.startCountdown()
         }
+
         viewModel.remainingTime.observe(this) { time ->
             updateCountdownDisplay(time)
         }
-        viewModel.contest.observe(this) {
+
+        viewModel.contest.observe(this) { contest ->
             lifecycleScope.launch {
                 val emailValue = userPreferences.email.first()
-                emailValue?.let { email -> viewModel.checkRegister(email) }
+                emailValue?.let { email ->
+                    // Reset registration state trước khi check
+                    viewModel.resetRegistrationState()
+                    viewModel.checkRegister(email)
+                    updateStatusManager(contest, null)
+
+                    // Cập nhật LeaderBoard với data mới
+                    updateLeaderBoardFragment(contest.registrations)
+
+                    // Cập nhật basic info với data mới
+                    populateBasicInfo(contest)
+                }
             }
         }
+
+        viewModel.registration.observe(this) { registration ->
+            Log.d("ContestDetailsActivity", "Registration updated: ${registration?.status}")
+            viewModel.contest.value?.let { contest ->
+                updateStatusManager(contest, registration)
+            }
+            updateUIBasedOnStatus()
+        }
+
+        viewModel.refreshContest.observe(this) { resource ->
+            when(resource) {
+                is Resource.Loading -> {
+                    // Hiển thị loading indicator nếu cần
+                    Log.d("ContestDetailsActivity", "Refreshing contest data...")
+                }
+                is Resource.Success -> {
+                    Log.d("ContestDetailsActivity", "Contest data refreshed successfully")
+                    isDataRefreshing = false
+
+                    // Cập nhật toàn bộ data
+                    viewModel.setContest(resource.value)
+                    viewModel.setRewardGroups(resource.value.rewards)
+                    viewModel.setRules(resource.value.rules)
+                    viewModel.setDeadlineTime(resource.value.registrationDeadline)
+
+                    // Force refresh registration status với data mới
+                    refreshUserRegistrationStatus()
+                }
+                is Resource.Failure -> {
+                    isDataRefreshing = false
+                    handleApiError(resource)
+                    Log.e("ContestDetailsActivity", "Failed to refresh contest data")
+                }
+                else -> Unit
+            }
+        }
+
+        // Deprecated observers - giữ lại để debug
         viewModel.isRegistered.observe(this) {
-            Log.e("ContestDetailsActivity", it.toString())
-            updateContainerVisibility(it)
+            Log.d("ContestDetailsActivity", "isRegistered: $it")
         }
+
         viewModel.isBlocked.observe(this) {
-            Log.e("ContestDetailsActivity", "Check Block")
-            updateBlockedStatus(it)
+            Log.d("ContestDetailsActivity", "isBlocked: $it")
         }
-        viewModel.registration.observe(this) {
-            updateProgressDisplay(it)
+    }
+
+    /**
+     * Cập nhật LeaderBoard fragment với data mới
+     */
+    private fun updateLeaderBoardFragment(registrations: List<Registration>?) {
+        leaderBoardFragment?.let { fragment ->
+            val newBundle = Bundle().apply {
+                putSerializable(KEY_REGISTRATIONS, registrations as? Serializable)
+            }
+            fragment.arguments = newBundle
+
+            // Nếu fragment đã được add, cập nhật data
+            if (fragment.isAdded) {
+                fragment.updateRegistrations(registrations)
+            }
         }
+    }
+
+    /**
+     * Cập nhật StatusManager và UI dựa trên trạng thái mới
+     */
+    private fun updateStatusManager(contest: Contest, registration: Registration?) {
+        statusManager = ContestUserStatusManager(contest, registration)
+        updateUIBasedOnStatus()
+    }
+
+    /**
+     * Cập nhật toàn bộ UI dựa trên trạng thái từ StatusManager
+     */
+    private fun updateUIBasedOnStatus() {
+        statusManager?.let { manager ->
+            val displayState = manager.getDisplayState()
+
+            // Cập nhật visibility của các container
+            updateContainerVisibility(displayState)
+
+            // Cập nhật trạng thái button
+            updateButtonStates(displayState)
+
+            // Cập nhật progress nếu cần
+            if (displayState.showProgress) {
+                updateProgressDisplay(manager)
+            }
+
+            // Cập nhật leaderboard visibility
+            updateLeaderboardVisibility(displayState.showLeaderboard)
+
+            // Hiển thị status message nếu có
+            displayState.statusMessage?.let { message ->
+                showStatusMessage(message)
+            }
+
+            Log.d("ContestDetailsActivity", "UI updated - User Contest Status: ${displayState.userStatus}")
+        }
+    }
+
+    /**
+     * Cập nhật visibility của register và record container
+     */
+    private fun updateContainerVisibility(displayState: ContestUserStatusManager.ContestDisplayState) {
+        binding.registerContainer.visible(!displayState.showProgress)
+        binding.recordContainer.visible(displayState.showProgress)
+    }
+
+    /**
+     * Cập nhật trạng thái và text của các button
+     */
+    private fun updateButtonStates(displayState: ContestUserStatusManager.ContestDisplayState) {
+        binding.apply {
+            // Register button
+            btnRegisterContest.text = displayState.registerButtonText
+            btnRegisterContest.enable(displayState.registerButtonEnabled)
+
+            // Record button
+            btnRecord.text = displayState.recordButtonText
+            btnRecord.enable(displayState.recordButtonEnabled)
+        }
+    }
+
+    /**
+     * Cập nhật hiển thị progress
+     */
+    private fun updateProgressDisplay(manager: ContestUserStatusManager) {
+        val (currentDistance, contestDistance, ratio) = manager.getProgressInfo()
+
+        binding.apply {
+            processBar.progress = ratio
+            processBarValue.text = "${formatDistance(currentDistance)}/${formatDistance(contestDistance)}"
+        }
+    }
+
+    /**
+     * Cập nhật visibility của leaderboard
+     */
+    private fun updateLeaderboardVisibility(shouldShow: Boolean) {
+        binding.sectionLeaderBoard.visible(shouldShow)
+    }
+
+    /**
+     * Hiển thị status message
+     */
+    private fun showStatusMessage(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        Log.i("ContestDetailsActivity", "Status Message: $message")
     }
 
     private fun updateCountdownDisplay(time: String) {
@@ -109,30 +273,6 @@ class ContestDetailsActivity :
             hoursTextView.text = timeParts[1]
             minutesTextView.text = timeParts[2]
             secondsTextView.text = timeParts[3]
-        }
-    }
-
-    private fun updateContainerVisibility(isRegistered: Boolean) {
-        binding.registerContainer.visible(!isRegistered)
-        binding.recordContainer.visible(isRegistered)
-    }
-
-    private fun updateBlockedStatus(isBlocked: Boolean) {
-        if (isBlocked) {
-            binding.btnRecord.enable(false)
-            binding.btnRecord.text = ERegistrationStatus.BLOCK.value
-        }
-    }
-
-    private fun updateProgressDisplay(registration: com.university.marathononline.data.models.Registration) {
-        val records = registration.records ?: emptyList()
-        val currentDistance = records.sumOf { it.distance }
-        val contestDistance = viewModel.contest.value?.distance ?: 0.0
-        val ratio = if (contestDistance > 0) (currentDistance / contestDistance) * 100 else 0.0
-
-        binding.apply {
-            processBar.progress = ratio.toInt()
-            processBarValue.text = "${formatDistance(currentDistance)}/${formatDistance(contestDistance)}"
         }
     }
 
@@ -159,43 +299,69 @@ class ContestDetailsActivity :
     private fun setUpButtonListeners() {
         binding.apply {
             btnRegisterContest.setOnClickListener {
-                viewModel.contest.value?.let { contest ->
-                    startNewActivity(PaymentConfirmationActivity::class.java,
-                        mapOf(KEY_CONTEST to contest)
-                    )
-                }
+                handleRegisterButtonClick()
             }
 
             btnRecord.setOnClickListener {
+                handleRecordButtonClick()
+            }
+        }
+    }
+
+    /**
+     * Xử lý click register button dựa trên trạng thái
+     */
+    private fun handleRegisterButtonClick() {
+        statusManager?.let { manager ->
+            val displayState = manager.getDisplayState()
+
+            when (displayState.userStatus) {
+                ContestUserStatusManager.UserContestStatus.NOT_REGISTERED,
+                ContestUserStatusManager.UserContestStatus.PAYMENT_FAILED,
+                ContestUserStatusManager.UserContestStatus.REGISTERED_UNPAID,
+                ContestUserStatusManager.UserContestStatus.PAYMENT_PENDING -> {
+                    navigateToPayment()
+                }
+                else -> {
+                    Log.w("ContestDetailsActivity", "Register button clicked but action not allowed")
+                }
+            }
+        }
+    }
+
+    private fun navigateToPayment(){
+        viewModel.contest.value?.let { contest ->
+            val intent = Intent(this, PaymentConfirmationActivity::class.java).apply {
+                putExtra(KEY_CONTEST, contest)
+            }
+            startActivityForResult(intent, PAYMENT_REQUEST_CODE)
+        }
+    }
+
+    private fun handleRecordButtonClick() {
+        statusManager?.let { manager ->
+            if (manager.canPerformAction(ContestUserStatusManager.ContestAction.RECORD)) {
                 startNewActivity(RecordActivity::class.java)
+            } else {
+                Log.w("ContestDetailsActivity", "Record button clicked but action not allowed")
             }
         }
     }
 
     private fun setUpData() {
         viewModel.contest.value?.let { contest ->
-            binding.apply {
-                populateBasicInfo(contest)
-                updateButtonStates(contest)
-                updateLeaderboardVisibility(contest)
-            }
+            populateBasicInfo(contest)
         }
-    }
-
-    private fun updateLeaderboardVisibility(contest: Contest) {
-        // Show leaderboard for active, finished or completed contests
-        binding.sectionLeaderBoard.visible(
-            contest.status == EContestStatus.ACTIVE ||
-                    contest.status == EContestStatus.FINISHED ||
-                    contest.status == EContestStatus.COMPLETED
-        )
     }
 
     private fun populateBasicInfo(contest: Contest) {
         binding.apply {
             tvDistance.text = contest.distance?.let { formatDistance(it) }
             tvFee.text = contest.fee?.let { convertToVND(it) }
-            tvMaxMembers.text = if (contest.maxMembers == 0) "Không giới hạn người tham gia" else contest.maxMembers.toString()
+            tvMaxMembers.text = if (contest.maxMembers == 0)
+                "Không giới hạn người tham gia"
+            else
+                contest.maxMembers.toString()
             contestName.text = contest.name
             startDate.text = contest.startDate?.let { DateUtils.convertToVietnameseDate(it) }
             endDate.text = contest.endDate?.let { DateUtils.convertToVietnameseDate(it) }
@@ -212,55 +378,6 @@ class ContestDetailsActivity :
         }
     }
 
-    private fun updateButtonStates(contest: Contest) {
-        binding.apply {
-            // Registration button states
-            val now = LocalDateTime.now()
-            val registrationDeadlinePassed = contest.registrationDeadline?.let {
-                DateUtils.convertStringToLocalDateTime(it).isBefore(now)
-            } ?: false
-
-            val isMaxRegistrationsReached = contest.maxMembers != 0 &&
-                    contest.maxMembers!! <= (contest.registrations?.size ?: 0)
-
-            val contestHasntStarted = contest.startDate?.let {
-                DateUtils.convertStringToLocalDateTime(it).isAfter(now)
-            } ?: false
-
-            // Update registration button
-            when {
-                contest.status == EContestStatus.PENDING -> {
-                    btnRegisterContest.enable(false)
-                    btnRegisterContest.text = contest.status!!.value
-                }
-                contest.status == EContestStatus.COMPLETED || contest.status == EContestStatus.FINISHED -> {
-                    btnRegisterContest.enable(false)
-                    btnRegisterContest.text = contest.status!!.value
-                }
-                isMaxRegistrationsReached -> {
-                    btnRegisterContest.enable(false)
-                    btnRegisterContest.text = "Số lượng đăng ký đã quá giới hạn"
-                }
-                registrationDeadlinePassed -> {
-                    btnRegisterContest.enable(false)
-                    btnRegisterContest.text = "Hết hạn đăng ký"
-                }
-            }
-
-            // Update record button
-            when {
-                contestHasntStarted && contest.status == EContestStatus.ACTIVE -> {
-                    btnRecord.enable(false)
-                    btnRecord.text = "Cuộc thi chưa bắt đầu"
-                }
-                contest.status == EContestStatus.COMPLETED || contest.status == EContestStatus.FINISHED -> {
-                    btnRecord.enable(false)
-                    btnRecord.text = contest.status!!.value
-                }
-            }
-        }
-    }
-
     private fun handleIntentExtras(intent: Intent) {
         intent.apply {
             viewModel.apply {
@@ -272,6 +389,117 @@ class ContestDetailsActivity :
                 }
             }
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == PAYMENT_REQUEST_CODE) {
+            Log.d("ContestDetailsActivity", "Payment result received - ResultCode: $resultCode")
+
+            when (resultCode) {
+                RESULT_OK -> {
+                    val paymentSuccess = data?.getBooleanExtra("payment_success", false) ?: false
+                    val registrationStatus = data?.getStringExtra("registration_status")
+                    val errorMessage = data?.getStringExtra("error_message")
+
+                    Log.d("ContestDetailsActivity", "Payment Success: $paymentSuccess, Status: $registrationStatus")
+
+                    handlePaymentResult(paymentSuccess, registrationStatus, errorMessage)
+
+                    // Refresh data với delay longer để đảm bảo server đã cập nhật
+                    refreshContestDataWithDelay(REFRESH_DELAY_MS)
+                }
+                RESULT_CANCELED -> {
+                    Log.d("ContestDetailsActivity", "Payment cancelled")
+                    // Vẫn refresh vì có thể có thay đổi data
+                    refreshContestDataWithDelay(500L)
+                }
+                else -> {
+                    Log.d("ContestDetailsActivity", "Payment failed or unknown result")
+                    refreshContestDataWithDelay(REFRESH_DELAY_MS)
+                }
+            }
+        }
+    }
+
+    private fun handlePaymentResult(paymentSuccess: Boolean, registrationStatus: String?, errorMessage: String?) {
+        when {
+            paymentSuccess -> {
+                showSuccessMessage("Thanh toán thành công! Bạn đã đăng ký thành công cuộc thi.")
+            }
+            errorMessage != null -> {
+                showErrorMessage(errorMessage)
+            }
+            else -> {
+                when (registrationStatus) {
+                    "PENDING" -> showInfoMessage("Đăng ký của bạn đang chờ thanh toán.")
+                    "BLOCK" -> showErrorMessage("Tài khoản của bạn đã bị chặn khỏi cuộc thi này.")
+                    "ACTIVE" -> showSuccessMessage("Đăng ký thành công!")
+                    else -> Unit
+                }
+            }
+        }
+    }
+
+    /**
+     * Refresh contest data với delay để đảm bảo server đã cập nhật
+     */
+    private fun refreshContestDataWithDelay(delayMs: Long) {
+        if (isDataRefreshing) {
+            Log.d("ContestDetailsActivity", "Data refresh already in progress, skipping")
+            return
+        }
+
+        isDataRefreshing = true
+
+        handler.postDelayed({
+            refreshContestData()
+        }, delayMs)
+    }
+
+    private fun refreshContestData() {
+        viewModel.contest.value?.id?.let { contestId ->
+            Log.d("ContestDetailsActivity", "Refreshing contest data for ID: $contestId")
+            viewModel.refreshContest(contestId)
+        }
+    }
+
+    /**
+     * Refresh user registration status với data contest mới nhất
+     */
+    private fun refreshUserRegistrationStatus() {
+        getCurrentUserEmail()?.let { email ->
+            // Delay nhỏ để đảm bảo contest data đã được cập nhật
+            handler.postDelayed({
+                Log.d("ContestDetailsActivity", "Refreshing user registration status for: $email")
+                viewModel.resetRegistrationState()
+                viewModel.checkRegister(email)
+            }, 200L)
+        }
+    }
+
+    private fun getCurrentUserEmail(): String? {
+        return try {
+            runBlocking {
+                userPreferences.email.first()
+            }
+        } catch (e: Exception) {
+            Log.e("ContestDetailsActivity", "Error getting user email: ${e.message}")
+            null
+        }
+    }
+
+    private fun showSuccessMessage(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+    }
+
+    private fun showErrorMessage(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+    }
+
+    private fun showInfoMessage(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     override fun getViewModel() = ContestDetailsViewModel::class.java
@@ -287,6 +515,7 @@ class ContestDetailsActivity :
         )
     }
 
+    // Rest of the methods remain the same...
     private fun setUpBackButton() {
         binding.buttonBack.setOnClickListener {
             finish()
