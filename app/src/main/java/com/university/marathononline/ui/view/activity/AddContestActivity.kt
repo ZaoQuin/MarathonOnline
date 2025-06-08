@@ -245,12 +245,12 @@ class AddContestActivity : BaseActivity<AddContestViewModel, ActivityAddContestB
         } else {
             contestToEdit!!.name = binding.etContestName.text.toString()
             contestToEdit!!.description = binding.etContestDescription.text.toString()
-            contestToEdit!!.distance = binding.etContestDistance.text.toString().toDoubleOrNull()
+            contestToEdit!!.distance = binding.etContestDistance.text.toString().toDoubleOrNull()!!
             contestToEdit!!.startDate = viewModel.start.value.toString()
             contestToEdit!!.endDate = viewModel.end.value.toString()
             contestToEdit!!.registrationDeadline = viewModel.deadline.value.toString()
             contestToEdit!!.fee = BigDecimal(binding.etContestFee.text.toString())
-            contestToEdit!!.maxMembers = binding.etMaxMembers.text.toString().toIntOrNull()
+            contestToEdit!!.maxMembers = binding.etMaxMembers.text.toString().toIntOrNull()!!
             contestToEdit!!.status = EContestStatus.PENDING
             contestToEdit!!.rules = ruleAdapter.getCurrentData()
             contestToEdit!!.rewards = rewardAdapter.getCurrentData()

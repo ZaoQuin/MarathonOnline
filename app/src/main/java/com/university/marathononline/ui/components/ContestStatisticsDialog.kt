@@ -2,7 +2,12 @@ package com.university.marathononline.ui.components
 
 import android.app.Dialog
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.university.marathononline.R
@@ -20,64 +25,164 @@ class ContestStatisticsDialog(
     private val contest: Contest,
     private val email: String,
     private val isManager: Boolean,
-    private val onBlockRegistration: ((Registration) -> Unit)?
+    private val onBlockRegistration: ((Registration) -> Unit)? = null
 ) : Dialog(context) {
 
     private lateinit var binding: DialogContestStatisticsBinding
+    private var currentRegistration: Registration? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DialogContestStatisticsBinding.inflate(layoutInflater)
+
+        binding = DialogContestStatisticsBinding.inflate(LayoutInflater.from(context))
         setContentView(binding.root)
 
-        val context = context
+        setupDialog()
+        setupContent()
+        setupButtons()
+    }
 
+    private fun setupDialog() {
+        // Apply same transparent background style as TrainingFeedbackDialog
+        window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        setCancelable(true)
+        setCanceledOnTouchOutside(true)
+    }
+
+    private fun setupContent() {
+        // Set dialog title
+        binding.tvDialogTitle?.text = "Thống Kê Cuộc Thi"
+
+        // Contest basic information
         binding.tvContestName.text = contest.name
         binding.tvContestStatus.apply {
-            text = contest.status?.value
-            setTextColor(getContestStatusColor(context, contest.status!!))
-        }
-
-        val registration = contest.registrations?.find { it.runner.email == email }
-        registration?.let {
-            val currentDistance = it.records.sumOf { record -> record.distance }
-            val contestDistance = contest.distance
-            val ratio = (currentDistance / contestDistance!!) * 100
-
-            binding.tvContestDatesRegister.text =context.getString(R.string.registration_register_date,  DateUtils.convertToVietnameseDate(registration.registrationDate))
-            binding.tvCompletionStatus.text = context.getString(R.string.registration_status, registration.status.value)
-            binding.processBar.progress = ratio.toInt()
-            binding.processBarValue.text = "${formatDistance(currentDistance)}/${formatDistance(contestDistance)}"
-
-            val recordAdapter = RecordStatisticsAdapter(it.records ?: emptyList())
-            binding.recyclerViewContests.layoutManager = LinearLayoutManager(context)
-            binding.recyclerViewContests.adapter = recordAdapter
-
-            if(isManager){
-                binding.reportButton.visible(true)
-                binding.reportButton.setOnClickListener {
-                    showBlockConfirmationDialog(context, registration)
-                }
+            text = contest.status?.value ?: "Không rõ"
+            contest.status?.let {
+                setTextColor(getContestStatusColor(context, it))
             }
         }
 
-        binding.btnClose.setOnClickListener {
-            dismiss()
+        // Find user registration
+        currentRegistration = contest.registrations?.find { it.runner.email == email }
+
+        currentRegistration?.let { registration ->
+            setupRegistrationDetails(registration)
+            setupRecordsList(registration)
+            setupManagerActions(registration)
+        } ?: run {
+            // Handle case where user is not registered
+            setupNotRegisteredState()
         }
     }
 
-    private fun showBlockConfirmationDialog(context: Context, item: Registration){
-        val builder = AlertDialog.Builder(context)
-        builder.setTitle("Chặn người dùng")
-        builder.setMessage("Bạn có chắc chắn muốn chặn người dùng này không?")
-        builder.setPositiveButton("Xác nhận") { dialog, _ ->
-            onBlockRegistration?.let { it(item) }
+    private fun setupRegistrationDetails(registration: Registration) {
+        val recordList = registration.records ?: emptyList()
+        val currentDistance = recordList.sumOf { it.distance }
+        val contestDistance = contest.distance ?: 0.0
+        val ratio = if (contestDistance > 0) (currentDistance / contestDistance) * 100 else 0.0
+
+        // Registration information
+        binding.tvContestDatesRegister.text = context.getString(
+            R.string.registration_register_date,
+            DateUtils.convertToVietnameseDate(registration.registrationDate)
+        )
+
+        binding.tvCompletionStatus.text = context.getString(
+            R.string.registration_status,
+            registration.status.value
+        )
+
+        // Progress information
+        binding.processBar.progress = ratio.toInt()
+        binding.processBarValue.text = "${formatDistance(currentDistance)}/${formatDistance(contestDistance)}"
+
+        // Show additional statistics if needed
+        binding.tvTotalRecords?.text = "Tổng số bản ghi: ${recordList.size}"
+        binding.tvCompletionPercentage?.text = "Hoàn thành: ${String.format("%.1f", ratio)}%"
+    }
+
+    private fun setupRecordsList(registration: Registration) {
+        val recordList = registration.records ?: emptyList()
+        val recordAdapter = RecordStatisticsAdapter(recordList)
+
+        binding.recyclerViewContests.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = recordAdapter
+            // Add some styling similar to the feedback dialog
+            visibility = if (recordList.isNotEmpty()) View.VISIBLE else View.GONE
+        }
+
+        // Show empty state message if no records
+        if (recordList.isEmpty()) {
+            binding.tvEmptyRecords?.apply {
+                text = "Chưa có bản ghi nào"
+                visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun setupManagerActions(registration: Registration) {
+        if (isManager) {
+            binding.reportButton.apply {
+                visible(true)
+                setOnClickListener {
+                    showBlockConfirmationDialog(registration)
+                }
+            }
+        } else {
+            binding.reportButton.visibility = View.GONE
+        }
+    }
+
+    private fun setupNotRegisteredState() {
+        binding.tvCompletionStatus.text = "Chưa đăng ký tham gia"
+        binding.processBar.progress = 0
+        binding.processBarValue.text = "0/0"
+        binding.recyclerViewContests.visibility = View.GONE
+        binding.tvEmptyRecords?.apply {
+            text = "Bạn chưa đăng ký tham gia cuộc thi này"
+            visibility = View.VISIBLE
+        }
+        binding.reportButton.visibility = View.GONE
+    }
+
+    private fun setupButtons() {
+        // Close button styling similar to TrainingFeedbackDialog
+        binding.btnClose.setOnClickListener {
+            dismiss()
+        }
+
+        // If it's view-only mode (similar to TrainingFeedbackDialog),
+        // we can adjust button styling
+        if (!isManager) {
+            binding.btnClose.apply {
+                text = "Đóng"
+                layoutParams = layoutParams.apply {
+                    width = ViewGroup.LayoutParams.MATCH_PARENT
+                }
+            }
+        }
+    }
+
+    private fun showBlockConfirmationDialog(registration: Registration) {
+        val builder = AlertDialog.Builder(context, R.style.AlertDialogTheme)
+        builder.setTitle("Chặn Người Dùng")
+        builder.setMessage("Bạn có chắc chắn muốn chặn người dùng ${registration.runner.fullName} không?")
+
+        builder.setPositiveButton("Xác Nhận") { dialog, _ ->
+            onBlockRegistration?.invoke(registration)
             dialog.dismiss()
             dismiss()
         }
-        builder.setNegativeButton("Trở lại") { dialog, _ ->
+
+        builder.setNegativeButton("Hủy Bỏ") { dialog, _ ->
             dialog.dismiss()
         }
-        builder.create().show()
+
+        val alertDialog = builder.create()
+
+        // Apply same styling as main dialog
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        alertDialog.show()
     }
 }

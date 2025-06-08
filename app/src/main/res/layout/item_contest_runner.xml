@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
@@ -21,80 +22,111 @@
             android:padding="16dp"
             android:foreground="?attr/selectableItemBackground">
 
-            <TextView
-                android:id="@+id/tvContestName"
-                android:layout_width="wrap_content"
+            <!-- Header Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Contest Name"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/dark_main_color"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp"
-                tools:text="Marathon 2024" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/tvContestStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/status_background"
-                android:padding="4dp"
-                android:text="Đang hoạt động"
-                android:textColor="@color/main_color"
-                android:textStyle="bold"
-                android:textSize="12sp"/>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
+                    <TextView
+                        android:id="@+id/tvContestName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Contest Name"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="@color/dark_main_color"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp"
+                        tools:text="Marathon 2024" />
+
+                    <TextView
+                        android:id="@+id/tvContestStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/status_background"
+                        android:padding="4dp"
+                        android:text="Đang hoạt động"
+                        android:textColor="@color/main_color"
+                        android:textStyle="bold"
+                        android:textSize="12sp"/>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/statisticsContest"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/background_border_grey_12sp"
+                    android:padding="@dimen/_4sdp"
+                    android:text="Xem thống kê"
+                    android:textColor="@color/main_color"
+                    android:textStyle="bold"
+                    android:textSize="12sp"/>
+
+            </LinearLayout>
+
+            <!-- Date Section -->
             <TextView
                 android:id="@+id/tvContestDatesStart"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Start: YYYY-MM-DD | End: YYYY-MM-DD"
+                android:text="Start: YYYY-MM-DD"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/gray"
                 android:layout_marginTop="8dp"
-                tools:text="Start: 2024-01-01 | End: 2024-01-10" />
+                tools:text="Start: 2024-01-01" />
 
             <TextView
                 android:id="@+id/tvContestDatesEnd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Start: YYYY-MM-DD | End: YYYY-MM-DD"
+                android:text="End: YYYY-MM-DD"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/gray"
-                android:layout_marginTop="8dp"
-                tools:text="Start: 2024-01-01 | End: 2024-01-10" />
+                android:layout_marginTop="2dp"
+                tools:text="End: 2024-01-10" />
 
+            <!-- Progress Section -->
             <LinearLayout
+                android:id="@+id/progressSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_gravity="top">
+                android:layout_marginTop="12dp"
+                android:visibility="visible">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginTop="@dimen/_5sdp">
-
+                    android:gravity="center_vertical">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Tiến độ chạy của bạn là"
-                        android:paddingEnd="5dp"/>
-
+                        android:layout_weight="1"
+                        android:text="Tiến độ chạy của bạn"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textColor="@color/text_color"/>
 
                     <TextView
                         android:id="@+id/processBarValue"
-                        android:layout_weight="1"
-                        android:gravity="end"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="50/100"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="5dp"/>
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textColor="@color/main_color"
+                        android:textStyle="bold"
+                        tools:text="15.5km/21km"/>
 
                 </LinearLayout>
-
 
                 <ProgressBar
                     android:id="@+id/processBar"
@@ -109,29 +141,44 @@
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvCompletionStatus"
-                android:layout_width="wrap_content"
+            <!-- Status and Payment Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Completed: No"
-                android:textColor="@color/red"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:layout_marginTop="8dp"
-                tools:text="Completed: No" />
-        </LinearLayout>
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/statisticsContest"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/background_border_grey_12sp"
-            android:padding="@dimen/_4sdp"
-            android:text="Xem thống kê"
-            android:textColor="@color/main_color"
-            android:textStyle="bold"
-            android:textSize="12sp"
-            android:layout_gravity="top|end"
-            android:layout_margin="@dimen/_10sdp"/>
+                <TextView
+                    android:id="@+id/tvCompletionStatus"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Trạng thái: Đang tham gia"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/main_color"
+                    android:textStyle="bold"
+                    tools:text="Trạng thái: Đang tham gia" />
+
+                <Button
+                    android:id="@+id/btnPayment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Thanh toán"
+                    android:textSize="12sp"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/main_color"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp"
+                    android:minHeight="0dp"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    style="@style/Widget.MaterialComponents.Button"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
 
     </androidx.cardview.widget.CardView>
 

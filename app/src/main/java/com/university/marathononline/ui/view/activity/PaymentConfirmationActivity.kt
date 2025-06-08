@@ -50,13 +50,13 @@ class PaymentConfirmationActivity: BaseActivity<PaymentConfirmationViewModel, Ac
     }
 
     private fun setUpObserve() {
-        viewModel.user.observe(this, Observer {
+        viewModel.user.observe(this) {
             when(it){
                 is Resource.Success -> updateUserUI(it.value)
                 is Resource.Failure -> handleApiError(it)
                 else -> Unit
             }
-        })
+        }
 
         viewModel.registerResponse.observe(this){
             binding.btnPayment.enable(false)
@@ -70,7 +70,6 @@ class PaymentConfirmationActivity: BaseActivity<PaymentConfirmationViewModel, Ac
         }
 
         viewModel.registration.observe(this){
-
             if(viewModel.registration.value?.status == ERegistrationStatus.PENDING) {
                 viewModel.createVNPayPayment()
             }
@@ -81,11 +80,24 @@ class PaymentConfirmationActivity: BaseActivity<PaymentConfirmationViewModel, Ac
                 is Resource.Success -> {
                     Log.d("PaymentActivity", it.toString())
                     Toast.makeText(this, "Đăng ký thành công", Toast.LENGTH_SHORT).show()
-                    viewModel.getContestById()
+
+                    val resultIntent = Intent().apply {
+                        putExtra("payment_success", true)
+                        putExtra("registration_status", viewModel.registration.value?.status?.name)
+                    }
+                    setResult(RESULT_OK, resultIntent)
+                    finish()
                 }
                 is Resource.Failure -> {handleApiError(it)
                     Log.e("PaymentActivity",
                         it.fetchErrorMessage())
+
+                    val resultIntent = Intent().apply {
+                        putExtra("payment_success", false)
+                        putExtra("error_message", it.fetchErrorMessage())
+                    }
+                    setResult(RESULT_OK, resultIntent)
+                    finish()
                 }
                 else -> Unit
             }
@@ -101,6 +113,13 @@ class PaymentConfirmationActivity: BaseActivity<PaymentConfirmationViewModel, Ac
                     handleApiError(it)
                     binding.btnPayment.enable(true)
                     Log.e("PaymentActivity", "Payment processing failed: ${it.fetchErrorMessage()}")
+
+                    val resultIntent = Intent().apply {
+                        putExtra("payment_success", false)
+                        putExtra("error_message", "Thanh toán thất bại: ${it.fetchErrorMessage()}")
+                    }
+                    setResult(RESULT_OK, resultIntent)
+                    finish()
                 }
                 else -> Unit
             }
@@ -161,12 +180,24 @@ class PaymentConfirmationActivity: BaseActivity<PaymentConfirmationViewModel, Ac
                 RESULT_CANCELED -> {
                     Log.d("VNPay", "Payment cancelled by user")
                     Toast.makeText(this, "Thanh toán đã bị hủy", Toast.LENGTH_SHORT).show()
-                    binding.btnPayment.enable(true)
+
+                    val resultIntent = Intent().apply {
+                        putExtra("payment_success", false)
+                        putExtra("error_message", "Giao dịch đã bị hủy")
+                    }
+                    setResult(RESULT_CANCELED, resultIntent)
+                    finish()
                 }
                 else -> {
                     Log.e("VNPay", "Payment failed with result code: $resultCode")
                     Toast.makeText(this, "Thanh toán thất bại", Toast.LENGTH_SHORT).show()
-                    binding.btnPayment.enable(true)
+
+                    val resultIntent = Intent().apply {
+                        putExtra("payment_success", false)
+                        putExtra("error_message", "Thanh toán thất bại.")
+                    }
+                    setResult(RESULT_OK, resultIntent)
+                    finish()
                 }
             }
         }
@@ -274,9 +305,8 @@ class PaymentConfirmationActivity: BaseActivity<PaymentConfirmationViewModel, Ac
         )
     }
 
-    private fun showToastWithDelay(message: String, delayMillis: Long) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-        Handler(Looper.getMainLooper()).postDelayed({
-        }, delayMillis)
+    override fun onBackPressed() {
+        setResult(RESULT_CANCELED)
+        super.onBackPressed()
     }
 }

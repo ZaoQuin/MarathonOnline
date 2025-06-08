@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.university.marathononline.base.BaseViewModel
+import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.ERegistrationStatus
 import com.university.marathononline.data.models.Registration
@@ -47,31 +48,57 @@ class ContestDetailsViewModel(
     private val _isBlocked = MutableLiveData<Boolean>()
     val isBlocked: LiveData<Boolean> get() = _isBlocked
 
-    private val _registration = MutableLiveData<Registration>()
-    val registration: LiveData<Registration> get() = _registration
+    private val _registration = MutableLiveData<Registration?>()
+    val registration: LiveData<Registration?> get() = _registration
+
+    private val _refreshContest = MutableLiveData<Resource<Contest>>()
+    val refreshContest: LiveData<Resource<Contest>> get() = _refreshContest
+
+    private var countdownTimer: CountDownTimer? = null
 
     fun startCountdown() {
+        // Cancel existing timer trước khi tạo timer mới
+        countdownTimer?.cancel()
+
         viewModelScope.launch {
             val currentTime = LocalDateTime.now()
-            val remainingSeconds =
-                ChronoUnit.SECONDS.between(
+            val deadlineString = _deadlineTime.value
+
+            if (deadlineString.isNullOrEmpty()) {
+                Log.w("ContestDetailsViewModel", "Deadline time is null or empty")
+                return@launch
+            }
+
+            try {
+                val remainingSeconds = ChronoUnit.SECONDS.between(
                     currentTime,
-                    LocalDateTime.parse(
-                        _deadlineTime.value,
-                        DateTimeFormatter.ISO_LOCAL_DATE_TIME
-                    ))
-            if (remainingSeconds > 0) {
-                object : CountDownTimer(remainingSeconds * 1000, 1000) {
-                    override fun onTick(millisUntilFinished: Long) {
-                        updateTime(millisUntilFinished / 1000)
-                    }
-                    override fun onFinish() {
-                        updateTime(0)
-                    }
-                }.start()
-            } else {
+                    LocalDateTime.parse(deadlineString, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                )
+
+                if (remainingSeconds > 0) {
+                    countdownTimer = object : CountDownTimer(remainingSeconds * 1000, 1000) {
+                        override fun onTick(millisUntilFinished: Long) {
+                            updateTime(millisUntilFinished / 1000)
+                        }
+
+                        override fun onFinish() {
+                            updateTime(0)
+                        }
+                    }.start()
+                } else {
+                    updateTime(0)
+                }
+            } catch (e: Exception) {
+                Log.e("ContestDetailsViewModel", "Error parsing deadline time: ${e.message}")
                 updateTime(0)
             }
+        }
+    }
+
+    fun refreshContest(contestId: Long) {
+        viewModelScope.launch {
+            _refreshContest.value = Resource.Loading
+            _refreshContest.value = repository.getById(contestId)
         }
     }
 
@@ -85,38 +112,97 @@ class ContestDetailsViewModel(
         _remainingTime.postValue(timeString)
     }
 
-    fun selectTab(index: Int){
+    fun selectTab(index: Int) {
         _selectedTab.value = index
     }
 
-    fun setContest(contest: Contest){
+    fun setContest(contest: Contest) {
+        Log.d("ContestDetailsViewModel", "Setting contest: ${contest.name}")
+        Log.d("ContestDetailsViewModel", "Contest registrations: ${contest.registrations?.size}")
         _contest.value = contest
     }
 
-    fun setRules(rules: List<Rule>){
+    fun setRules(rules: List<Rule>) {
         _rules.value = rules
     }
 
-    fun setDeadlineTime(deadlineTime: String){
+    fun setDeadlineTime(deadlineTime: String) {
         _deadlineTime.value = deadlineTime
     }
 
-    fun setRewardGroups(rewards: List<Reward>){
+    fun setRewardGroups(rewards: List<Reward>) {
         _rewardGroup.value = rewards.groupBy { it.rewardRank }
             .map { RewardGroup(it.key, it.value) }
     }
 
-    fun checkRegister(email: String){
-        _isRegistered.value = contest.value?.registrations?.any {
-            Log.d("Check Register", it.runner.email)
-            Log.d("Check Register", email)
-            if(it.runner.email == email){
-                _registration.value = it
-                _isBlocked.value = (it.status == ERegistrationStatus.BLOCK)
-                true
-            } else {
-                false
-            }
+    /**
+     * Reset registration state - cần thiết khi refresh data
+     */
+    fun resetRegistrationState() {
+        Log.d("ContestDetailsViewModel", "Resetting registration state")
+        _registration.value = null
+        _isRegistered.value = false
+        _isBlocked.value = false
+    }
+
+    /**
+     * Check register với logic cải thiện
+     */
+    fun checkRegister(email: String) {
+        Log.d("ContestDetailsViewModel", "Checking registration for email: $email")
+
+        val contestRegistrations = contest.value?.registrations
+
+        if (contestRegistrations.isNullOrEmpty()) {
+            Log.d("ContestDetailsViewModel", "No registrations found in contest")
+            _isRegistered.value = false
+            _registration.value = null
+            _isBlocked.value = false
+            return
         }
+
+        Log.d("ContestDetailsViewModel", "Checking ${contestRegistrations.size} registrations")
+
+        // Tìm registration của user
+        val userRegistration = contestRegistrations.find { registration ->
+            Log.d("ContestDetailsViewModel", "Comparing: ${registration.runner.email} with $email")
+            registration.runner.email.equals(email, ignoreCase = true)
+        }
+
+        if (userRegistration != null) {
+            Log.d(
+                "ContestDetailsViewModel",
+                "Found user registration with status: ${userRegistration.status}"
+            )
+            _registration.value = userRegistration
+            _isRegistered.value = true
+            _isBlocked.value = (userRegistration.status == ERegistrationStatus.BLOCK)
+        } else {
+            Log.d("ContestDetailsViewModel", "No registration found for user")
+            _registration.value = null
+            _isRegistered.value = false
+            _isBlocked.value = false
+        }
+    }
+
+    /**
+     * Force refresh registration status - dùng khi cần refresh ngay lập tức
+     */
+    fun forceRefreshRegistrationStatus(email: String) {
+        Log.d("ContestDetailsViewModel", "Force refreshing registration status for: $email")
+        resetRegistrationState()
+
+        // Delay nhỏ để đảm bảo reset state hoàn thành
+        viewModelScope.launch {
+            kotlinx.coroutines.delay(100)
+            checkRegister(email)
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        // Cancel timer khi ViewModel bị destroy
+        countdownTimer?.cancel()
+        countdownTimer = null
     }
 }
