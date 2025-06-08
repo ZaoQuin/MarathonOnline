@@ -95,7 +95,7 @@ class ContestDetailsViewModel(
         }
     }
 
-    fun refreshContest(contestId: Long) {
+    fun getById(contestId: Long) {
         viewModelScope.launch {
             _refreshContest.value = Resource.Loading
             _refreshContest.value = repository.getById(contestId)

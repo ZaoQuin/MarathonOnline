@@ -37,4 +37,34 @@
 
     <color name="warning_orange">#FF9800</color>
     <color name="partial_complete_color">#FFDC9C</color>
+
+    <!-- New colors for reward highlighting -->
+    <!-- Gold colors for 1st place -->
+    <color name="gold_color">#FFD700</color>
+    <color name="gold_background">#FFF8DC</color>
+    <color name="gold_text">#B8860B</color>
+
+    <!-- Silver colors for 2nd place -->
+    <color name="silver_color">#C0C0C0</color>
+    <color name="silver_background">#F8F8FF</color>
+    <color name="silver_text">#708090</color>
+
+
+    <color name="bronze_color">#CD7F32</color>
+    <color name="bronze_background">#FDF5E6</color>
+    <color name="bronze_text">#A0522D</color>
+
+    <!-- Success color for completion -->
+    <color name="success_color">#4CAF50</color>
+    <color name="success_background">#E8F5E8</color>
+
+    <!-- Accent colors -->
+    <color name="accent_color">#FF5722</color>
+    <color name="warning_color">#FF9800</color>
+    <color name="error_color">#F44336</color>
+
+    <!-- Transparent colors for gradients -->
+    <color name="gold_transparent">#33FFD700</color>
+    <color name="silver_transparent">#33C0C0C0</color>
+    <color name="bronze_transparent">#33CD7F32</color>
 </resources>

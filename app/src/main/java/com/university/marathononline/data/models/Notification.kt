@@ -5,7 +5,7 @@ import java.io.Serializable
 data class Notification(
     var id: Long? = null,
     var receiver: User? = null,
-    var contest: Contest? = null,
+    var objectId: Long? = null,
     var title: String? = null,
     var content: String? = null,
     var createAt: String? = null,

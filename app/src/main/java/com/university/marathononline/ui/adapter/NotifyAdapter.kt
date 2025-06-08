@@ -1,8 +1,14 @@
 package com.university.marathononline.ui.adapter
 
 import android.annotation.SuppressLint
+import android.content.res.ColorStateList
+import android.graphics.PorterDuff
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.university.marathononline.R
 import com.university.marathononline.data.models.ENotificationType
@@ -14,54 +20,107 @@ import com.university.marathononline.ui.view.activity.RunnerRewardsActivity
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_CONTEST
 import com.university.marathononline.utils.KEY_CONTESTS
+import com.university.marathononline.utils.KEY_CONTEST_ID
 import com.university.marathononline.utils.KEY_EMAIL
+import com.university.marathononline.utils.KEY_REWARD_ID
 import com.university.marathononline.utils.startNewActivity
 
-class NotifyAdapter(private var notifies: List<Notification>,
-                    private val setRead: (Notification) -> Unit): RecyclerView.Adapter<NotifyAdapter.ViewHolder>() {
-    class ViewHolder (private val binding: ItemNotifyBinding): RecyclerView.ViewHolder(binding.root){
-        fun bind(item: Notification, setRead: (Notification) -> Unit){
+class NotifyAdapter(
+    private var notifies: List<Notification>,
+    private val setRead: (Notification) -> Unit
+) : RecyclerView.Adapter<NotifyAdapter.ViewHolder>() {
+    class ViewHolder(private val binding: ItemNotifyBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: Notification, setRead: (Notification) -> Unit) {
             binding.apply {
                 timeStamp.text = item.createAt?.let { DateUtils.convertToVietnameseDateTime(it) }
                 title.text = item.title
                 content.text = item.content
-                val contest = item.contest
+                val objectId = item.objectId
 
-                if(item.isRead == true)
+                if (item.isRead == true) {
                     title.setTextColor(itemView.context.getColor(R.color.gray))
-
-                contest?.let {
-                    notifyCardView.setOnClickListener {
-                        if(item.isRead == false)
-                            setRead(item)
-                        if(item.type == ENotificationType.ACCEPT_CONTEST ||
-                            item.type == ENotificationType.NOT_APPROVAL_CONTEST )
-                            it.context.startNewActivity(
-                                ManagementDetailsContestActivity::class.java,
-                                mapOf(KEY_CONTEST to contest)
+                    binding.icon.setColorFilter(
+                        ContextCompat.getColor(itemView.context, R.color.gray),
+                        PorterDuff.Mode.SRC_IN
+                    )
+                    ViewCompat.setBackgroundTintList(
+                        binding.unreadIndicator,
+                        ColorStateList.valueOf(
+                            ContextCompat.getColor(
+                                itemView.context,
+                                R.color.gray
                             )
-                        else
-                            if(item.type == ENotificationType.NEW_CONTEST ||
-                                item.type == ENotificationType.BLOCK_CONTEST)
-                                it.context.startNewActivity(
-                                    ContestDetailsActivity::class.java,
-                                    mapOf(KEY_CONTEST to contest)
-                                )
-                            else {
-                                val email = item.receiver?.email
-                                val contests = listOf(contest)
-                                if(email != null && contests != null) {
-                                    it.context.startNewActivity(
-                                        RunnerRewardsActivity::class.java,
-                                        mapOf(
-                                            KEY_EMAIL to email,
-                                            KEY_CONTESTS to contests
-                                        )
-                                    )
-                                }
-                            }
-                    }
+                        )
+                    )
                 }
+
+
+                notifyCardView.setOnClickListener {
+                    if (item.isRead == false)
+                        setRead(item)
+
+                    when (item.type) {
+                        ENotificationType.REWARD -> {
+                            it.context.startNewActivity(
+                                RunnerRewardsActivity::class.java,
+                                mapOf(KEY_CONTEST_ID to objectId!!)
+                            )
+                        }
+
+                        ENotificationType.NEW_CONTEST,
+                        ENotificationType.BLOCK_CONTEST -> {
+                            it.context.startNewActivity(
+                                ContestDetailsActivity::class.java,
+                                mapOf(KEY_CONTEST_ID to objectId!!)
+                            )
+                        }
+
+                        ENotificationType.REJECTED_RECORD -> {
+                            Toast.makeText(
+                                itemView.context,
+                                "Chưa có chức năng",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        else -> Unit
+                    }
+
+                }
+
+//                contest?.let {
+//                    notifyCardView.setOnClickListener {
+//                        if(item.isRead == false)
+//                            setRead(item)
+//                        if(item.type == ENotificationType.ACCEPT_CONTEST ||
+//                            item.type == ENotificationType.NOT_APPROVAL_CONTEST )
+//                            it.context.startNewActivity(
+//                                ManagementDetailsContestActivity::class.java,
+//                                mapOf(KEY_CONTEST to contest)
+//                            )
+//                        else
+//                            if(item.type == ENotificationType.NEW_CONTEST ||
+//                                item.type == ENotificationType.BLOCK_CONTEST)
+//                                it.context.startNewActivity(
+//                                    ContestDetailsActivity::class.java,
+//                                    mapOf(KEY_CONTEST to contest)
+//                                )
+//                            else {
+//                                val email = item.receiver?.email
+//                                val contests = listOf(contest)
+//                                if(email != null && contests != null) {
+//                                    it.context.startNewActivity(
+//                                        RunnerRewardsActivity::class.java,
+//                                        mapOf(
+//                                            KEY_EMAIL to email,
+//                                            KEY_CONTESTS to contests
+//                                        )
+//                                    )
+//                                }
+//                            }
+//                    }
+//                }
             }
         }
     }
@@ -90,7 +149,7 @@ class NotifyAdapter(private var notifies: List<Notification>,
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(newNotifies: List<Notification>){
+    fun updateData(newNotifies: List<Notification>) {
         notifies = newNotifies
         notifyDataSetChanged()
     }

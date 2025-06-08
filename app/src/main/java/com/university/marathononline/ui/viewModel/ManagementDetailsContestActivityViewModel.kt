@@ -142,7 +142,7 @@ class ManagementDetailsContestActivityViewModel(
         viewModelScope.launch {
             val theContest = contest.value
             val request = CreateIndividualNotificationRequest(
-                contest = theContest,
+                objectId = theContest!!.id,
                 title = ENotificationType.BLOCK_CONTEST.value,
                 content = "Bạn đã bị chặn ra khỏi cuộc thi ${theContest?.name} vì gian lận, liên hệ " +
                         "${theContest?.organizer?.email} để tìm hiểu thêm thông tin.",
@@ -158,7 +158,7 @@ class ManagementDetailsContestActivityViewModel(
             val runners = registrations.map { it.runner }
             val theContest = contest.value
             val request = CreateGroupNotificationRequest(
-                contest = theContest,
+                objectId = theContest!!.id,
                 title = ENotificationType.REWARD.value,
                 content = "Bạn đã nhận được phần quà từ cuộc thi ${theContest?.name}.",
                 type = ENotificationType.REWARD,
