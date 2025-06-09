@@ -26,4 +26,12 @@ class FeedbackRepository(
     suspend fun getById(id: Long) = safeApiCall {
         api.getById(id)
     }
+
+    suspend fun getFeedbacksByRegistration(registrationId: Long) = safeApiCall {
+        api.getFeedbacksByRegistration(registrationId)
+    }
+
+    suspend fun createRegistrationFeedback(registrationId: Long, message: String) = safeApiCall {
+        api.createRegistrationFeedback(registrationId, CreateFeedbackRequest(message))
+    }
 }

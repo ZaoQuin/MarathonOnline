@@ -6,16 +6,19 @@ import androidx.lifecycle.viewModelScope
 import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.models.Feedback
+import com.university.marathononline.data.models.Record
+import com.university.marathononline.data.models.Registration
 import com.university.marathononline.data.repository.FeedbackRepository
 import com.university.marathononline.data.repository.RecordRepository
+import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.data.response.StringResponse
-import com.university.marathononline.data.models.Record
 import kotlinx.coroutines.launch
 
 class FeedBackViewModel(
     private val feedbackRepository: FeedbackRepository,
-    private val recordRepository: RecordRepository
-): BaseViewModel(listOf(feedbackRepository)) {
+    private val recordRepository: RecordRepository,
+    private val registrationRepository: RegistrationRepository
+) : BaseViewModel(listOf(feedbackRepository, recordRepository, registrationRepository)) {
 
     private val _feedbacks = MutableLiveData<Resource<List<Feedback>>>()
     val feedbacks: LiveData<Resource<List<Feedback>>> = _feedbacks
@@ -29,6 +32,9 @@ class FeedBackViewModel(
     private val _getRecord = MutableLiveData<Resource<Record>>()
     val getRecord: LiveData<Resource<Record>> = _getRecord
 
+    private val _getRegistration = MutableLiveData<Resource<Registration>>()
+    val getRegistration: LiveData<Resource<Registration>> = _getRegistration
+
     private val _getById = MutableLiveData<Resource<Feedback>>()
     val getById: LiveData<Resource<Feedback>> get() = _getById
 
@@ -39,10 +45,24 @@ class FeedBackViewModel(
         }
     }
 
+    fun loadFeedbacksByRegistration(registrationId: Long) {
+        viewModelScope.launch {
+            _feedbacks.value = Resource.Loading
+            _feedbacks.value = feedbackRepository.getFeedbacksByRegistration(registrationId)
+        }
+    }
+
     fun createFeedback(recordId: Long, message: String) {
         viewModelScope.launch {
             _createFeedbackResult.value = Resource.Loading
             _createFeedbackResult.value = feedbackRepository.createFeedback(recordId, message)
+        }
+    }
+
+    fun createRegistrationFeedback(registrationId: Long, message: String) {
+        viewModelScope.launch {
+            _createFeedbackResult.value = Resource.Loading
+            _createFeedbackResult.value = feedbackRepository.createRegistrationFeedback(registrationId, message)
         }
     }
 
@@ -60,9 +80,16 @@ class FeedBackViewModel(
         }
     }
 
+    fun getRegistration(id: Long) {
+        viewModelScope.launch {
+            _getRegistration.value = Resource.Loading
+            _getRegistration.value = registrationRepository.getById(id)
+        }
+    }
+
     fun getById(feedbackId: Long) {
         viewModelScope.launch {
-            _getById.value  = Resource.Loading
+            _getById.value = Resource.Loading
             _getById.value = feedbackRepository.getById(feedbackId)
         }
     }

@@ -34,10 +34,13 @@ import com.university.marathononline.firebase.FeedbackBroadcastReceiver
 import com.university.marathononline.firebase.MyFirebaseMessagingService
 import com.university.marathononline.ui.adapter.MainPagerAdapter
 import com.university.marathononline.ui.viewModel.MainViewModel
+import com.university.marathononline.utils.ACTION_NEW_FEEDBACK
 import com.university.marathononline.utils.HealthConnectSyncHelper
+import com.university.marathononline.utils.KEY_MESSAGE
 import com.university.marathononline.utils.KEY_RECORD_ID
 import com.university.marathononline.utils.NotificationUtils
 import com.university.marathononline.utils.RecordValidator
+import com.university.marathononline.utils.SHOW_FEEDBACK_DIALOG
 import com.university.marathononline.utils.startNewActivity
 import handleApiError
 import kotlinx.coroutines.flow.first
@@ -193,7 +196,7 @@ class MainActivity: BaseActivity<MainViewModel, ActivityMainBinding>() {
 
         // Đăng ký receiver cho feedback - CHỈ dùng LocalBroadcastManager
         val feedbackFilter = IntentFilter().apply {
-            addAction(MyFirebaseMessagingService.ACTION_NEW_FEEDBACK)
+            addAction(ACTION_NEW_FEEDBACK)
         }
 
         // Chỉ dùng Local broadcast receiver (không cần RECEIVER_EXPORTED)
@@ -203,9 +206,9 @@ class MainActivity: BaseActivity<MainViewModel, ActivityMainBinding>() {
         dialogReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 when (intent?.action) {
-                    "com.university.marathononline.SHOW_FEEDBACK_DIALOG" -> {
-                        val recordId = intent.getLongExtra("recordId", -1L)
-                        val message = intent.getStringExtra("message")
+                    SHOW_FEEDBACK_DIALOG -> {
+                        val recordId = intent.getLongExtra(KEY_RECORD_ID, -1L)
+                        val message = intent.getStringExtra(KEY_MESSAGE)
                         if (recordId != -1L && message != null) {
                             showSimpleFeedbackDialog(recordId, message)
                         }
@@ -215,7 +218,7 @@ class MainActivity: BaseActivity<MainViewModel, ActivityMainBinding>() {
         }
 
         // Đăng ký dialog receiver
-        val dialogFilter = IntentFilter("com.university.marathononline.SHOW_FEEDBACK_DIALOG")
+        val dialogFilter = IntentFilter(SHOW_FEEDBACK_DIALOG)
         LocalBroadcastManager.getInstance(this).registerReceiver(dialogReceiver, dialogFilter)
     }
 

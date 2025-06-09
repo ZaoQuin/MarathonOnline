@@ -12,12 +12,11 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.university.marathononline.R
-import com.university.marathononline.ui.view.activity.NotificationsActivity
 import com.university.marathononline.data.models.Notification
 import com.university.marathononline.data.models.ENotificationType
+import com.university.marathononline.ui.view.activity.NotificationsActivity
 import com.university.marathononline.ui.view.activity.RecordFeedbackActivity
-import com.university.marathononline.utils.KEY_FEEDBACK
-import com.university.marathononline.utils.KEY_NOTIFICATION_DATA
+import com.university.marathononline.utils.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,10 +31,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         private const val CHANNEL_NAME = "Marathon Notifications"
         private const val FEEDBACK_CHANNEL_ID = "feedback_notifications"
         private const val FEEDBACK_CHANNEL_NAME = "Feedback Notifications"
-        private const val NOTIFICATION_ID = 1001
-        const val ACTION_NEW_NOTIFICATION = "com.university.marathononline.NEW_NOTIFICATION"
-        const val ACTION_NEW_FEEDBACK = "com.university.marathononline.NEW_FEEDBACK"
-        const val ACTION_UPDATE_BADGE = "com.university.marathononline.UPDATE_BADGE"
     }
 
     override fun onCreate() {
@@ -45,16 +40,13 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
-
         Log.d(TAG, "From: ${remoteMessage.from}")
 
-        // Xử lý data payload
-        remoteMessage.data.isNotEmpty().let {
+        if (remoteMessage.data.isNotEmpty()) {
             Log.d(TAG, "Message data payload: ${remoteMessage.data}")
             handleDataPayload(remoteMessage.data, remoteMessage.notification)
         }
 
-        // Xử lý notification payload
         remoteMessage.notification?.let {
             Log.d(TAG, "Message Notification Body: ${it.body}")
         }
@@ -62,167 +54,129 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     private fun handleDataPayload(data: Map<String, String>, notification: RemoteMessage.Notification?) {
         try {
-            val feedbackType = data["type"]
-
-            when (feedbackType) {
-                "ADMIN_FEEDBACK", "RUNNER_FEEDBACK" -> {
-                    handleFeedbackNotification(data, notification)
-                }
-                else -> {
-                    handleGeneralNotification(data, notification)
-                }
+            when (data[KEY_FEEDBACK_TYPE]) {
+                ADMIN_FEEDBACK, RUNNER_FEEDBACK -> handleFeedbackNotification(data, notification)
+                else -> handleGeneralNotification(data, notification)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error handling data payload: ${e.message}")
+            Log.e(TAG, "Error handling data payload: ${e.message}", e)
         }
     }
 
     private fun handleFeedbackNotification(data: Map<String, String>, notification: RemoteMessage.Notification?) {
-        try {
-            val feedbackId = data["feedbackId"]?.toLongOrNull()
-            val recordId = data["recordId"]?.toLongOrNull()
-            val runnerId = data["runnerId"]?.toLongOrNull()
-            val feedbackType = data["type"]
+        val feedbackId = data[KEY_FEEDBACK_ID]?.toLongOrNull()
+        val recordId = data[KEY_RECORD_ID]?.toLongOrNull()
+        val registrationId = data[KEY_REGISTRATION_ID]?.toLongOrNull()
+        val feedbackType = data[KEY_FEEDBACK_TYPE]
 
-            Log.d(TAG, "Handling feedback notification: feedbackId=$feedbackId, recordId=$recordId, type=$feedbackType")
-
-            // Tạo notification object cho feedback
-            val notificationData = Notification(
-                id = data["notificationId"]?.toLongOrNull(),
-                title = notification?.title ?: getFeedbackTitle(feedbackType),
-                content = notification?.body ?: getFeedbackContent(feedbackType),
-                createAt = getCurrentTimestamp(),
-                isRead = false,
-                type = ENotificationType.RECORD_FEEDBACK
-            )
-
-            // Gửi broadcast riêng cho feedback
-            sendFeedbackBroadcast(notificationData, feedbackId, recordId, feedbackType)
-
-            // Hiển thị notification với action khác cho feedback
-            showFeedbackNotification(
-                notificationData.title ?: "Feedback mới",
-                notificationData.content ?: "Bạn có feedback mới",
-                notificationData,
-                recordId,
-                feedbackId
-            )
-
-        } catch (e: Exception) {
-            Log.e(TAG, "Error handling feedback notification: ${e.message}")
+        if (feedbackId == null && recordId == null && registrationId == null) {
+            Log.w(TAG, "Invalid feedback notification data: $data")
+            return
         }
+
+        val notificationData = Notification(
+            id = data[KEY_NOTIFICATION_ID]?.toLongOrNull() ?: System.currentTimeMillis(),
+            title = notification?.title ?: getString(R.string.feedback_title, feedbackType ?: "Feedback"),
+            content = notification?.body ?: getString(R.string.feedback_content, feedbackType ?: "Feedback"),
+            createAt = getCurrentTimestamp(),
+            isRead = false,
+            type = when {
+                recordId != null -> ENotificationType.RECORD_FEEDBACK
+                registrationId != null -> ENotificationType.BLOCK_CONTEST
+                else -> return
+            },
+            objectId = recordId ?: registrationId
+        )
+
+        sendFeedbackBroadcast(notificationData, feedbackId, recordId, registrationId, feedbackType)
+        showNotification(
+            title = notificationData.title!!,
+            body = notificationData.content!!,
+            notification = notificationData,
+            channelId = FEEDBACK_CHANNEL_ID,
+            intent = createFeedbackIntent(notificationData, feedbackId, recordId, registrationId)
+        )
     }
 
     private fun handleGeneralNotification(data: Map<String, String>, notification: RemoteMessage.Notification?) {
         val notificationData = parseNotificationData(data, notification)
-
         Log.d(TAG, "Parsed notification: ID=${notificationData.id}, Title='${notificationData.title}', Content='${notificationData.content}'")
 
-        // Gửi broadcast để cập nhật UI real-time
         sendNotificationBroadcast(notificationData)
-
-        // Hiển thị system notification
         showNotification(
-            notificationData.title ?: notification?.title ?: "Marathon Online",
-            notificationData.content ?: notification?.body ?: "Bạn có thông báo mới",
-            notificationData
+            title = notificationData.title ?: notification?.title ?: getString(R.string.app_name),
+            body = notificationData.content ?: notification?.body ?: getString(R.string.default_notification_body),
+            notification = notificationData,
+            channelId = CHANNEL_ID,
+            intent = createGeneralIntent(notificationData)
         )
     }
 
     private fun parseNotificationData(data: Map<String, String>, notification: RemoteMessage.Notification?): Notification {
-        // Get notification ID from data payload
-        val notificationId = data["notificationId"]?.toLongOrNull() ?: data["id"]?.toLongOrNull()
-
-        // Get type from data payload
-        val notificationType = data["type"]?.let {
+        val notificationId = data[KEY_NOTIFICATION_ID]?.toLongOrNull() ?: data["id"]?.toLongOrNull() ?: System.currentTimeMillis()
+        val objectId = data[KEY_OBJECT_ID]?.toLongOrNull()
+        val notificationType = data[KEY_NOTIFICATION_TYPE]?.let {
             try {
-                when (it) {
-                    "ADMIN_FEEDBACK", "RUNNER_FEEDBACK" -> ENotificationType.RECORD_FEEDBACK
-                    else -> ENotificationType.valueOf(it)
-                }
-            } catch (e: Exception) {
+                ENotificationType.valueOf(it)
+            } catch (e: IllegalArgumentException) {
                 Log.w(TAG, "Unknown notification type: $it")
                 null
             }
         }
 
-        // Create notification with available data, filling in missing fields
         return Notification(
             id = notificationId,
             title = data["title"] ?: notification?.title ?: getDefaultTitleForType(notificationType),
             content = data["content"] ?: data["body"] ?: notification?.body ?: getDefaultContentForType(notificationType),
             createAt = data["createAt"] ?: getCurrentTimestamp(),
             isRead = false,
-            type = notificationType
+            type = notificationType,
+            objectId = objectId
         ).also {
-            Log.d(TAG, "Created notification object: ID=${it.id}, Title='${it.title}', Content='${it.content}', Type=${it.type}")
+            Log.d(TAG, "Created notification object: ID=${it.id}, Title='${it.title}', Content='${it.content}', Type=${it.type}, ObjectId=${it.objectId}")
         }
     }
 
-    private fun getFeedbackTitle(feedbackType: String?): String {
-        return when (feedbackType) {
-            "ADMIN_FEEDBACK" -> "Phản hồi từ Admin"
-            "RUNNER_FEEDBACK" -> "Phản hồi mới từ Runner"
-            else -> "Feedback mới"
-        }
+    private fun getDefaultTitleForType(type: ENotificationType?): String = when (type) {
+        ENotificationType.REWARD -> getString(R.string.notification_reward_title)
+        ENotificationType.NEW_CONTEST -> getString(R.string.notification_new_contest_title)
+        ENotificationType.BLOCK_CONTEST -> getString(R.string.notification_block_contest_title)
+        ENotificationType.ACCEPT_CONTEST -> getString(R.string.notification_accept_contest_title)
+        ENotificationType.NOT_APPROVAL_CONTEST -> getString(R.string.notification_not_approved_title)
+        ENotificationType.REJECTED_RECORD -> getString(R.string.notification_rejected_record_title)
+        ENotificationType.RECORD_FEEDBACK -> getString(R.string.notification_feedback_title)
+        null -> getString(R.string.app_name)
     }
 
-    private fun getFeedbackContent(feedbackType: String?): String {
-        return when (feedbackType) {
-            "ADMIN_FEEDBACK" -> "Admin đã phản hồi về record của bạn"
-            "RUNNER_FEEDBACK" -> "Có phản hồi mới về record"
-            else -> "Bạn có feedback mới"
-        }
-    }
-
-    private fun getDefaultTitleForType(type: ENotificationType?): String {
-        return when (type) {
-            ENotificationType.REWARD -> "Giải thưởng mới"
-            ENotificationType.NEW_CONTEST -> "Cuộc thi mới"
-            ENotificationType.BLOCK_CONTEST -> "Thông báo chặn"
-            ENotificationType.ACCEPT_CONTEST -> "Cuộc thi được duyệt"
-            ENotificationType.NOT_APPROVAL_CONTEST -> "Cuộc thi không được duyệt"
-            ENotificationType.REJECTED_RECORD -> "Phát hiện gian lận"
-            ENotificationType.RECORD_FEEDBACK -> "Feedback mới"
-            null -> "Marathon Online"
-        }
-    }
-
-    private fun getDefaultContentForType(type: ENotificationType?): String {
-        return when (type) {
-            ENotificationType.REWARD -> "Bạn có giải thưởng mới"
-            ENotificationType.NEW_CONTEST -> "Có cuộc thi mới dành cho bạn"
-            ENotificationType.BLOCK_CONTEST -> "Bạn đã bị chặn khỏi cuộc thi"
-            ENotificationType.ACCEPT_CONTEST -> "Cuộc thi của bạn đã được duyệt"
-            ENotificationType.NOT_APPROVAL_CONTEST -> "Cuộc thi của bạn không được duyệt"
-            ENotificationType.REJECTED_RECORD -> "Bản ghi gần đây của bạn có vấn đề."
-            ENotificationType.RECORD_FEEDBACK -> "Bạn có feedback mới về record"
-            null -> "Bạn có thông báo mới"
-        }
+    private fun getDefaultContentForType(type: ENotificationType?): String = when (type) {
+        ENotificationType.REWARD -> getString(R.string.notification_reward_content)
+        ENotificationType.NEW_CONTEST -> getString(R.string.notification_new_contest_content)
+        ENotificationType.BLOCK_CONTEST -> getString(R.string.notification_block_contest_content)
+        ENotificationType.ACCEPT_CONTEST -> getString(R.string.notification_accept_contest_content)
+        ENotificationType.NOT_APPROVAL_CONTEST -> getString(R.string.notification_not_approved_content)
+        ENotificationType.REJECTED_RECORD -> getString(R.string.notification_rejected_record_content)
+        ENotificationType.RECORD_FEEDBACK -> getString(R.string.notification_feedback_content)
+        null -> getString(R.string.default_notification_body)
     }
 
     private fun getCurrentTimestamp(): String {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
-        return dateFormat.format(Date())
+        return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).format(Date())
     }
 
     private fun sendNotificationBroadcast(notification: Notification) {
         Log.d(TAG, "Sending broadcast for notification: ${notification.id}")
 
-        // Gửi local broadcast
-        val localIntent = Intent(ACTION_NEW_NOTIFICATION)
-        localIntent.putExtra(KEY_NOTIFICATION_DATA, notification)
+        val localIntent = Intent(ACTION_NEW_NOTIFICATION).apply {
+            putExtra(KEY_NOTIFICATION_DATA, notification)
+        }
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent)
 
-        // Gửi global broadcast
-        val globalIntent = Intent(ACTION_NEW_NOTIFICATION)
-        globalIntent.putExtra(KEY_NOTIFICATION_DATA, notification)
+        val globalIntent = Intent(ACTION_NEW_NOTIFICATION).apply {
+            putExtra(KEY_NOTIFICATION_DATA, notification)
+        }
         sendBroadcast(globalIntent)
 
-        // Gửi broadcast để cập nhật badge
-        val badgeIntent = Intent(ACTION_UPDATE_BADGE)
-        sendBroadcast(badgeIntent)
-
+        sendBroadcast(Intent(ACTION_UPDATE_BADGE))
         Log.d(TAG, "Broadcasts sent successfully")
     }
 
@@ -230,118 +184,96 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         notification: Notification,
         feedbackId: Long?,
         recordId: Long?,
+        registrationId: Long?,
         feedbackType: String?
     ) {
-        Log.d(TAG, "Sending feedback broadcast: feedbackId=$feedbackId, recordId=$recordId")
+        Log.d(TAG, "Sending feedback broadcast: feedbackId=$feedbackId, recordId=$recordId, registrationId=$registrationId")
 
         val feedbackIntent = Intent(ACTION_NEW_FEEDBACK).apply {
             putExtra(KEY_NOTIFICATION_DATA, notification)
-            putExtra("feedbackId", feedbackId)
-            putExtra("recordId", recordId)
-            putExtra("feedbackType", feedbackType)
+            putExtra(KEY_FEEDBACK_ID, feedbackId)
+            putExtra(KEY_RECORD_ID, recordId)
+            putExtra(KEY_REGISTRATION_ID, registrationId)
+            putExtra(KEY_FEEDBACK_TYPE, feedbackType)
         }
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(feedbackIntent)
         sendBroadcast(feedbackIntent)
         sendNotificationBroadcast(notification)
-
         Log.d(TAG, "Feedback broadcasts sent successfully")
     }
 
-    private fun showNotification(title: String?, body: String?, notification: Notification) {
-        val intent = Intent(this, NotificationsActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            putExtra(KEY_NOTIFICATION_DATA, notification)
-        }
-
-        val pendingIntent = PendingIntent.getActivity(
-            this, System.currentTimeMillis().toInt(), intent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.marathon_online)
-            .setContentTitle(title ?: "Marathon Online")
-            .setContentText(body ?: "Bạn có thông báo mới")
-            .setAutoCancel(true)
-            .setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI)
-            .setContentIntent(pendingIntent)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setDefaults(NotificationCompat.DEFAULT_ALL)
-
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(System.currentTimeMillis().toInt(), notificationBuilder.build())
-
-        Log.d(TAG, "System notification shown: $title")
-    }
-
-    private fun showFeedbackNotification(
+    private fun showNotification(
         title: String,
         body: String,
         notification: Notification,
-        recordId: Long?,
-        feedbackId: Long?
+        channelId: String,
+        intent: Intent?
     ) {
-        val intent = Intent(this, RecordFeedbackActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            putExtra(KEY_NOTIFICATION_DATA, notification)
-            putExtra("recordId", recordId)
-            putExtra("feedbackId", feedbackId)
-            putExtra("openFeedbackTab", true) // Để mở tab feedback
+        val pendingIntent = intent?.let {
+            PendingIntent.getActivity(
+                this,
+                notification.id?.toInt() ?: System.currentTimeMillis().toInt(),
+                it,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
         }
 
-        val pendingIntent = PendingIntent.getActivity(
-            this,
-            (System.currentTimeMillis() + (feedbackId ?: 0)).toInt(),
-            intent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val notificationBuilder = NotificationCompat.Builder(this, FEEDBACK_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_feedback) // Icon riêng cho feedback
+        val notificationBuilder = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.marathon_online)
             .setContentTitle(title)
             .setContentText(body)
             .setAutoCancel(true)
-            .setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI)
-            .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
-            .setCategory(NotificationCompat.CATEGORY_MESSAGE) // Categorize as message
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .apply { pendingIntent?.let { setContentIntent(it) } }
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(
-            "feedback_${feedbackId}_${recordId}".hashCode(),
-            notificationBuilder.build()
-        )
+        notificationManager.notify(notification.id?.toInt() ?: System.currentTimeMillis().toInt(), notificationBuilder.build())
+        Log.d(TAG, "Notification shown: $title")
+    }
 
-        Log.d(TAG, "Feedback notification shown: $title")
+    private fun createGeneralIntent(notification: Notification): Intent {
+        return Intent(this, NotificationsActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra(KEY_NOTIFICATION_DATA, notification)
+        }
+    }
+
+    private fun createFeedbackIntent(notification: Notification, feedbackId: Long?, recordId: Long?, registrationId: Long?): Intent {
+        return Intent(this, RecordFeedbackActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra(KEY_NOTIFICATION_DATA, notification)
+            putExtra(KEY_FEEDBACK_ID, feedbackId)
+            putExtra(KEY_RECORD_ID, recordId)
+            putExtra(KEY_REGISTRATION_ID, registrationId)
+            putExtra(OPEN_FEEDBACK_TAB, true)
+        }
     }
 
     private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            // General notification channel
             val generalChannel = NotificationChannel(
                 CHANNEL_ID,
                 CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Channel for Marathon Online notifications"
+                description = getString(R.string.notification_channel_general_desc)
                 enableLights(true)
                 enableVibration(true)
             }
 
-            // Feedback notification channel
             val feedbackChannel = NotificationChannel(
                 FEEDBACK_CHANNEL_ID,
                 FEEDBACK_CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Channel for feedback notifications"
+                description = getString(R.string.notification_channel_feedback_desc)
                 enableLights(true)
                 enableVibration(true)
-                setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI, null)
             }
 
             notificationManager.createNotificationChannel(generalChannel)
@@ -360,7 +292,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             try {
                 Log.d(TAG, "Token sent to server successfully: $token")
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to send token to server: ${e.message}")
+                Log.e(TAG, "Failed to send token to server: ${e.message}", e)
             }
         }
     }

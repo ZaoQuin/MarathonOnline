@@ -99,7 +99,7 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(NotifyViewModel::class.java) -> NotifyViewModel(findRepository(NotificationRepository::class.java)) as T
             modelClass.isAssignableFrom(TrainingPlanViewModel::class.java) -> TrainingPlanViewModel(findRepository(TrainingPlanRepository::class.java), findRepository(TrainingDayRepository::class.java), findRepository(
                 TrainingFeedbackRepository::class.java)) as T
-            modelClass.isAssignableFrom(FeedBackViewModel::class.java) -> FeedBackViewModel(findRepository(FeedbackRepository::class.java), findRepository(RecordRepository::class.java)) as T
+            modelClass.isAssignableFrom(FeedBackViewModel::class.java) -> FeedBackViewModel(findRepository(FeedbackRepository::class.java), findRepository(RecordRepository::class.java), findRepository(RegistrationRepository::class.java)) as T
             else -> throw IllegalArgumentException("ViewModelClass Not Found")
         }
     }

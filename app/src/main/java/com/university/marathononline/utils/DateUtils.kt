@@ -23,20 +23,21 @@ object DateUtils {
     private val API_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
     private val RECORD_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
-    // Format Instant to "yyyy-MM-dd HH:mm:ss" with range validation
-    fun formatInstantToDateTimeString(instant: Instant): String? {
+    fun isValidIsoDateTime(dateString: String): Boolean {
         return try {
-            // Check if Instant is within valid LocalDateTime range
-            if (instant.isBefore(Instant.parse("0000-01-01T00:00:00Z")) ||
-                instant.isAfter(Instant.parse("9999-12-31T23:59:59Z"))) {
-                Log.w("DateUtils", "Instant out of valid range: $instant")
-                return null
-            }
-            val localDateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime()
-            localDateTime.format(API_DATE_TIME_FORMATTER)
+            LocalDateTime.parse(dateString, ISO_DATE_TIME_FORMATTER)
+            true
+        } catch (e: DateTimeParseException) {
+            false
+        }
+    }
+
+    fun formatDateString(input: String): String {
+        return try {
+            val dateTime = LocalDateTime.parse(input) // input phải đúng định dạng ISO (vd: "2024-06-10T14:30:00")
+            dateTime.format(DEFAULT_DATE_FORMATTER)
         } catch (e: Exception) {
-            Log.e("DateUtils", "Error formatting Instant: $instant", e)
-            null
+            "" // hoặc xử lý lỗi tuỳ theo yêu cầu
         }
     }
 
