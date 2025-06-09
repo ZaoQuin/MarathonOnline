@@ -34,10 +34,45 @@
     <string name="contest_end_date">Ngày kết thúc: %1$s</string>
     <string name="contest_participant_count">Tổng số người tham gia: %1$s</string>
 
-    <!--    Registration    -->
     <string name="registration_username">\@%1$s\"</string>
     <string name="registration_totalDistance">\Tổng quãng đường: %1$s\</string>
     <string name="registration_totalTime">\Thời gian chạy: %1$s\</string>
     <string name="registration_status">\Trạng thái: %1$s\</string>
     <string name="registration_register_date">\Ngày đăng ký: %1$s\</string>
+    <string name="feedback_title">Phản hồi từ %s</string>
+    <string name="feedback_content">Bạn có phản hồi mới: %s</string>
+    <string name="notification_reward_title">Phần thưởng mới</string>
+    <string name="notification_new_contest_title">Cuộc thi mới</string>
+    <string name="notification_block_contest_title">Cuộc thi bị chặn</string>
+    <string name="notification_accept_contest_title">Cuộc thi đã được duyệt</string>
+    <string name="notification_not_approved_title">Cuộc thi không được duyệt</string>
+    <string name="notification_rejected_record_title">Phát hiện gian lận</string>
+    <string name="notification_feedback_title">Phản hồi mới</string>
+    <string name="notification_reward_content">Bạn có phần thưởng mới</string>
+    <string name="notification_new_contest_content">Có cuộc thi mới dành cho bạn</string>
+    <string name="notification_block_contest_content">Bạn đã bị chặn khỏi cuộc thi</string>
+    <string name="notification_accept_contest_content">Cuộc thi của bạn đã được duyệt</string>
+    <string name="notification_not_approved_content">Cuộc thi của bạn không được duyệt</string>
+    <string name="notification_rejected_record_content">Có vấn đề với kết quả gần đây của bạn</string>
+    <string name="notification_feedback_content">Bạn có phản hồi mới về kết quả của mình</string>
+    <string name="notification_channel_general_desc">Kênh thông báo của Marathon Online</string>
+    <string name="notification_channel_feedback_desc">Kênh thông báo phản hồi</string>
+    <string name="default_notification_body">Bạn có thông báo mới</string>
+
+    <string name="notification_channel_general_name">Thông báo chung</string>
+    <string name="notification_channel_feedback_name">Thông báo phản hồi</string>
+    <string name="notification_channel_contest_name">Thông báo cuộc thi</string>
+    <string name="notification_channel_reward_name">Thông báo phần thưởng</string>
+    <string name="notification_channel_contest_desc">Thông báo về các cuộc thi marathon</string>
+    <string name="notification_channel_reward_desc">Thông báo về phần thưởng</string>
+    <string name="view_details">Xem chi tiết</string>
+    <string name="dismiss">Bỏ qua</string>
+    <string name="view_reward">Xem phần thưởng</string>
+    <string name="view_all">Xem tất cả</string>
+
+    <string name="no_notifications">Không có thông báo nào</string>
+    <string name="error_loading_notifications">Không thể tải thông báo</string>
+    <string name="error_updating_notifications">Không thể cập nhật thông báo</string>
+    <string name="error_marking_read">Không thể đánh dấu thông báo đã đọc</string>
+
 </resources>

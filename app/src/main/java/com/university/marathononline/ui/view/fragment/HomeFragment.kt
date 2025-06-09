@@ -42,6 +42,8 @@ import com.university.marathononline.ui.adapter.ContestAdapter
 import com.university.marathononline.ui.view.activity.NotificationsActivity
 import com.university.marathononline.ui.view.activity.RecordActivity
 import com.university.marathononline.ui.viewModel.HomeViewModel
+import com.university.marathononline.utils.ACTION_NEW_NOTIFICATION
+import com.university.marathononline.utils.ACTION_UPDATE_BADGE
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_CONTESTS
 import com.university.marathononline.utils.KEY_NOTIFICATION_DATA
@@ -86,7 +88,6 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
         initializeUI()
         observeViewModel()
 
-        // Load data
         viewModel.getActiveContests()
         viewModel.getCurrentTrainingDay()
         viewModel.getNotifications()
@@ -95,15 +96,12 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
     }
 
     private fun setupNotificationReceivers() {
-        // Receiver cho notification mới
         notificationReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 intent?.getSerializableExtra(KEY_NOTIFICATION_DATA)?.let { notification ->
                     if (notification is Notification) {
-                        // Thêm notification mới vào danh sách
                         val currentNotifications = viewModel.notifications.value?.toMutableList() ?: mutableListOf()
 
-                        // Kiểm tra duplicate
                         val existingIndex = currentNotifications.indexOfFirst { it.id == notification.id }
                         if (existingIndex == -1) {
                             currentNotifications.add(0, notification)
@@ -115,24 +113,20 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
             }
         }
 
-        // Receiver cho cập nhật badge
         badgeUpdateReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                // Refresh notifications để cập nhật badge
                 viewModel.getNotifications()
             }
         }
 
-        // Register receivers
-        val notificationFilter = IntentFilter(MyFirebaseMessagingService.ACTION_NEW_NOTIFICATION)
-        val badgeFilter = IntentFilter(MyFirebaseMessagingService.ACTION_UPDATE_BADGE)
+        val notificationFilter = IntentFilter(ACTION_NEW_NOTIFICATION)
+        val badgeFilter = IntentFilter(ACTION_UPDATE_BADGE)
 
         LocalBroadcastManager.getInstance(requireContext()).apply {
             registerReceiver(notificationReceiver, notificationFilter)
             registerReceiver(badgeUpdateReceiver, badgeFilter)
         }
 
-        // Also register global receivers as fallback
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             requireContext().registerReceiver(notificationReceiver, notificationFilter, Context.RECEIVER_NOT_EXPORTED)
             requireContext().registerReceiver(badgeUpdateReceiver, badgeFilter, Context.RECEIVER_NOT_EXPORTED)
@@ -177,7 +171,6 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
     }
 
     private fun setupNotifyButton(){
-        // Initialize badge
         updateBadge(emptyList())
     }
 
@@ -278,7 +271,6 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
             }
         }
 
-        // Observe notifications để cập nhật badge khi có thay đổi
         viewModel.notifications.observe(viewLifecycleOwner) { notifications ->
             updateBadge(notifications)
         }

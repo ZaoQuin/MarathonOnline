@@ -31,4 +31,13 @@ interface FeedbackApiService {
 
     @GET("api/v1/feedback/{feedbackId}")
     suspend fun getById(@Path("feedbackId") feedbackId: Long): Feedback
+
+    @GET("api/v1/feedback/registration/{registrationId}")
+    suspend fun getFeedbacksByRegistration(@Path("registrationId") registrationId: Long): List<Feedback>
+
+    @POST("api/v1/feedback/registration/{registrationId}")
+    suspend fun createRegistrationFeedback(
+        @Path("registrationId") registrationId: Long,
+        @Body createFeedbackRequest: CreateFeedbackRequest
+    ): Feedback
 }

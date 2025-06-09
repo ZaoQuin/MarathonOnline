@@ -25,4 +25,8 @@ class RegistrationRepository(
     suspend fun prizes(contest: Contest) = safeApiCall {
         api.prizes(contest)
     }
+
+    suspend fun getById(id: Long) = safeApiCall {
+        api.getById(id)
+    }
 }

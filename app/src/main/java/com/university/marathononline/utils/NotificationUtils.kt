@@ -9,59 +9,68 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.university.marathononline.R
 import com.university.marathononline.data.models.ENotificationType
+import com.university.marathononline.data.models.Notification
 import com.university.marathononline.ui.view.activity.ContestDetailsActivity
 import com.university.marathononline.ui.view.activity.ManagementDetailsContestActivity
 import com.university.marathononline.ui.view.activity.NotificationsActivity
+import com.university.marathononline.ui.view.activity.RecordFeedbackActivity
 import com.university.marathononline.ui.view.activity.RunnerRewardsActivity
 
 object NotificationUtils {
 
-    const val CHANNEL_ID_GENERAL = "marathon_general"
+    const val CHANNEL_ID_GENERAL = "marathon_notifications"
+    const val CHANNEL_ID_FEEDBACK = "feedback_notifications"
     const val CHANNEL_ID_CONTEST = "marathon_contest"
     const val CHANNEL_ID_REWARD = "marathon_reward"
-
-    const val CHANNEL_NAME_GENERAL = "Thông báo chung"
-    const val CHANNEL_NAME_CONTEST = "Thông báo cuộc thi"
-    const val CHANNEL_NAME_REWARD = "Thông báo giải thưởng"
+    const val KEY_EMAIL = "email"
+    const val KEY_OBJECT_ID = "objectId"
 
     fun createNotificationChannels(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            // General notifications channel
             val generalChannel = NotificationChannel(
                 CHANNEL_ID_GENERAL,
-                CHANNEL_NAME_GENERAL,
+                context.getString(R.string.notification_channel_general_name),
                 NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
-                description = "Thông báo chung về ứng dụng"
+                description = context.getString(R.string.notification_channel_general_desc)
                 enableLights(true)
                 enableVibration(true)
             }
 
-            // Contest notifications channel
+            val feedbackChannel = NotificationChannel(
+                CHANNEL_ID_FEEDBACK,
+                context.getString(R.string.notification_channel_feedback_name),
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = context.getString(R.string.notification_channel_feedback_desc)
+                enableLights(true)
+                enableVibration(true)
+            }
+
             val contestChannel = NotificationChannel(
                 CHANNEL_ID_CONTEST,
-                CHANNEL_NAME_CONTEST,
+                context.getString(R.string.notification_channel_contest_name),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Thông báo về cuộc thi marathon"
+                description = context.getString(R.string.notification_channel_contest_desc)
                 enableLights(true)
                 enableVibration(true)
             }
 
-            // Reward notifications channel
             val rewardChannel = NotificationChannel(
                 CHANNEL_ID_REWARD,
-                CHANNEL_NAME_REWARD,
+                context.getString(R.string.notification_channel_reward_name),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Thông báo về giải thưởng"
+                description = context.getString(R.string.notification_channel_reward_desc)
                 enableLights(true)
                 enableVibration(true)
             }
 
             notificationManager.createNotificationChannel(generalChannel)
+            notificationManager.createNotificationChannel(feedbackChannel)
             notificationManager.createNotificationChannel(contestChannel)
             notificationManager.createNotificationChannel(rewardChannel)
         }
@@ -73,17 +82,25 @@ object NotificationUtils {
             ENotificationType.BLOCK_CONTEST,
             ENotificationType.ACCEPT_CONTEST,
             ENotificationType.NOT_APPROVAL_CONTEST -> CHANNEL_ID_CONTEST
-
             ENotificationType.REWARD -> CHANNEL_ID_REWARD
-
+            ENotificationType.RECORD_FEEDBACK -> CHANNEL_ID_FEEDBACK
             else -> CHANNEL_ID_GENERAL
         }
     }
 
-    fun createNotificationIntent(context: Context, data: Map<String, String>): Intent? {
-        val type = data["type"]?.let { ENotificationType.valueOf(it) }
-        val contestId = data["contestId"]?.toLongOrNull()
-        val email = data["email"]
+    fun createNotificationIntent(context: Context, data: Map<String, String>, notification: Notification? = null): Intent? {
+        val type = data["type"]?.let {
+            try {
+                ENotificationType.valueOf(it)
+            } catch (e: IllegalArgumentException) {
+                null
+            }
+        }
+        val contestId = data[KEY_OBJECT_ID]?.toLongOrNull() ?: data["contestId"]?.toLongOrNull()
+        val email = data[KEY_EMAIL]
+        val recordId = data[KEY_RECORD_ID]?.toLongOrNull()
+        val registrationId = data[KEY_REGISTRATION_ID]?.toLongOrNull()
+        val feedbackId = data[KEY_FEEDBACK_ID]?.toLongOrNull()
 
         return when (type) {
             ENotificationType.ACCEPT_CONTEST,
@@ -95,7 +112,6 @@ object NotificationUtils {
                     }
                 } else null
             }
-
             ENotificationType.NEW_CONTEST,
             ENotificationType.BLOCK_CONTEST -> {
                 if (contestId != null) {
@@ -105,7 +121,6 @@ object NotificationUtils {
                     }
                 } else null
             }
-
             ENotificationType.REWARD -> {
                 if (email != null && contestId != null) {
                     Intent(context, RunnerRewardsActivity::class.java).apply {
@@ -115,10 +130,20 @@ object NotificationUtils {
                     }
                 } else null
             }
-
+            ENotificationType.RECORD_FEEDBACK -> {
+                Intent(context, RecordFeedbackActivity::class.java).apply {
+                    putExtra(KEY_NOTIFICATION_DATA, notification)
+                    putExtra(KEY_FEEDBACK_ID, feedbackId)
+                    putExtra(KEY_RECORD_ID, recordId)
+                    putExtra(KEY_REGISTRATION_ID, registrationId)
+                    putExtra(OPEN_FEEDBACK_TAB, true)
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                }
+            }
             else -> {
                 Intent(context, NotificationsActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    notification?.let { putExtra(KEY_NOTIFICATION_DATA, it) }
                 }
             }
         }
@@ -129,36 +154,38 @@ object NotificationUtils {
         title: String?,
         body: String?,
         data: Map<String, String>,
+        notification: Notification? = null,
         notificationId: Int = System.currentTimeMillis().toInt()
     ) {
-        val type = data["type"]?.let { ENotificationType.valueOf(it) }
+        val type = data["type"]?.let {
+            try {
+                ENotificationType.valueOf(it)
+            } catch (e: IllegalArgumentException) {
+                null
+            }
+        }
         val channelId = getChannelIdByType(type)
-
-        val intent = createNotificationIntent(context, data)
+        val intent = createNotificationIntent(context, data, notification)
 
         val pendingIntent = intent?.let {
             PendingIntent.getActivity(
                 context,
                 notificationId,
                 it,
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
         }
 
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(getNotificationIcon(type))
-            .setContentTitle(title ?: "Marathon Online")
-            .setContentText(body ?: "Bạn có thông báo mới")
+            .setContentTitle(title ?: context.getString(R.string.app_name))
+            .setContentText(body ?: context.getString(R.string.default_notification_body))
             .setAutoCancel(true)
-            .setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI)
             .setPriority(getNotificationPriority(type))
             .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setCategory(getNotificationCategory(type))
 
-        pendingIntent?.let {
-            notificationBuilder.setContentIntent(it)
-        }
-
-        // Add action buttons based on notification type
+        pendingIntent?.let { notificationBuilder.setContentIntent(it) }
         addNotificationActions(context, notificationBuilder, type, data, notificationId)
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -172,6 +199,7 @@ object NotificationUtils {
             ENotificationType.BLOCK_CONTEST -> R.drawable.ic_cancel
             ENotificationType.ACCEPT_CONTEST -> R.drawable.ic_completed
             ENotificationType.NOT_APPROVAL_CONTEST -> R.drawable.ic_cancel
+            ENotificationType.RECORD_FEEDBACK -> R.drawable.ic_feedback
             else -> R.drawable.ic_notify
         }
     }
@@ -180,12 +208,19 @@ object NotificationUtils {
         return when (type) {
             ENotificationType.REWARD,
             ENotificationType.ACCEPT_CONTEST,
-            ENotificationType.NOT_APPROVAL_CONTEST -> NotificationCompat.PRIORITY_HIGH
-
+            ENotificationType.NOT_APPROVAL_CONTEST,
+            ENotificationType.RECORD_FEEDBACK -> NotificationCompat.PRIORITY_HIGH
             ENotificationType.NEW_CONTEST,
             ENotificationType.BLOCK_CONTEST -> NotificationCompat.PRIORITY_DEFAULT
-
             else -> NotificationCompat.PRIORITY_LOW
+        }
+    }
+
+    private fun getNotificationCategory(type: ENotificationType?): String {
+        return when (type) {
+            ENotificationType.RECORD_FEEDBACK -> NotificationCompat.CATEGORY_MESSAGE
+            ENotificationType.REWARD -> NotificationCompat.CATEGORY_EVENT
+            else -> NotificationCompat.CATEGORY_STATUS
         }
     }
 
@@ -198,60 +233,42 @@ object NotificationUtils {
     ) {
         when (type) {
             ENotificationType.NEW_CONTEST -> {
-                // Add "Xem chi tiết" action
                 val viewIntent = createNotificationIntent(context, data)
                 viewIntent?.let {
                     val viewPendingIntent = PendingIntent.getActivity(
                         context,
                         notificationId + 1,
                         it,
-                        PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )
-                    builder.addAction(
-                        R.drawable.ic_add,
-                        "Xem chi tiết",
-                        viewPendingIntent
-                    )
+                    builder.addAction(R.drawable.ic_add, context.getString(R.string.view_details), viewPendingIntent)
                 }
 
-                // Add "Đóng" action
                 val dismissIntent = Intent().apply {
                     action = "DISMISS_NOTIFICATION"
-                    putExtra("notificationId", notificationId)
+                    putExtra(KEY_NOTIFICATION_ID, notificationId)
                 }
                 val dismissPendingIntent = PendingIntent.getBroadcast(
                     context,
                     notificationId + 2,
                     dismissIntent,
-                    PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
-                builder.addAction(
-                    R.drawable.ic_previous,
-                    "Đóng",
-                    dismissPendingIntent
-                )
+                builder.addAction(R.drawable.ic_previous, context.getString(R.string.dismiss), dismissPendingIntent)
             }
-
             ENotificationType.REWARD -> {
-                // Add "Xem giải thưởng" action
                 val rewardIntent = createNotificationIntent(context, data)
                 rewardIntent?.let {
                     val rewardPendingIntent = PendingIntent.getActivity(
                         context,
                         notificationId + 3,
                         it,
-                        PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )
-                    builder.addAction(
-                        R.drawable.ic_reward,
-                        "Xem giải thưởng",
-                        rewardPendingIntent
-                    )
+                    builder.addAction(R.drawable.ic_reward, context.getString(R.string.view_reward), rewardPendingIntent)
                 }
             }
-
             else -> {
-                // Default action to open notifications list
                 val allNotificationsIntent = Intent(context, NotificationsActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                 }
@@ -259,13 +276,9 @@ object NotificationUtils {
                     context,
                     notificationId + 4,
                     allNotificationsIntent,
-                    PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
-                builder.addAction(
-                    R.drawable.ic_notify,
-                    "Xem tất cả",
-                    allNotificationsPendingIntent
-                )
+                builder.addAction(R.drawable.ic_notify, context.getString(R.string.view_all), allNotificationsPendingIntent)
             }
         }
     }
