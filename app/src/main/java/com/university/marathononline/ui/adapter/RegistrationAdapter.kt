@@ -40,7 +40,7 @@ class RegistrationAdapter(private var registrations: List<Registration>,
                     val context = it.context
                     val dialog = ContestStatisticsDialog(context,
                         contest,
-                        item.runner.email,
+                        item.runner.email!!,
                         true,
                         onBlockRegistration = { onBlockRegistration(item) })
                     dialog.show()

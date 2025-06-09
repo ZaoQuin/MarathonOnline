@@ -52,21 +52,23 @@
         tools:replace="android:theme"
         tools:targetApi="31">
         <activity
-            android:name=".VNPayWebViewActivity"
+            android:name=".ui.view.activity.RecordFeedbackActivity"
             android:exported="false" />
-        <!-- Metadata để Health Connect nhận diện -->
+        <activity
+            android:name=".ui.view.activity.VNPayWebViewActivity"
+            android:exported="false" /> <!-- Metadata để Health Connect nhận diện -->
         <meta-data
             android:name="health_permissions"
             android:resource="@array/health_permissions" />
 
         <activity
-            android:name=".SettingActivity"
+            android:name=".ui.view.activity.SettingActivity"
             android:exported="false" /> <!-- QUAN TRỌNG: Health Connect Integration -->
         <activity-alias
             android:name=".ViewPermissionUsageActivity"
             android:exported="true"
             android:permission="android.permission.START_VIEW_PERMISSION_USAGE"
-            android:targetActivity=".SettingActivity">
+            android:targetActivity=".ui.view.activity.SettingActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
 
@@ -86,6 +88,14 @@
             </intent-filter>
         </service>
 
+        <receiver
+            android:name=".firebase.FeedbackBroadcastReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.university.marathononline.firebase.MyFirebaseMessagingService.ACTION_NEW_FEEDBACK" />
+            </intent-filter>
+        </receiver>
         <receiver
             android:name=".firebase.NotificationBroadcastReceiver"
             android:exported="false">

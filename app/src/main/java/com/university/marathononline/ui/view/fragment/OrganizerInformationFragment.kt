@@ -64,7 +64,7 @@ class OrganizerInformationFragment : BaseFragment<InformationViewModel, Fragment
                     startNewActivity(
                         DeleteUserAccountActivity::class.java,
                         mapOf(
-                            KEY_EMAIL to user.email
+                            KEY_EMAIL to user.email!!
                         )
                     )
             }
@@ -76,7 +76,7 @@ class OrganizerInformationFragment : BaseFragment<InformationViewModel, Fragment
                     startNewActivity(
                         ChangePasswordActivity::class.java,
                         mapOf(
-                            KEY_EMAIL to user.email
+                            KEY_EMAIL to user.email!!
                         )
                     )
             }

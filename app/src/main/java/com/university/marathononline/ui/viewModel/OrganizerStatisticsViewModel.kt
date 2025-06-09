@@ -96,7 +96,7 @@ class OrganizerStatisticsViewModel(
                 contest.registrations?.map { it.runner } ?: emptyList()
             }.distinctBy { it.id }
             Log.d("OrganizerStatistics", "Total runners: ${runners.size}")
-            _genderStatistics.value = runners.groupingBy { it.gender }.eachCount()
+            _genderStatistics.value = runners.groupingBy { it.gender!! }.eachCount()
             Log.d("OrganizerStatistics", "Gender statistics: ${_genderStatistics.value}")
 
             val contestStatusCount = contests.filterNot { it.status == null }

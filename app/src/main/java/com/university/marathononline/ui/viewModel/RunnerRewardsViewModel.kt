@@ -2,12 +2,17 @@ package com.university.marathononline.ui.viewModel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.university.marathononline.base.BaseViewModel
+import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.Reward
+import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.data.response.GetContestsResponse
+import kotlinx.coroutines.launch
 
 class RunnerRewardsViewModel(
-
+    private val contestRepository: ContestRepository
 ): BaseViewModel(listOf()) {
 
     private val _contests = MutableLiveData<List<Contest>>()
@@ -18,6 +23,12 @@ class RunnerRewardsViewModel(
 
     private val _rewardOfContests = MutableLiveData<List<Pair<Contest, Reward>>>()
     val rewardOfContests: LiveData<List<Pair<Contest, Reward>>> get() = _rewardOfContests
+
+    private val _getContest = MutableLiveData<Resource<Contest>>()
+    val getContest: LiveData<Resource<Contest>> get() = _getContest
+
+    private val _getContests = MutableLiveData<Resource<GetContestsResponse>>()
+    val getContests: LiveData<Resource<GetContestsResponse>> get() = _getContests
 
     fun setContests(contests: List<Contest>){
         _contests.value = contests
@@ -44,5 +55,20 @@ class RunnerRewardsViewModel(
         }
 
         _rewardOfContests.value = theRewardOfContest
+    }
+
+    // Trong ViewModel, thêm method:
+    fun loadRewardsForContest(contestId: Long) {
+        viewModelScope.launch {
+            _getContest.value = Resource.Loading
+            _getContest.value = contestRepository.getById(contestId)
+        }
+    }
+
+    fun loadAllUserRewards() {
+        viewModelScope.launch {
+            _getContests.value = Resource.Loading
+            _getContests.value = contestRepository.getContests()
+        }
     }
 }

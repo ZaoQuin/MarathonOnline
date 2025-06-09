@@ -38,7 +38,7 @@ class VerifyOTPActivity : BaseActivity<VerifyOTPViewModel, ActivityVerifyOtpBind
                 when (resource) {
                     is Resource.Success -> {
                         lifecycleScope.launch {
-                            viewModel.setEmail(resource.value.email)
+                            viewModel.setEmail(resource.value.email!!)
                             otpDescription.text =
                                 getString(otp_sent_to_email, resource.value.email)
                             viewModel.random()

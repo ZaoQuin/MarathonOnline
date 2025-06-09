@@ -26,6 +26,7 @@ import com.university.marathononline.ui.view.fragment.LeaderBoardFragment
 import com.university.marathononline.utils.ContestUserStatusManager
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_CONTEST
+import com.university.marathononline.utils.KEY_CONTEST_ID
 import com.university.marathononline.utils.KEY_REGISTRATIONS
 import com.university.marathononline.utils.convertToVND
 import com.university.marathononline.utils.enable
@@ -56,20 +57,32 @@ class ContestDetailsActivity :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        handleIntentExtras(intent)
 
-        initializeUI()
-        setRuleAdapter()
-        setRewardAdapter()
-        setUpLeaderBoard(savedInstanceState)
-        setUpObserve()
+        try {
+            handleIntentExtras(intent)
+            initializeUI()
+            setRuleAdapter()
+            setRewardAdapter()
+            setUpLeaderBoard(savedInstanceState)
+            setUpObserve()
+        } catch (e: Exception) {
+            Log.e("ContestDetailsActivity", "Error in onCreate: ${e.message}", e)
+            // Handle the error gracefully - maybe show error message and finish
+            Toast.makeText(this, "Error loading contest details", Toast.LENGTH_LONG).show()
+            finish()
+        }
     }
 
     private fun setUpLeaderBoard(savedInstanceState: Bundle?) {
         val registrations = viewModel.contest.value?.registrations
         leaderBoardFragment = LeaderBoardFragment().apply {
             arguments = Bundle().apply {
-                putSerializable(KEY_REGISTRATIONS, registrations as Serializable)
+                // Convert to ArrayList to ensure Serializable compatibility
+                val registrationsList = when {
+                    registrations != null -> ArrayList(registrations)
+                    else -> ArrayList<Registration>()
+                }
+                putSerializable(KEY_REGISTRATIONS, registrationsList)
             }
         }
 
@@ -98,18 +111,26 @@ class ContestDetailsActivity :
         }
 
         viewModel.contest.observe(this) { contest ->
+            // Add null safety check
+            if (contest == null) {
+                Log.e("ContestDetailsActivity", "Contest is null")
+                // Handle null contest case - maybe finish activity or show error
+                return@observe
+            }
+
             lifecycleScope.launch {
                 val emailValue = userPreferences.email.first()
                 emailValue?.let { email ->
-                    // Reset registration state trước khi check
+                    // Reset registration state before checking
                     viewModel.resetRegistrationState()
                     viewModel.checkRegister(email)
                     updateStatusManager(contest, null)
 
-                    // Cập nhật LeaderBoard với data mới
-                    updateLeaderBoardFragment(contest.registrations)
+                    // Update LeaderBoard with new data - safe handling
+                    val safeRegistrations = contest.registrations ?: emptyList()
+                    updateLeaderBoardFragment(safeRegistrations)
 
-                    // Cập nhật basic info với data mới
+                    // Update basic info with new data
                     populateBasicInfo(contest)
                 }
             }
@@ -167,13 +188,18 @@ class ContestDetailsActivity :
     private fun updateLeaderBoardFragment(registrations: List<Registration>?) {
         leaderBoardFragment?.let { fragment ->
             val newBundle = Bundle().apply {
-                putSerializable(KEY_REGISTRATIONS, registrations as? Serializable)
+                // Safe handling of null registrations
+                if (registrations != null) {
+                    putSerializable(KEY_REGISTRATIONS, registrations as Serializable)
+                } else {
+                    putSerializable(KEY_REGISTRATIONS, ArrayList<Registration>() as Serializable)
+                }
             }
             fragment.arguments = newBundle
 
-            // Nếu fragment đã được add, cập nhật data
+            // If fragment is already added, update data
             if (fragment.isAdded) {
-                fragment.updateRegistrations(registrations)
+                fragment.updateRegistrations(registrations ?: emptyList())
             }
         }
     }
@@ -381,11 +407,19 @@ class ContestDetailsActivity :
     private fun handleIntentExtras(intent: Intent) {
         intent.apply {
             viewModel.apply {
-                (getSerializableExtra(KEY_CONTEST) as? Contest)?.let { contest ->
-                    setContest(contest)
-                    contest.rules?.let { rules -> setRules(rules) }
-                    contest.rewards?.let { rewards -> setRewardGroups(rewards) }
-                    contest.registrationDeadline?.let { deadline -> setDeadlineTime(deadline) }
+                // Safe handling of Contest object
+                val contest = getSerializableExtra(KEY_CONTEST) as? Contest
+                contest?.let {
+                    setContest(it)
+                    it.rules?.let { rules -> setRules(rules) }
+                    it.rewards?.let { rewards -> setRewardGroups(rewards) }
+                    it.registrationDeadline?.let { deadline -> setDeadlineTime(deadline) }
+                }
+
+                // Safe handling of Contest ID
+                val contestId = getSerializableExtra(KEY_CONTEST_ID) as? Long
+                contestId?.let {
+                    viewModel.getById(it)
                 }
             }
         }
@@ -461,7 +495,7 @@ class ContestDetailsActivity :
     private fun refreshContestData() {
         viewModel.contest.value?.id?.let { contestId ->
             Log.d("ContestDetailsActivity", "Refreshing contest data for ID: $contestId")
-            viewModel.refreshContest(contestId)
+            viewModel.getById(contestId)
         }
     }
 

@@ -113,7 +113,7 @@ class MonthlyStatisticsViewModel(
         val totalSteps = group.sumOf { it.steps }
         val avgSpeed = (totalDistance/ (totalTime /3600.0))
         val currUser = _user.value
-        val age = currUser?.let { getAge(it.birthday) }
+        val age = currUser?.let { getAge(it.birthday!!) }
         val gender = currUser?.let { it.gender }
         val avgWeight = getAvgWeightByGenderAndAge(gender!!, age!!)
         val calories = group.sumOf { calCalogies(it.avgSpeed, avgWeight, DateUtils.getDurationBetween(it.startTime, it.endTime).seconds) }

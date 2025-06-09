@@ -19,4 +19,8 @@ class RecordRepository(
     suspend fun sync(records: List<CreateRecordRequest>) = safeApiCall {
         api.sync(records)
     }
+
+    suspend fun getById(id: Long) = safeApiCall {
+        api.getById(id)
+    }
 }

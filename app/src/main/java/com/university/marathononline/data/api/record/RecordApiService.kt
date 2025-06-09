@@ -6,6 +6,7 @@ import com.university.marathononline.data.response.StringResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface RecordApiService {
     @POST("/api/v1/record")
@@ -16,4 +17,7 @@ interface RecordApiService {
 
     @POST("/api/v1/record/sync")
     suspend fun sync(@Body records: List<CreateRecordRequest>): StringResponse
+
+    @GET("/api/v1/record/{recordId}")
+    suspend fun getById(@Path("recordId") id: Long): Record
 }

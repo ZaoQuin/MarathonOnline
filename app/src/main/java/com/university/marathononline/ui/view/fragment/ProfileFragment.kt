@@ -9,7 +9,7 @@ import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.google.android.material.tabs.TabLayoutMediator
 import com.university.marathononline.R
-import com.university.marathononline.SettingActivity
+import com.university.marathononline.ui.view.activity.SettingActivity
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
@@ -97,7 +97,7 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
                 startNewActivity(
                     RunnerRewardsActivity::class.java,
                     mapOf(
-                        KEY_EMAIL to user.email,
+                        KEY_EMAIL to user.email!!,
                         KEY_CONTESTS to contests
                     )
                 )

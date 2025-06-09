@@ -5,7 +5,7 @@ import java.io.Serializable
 data class Notification(
     var id: Long? = null,
     var receiver: User? = null,
-    var contest: Contest? = null,
+    var objectId: Long? = null,
     var title: String? = null,
     var content: String? = null,
     var createAt: String? = null,
@@ -19,5 +19,6 @@ enum class ENotificationType(val value: String) {
     BLOCK_CONTEST("Bị chặn khỏi cuộc thi"),
     ACCEPT_CONTEST("Cuộc thi được duyệt"),
     NOT_APPROVAL_CONTEST("Cuộc thi không được duyệt"),
-    REJECTED_RECORD("Phát hiện gian lận")
+    REJECTED_RECORD("Phát hiện gian lận"),
+    RECORD_FEEDBACK("Phàn hồi bản ghi")
 }
