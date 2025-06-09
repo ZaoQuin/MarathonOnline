@@ -65,7 +65,7 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
             if(user.role == ERole.RUNNER) {
                 radioMale.isChecked = user.gender == EGender.MALE
                 radioFemale.isChecked = user.gender == EGender.FEMALE
-                setBirthday(user.birthday)
+                setBirthday(user.birthday!!)
             } else {
                 genderLabel.visible(false)
                 genderGroup.visible(false)

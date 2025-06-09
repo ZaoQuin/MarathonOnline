@@ -1,12 +1,12 @@
 package com.university.marathononline.ui.adapter
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.PorterDuff
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -15,14 +15,11 @@ import com.university.marathononline.data.models.ENotificationType
 import com.university.marathononline.databinding.ItemNotifyBinding
 import com.university.marathononline.data.models.Notification
 import com.university.marathononline.ui.view.activity.ContestDetailsActivity
-import com.university.marathononline.ui.view.activity.ManagementDetailsContestActivity
+import com.university.marathononline.ui.view.activity.RecordFeedbackActivity
 import com.university.marathononline.ui.view.activity.RunnerRewardsActivity
 import com.university.marathononline.utils.DateUtils
-import com.university.marathononline.utils.KEY_CONTEST
-import com.university.marathononline.utils.KEY_CONTESTS
 import com.university.marathononline.utils.KEY_CONTEST_ID
-import com.university.marathononline.utils.KEY_EMAIL
-import com.university.marathononline.utils.KEY_REWARD_ID
+import com.university.marathononline.utils.KEY_RECORD_ID
 import com.university.marathononline.utils.startNewActivity
 
 class NotifyAdapter(
@@ -76,51 +73,18 @@ class NotifyAdapter(
                             )
                         }
 
-                        ENotificationType.REJECTED_RECORD -> {
-                            Toast.makeText(
-                                itemView.context,
-                                "Chưa có chức năng",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        ENotificationType.REJECTED_RECORD,
+                        ENotificationType.RECORD_FEEDBACK -> {
+                            it.context.startNewActivity(
+                                RecordFeedbackActivity::class.java,
+                                mapOf(KEY_RECORD_ID to objectId!!)
+                            )
                         }
 
                         else -> Unit
                     }
 
                 }
-
-//                contest?.let {
-//                    notifyCardView.setOnClickListener {
-//                        if(item.isRead == false)
-//                            setRead(item)
-//                        if(item.type == ENotificationType.ACCEPT_CONTEST ||
-//                            item.type == ENotificationType.NOT_APPROVAL_CONTEST )
-//                            it.context.startNewActivity(
-//                                ManagementDetailsContestActivity::class.java,
-//                                mapOf(KEY_CONTEST to contest)
-//                            )
-//                        else
-//                            if(item.type == ENotificationType.NEW_CONTEST ||
-//                                item.type == ENotificationType.BLOCK_CONTEST)
-//                                it.context.startNewActivity(
-//                                    ContestDetailsActivity::class.java,
-//                                    mapOf(KEY_CONTEST to contest)
-//                                )
-//                            else {
-//                                val email = item.receiver?.email
-//                                val contests = listOf(contest)
-//                                if(email != null && contests != null) {
-//                                    it.context.startNewActivity(
-//                                        RunnerRewardsActivity::class.java,
-//                                        mapOf(
-//                                            KEY_EMAIL to email,
-//                                            KEY_CONTESTS to contests
-//                                        )
-//                                    )
-//                                }
-//                            }
-//                    }
-//                }
             }
         }
     }

@@ -14,6 +14,7 @@ const val KEY_CONTEST = "contest"
 const val KEY_CONTEST_ID = "contest-id"
 const val KEY_UPDATE_CONTEST = "update-contest"
 const val KEY_CONTESTS = "list-contest"
+const val KEY_NOTIFICATION = "notification"
 const val KEY_NOTIFICATIONS = "list-notifications"
 const val KEY_NOTIFICATION_DATA = "list-notifications-data"
 const val KEY_RECORD = "record"
@@ -30,10 +31,11 @@ const val KEY_AVG_SPEED = "avgSpeed"
 const val KEY_CALORIES = "calories"
 const val KEY_PACE = "pace"
 
-
 const val KEY_TRAINING_PLAN = "training_plan"
 const val KEY_TRAINING_PLAN_ID = "training_plan_id"
 const val KEY_TRAINING_DAY = "training_day"
+const val KEY_FEEDBACK = "training_day"
+const val KEY_RECORD_ID = "record-id"
 
 const val KEY_ROLE = "role"
 const val KEY_FULL_NAME = "fullName"
@@ -46,7 +48,6 @@ const val KEY_AUTH_DELETED = "deleted"
 const val KEY_PASSWORD_IV = "password_iv"
 const val KEY_REMEMBER_ME = "remember_me"
 const val LAST_SYNC_TIME = "last_sync_time"
-
 
 const val SORT_BY_ASC = "SORT_BY_ASC"
 const val SORT_BY_DES = "SORT_BY_DES"

@@ -34,7 +34,7 @@ class LeaderBoardAdapter (private var registrations: List<Registration>) : Recyc
             val user = reg.runner
             val distance = reg.records?.sumOf { it.distance } ?: 0.0
 
-            holder.bind(distance, user.fullName, position)
+            holder.bind(distance, user.fullName!!, position)
         } else {
             // Xử lý khi `reg` là null (nếu cần thiết, ví dụ: ghi log hoặc thông báo người dùng)
             Log.e("LeaderBoardAdapter", "Registration at position $position is null")

@@ -1,7 +1,10 @@
 package com.university.marathononline.ui.view.activity
 
 import android.Manifest
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -9,9 +12,11 @@ import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
@@ -25,9 +30,12 @@ import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.data.request.CreateRecordRequest
 import com.university.marathononline.databinding.ActivityMainBinding
+import com.university.marathononline.firebase.FeedbackBroadcastReceiver
+import com.university.marathononline.firebase.MyFirebaseMessagingService
 import com.university.marathononline.ui.adapter.MainPagerAdapter
 import com.university.marathononline.ui.viewModel.MainViewModel
 import com.university.marathononline.utils.HealthConnectSyncHelper
+import com.university.marathononline.utils.KEY_RECORD_ID
 import com.university.marathononline.utils.NotificationUtils
 import com.university.marathononline.utils.RecordValidator
 import com.university.marathononline.utils.startNewActivity
@@ -38,6 +46,8 @@ import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
 
 class MainActivity: BaseActivity<MainViewModel, ActivityMainBinding>() {
+    private lateinit var feedbackReceiver: FeedbackBroadcastReceiver
+    private lateinit var dialogReceiver: BroadcastReceiver
 
     companion object {
         const val TAG = "Marathon Online"
@@ -80,6 +90,7 @@ class MainActivity: BaseActivity<MainViewModel, ActivityMainBinding>() {
         observe()
 
         setupHealthConnectSync()
+        setupFeedbackListener()
     }
 
     private fun setupHealthConnectSync() {
@@ -176,6 +187,62 @@ class MainActivity: BaseActivity<MainViewModel, ActivityMainBinding>() {
         }
     }
 
+    private fun setupFeedbackListener() {
+        // Khởi tạo FeedbackBroadcastReceiver
+        feedbackReceiver = FeedbackBroadcastReceiver()
+
+        // Đăng ký receiver cho feedback - CHỈ dùng LocalBroadcastManager
+        val feedbackFilter = IntentFilter().apply {
+            addAction(MyFirebaseMessagingService.ACTION_NEW_FEEDBACK)
+        }
+
+        // Chỉ dùng Local broadcast receiver (không cần RECEIVER_EXPORTED)
+        LocalBroadcastManager.getInstance(this).registerReceiver(feedbackReceiver, feedbackFilter)
+
+        // Receiver để xử lý việc hiển thị dialog (chỉ trong MainActivity)
+        dialogReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                when (intent?.action) {
+                    "com.university.marathononline.SHOW_FEEDBACK_DIALOG" -> {
+                        val recordId = intent.getLongExtra("recordId", -1L)
+                        val message = intent.getStringExtra("message")
+                        if (recordId != -1L && message != null) {
+                            showSimpleFeedbackDialog(recordId, message)
+                        }
+                    }
+                }
+            }
+        }
+
+        // Đăng ký dialog receiver
+        val dialogFilter = IntentFilter("com.university.marathononline.SHOW_FEEDBACK_DIALOG")
+        LocalBroadcastManager.getInstance(this).registerReceiver(dialogReceiver, dialogFilter)
+    }
+
+    private fun showSimpleFeedbackDialog(recordId: Long, message: String = "Bạn có feedback mới về record. Bạn có muốn xem ngay không?") {
+        AlertDialog.Builder(this, R.style.CustomAlertDialog)
+            .setTitle("💬 Feedback mới")
+            .setMessage(message)
+            .setPositiveButton("✅ Xem ngay") { _, _ ->
+                val intent = Intent(this, RecordFeedbackActivity::class.java).apply {
+                    putExtra(KEY_RECORD_ID, recordId)
+                    putExtra("openFeedbackTab", true)
+                }
+                startActivity(intent)
+                overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            }
+            .setNegativeButton("⏰ Để sau") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setCancelable(true)
+            .create()
+            .apply {
+                window?.setBackgroundDrawableResource(R.drawable.dialog_rounded_background)
+                setCanceledOnTouchOutside(true)
+            }
+            .show()
+    }
+
     override fun getViewModel(): Class<MainViewModel> = MainViewModel::class.java
 
     override fun getActivityBinding(inflater: LayoutInflater): ActivityMainBinding {
@@ -187,6 +254,17 @@ class MainActivity: BaseActivity<MainViewModel, ActivityMainBinding>() {
         val apiNotification = retrofitInstance.buildApi(NotificationApiService::class.java, token)
         val apiRecord = retrofitInstance.buildApi(RecordApiService::class.java, token)
         return listOf(NotificationRepository(apiNotification), RecordRepository(apiRecord))
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        try {
+            // Chỉ unregister LocalBroadcastReceiver
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(feedbackReceiver)
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(dialogReceiver)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error unregistering receivers: ${e.message}")
+        }
     }
 
     private fun setUpRecordButton() {
@@ -246,7 +324,6 @@ class MainActivity: BaseActivity<MainViewModel, ActivityMainBinding>() {
         }
 
         viewModel.syncRecords.observe(this){
-
             when (it) {
                 is Resource.Success -> Toast.makeText(this@MainActivity, it.value.str, Toast.LENGTH_SHORT).show()
                 is Resource.Failure -> {

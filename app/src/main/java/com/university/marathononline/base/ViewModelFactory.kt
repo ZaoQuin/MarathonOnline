@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.data.repository.FeedbackRepository
 import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.data.repository.PaymentRepository
 import com.university.marathononline.data.repository.RecordRepository
@@ -21,6 +22,7 @@ import com.university.marathononline.ui.viewModel.ContestViewModel
 import com.university.marathononline.ui.viewModel.DailyStatisticsViewModel
 import com.university.marathononline.ui.viewModel.DeleteUserAccountViewModel
 import com.university.marathononline.ui.viewModel.EditInformationViewModel
+import com.university.marathononline.ui.viewModel.FeedBackViewModel
 import com.university.marathononline.ui.viewModel.ForgetPasswordViewModel
 import com.university.marathononline.ui.viewModel.InformationViewModel
 import com.university.marathononline.ui.viewModel.LoginViewModel
@@ -97,6 +99,7 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(NotifyViewModel::class.java) -> NotifyViewModel(findRepository(NotificationRepository::class.java)) as T
             modelClass.isAssignableFrom(TrainingPlanViewModel::class.java) -> TrainingPlanViewModel(findRepository(TrainingPlanRepository::class.java), findRepository(TrainingDayRepository::class.java), findRepository(
                 TrainingFeedbackRepository::class.java)) as T
+            modelClass.isAssignableFrom(FeedBackViewModel::class.java) -> FeedBackViewModel(findRepository(FeedbackRepository::class.java), findRepository(RecordRepository::class.java)) as T
             else -> throw IllegalArgumentException("ViewModelClass Not Found")
         }
     }

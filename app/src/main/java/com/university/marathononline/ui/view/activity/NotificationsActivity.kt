@@ -93,14 +93,12 @@ class NotificationsActivity: BaseActivity<NotifyViewModel, ActivityNotifications
     }
 
     private fun setupNotificationReceivers() {
-        // Global broadcast receiver
         notificationReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 handleNewNotification(intent)
             }
         }
 
-        // Local broadcast receiver (ưu tiên cao hơn)
         localNotificationReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 handleNewNotification(intent)

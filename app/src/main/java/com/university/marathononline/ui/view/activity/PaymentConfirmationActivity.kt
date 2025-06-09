@@ -3,13 +3,9 @@ package com.university.marathononline.ui.view.activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Toast
-import androidx.lifecycle.Observer
-import com.university.marathononline.VNPayWebViewActivity
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
@@ -251,7 +247,7 @@ class PaymentConfirmationActivity: BaseActivity<PaymentConfirmationViewModel, Ac
     private fun updateUserUI(user: User) {
         binding.apply {
             tvFullName.text = user.fullName
-            tvUserGender.text = user.gender.value
+            tvUserGender.text = user.gender!!.value
             tvUserAddress.text = user.address
 
             buttonBack.setOnClickListener{

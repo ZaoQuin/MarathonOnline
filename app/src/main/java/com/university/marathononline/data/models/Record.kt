@@ -13,6 +13,7 @@ data class Record(
     var startTime: String,
     var endTime: String,
     var source: ERecordSource,
+    var approval: RecordApproval?= null
 ): Serializable
 
 enum class ERecordSource {

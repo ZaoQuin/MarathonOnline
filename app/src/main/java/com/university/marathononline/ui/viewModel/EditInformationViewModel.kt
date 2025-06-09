@@ -35,7 +35,7 @@ class EditInformationViewModel(
         viewModelScope.launch {
             _updateResponse.value = Resource.Loading
             _user.value?.let {
-                Log.d("Edit User Before", it.fullName)
+                Log.d("Edit User Before", it.fullName!!)
                 val request = it.copy(
                     fullName = fullname,
                     phoneNumber = phoneNumber,
@@ -44,7 +44,7 @@ class EditInformationViewModel(
                     address = address,
                     refreshToken = it.refreshToken ?: ""
                 )
-                Log.d("Edit User", request.fullName)
+                Log.d("Edit User", request.fullName!!)
                 _updateResponse.value = repository.updateUser(request)
             }
         }

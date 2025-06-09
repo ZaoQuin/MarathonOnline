@@ -63,7 +63,7 @@ class InformationActivity : BaseActivity<InformationViewModel, ActivityInformati
                 if(user!=null)
                     startNewActivity(DeleteUserAccountActivity::class.java,
                         mapOf(
-                            KEY_EMAIL to user.email
+                            KEY_EMAIL to user.email!!
                         )
                     )
             }
@@ -74,7 +74,7 @@ class InformationActivity : BaseActivity<InformationViewModel, ActivityInformati
                 if(user!=null)
                     startNewActivity(ChangePasswordActivity::class.java,
                         mapOf(
-                            KEY_EMAIL to user.email
+                            KEY_EMAIL to user.email!!
                         )
                     )
             }
@@ -105,7 +105,7 @@ class InformationActivity : BaseActivity<InformationViewModel, ActivityInformati
             fullnameText.text = user.fullName
             usernameText.text = "@" + user.username
             addressText.text = user.address
-            genderText.text = user.gender.value
+            genderText.text = user.gender!!.value
             birthdayText.text = user.birthday
             emailText.text = user.email
             phoneNumberText.text = user.phoneNumber
