@@ -5,6 +5,7 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.university.marathononline.R
@@ -14,6 +15,7 @@ import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.training.TrainingDayApiService
 import com.university.marathononline.data.api.training.TrainingFeedbackApiService
 import com.university.marathononline.data.api.training.TrainingPlanApiService
+import com.university.marathononline.data.models.ETrainingDayStatus
 import com.university.marathononline.data.models.ETrainingSessionType
 import com.university.marathononline.data.models.TrainingDay
 import com.university.marathononline.data.models.TrainingPlan
@@ -21,6 +23,7 @@ import com.university.marathononline.data.repository.TrainingDayRepository
 import com.university.marathononline.data.repository.TrainingFeedbackRepository
 import com.university.marathononline.data.repository.TrainingPlanRepository
 import com.university.marathononline.databinding.ActivityTrainingPlanDetailsBinding
+import com.university.marathononline.ui.components.TrainingProgressChartDialog
 import com.university.marathononline.ui.viewModel.TrainingPlanViewModel
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.KEY_TRAINING_PLAN_ID
@@ -51,7 +54,6 @@ class TrainingPlanDetailsActivity : BaseActivity<TrainingPlanViewModel, Activity
         }
     }
 
-
     private fun showLoadingState(isLoading: Boolean) {
         if (isLoading) {
             binding.itemDetails.apply {
@@ -71,6 +73,16 @@ class TrainingPlanDetailsActivity : BaseActivity<TrainingPlanViewModel, Activity
         binding.btnBack.setOnClickListener {
             onBackPressed()
         }
+
+        binding.itemDetails.planSummary.chartButton.setOnClickListener {
+            val trainingDays = viewModel.currentTrainingDays.value ?: emptyList()
+            if (trainingDays.isEmpty()) {
+                Toast.makeText(this, "Không có dữ liệu để hiển thị biểu đồ", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val dialog = TrainingProgressChartDialog(this, trainingDays)
+            dialog.show()
+        }
     }
 
     private fun setUpDateNavigation() {
@@ -89,7 +101,6 @@ class TrainingPlanDetailsActivity : BaseActivity<TrainingPlanViewModel, Activity
     private fun navigateToNextDay() {
         try {
             val nextDateString = DateUtils.addDaysToDate(currentDateString, 1)
-
             val nextLocalDate = DateUtils.parseStringToLocalDate(nextDateString) ?: return
             val planEnd = DateUtils.parseLocalDateTimeStr(endDate)
 
@@ -103,7 +114,6 @@ class TrainingPlanDetailsActivity : BaseActivity<TrainingPlanViewModel, Activity
     private fun navigateToPreviousDay() {
         try {
             val prevDateString = DateUtils.addDaysToDate(currentDateString, -1)
-
             val prevLocalDate = DateUtils.parseStringToLocalDate(prevDateString) ?: return
             val planStart = DateUtils.parseLocalDateTimeStr(startDate)
 
@@ -118,8 +128,40 @@ class TrainingPlanDetailsActivity : BaseActivity<TrainingPlanViewModel, Activity
         val currentDate = DateUtils.parseStringToLocalDate(currentDateString) ?: return
         val planStart = DateUtils.parseLocalDateTimeStr(startDate)
         val planEnd = DateUtils.parseLocalDateTimeStr(endDate)
+        val trainingDays = viewModel.currentTrainingDays.value ?: emptyList()
 
-        val isPrevEnabled = !currentDate.isEqual(planStart) && !currentDate.isBefore(planStart)
+        if (trainingDays.size == 1) {
+            binding.itemDetails.itemTrainingDay.previousDay.apply {
+                isEnabled = false
+                backgroundTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(context, R.color.disabled_gray)
+                )
+                imageTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(context, R.color.white)
+                )
+                alpha = 0.5f
+            }
+            binding.itemDetails.itemTrainingDay.nextDay.apply {
+                isEnabled = false
+                backgroundTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(context, R.color.disabled_gray)
+                )
+                imageTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(context, R.color.white)
+                )
+                alpha = 0.5f
+            }
+            return
+        }
+
+        val trainingDayDates = trainingDays.mapNotNull { day ->
+            DateUtils.convertStringToLocalDateTime(day.dateTime)?.toLocalDate()
+        }.sorted()
+
+        val earliestDate = trainingDayDates.firstOrNull()
+        val latestDate = trainingDayDates.lastOrNull()
+
+        val isPrevEnabled = earliestDate != null && currentDate.isAfter(earliestDate) && !currentDate.isBefore(planStart)
         binding.itemDetails.itemTrainingDay.previousDay.apply {
             isEnabled = isPrevEnabled
             backgroundTintList = ColorStateList.valueOf(
@@ -131,8 +173,7 @@ class TrainingPlanDetailsActivity : BaseActivity<TrainingPlanViewModel, Activity
             alpha = if (isPrevEnabled) 1f else 0.5f
         }
 
-        // Next button
-        val isNextEnabled = !currentDate.isEqual(planEnd) && !currentDate.isAfter(planEnd)
+        val isNextEnabled = latestDate != null && currentDate.isBefore(latestDate) && !currentDate.isAfter(planEnd)
         binding.itemDetails.itemTrainingDay.nextDay.apply {
             isEnabled = isNextEnabled
             backgroundTintList = ColorStateList.valueOf(
@@ -181,7 +222,6 @@ class TrainingPlanDetailsActivity : BaseActivity<TrainingPlanViewModel, Activity
             infoButton.setOnClickListener {
                 showTrainingInputDialog(trainingPlan)
             }
-
         }
 
         // Save training plan data for filtering
@@ -202,7 +242,6 @@ class TrainingPlanDetailsActivity : BaseActivity<TrainingPlanViewModel, Activity
             • Quãng đường dài nhất: ${trainingPlan.input.maxDistance} km
             • Pace trung bình: ${trainingPlan.input.averagePace} phút/km
         """.trimIndent()
-
 
         AlertDialog.Builder(this)
             .setTitle("Thông tin kế hoạch")
@@ -225,41 +264,121 @@ class TrainingPlanDetailsActivity : BaseActivity<TrainingPlanViewModel, Activity
                 trainingSessionCard.apply {
                     root.visibility = View.VISIBLE
                     sessionName.text = filteredDay.session.name
-                    sessionType.text = filteredDay.session.type.toString()
                     sessionNotes.text = filteredDay.session.notes
                     sessionPace.text = filteredDay.session.pace.toString()
                     sessionDistance.text = filteredDay.session.distance.toString()
-                    trainingStatus.text = filteredDay.status.toString()
 
                     if (filteredDay.session.type == ETrainingSessionType.REST) {
                         sessionDetails.visibility = View.GONE
                         trainingSessionCard.progressDetails.root.visibility = View.GONE
                     } else {
+                        updateSessionProgress(filteredDay)
                         sessionDetails.visibility = View.VISIBLE
                         trainingSessionCard.progressDetails.root.visibility = View.VISIBLE
-                        updateSessionProgress(filteredDay)
                     }
                 }
             }
+
+            updateTrainingStatusDisplay(filteredDay)
+            updateNavigationButtons()
         } else {
-            println("Không tìm thấy bài tập phù hợp hoặc ngoài khoảng thời gian của kế hoạch")
+            println("Không có bài tập được lên lịch cho ngày này")
             binding.itemDetails.itemTrainingDay.apply {
                 trainingSessionCard.root.visibility = View.GONE
                 emptyState.visibility = View.VISIBLE
+            }
+            updateNavigationButtons()
+        }
+    }
+
+    private fun updateTrainingStatusDisplay(trainingDay: TrainingDay) {
+        binding.itemDetails.itemTrainingDay.trainingSessionCard.apply {
+            val statusText = when (trainingDay.status) {
+                ETrainingDayStatus.COMPLETED -> "${trainingDay.status} (${String.format("%.0f%%", trainingDay.completionPercentage)})"
+                ETrainingDayStatus.PARTIALLY_COMPLETED -> "${trainingDay.status} (${String.format("%.0f%%", trainingDay.completionPercentage)})"
+                else -> trainingDay.status.toString()
+            }
+            trainingStatus.text = statusText
+
+            when (trainingDay.status) {
+                ETrainingDayStatus.COMPLETED -> {
+                    trainingStatus.apply {
+                        setBackgroundResource(R.drawable.status_completed_bg)
+                        setTextColor(ContextCompat.getColor(context, R.color.white))
+                    }
+                }
+                ETrainingDayStatus.PARTIALLY_COMPLETED -> {
+                    trainingStatus.apply {
+                        setBackgroundResource(R.drawable.status_completed_bg)
+                        setTextColor(ContextCompat.getColor(context, R.color.white))
+                    }
+                }
+                ETrainingDayStatus.ACTIVE -> {
+                    trainingStatus.apply {
+                        setBackgroundResource(R.drawable.status_active_bg)
+                        setTextColor(ContextCompat.getColor(context, R.color.white))
+                    }
+                }
+                ETrainingDayStatus.SKIPPED -> {
+                    trainingStatus.apply {
+                        setBackgroundResource(R.drawable.status_missed_bg)
+                        setTextColor(ContextCompat.getColor(context, R.color.white))
+                    }
+                }
+                ETrainingDayStatus.MISSED -> {
+                    trainingStatus.apply {
+                        setBackgroundResource(R.drawable.status_missed_bg)
+                        setTextColor(ContextCompat.getColor(context, R.color.white))
+                    }
+                }
+            }
+
+            updateSessionCardAppearance(trainingDay)
+        }
+    }
+
+    private fun updateSessionCardAppearance(trainingDay: TrainingDay) {
+        val cardView = binding.itemDetails.itemTrainingDay.trainingSessionCard.root as androidx.cardview.widget.CardView
+
+        when (trainingDay.status) {
+            ETrainingDayStatus.COMPLETED -> {
+                cardView.setCardBackgroundColor(ContextCompat.getColor(this, R.color.completed_card_bg))
+                cardView.alpha = 1.0f
+            }
+            ETrainingDayStatus.PARTIALLY_COMPLETED -> {
+                cardView.setCardBackgroundColor(ContextCompat.getColor(this, R.color.partial_complete_color))
+                cardView.alpha = 0.9f
+            }
+            ETrainingDayStatus.ACTIVE -> {
+                cardView.setCardBackgroundColor(ContextCompat.getColor(this, R.color.white))
+                cardView.alpha = 1.0f
+            }
+            ETrainingDayStatus.SKIPPED -> {
+                cardView.setCardBackgroundColor(ContextCompat.getColor(this, R.color.missed_card_bg))
+                cardView.alpha = 0.8f
+            }
+            ETrainingDayStatus.MISSED -> {
+                cardView.setCardBackgroundColor(ContextCompat.getColor(this, R.color.missed_card_bg))
+                cardView.alpha = 0.8f
             }
         }
     }
 
     private fun updateSessionProgress(trainingDay: TrainingDay) {
-        // Calculate total values from all records
-        var totalDistance = trainingDay.record.distance
-        var totalSteps = trainingDay.record.steps
-        var totalTime = DateUtils.getDurationBetween(
-            trainingDay.record.startTime,
-            trainingDay.record.endTime).seconds
-        var avgHeartRate = trainingDay.record.heartRate
+        if (trainingDay.record == null) {
+            binding.itemDetails.itemTrainingDay.trainingSessionCard.progressDetails.root.visibility = View.GONE
+            return
+        }
 
-        // Calculate average pace (minutes per km)
+        val record = trainingDay.record
+        var totalDistance = record.distance
+        var totalSteps = record.steps
+        var totalTime = DateUtils.getDurationBetween(
+            record.startTime,
+            record.endTime
+        ).seconds
+        var avgHeartRate = record.heartRate
+
         val avgPaces = if (totalDistance > 0) {
             val totalMinutes = TimeUnit.MILLISECONDS.toMinutes(totalTime)
             totalMinutes.toDouble() / totalDistance
@@ -267,24 +386,21 @@ class TrainingPlanDetailsActivity : BaseActivity<TrainingPlanViewModel, Activity
             0.0
         }
 
-        // Format time (hh:mm:ss)
         val hours = TimeUnit.MILLISECONDS.toHours(totalTime)
         val minutes = TimeUnit.MILLISECONDS.toMinutes(totalTime) % 60
         val seconds = TimeUnit.MILLISECONDS.toSeconds(totalTime) % 60
         val formattedTime = String.format("%02d:%02d:%02d", hours, minutes, seconds)
 
-        // Set the goal distance from the session
         val goal = trainingDay.session.distance
 
-        // Calculate progress percentage
         val progressPercentage = if (goal > 0) {
             ((totalDistance / goal) * 100).toInt().coerceAtMost(100)
         } else {
             0
         }
 
-        // Update UI
-        binding.itemDetails.itemTrainingDay.trainingSessionCard.progressDetails.apply{
+        binding.itemDetails.itemTrainingDay.trainingSessionCard.progressDetails.apply {
+            root.visibility = View.VISIBLE
             completedDistance.text = String.format("%.1f", totalDistance)
             goalDistance.text = String.format("%.1f", goal)
             distanceProgress.progress = progressPercentage
@@ -298,15 +414,12 @@ class TrainingPlanDetailsActivity : BaseActivity<TrainingPlanViewModel, Activity
 
     private fun filterTrainingDayByDate(): TrainingDay? {
         try {
-            // Check if current date is within plan range
             val currentDate = DateUtils.parseStringToLocalDate(currentDateString) ?: return null
 
-            // Check date is within plan range
             if (!DateUtils.isDateInRange(currentDateString, startDate, endDate)) {
                 return null
             }
 
-            // Find training day with matching date
             return viewModel.currentTrainingDays.value?.find { day ->
                 val sessionDate = DateUtils.convertStringToLocalDateTime(day.dateTime).toLocalDate()
                 sessionDate == currentDate
@@ -316,8 +429,6 @@ class TrainingPlanDetailsActivity : BaseActivity<TrainingPlanViewModel, Activity
             return null
         }
     }
-
-
 
     override fun getViewModel() = TrainingPlanViewModel::class.java
 

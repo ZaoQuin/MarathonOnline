@@ -107,7 +107,6 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
     }
 
     private fun calculateConsistencyScore(trainingDays: List<TrainingDay>): Double {
-        // Simple consistency calculation based on completion rate and regularity
         val completedDays = trainingDays.count {
             it.status == ETrainingDayStatus.COMPLETED ||
                     it.status == ETrainingDayStatus.PARTIALLY_COMPLETED
@@ -176,7 +175,6 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
         val planEnd = DateUtils.parseLocalDateTimeStr(endDate)
         val trainingDays = viewModel.currentTrainingDays.value ?: emptyList()
 
-        // If there is only one training day, disable both navigation buttons
         if (trainingDays.size == 1) {
             binding.itemDetails.itemTrainingDay.previousDay.apply {
                 isEnabled = false
@@ -201,7 +199,6 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
             return
         }
 
-        // If there are multiple training days, find the earliest and latest training day dates
         val trainingDayDates = trainingDays.mapNotNull { day ->
             DateUtils.convertStringToLocalDateTime(day.dateTime)?.toLocalDate()
         }.sorted()
@@ -209,7 +206,6 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
         val earliestDate = trainingDayDates.firstOrNull()
         val latestDate = trainingDayDates.lastOrNull()
 
-        // Previous button: enabled if current date is after the earliest training day
         val isPrevEnabled = earliestDate != null && currentDate.isAfter(earliestDate) && !currentDate.isBefore(planStart)
         binding.itemDetails.itemTrainingDay.previousDay.apply {
             isEnabled = isPrevEnabled
@@ -222,7 +218,6 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
             alpha = if (isPrevEnabled) 1f else 0.5f
         }
 
-        // Next button: enabled if current date is before the latest training day
         val isNextEnabled = latestDate != null && currentDate.isBefore(latestDate) && !currentDate.isAfter(planEnd)
         binding.itemDetails.itemTrainingDay.nextDay.apply {
             isEnabled = isNextEnabled
@@ -306,7 +301,6 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
         viewModel.submitFeedback.observe(viewLifecycleOwner) {
             when (it) {
                 is Resource.Loading -> {
-                    // Show loading if needed
                 }
                 is Resource.Success -> {
                     Toast.makeText(
@@ -314,7 +308,6 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
                         "Phản hồi đã được gửi thành công!",
                         Toast.LENGTH_SHORT
                     ).show()
-                    // Refresh the training plan to show updated feedback
                     viewModel.getCurrentTrainingPlan()
                 }
                 is Resource.Failure -> {
@@ -358,6 +351,7 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
             • Quãng đường dài nhất: ${trainingPlan.input.maxDistance} km
             • Pace trung bình: ${trainingPlan.input.averagePace} phút/km
         """.trimIndent()
+
 
         AlertDialog.Builder(requireContext())
             .setTitle("Thông tin kế hoạch")
@@ -422,12 +416,10 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
                     feedbackNotes.visibility = View.GONE
                 }
 
-                // Make feedback section clickable to view details
                 feedbackSection.setOnClickListener {
                     showViewFeedbackDialog(trainingDay)
                 }
 
-                // Add ripple effect for better UX
                 val typedValue = TypedValue()
                 requireContext().theme.resolveAttribute(android.R.attr.selectableItemBackground, typedValue, true)
             } else {
@@ -438,7 +430,6 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
 
     private fun updateTrainingStatusDisplay(trainingDay: TrainingDay) {
         binding.itemDetails.itemTrainingDay.trainingSessionCard.apply {
-            // Format status text with completion percentage for COMPLETED and PARTIALLY_COMPLETED
             val statusText = when (trainingDay.status) {
                 ETrainingDayStatus.COMPLETED -> "${trainingDay.status} (${String.format("%.0f%%", trainingDay.completionPercentage)})"
                 ETrainingDayStatus.PARTIALLY_COMPLETED -> "${trainingDay.status} (${String.format("%.0f%%", trainingDay.completionPercentage)})"
@@ -507,7 +498,6 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
             context = requireContext(),
             existingFeedback = null
         ) { feedback ->
-            // Handle feedback submission
             viewModel.submitTrainingFeedback(trainingDay.id, feedback)
         }
         dialog.show()
@@ -517,7 +507,7 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
         val dialog = TrainingFeedbackDialog(
             context = requireContext(),
             existingFeedback = trainingDay.trainingFeedback,
-            onFeedbackSubmitted = null // No callback needed for view-only mode
+            onFeedbackSubmitted = null
         )
         dialog.show()
     }
@@ -550,14 +540,19 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
     }
 
     private fun updateSessionProgress(trainingDay: TrainingDay) {
-        if(trainingDay.record == null)
+        if (trainingDay.record == null) {
+            binding.itemDetails.itemTrainingDay.trainingSessionCard.progressDetails.root.visibility = View.GONE
             return
-        var totalDistance = trainingDay.record.distance
-        var totalSteps = trainingDay.record.steps
+        }
+
+        val record = trainingDay.record
+        var totalDistance = record.distance
+        var totalSteps = record.steps
         var totalTime = DateUtils.getDurationBetween(
-            trainingDay.record.startTime,
-            trainingDay.record.endTime).seconds
-        var avgHeartRate = trainingDay.record.heartRate
+            record.startTime,
+            record.endTime
+        ).seconds
+        var avgHeartRate = record.heartRate
 
         val avgPaces = if (totalDistance > 0) {
             val totalMinutes = TimeUnit.MILLISECONDS.toMinutes(totalTime)
@@ -580,6 +575,7 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
         }
 
         binding.itemDetails.itemTrainingDay.trainingSessionCard.progressDetails.apply {
+            root.visibility = View.VISIBLE
             completedDistance.text = String.format("%.1f", totalDistance)
             goalDistance.text = String.format("%.1f", goal)
             distanceProgress.progress = progressPercentage
