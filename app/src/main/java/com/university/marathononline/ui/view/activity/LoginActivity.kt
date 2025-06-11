@@ -1,7 +1,6 @@
 package com.university.marathononline.ui.view.activity
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.widget.Toast
@@ -34,17 +33,6 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding>() {
         binding.apply {
             progressBar.visible(false)
             appName.visible(true)
-
-            val roleMap = mapOf(
-                runnerRole to ERole.RUNNER,
-                organizerRole to ERole.ORGANIZER
-            )
-
-            roleMap.forEach { (button, role) ->
-                button.setOnClickListener {
-                    viewModel.selectedRole(role)
-                }
-            }
 
             passwordEditText.setOnTouchListener { _, event ->
                 if (event.action == MotionEvent.ACTION_UP) {
@@ -108,17 +96,14 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding>() {
 
         when (response) {
             is Resource.Success -> {
-                if(viewModel.selectedRole.value == null)
-                    viewModel.selectedRole(ERole.RUNNER)
-                if(viewModel.selectedRole.value != response.value.role){
-                    Toast.makeText(this, getString(error_selected_role), Toast.LENGTH_SHORT).show()
-                } else {
+                if(response.value.role == ERole.RUNNER){
                     onLoginSuccess(response.value)
+                } else {
+                    Toast.makeText(this, getString(error_selected_role), Toast.LENGTH_SHORT).show()
                 }
             }
             is Resource.Failure -> {
                 handleApiError(response)
-
                 Toast.makeText(this, getString(error_login), Toast.LENGTH_SHORT).show()
             }
             else -> Unit
@@ -150,7 +135,7 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding>() {
     }
 
     private fun navigateToRegister() {
-        startNewActivity(RoleSelectionActivity::class.java, true)
+        startNewActivity(RegisterBasicInformationActivity::class.java)
     }
 
     override fun getViewModel() = LoginViewModel::class.java

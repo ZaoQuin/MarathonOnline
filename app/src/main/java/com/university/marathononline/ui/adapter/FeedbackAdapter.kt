@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.university.marathononline.R
 import com.university.marathononline.data.models.Feedback
 import com.university.marathononline.databinding.ItemFeedbackBinding
 import com.university.marathononline.utils.DateUtils
@@ -17,18 +18,16 @@ class FeedbackAdapter(
     private val onFeedbackClick: (Feedback) -> Unit
 ) : RecyclerView.Adapter<FeedbackAdapter.FeedbackViewHolder>() {
 
-    private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-
     inner class FeedbackViewHolder(
         private val binding: ItemFeedbackBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(feedback: Feedback) {
             binding.apply {
-                // Hiển thị thông tin người gửi
                 tvSenderName.text = feedback.sender.fullName ?: feedback.sender.username
                 tvSenderRole.text = when {
                     feedback.sender.role?.name?.contains("ADMIN", true) == true -> "Admin"
+                    feedback.sender.role?.name?.contains("ORGANIZER", true) == true -> "Organizer"
                     feedback.sender.role?.name?.contains("RUNNER", true) == true -> "Runner"
                     else -> "User"
                 }
@@ -42,11 +41,11 @@ class FeedbackAdapter(
                 }
 
                 val backgroundColor = when {
-                    feedback.sender.role?.name?.contains("ADMIN", true) == true -> {
-                        itemView.context.getColor(android.R.color.holo_orange_light)
+                    feedback.sender.role?.name?.contains("RUNNER", true) == true -> {
+                        itemView.context.getColor(android.R.color.white)
                     }
                     else -> {
-                        itemView.context.getColor(android.R.color.white)
+                        itemView.context.getColor(R.color.light_main_color)
                     }
                 }
                 cardView.setCardBackgroundColor(backgroundColor)

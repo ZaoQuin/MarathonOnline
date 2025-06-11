@@ -66,7 +66,6 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
 
     private var guidedModeFragment: GuidedModeFragment? = null
 
-    // Loading state management
     private var isSavingRecord = false
     private var saveRecordCompleted = false
     private var saveRegistrationCompleted = false

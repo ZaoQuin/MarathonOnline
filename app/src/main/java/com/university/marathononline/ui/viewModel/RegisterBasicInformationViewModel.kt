@@ -14,8 +14,6 @@ import kotlinx.coroutines.launch
 class RegisterBasicInformationViewModel(
     private val repository: UserRepository
 ): BaseViewModel(listOf(repository)) {
-    private val _role: MutableLiveData<ERole> = MutableLiveData()
-    val role: LiveData<ERole> get() = _role
     private val _email: MutableLiveData<String> = MutableLiveData()
     val email: LiveData<String> get() = _email
     private val _checkEmailResponse: MutableLiveData<Resource<CheckEmailResponse>> = MutableLiveData()
@@ -30,9 +28,5 @@ class RegisterBasicInformationViewModel(
             _checkEmailResponse.value = Resource.Loading
             _checkEmailResponse.value = repository.checkEmail(CheckEmailRequest(_email.value.toString()))
         }
-    }
-
-    fun selectedRole(role: ERole){
-        _role.value = role
     }
 }

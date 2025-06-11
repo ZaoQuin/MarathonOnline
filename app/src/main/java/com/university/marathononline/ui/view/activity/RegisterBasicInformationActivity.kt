@@ -1,6 +1,5 @@
 package com.university.marathononline.ui.view.activity
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -10,7 +9,6 @@ import com.university.marathononline.R.string.*
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.user.UserApiService
-import com.university.marathononline.data.models.ERole
 import com.university.marathononline.data.repository.UserRepository
 import com.university.marathononline.data.response.CheckEmailResponse
 import com.university.marathononline.databinding.ActivityRegisterBasicInformationBinding
@@ -22,18 +20,10 @@ class RegisterBasicInformationActivity : BaseActivity<RegisterBasicInformationVi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        handleIntentExtras(intent)
         initializeUI()
         setUpObserve()
     }
 
-    private fun handleIntentExtras(intent: Intent) {
-        intent.apply {
-            viewModel.apply {
-                getStringExtra(KEY_ROLE)?.let { selectedRole(ERole.valueOf(it)) }
-            }
-        }
-    }
 
     private fun setUpObserve() {
         viewModel.checkEmailResponse.observe(this, Observer {
@@ -125,21 +115,13 @@ class RegisterBasicInformationActivity : BaseActivity<RegisterBasicInformationVi
     }
 
     private fun navigateToNextActivityBasedOnRole() {
-        viewModel.role.value?.let {
-            val nextActivity =
-                if (it == ERole.RUNNER) {
-                    RegisterRunnerInfoActivity::class.java
-                } else {
-                    RegisterOrganizerInfoActivity::class.java
-                }
-            binding.apply {
-                startNewActivity(nextActivity,
-                    mapOf(
-                        KEY_FULL_NAME to fullnameText.getString(),
-                        KEY_EMAIL to emailText.getString(),
-                        KEY_PASSWORD to passwordText.getString()
-                    ))
-            }
+        binding.apply {
+            startNewActivity(RegisterRunnerInfoActivity::class.java,
+                mapOf(
+                    KEY_FULL_NAME to fullnameText.getString(),
+                    KEY_EMAIL to emailText.getString(),
+                    KEY_PASSWORD to passwordText.getString()
+                ))
         }
     }
 

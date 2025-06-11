@@ -50,7 +50,6 @@ class SplashRedirectActivity :
                     else -> {
                         when (role) {
                             ERole.RUNNER -> startNewActivity(MainActivity::class.java, true)
-                            ERole.ORGANIZER -> startNewActivity(OrganizerMainActivity::class.java, true)
                             else -> startNewActivity(LoginActivity::class.java, true)
                         }
                     }

@@ -117,7 +117,6 @@ class ContestRunnerAdapter(
                     ContestUserStatusManager.UserContestStatus.CONTEST_EXPIRED -> "Trạng thái: Đã kết thúc"
                     ContestUserStatusManager.UserContestStatus.REGISTRATION_FULL -> "Trạng thái: Hết slot đăng ký"
                     ContestUserStatusManager.UserContestStatus.REGISTRATION_CLOSED -> "Trạng thái: Hết hạn đăng ký"
-                    ContestUserStatusManager.UserContestStatus.CONTEST_NOT_AVAILABLE -> "Trạng thái: thái không khả dụng"
 
                 }
 

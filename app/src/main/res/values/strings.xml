@@ -15,7 +15,7 @@
     <string name="resend_otp">Gửi lại mã</string>
     <string name="exist_email">Đã tồn tại tài khoản với email này.</string>
     <string name="error_login">Tài khoản hoặc mật khẩu không chính xác.</string>
-    <string name="error_selected_role">Vui lòng chọn vai trò hợp lệ.</string>
+    <string name="error_selected_role">Tài khoản không có quyền truy cập vào ứng dụng.</string>
 
     <!--    Date Time-->
     <string name="date_not_available">N/A</string>

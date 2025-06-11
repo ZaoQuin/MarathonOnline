@@ -203,7 +203,6 @@ class PaymentConfirmationActivity: BaseActivity<PaymentConfirmationViewModel, Ac
         try {
             Log.d("VNPay", "Processing return URL: $url")
 
-            // Parse parameters từ return URL
             val uri = Uri.parse(url)
             val params = mutableMapOf<String, String>()
 
@@ -215,11 +214,9 @@ class PaymentConfirmationActivity: BaseActivity<PaymentConfirmationViewModel, Ac
 
             Log.d("VNPay", "Payment parameters: $params")
 
-            // Kiểm tra response code
             val responseCode = params["vnp_ResponseCode"]
             when (responseCode) {
                 "00" -> {
-                    // Thanh toán thành công
                     Log.d("VNPay", "Payment successful")
                     viewModel.processVNPayReturn(params)
                 }
