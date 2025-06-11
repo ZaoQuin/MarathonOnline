@@ -15,53 +15,54 @@
             android:layout_height="match_parent"
             android:background="@drawable/background_light_grey_radius_12sdp"
             android:orientation="vertical"
-            android:paddingTop="@dimen/_10sdp"
             android:paddingBottom="@dimen/_10sdp">
 
-            <!-- Toolbar -->
             <Toolbar
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:background="@color/white">
 
                 <ImageButton
                     android:id="@+id/btn_back"
-                    android:layout_width="@dimen/_32sdp"
-                    android:layout_height="@dimen/_32sdp"
+                    android:layout_width="@dimen/_20sdp"
+                    android:layout_height="@dimen/_20sdp"
                     android:background="@android:color/transparent"
-                    android:contentDescription="Back"
-                    android:src="@drawable/ic_back" />
+                    android:padding="0dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_left" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Lịch sử Tập Luyện"
+                    android:layout_gravity="center"
+                    android:text="Lịch sử tập luyện"
                     android:textColor="@color/black"
                     android:textSize="@dimen/_18ssp"
                     android:textStyle="bold" />
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:orientation="horizontal">
 
-                    <ImageButton
-                        android:id="@+id/filter_button"
-                        android:layout_width="@dimen/_32sdp"
-                        android:layout_height="@dimen/_32sdp"
-                        android:layout_marginEnd="@dimen/_8sdp"
-                        android:background="@android:color/transparent"
-                        android:contentDescription="Filter Button"
-                        android:src="@drawable/ic_filter" />
+                <ImageButton
+                    android:id="@+id/filter_button"
+                    android:layout_width="@dimen/_20sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:layout_gravity="end"
+                    android:layout_marginEnd="@dimen/_10sdp"
+                    android:background="@android:color/transparent"
+                    android:padding="0dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_filter" />
 
-                    <ImageButton
-                        android:id="@+id/archived_button"
-                        android:layout_width="@dimen/_32sdp"
-                        android:layout_height="@dimen/_32sdp"
-                        android:background="@android:color/transparent"
-                        android:contentDescription="Archived Plans"
-                        android:src="@drawable/ic_archived" />
-                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/archived_button"
+                    android:layout_width="@dimen/_20sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:layout_gravity="end"
+                    android:layout_marginEnd="@dimen/_10sdp"
+                    android:background="@android:color/transparent"
+                    android:padding="0dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_archived" />
             </Toolbar>
 
             <!-- Completed Plans Section -->
@@ -69,7 +70,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingHorizontal="@dimen/_16sdp">
+                android:paddingHorizontal="10dp">
 
                 <!-- Loading State -->
                 <LinearLayout

@@ -77,7 +77,6 @@ class ContestDetailsActivity :
         val registrations = viewModel.contest.value?.registrations
         leaderBoardFragment = LeaderBoardFragment().apply {
             arguments = Bundle().apply {
-                // Convert to ArrayList to ensure Serializable compatibility
                 val registrationsList = when {
                     registrations != null -> ArrayList(registrations)
                     else -> ArrayList<Registration>()
@@ -182,13 +181,9 @@ class ContestDetailsActivity :
         }
     }
 
-    /**
-     * Cập nhật LeaderBoard fragment với data mới
-     */
     private fun updateLeaderBoardFragment(registrations: List<Registration>?) {
         leaderBoardFragment?.let { fragment ->
             val newBundle = Bundle().apply {
-                // Safe handling of null registrations
                 if (registrations != null) {
                     putSerializable(KEY_REGISTRATIONS, registrations as Serializable)
                 } else {
@@ -197,43 +192,31 @@ class ContestDetailsActivity :
             }
             fragment.arguments = newBundle
 
-            // If fragment is already added, update data
             if (fragment.isAdded) {
                 fragment.updateRegistrations(registrations ?: emptyList())
             }
         }
     }
 
-    /**
-     * Cập nhật StatusManager và UI dựa trên trạng thái mới
-     */
     private fun updateStatusManager(contest: Contest, registration: Registration?) {
         statusManager = ContestUserStatusManager(contest, registration)
         updateUIBasedOnStatus()
     }
 
-    /**
-     * Cập nhật toàn bộ UI dựa trên trạng thái từ StatusManager
-     */
     private fun updateUIBasedOnStatus() {
         statusManager?.let { manager ->
             val displayState = manager.getDisplayState()
 
-            // Cập nhật visibility của các container
             updateContainerVisibility(displayState)
 
-            // Cập nhật trạng thái button
             updateButtonStates(displayState)
 
-            // Cập nhật progress nếu cần
             if (displayState.showProgress) {
                 updateProgressDisplay(manager)
             }
 
-            // Cập nhật leaderboard visibility
             updateLeaderboardVisibility(displayState.showLeaderboard)
 
-            // Hiển thị status message nếu có
             displayState.statusMessage?.let { message ->
                 showStatusMessage(message)
             }
@@ -242,32 +225,21 @@ class ContestDetailsActivity :
         }
     }
 
-    /**
-     * Cập nhật visibility của register và record container
-     */
     private fun updateContainerVisibility(displayState: ContestUserStatusManager.ContestDisplayState) {
         binding.registerContainer.visible(!displayState.showProgress)
         binding.recordContainer.visible(displayState.showProgress)
     }
 
-    /**
-     * Cập nhật trạng thái và text của các button
-     */
     private fun updateButtonStates(displayState: ContestUserStatusManager.ContestDisplayState) {
         binding.apply {
-            // Register button
             btnRegisterContest.text = displayState.registerButtonText
             btnRegisterContest.enable(displayState.registerButtonEnabled)
 
-            // Record button
             btnRecord.text = displayState.recordButtonText
             btnRecord.enable(displayState.recordButtonEnabled)
         }
     }
 
-    /**
-     * Cập nhật hiển thị progress
-     */
     private fun updateProgressDisplay(manager: ContestUserStatusManager) {
         val (currentDistance, contestDistance, ratio) = manager.getProgressInfo()
 
@@ -277,16 +249,10 @@ class ContestDetailsActivity :
         }
     }
 
-    /**
-     * Cập nhật visibility của leaderboard
-     */
     private fun updateLeaderboardVisibility(shouldShow: Boolean) {
         binding.sectionLeaderBoard.visible(shouldShow)
     }
 
-    /**
-     * Hiển thị status message
-     */
     private fun showStatusMessage(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         Log.i("ContestDetailsActivity", "Status Message: $message")
@@ -334,9 +300,6 @@ class ContestDetailsActivity :
         }
     }
 
-    /**
-     * Xử lý click register button dựa trên trạng thái
-     */
     private fun handleRegisterButtonClick() {
         statusManager?.let { manager ->
             val displayState = manager.getDisplayState()
@@ -416,7 +379,6 @@ class ContestDetailsActivity :
                     it.registrationDeadline?.let { deadline -> setDeadlineTime(deadline) }
                 }
 
-                // Safe handling of Contest ID
                 val contestId = getSerializableExtra(KEY_CONTEST_ID) as? Long
                 contestId?.let {
                     viewModel.getById(it)
@@ -476,9 +438,6 @@ class ContestDetailsActivity :
         }
     }
 
-    /**
-     * Refresh contest data với delay để đảm bảo server đã cập nhật
-     */
     private fun refreshContestDataWithDelay(delayMs: Long) {
         if (isDataRefreshing) {
             Log.d("ContestDetailsActivity", "Data refresh already in progress, skipping")
@@ -499,12 +458,8 @@ class ContestDetailsActivity :
         }
     }
 
-    /**
-     * Refresh user registration status với data contest mới nhất
-     */
     private fun refreshUserRegistrationStatus() {
         getCurrentUserEmail()?.let { email ->
-            // Delay nhỏ để đảm bảo contest data đã được cập nhật
             handler.postDelayed({
                 Log.d("ContestDetailsActivity", "Refreshing user registration status for: $email")
                 viewModel.resetRegistrationState()

@@ -82,6 +82,7 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
 
         setupAdapter()
         setupViewPager2()
+        setupScrollView()
         setupTabLayout()
         setupNotifyButton()
         setupNotificationReceivers()
@@ -186,6 +187,18 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
             clipChildren = false
             getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
             setPageTransformer(createCompositePageTransformer())
+        }
+    }
+
+    private fun setupScrollView() {
+        binding.apply {
+            scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
+                if (scrollY == 0) {
+                    toolbar.visibility = View.VISIBLE
+                } else {
+                    toolbar.visibility = View.GONE
+                }
+            }
         }
     }
 

@@ -112,7 +112,6 @@ class MainActivity: BaseActivity<MainViewModel, ActivityMainBinding>() {
     private fun performHealthConnectSync() {
         lifecycleScope.launch {
             val startTime = userPreferences.lastSyncTime.first()?: LocalDateTime.now().minusDays(1)
-            userPreferences.updateLastSyncTime()
             HealthConnectSyncHelper.syncData(this@MainActivity, startTime) { success, recordRequests ->
                 if (success && recordRequests != null) {
                     val validRecords = RecordValidator.filterValidRecords(recordRequests)
@@ -191,18 +190,14 @@ class MainActivity: BaseActivity<MainViewModel, ActivityMainBinding>() {
     }
 
     private fun setupFeedbackListener() {
-        // Khởi tạo FeedbackBroadcastReceiver
         feedbackReceiver = FeedbackBroadcastReceiver()
 
-        // Đăng ký receiver cho feedback - CHỈ dùng LocalBroadcastManager
         val feedbackFilter = IntentFilter().apply {
             addAction(ACTION_NEW_FEEDBACK)
         }
 
-        // Chỉ dùng Local broadcast receiver (không cần RECEIVER_EXPORTED)
         LocalBroadcastManager.getInstance(this).registerReceiver(feedbackReceiver, feedbackFilter)
 
-        // Receiver để xử lý việc hiển thị dialog (chỉ trong MainActivity)
         dialogReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 when (intent?.action) {
@@ -217,7 +212,6 @@ class MainActivity: BaseActivity<MainViewModel, ActivityMainBinding>() {
             }
         }
 
-        // Đăng ký dialog receiver
         val dialogFilter = IntentFilter(SHOW_FEEDBACK_DIALOG)
         LocalBroadcastManager.getInstance(this).registerReceiver(dialogReceiver, dialogFilter)
     }
@@ -262,7 +256,6 @@ class MainActivity: BaseActivity<MainViewModel, ActivityMainBinding>() {
     override fun onDestroy() {
         super.onDestroy()
         try {
-            // Chỉ unregister LocalBroadcastReceiver
             LocalBroadcastManager.getInstance(this).unregisterReceiver(feedbackReceiver)
             LocalBroadcastManager.getInstance(this).unregisterReceiver(dialogReceiver)
         } catch (e: Exception) {
@@ -328,7 +321,12 @@ class MainActivity: BaseActivity<MainViewModel, ActivityMainBinding>() {
 
         viewModel.syncRecords.observe(this){
             when (it) {
-                is Resource.Success -> Toast.makeText(this@MainActivity, it.value.str, Toast.LENGTH_SHORT).show()
+                is Resource.Success -> {
+                    lifecycleScope.launch {
+                        userPreferences.updateLastSyncTime()
+                    }
+                    Toast.makeText(this@MainActivity, "Đồng bộ thành công.", Toast.LENGTH_SHORT).show()
+                }
                 is Resource.Failure -> {
                     Log.e(TAG, "Error while sync record")
                     handleApiError(it)
@@ -372,27 +370,5 @@ class MainActivity: BaseActivity<MainViewModel, ActivityMainBinding>() {
         Log.d(TAG, "Avg Speed: ${recordRequest.avgSpeed} km/h")
         Log.d(TAG, "Heart Rate: ${recordRequest.heartRate} BPM")
         Log.d(TAG, "Time Range: ${recordRequest.startTime} - ${recordRequest.endTime}")
-    }
-
-    private fun getTodayHealthData() {
-        lifecycleScope.launch {
-            val startTime = userPreferences.lastSyncTime.first()?: LocalDateTime.now().minusDays(1)
-            userPreferences.updateLastSyncTime()
-            HealthConnectSyncHelper.syncData(this@MainActivity, startTime) { success, recordRequests ->
-                if (success && recordRequests != null) {
-                    if (recordRequests.isEmpty()) {
-                        Log.w(TAG, "Không có bản ghi nào đáp ứng điều kiện (Steps, Distance, Avg Speed)")
-                        Toast.makeText(this@MainActivity, "Không có dữ liệu hợp lệ từ Health Connect", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Log.d(TAG, "Đồng bộ Health Connect thành công, số record: ${recordRequests.size}")
-                        recordRequests.forEach { recordRequest ->
-                            handleHealthData(recordRequest)
-                        }
-                    }
-                } else {
-                    Log.d(TAG, "Đồng bộ Health Connect thất bại hoặc không có quyền")
-                }
-            }
-        }
     }
 }

@@ -39,30 +39,25 @@ class ContestUserStatusManager(
             return UserContestStatus.NOT_REGISTERED
         }
 
-
-        when (contest.status) {
-            EContestStatus.PENDING -> return UserContestStatus.NOT_REGISTERED
-            EContestStatus.COMPLETED, EContestStatus.FINISHED -> {
-                return if (userRegistration != null) {
-                    UserContestStatus.CONTEST_EXPIRED
-                } else {
-                    UserContestStatus.NOT_REGISTERED
-                }
-            }
-            null -> return UserContestStatus.NOT_REGISTERED
-            else -> { }
-        }
-
-
         if (userRegistration == null) {
-            return when {
-                contest.isRegistrationDeadlinePassed() -> UserContestStatus.REGISTRATION_CLOSED
-                contest.isMaxRegistrationsReached() -> UserContestStatus.REGISTRATION_FULL
-                else -> UserContestStatus.NOT_REGISTERED
+            when (contest.status) {
+                EContestStatus.PENDING -> return UserContestStatus.NOT_REGISTERED
+                EContestStatus.COMPLETED, EContestStatus.FINISHED -> {
+                    return UserContestStatus.CONTEST_EXPIRED
+                }
+                null -> return UserContestStatus.NOT_REGISTERED
+                EContestStatus.ACTIVE -> {
+                    return when {
+                        contest.isRegistrationDeadlinePassed() -> UserContestStatus.REGISTRATION_CLOSED
+                        contest.isMaxRegistrationsReached() -> UserContestStatus.REGISTRATION_FULL
+                        else -> UserContestStatus.NOT_REGISTERED
+                    }
+                }
+                else ->  UserContestStatus.NOT_REGISTERED
             }
         }
 
-        val paymentStatus = userRegistration.getPaymentStatusSafely()
+        val paymentStatus = userRegistration!!.getPaymentStatusSafely()
 
         return when {
             paymentStatus == null -> {
@@ -180,7 +175,7 @@ class ContestUserStatusManager(
                 canRegister = false,
                 canRecord = false,
                 showLeaderboard = shouldShowLeaderboard(),
-                showProgress = true,
+                showProgress = false,
                 registerButtonText = contest.status?.value ?: "Đã kết thúc",
                 recordButtonText = contest.status?.value ?: "Đã kết thúc",
                 registerButtonEnabled = false,

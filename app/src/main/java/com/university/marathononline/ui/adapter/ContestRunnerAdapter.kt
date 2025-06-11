@@ -7,9 +7,9 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.university.marathononline.R
-import com.university.marathononline.R.string.*
 import com.university.marathononline.databinding.ItemContestRunnerBinding
 import com.university.marathononline.data.models.Contest
+import com.university.marathononline.data.models.EContestStatus
 import com.university.marathononline.ui.components.ContestStatisticsDialog
 import com.university.marathononline.ui.view.activity.ContestDetailsActivity
 import com.university.marathononline.ui.view.activity.PaymentConfirmationActivity
@@ -26,46 +26,24 @@ class ContestRunnerAdapter(
             binding.apply {
                 val context = itemView.context
 
-                // Find user registration
                 val userRegistration = item.registrations?.find { it.runner.email == email }
 
-                // Create status manager
                 val statusManager = ContestUserStatusManager(item, userRegistration)
                 val displayState = statusManager.getDisplayState()
                 val progressInfo = statusManager.getProgressInfo()
 
-                // Set contest name
                 tvContestName.text = item.name
 
-                // Set contest status with color
-                tvContestStatus.apply {
-                    text = item.status?.value ?: "Không xác định"
-                    setTextColor(getContestStatusColor(context, item.status))
-                }
+                updateContestStatus(item)
 
-                // Set dates
-                val startDate = item.startDate?.let { DateUtils.convertToVietnameseDate(it) }
-                val endDate = item.endDate?.let { DateUtils.convertToVietnameseDate(it) }
+                updateContestDates(item)
 
-                tvContestDatesStart.text = context.getString(
-                    contest_start_date,
-                    startDate ?: context.getString(date_not_available)
-                )
-                tvContestDatesEnd.text = context.getString(
-                    contest_end_date,
-                    endDate ?: context.getString(date_not_available)
-                )
-
-                // Update progress section visibility and data
                 updateProgressSection(displayState, progressInfo)
 
-                // Update completion status
                 updateCompletionStatus(displayState)
 
-                // Update payment button
                 updatePaymentButton(displayState, item)
 
-                // Set click listeners
                 contestCardView.setOnClickListener {
                     it.context.startNewActivity(
                         ContestDetailsActivity::class.java,
@@ -82,65 +60,126 @@ class ContestRunnerAdapter(
             }
         }
 
+        private fun updateContestStatus(contest: Contest) {
+            binding.apply {
+                val context = itemView.context
+                tvContestStatus.text = contest.status.value
+
+                // Set status text and colors
+                when (contest.status) {
+                    EContestStatus.ACTIVE -> {
+                        tvContestStatus.setTextColor(ContextCompat.getColor(context, R.color.success_green))
+                        statusIndicator.backgroundTintList = ContextCompat.getColorStateList(context, R.color.success_green)
+                    }
+                    EContestStatus.FINISHED -> {
+                        tvContestStatus.setTextColor(ContextCompat.getColor(context, R.color.warning_orange))
+                        statusIndicator.backgroundTintList = ContextCompat.getColorStateList(context, R.color.warning_orange)
+                    }
+                    EContestStatus.COMPLETED -> {
+                        tvContestStatus.setTextColor(ContextCompat.getColor(context, R.color.gray))
+                        statusIndicator.backgroundTintList = ContextCompat.getColorStateList(context, R.color.gray)
+                    }
+                    else -> {
+                        tvContestStatus.text = "Không xác định"
+                        tvContestStatus.setTextColor(ContextCompat.getColor(context, R.color.disabled_gray))
+                        statusIndicator.backgroundTintList = ContextCompat.getColorStateList(context, R.color.disabled_gray)
+                    }
+                }
+            }
+        }
+
+        private fun updateContestDates(contest: Contest) {
+            binding.apply {
+                val context = itemView.context
+
+                val startDate = contest.startDate?.let { DateUtils.convertToVietnameseDate(it) }
+                val endDate = contest.endDate?.let { DateUtils.convertToVietnameseDate(it) }
+
+                tvContestDatesStart.text = "Bắt đầu: ${startDate ?: "Chưa xác định"}"
+                tvContestDatesEnd.text = "Kết thúc: ${endDate ?: "Chưa xác định"}"
+            }
+        }
+
         private fun updateProgressSection(
             displayState: ContestUserStatusManager.ContestDisplayState,
             progressInfo: Triple<Double, Double, Int>
         ) {
             binding.apply {
                 if (displayState.showProgress) {
-                    // Show progress section
-                    processBar.visibility = View.VISIBLE
-                    processBarValue.visibility = View.VISIBLE
+                    progressSection.visibility = View.VISIBLE
 
-                    // Update progress bar
                     processBar.progress = progressInfo.third
-                    processBarValue.text = "${formatDistance(progressInfo.first)}/${formatDistance(progressInfo.second)}"
+
+                    val currentKm = formatDistance(progressInfo.first)
+                    val totalKm = formatDistance(progressInfo.second)
+                    processBarValue.text = "$currentKm/$totalKm"
+
+                    val progressPercentage = progressInfo.third
+                    val textColor = when {
+                        progressPercentage >= 100 -> R.color.white
+                        progressPercentage >= 75 -> R.color.white
+                        progressPercentage >= 50 -> R.color.white
+                        else -> R.color.white
+                    }
+                    processBarValue.setTextColor(ContextCompat.getColor(itemView.context, textColor))
+
+                    val backgroundColor = when {
+                        progressPercentage >= 100 -> R.color.success_green
+                        progressPercentage >= 75 -> R.color.main_color
+                        progressPercentage >= 50 -> R.color.warning_orange
+                        else -> R.color.main_color
+                    }
+                    processBarValue.backgroundTintList = ContextCompat.getColorStateList(itemView.context, backgroundColor)
+
                 } else {
-                    // Hide progress section
-                    processBar.visibility = View.GONE
-                    processBarValue.visibility = View.GONE
+                    progressSection.visibility = View.GONE
                 }
             }
         }
 
         private fun updateCompletionStatus(displayState: ContestUserStatusManager.ContestDisplayState) {
-            binding.tvCompletionStatus.apply {
-                // Set status text
-                text = when (displayState.userStatus) {
-                    ContestUserStatusManager.UserContestStatus.NOT_REGISTERED -> "Trạng thái: Chưa đăng ký"
-                    ContestUserStatusManager.UserContestStatus.REGISTERED_UNPAID -> "Trạng thái: Chưa thanh toán"
-                    ContestUserStatusManager.UserContestStatus.PAYMENT_FAILED -> "Trạng thái: Thanh toán thất bại"
-                    ContestUserStatusManager.UserContestStatus.PAYMENT_PENDING -> "Trạng thái: Đang xử lý thanh toán"
-                    ContestUserStatusManager.UserContestStatus.REGISTERED_ACTIVE -> "Trạng thái: Đang tham gia"
-                    ContestUserStatusManager.UserContestStatus.REGISTERED_BLOCKED -> "Trạng thái: Bị chặn"
-                    ContestUserStatusManager.UserContestStatus.REGISTRATION_COMPLETED -> "Trạng thái: Đã hoàn thành"
-                    ContestUserStatusManager.UserContestStatus.CONTEST_EXPIRED -> "Trạng thái: Đã kết thúc"
-                    ContestUserStatusManager.UserContestStatus.REGISTRATION_FULL -> "Trạng thái: Hết slot đăng ký"
-                    ContestUserStatusManager.UserContestStatus.REGISTRATION_CLOSED -> "Trạng thái: Hết hạn đăng ký"
+            binding.apply {
+                val context = itemView.context
 
+                // Set status icon and text based on user status
+                val (statusIcon, statusText, statusColor) = when (displayState.userStatus) {
+                    ContestUserStatusManager.UserContestStatus.NOT_REGISTERED ->
+                        StatusInfo("❌", "Chưa đăng ký", R.color.disabled_gray)
+
+                    ContestUserStatusManager.UserContestStatus.REGISTERED_UNPAID ->
+                        StatusInfo("💳", "Chưa thanh toán", R.color.warning_orange)
+
+                    ContestUserStatusManager.UserContestStatus.PAYMENT_FAILED ->
+                        StatusInfo("❌", "Thanh toán thất bại", R.color.error_red)
+
+                    ContestUserStatusManager.UserContestStatus.PAYMENT_PENDING ->
+                        StatusInfo("⏳", "Đang xử lý thanh toán", R.color.warning_orange)
+
+                    ContestUserStatusManager.UserContestStatus.REGISTERED_ACTIVE ->
+                        StatusInfo("✅", "Đang tham gia", R.color.success_green)
+
+                    ContestUserStatusManager.UserContestStatus.REGISTERED_BLOCKED ->
+                        StatusInfo("🚫", "Bị chặn", R.color.error_red)
+
+                    ContestUserStatusManager.UserContestStatus.REGISTRATION_COMPLETED ->
+                        StatusInfo("🏆", "Đã hoàn thành", R.color.gold_text)
+
+                    ContestUserStatusManager.UserContestStatus.CONTEST_EXPIRED ->
+                        StatusInfo("⏰", "Đã kết thúc", R.color.gray)
+
+                    ContestUserStatusManager.UserContestStatus.REGISTRATION_FULL ->
+                        StatusInfo("👥", "Hết slot đăng ký", R.color.error_red)
+
+                    ContestUserStatusManager.UserContestStatus.REGISTRATION_CLOSED ->
+                        StatusInfo("🔒", "Hết hạn đăng ký", R.color.gray)
                 }
 
-                // Set status color based on status
-                val statusColor = when (displayState.userStatus) {
-                    ContestUserStatusManager.UserContestStatus.REGISTERED_ACTIVE -> R.color.light_main_color
-                    ContestUserStatusManager.UserContestStatus.REGISTRATION_COMPLETED -> R.color.main_color
-                    ContestUserStatusManager.UserContestStatus.REGISTERED_BLOCKED,
-                    ContestUserStatusManager.UserContestStatus.PAYMENT_FAILED -> R.color.red
-                    ContestUserStatusManager.UserContestStatus.PAYMENT_PENDING -> R.color.partial_complete_color
-                    ContestUserStatusManager.UserContestStatus.REGISTERED_UNPAID -> R.color.gray
-                    ContestUserStatusManager.UserContestStatus.CONTEST_EXPIRED,
-                    ContestUserStatusManager.UserContestStatus.REGISTRATION_CLOSED,
-                    ContestUserStatusManager.UserContestStatus.REGISTRATION_FULL -> R.color.gray
-                    else -> R.color.disabled_gray
-                }
+                binding.statusIcon.text = statusIcon
+                tvCompletionStatus.text = statusText
+                tvCompletionStatus.setTextColor(ContextCompat.getColor(context, statusColor))
 
-                setTextColor(ContextCompat.getColor(context, statusColor))
-
-                // Show additional status message if available
                 displayState.statusMessage?.let { message ->
-                    // You might want to show this in a separate TextView or as a tooltip
-                    // For now, we'll append it to the existing status
-                    text = "$text\n$message"
+                    tvCompletionStatus.text = "$statusText\n$message"
                 }
             }
         }
@@ -150,7 +189,8 @@ class ContestRunnerAdapter(
             contest: Contest
         ) {
             binding.btnPayment.apply {
-                // Show payment button only for specific unpaid statuses
+                val context = itemView.context
+
                 val shouldShowPaymentButton = when (displayState.userStatus) {
                     ContestUserStatusManager.UserContestStatus.REGISTERED_UNPAID,
                     ContestUserStatusManager.UserContestStatus.PAYMENT_FAILED -> true
@@ -159,24 +199,24 @@ class ContestRunnerAdapter(
 
                 if (shouldShowPaymentButton) {
                     visibility = View.VISIBLE
-                    text = when (displayState.userStatus) {
-                        ContestUserStatusManager.UserContestStatus.REGISTERED_UNPAID -> "Thanh toán"
-                        ContestUserStatusManager.UserContestStatus.PAYMENT_FAILED -> "Thanh toán lại"
-                        else -> "Thanh toán"
-                    }
 
-                    // Set button appearance based on status
-                    val (backgroundColor, textColor) = when (displayState.userStatus) {
+                    when (displayState.userStatus) {
+                        ContestUserStatusManager.UserContestStatus.REGISTERED_UNPAID -> {
+                            text = "💳 Thanh toán"
+                            backgroundTintList = ContextCompat.getColorStateList(context, R.color.main_color)
+                            setTextColor(ContextCompat.getColor(context, R.color.white))
+                        }
                         ContestUserStatusManager.UserContestStatus.PAYMENT_FAILED -> {
-                            Pair(R.color.red, R.color.white)
+                            text = "🔄 Thanh toán lại"
+                            backgroundTintList = ContextCompat.getColorStateList(context, R.color.error_red)
+                            setTextColor(ContextCompat.getColor(context, R.color.white))
                         }
                         else -> {
-                            Pair(R.color.main_color, R.color.white)
+                            text = "Thanh toán"
+                            backgroundTintList = ContextCompat.getColorStateList(context, R.color.main_color)
+                            setTextColor(ContextCompat.getColor(context, R.color.white))
                         }
                     }
-
-                    backgroundTintList = ContextCompat.getColorStateList(context, backgroundColor)
-                    setTextColor(ContextCompat.getColor(context, textColor))
 
                     setOnClickListener {
                         handlePaymentClick(contest)
@@ -193,6 +233,13 @@ class ContestRunnerAdapter(
                 mapOf(KEY_CONTEST to contest)
             )
         }
+
+        // Data class for status information
+        private data class StatusInfo(
+            val icon: String,
+            val text: String,
+            val textColor: Int
+        )
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

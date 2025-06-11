@@ -69,16 +69,13 @@ class LeaderBoardFragment : BaseFragment<LeaderBoardViewModel, FragmentLeaderBoa
 
     fun updateRegistrations(newRegistrations: List<Registration>?) {
         if (newRegistrations != null) {
-            // Cập nhật adapter với data mới
-            adapter.updateData(newRegistrations)
+            viewModel.setRegistrations(newRegistrations)
+            viewModel.rankUsers()
 
-            // Cập nhật UI state
+            adapter.updateData(viewModel.rankUsers.value ?: emptyList())
+
             binding?.apply {
-                if (newRegistrations.isEmpty()) {
-                    leaderBoards.visible(false)
-                } else {
-                    leaderBoards.visible(true)
-                }
+                leaderBoards.visible(newRegistrations.isNotEmpty())
             }
 
             Log.d("LeaderBoardFragment", "Updated with ${newRegistrations.size} registrations")

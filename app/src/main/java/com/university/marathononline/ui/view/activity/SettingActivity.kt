@@ -23,6 +23,7 @@ import com.university.marathononline.databinding.ActivitySettingBinding
 import com.university.marathononline.ui.viewModel.SettingViewModel
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.HealthConnectSyncHelper
+import com.university.marathononline.utils.finishAndGoBack
 import kotlinx.coroutines.flow.first
 import java.time.LocalDateTime
 
@@ -32,7 +33,6 @@ class SettingActivity: BaseActivity<SettingViewModel, ActivitySettingBinding>() 
     private val KEY_SYNC_ENABLED = "sync_health_connect_enabled"
 
     private val healthConnectClient by lazy { HealthConnectClient.getOrCreate(this) }
-
 
     private val permissions = setOf(
         HealthPermission.getReadPermission(StepsRecord::class),
@@ -57,6 +57,13 @@ class SettingActivity: BaseActivity<SettingViewModel, ActivitySettingBinding>() 
         super.onCreate(savedInstanceState)
 
         setUp()
+        setUpButton()
+    }
+
+    private fun setUpButton(){
+        binding.buttonBack.setOnClickListener {
+            finishAndGoBack()
+        }
     }
 
     private fun setUp(){

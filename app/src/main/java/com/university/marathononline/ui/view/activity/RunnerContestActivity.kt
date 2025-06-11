@@ -31,7 +31,6 @@ class RunnerContestActivity : BaseActivity<RunnerContestsViewModel, ActivityRunn
     // Filter options
     private val contestStatusOptions = listOf(
         "Tất cả trạng thái",
-        "Đang chờ",
         "Đang diễn ra",
         "Đã hoàn thành",
         "Đã kết thúc"
@@ -39,7 +38,6 @@ class RunnerContestActivity : BaseActivity<RunnerContestsViewModel, ActivityRunn
 
     private val userStatusOptions = listOf(
         "Tất cả tình trạng",
-        "Chưa đăng ký",
         "Chưa thanh toán",
         "Đang tham gia",
         "Đã hoàn thành",
@@ -127,7 +125,6 @@ class RunnerContestActivity : BaseActivity<RunnerContestsViewModel, ActivityRunn
         if (contestStatusFilter != null && contestStatusFilter != contestStatusOptions[0]) {
             filteredContests = filteredContests.filter { contest ->
                 when (contestStatusFilter) {
-                    "Đang chờ" -> contest.status == EContestStatus.PENDING
                     "Đang diễn ra" -> contest.status == EContestStatus.ACTIVE
                     "Đã hoàn thành" -> contest.status == EContestStatus.COMPLETED
                     "Đã kết thúc" -> contest.status == EContestStatus.FINISHED
@@ -144,7 +141,6 @@ class RunnerContestActivity : BaseActivity<RunnerContestsViewModel, ActivityRunn
                 val userStatus = statusManager.getUserContestStatus()
 
                 when (userStatusFilter) {
-                    "Chưa đăng ký" -> userStatus == ContestUserStatusManager.UserContestStatus.NOT_REGISTERED
                     "Chưa thanh toán" -> userStatus == ContestUserStatusManager.UserContestStatus.REGISTERED_UNPAID ||
                             userStatus == ContestUserStatusManager.UserContestStatus.PAYMENT_FAILED ||
                             userStatus == ContestUserStatusManager.UserContestStatus.PAYMENT_PENDING

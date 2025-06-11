@@ -24,7 +24,7 @@ data class Contest(
 enum class EContestStatus(val value: String){
     PENDING("Chờ duyệt"),
     ACTIVE("Đang hoạt động"),
-    FINISHED("Kết thúc"),
+    FINISHED("Đã kết thúc"),
     CANCELLED("Đã hủy"),
     NOT_APPROVAL("Không chấp nhận"),
     DELETED("Đã xóa"),
