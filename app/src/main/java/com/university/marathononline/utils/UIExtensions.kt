@@ -27,8 +27,8 @@ fun AppCompatActivity.validateNormalEditText(text: EditText, error: TextView) {
     }
 }
 
-fun adapterSpinner(min: Int, max: Int, context: Context): ArrayAdapter<String> {
-    val arrange = (min..max).map { it.toString() }.reversed()
+fun adapterSpinner(min: Int, max: Int, context: Context, reversed: Boolean = false): ArrayAdapter<String> {
+    val arrange = (min..max).map { it.toString() }.let { if (reversed) it.reversed() else it }
     val adapter = ArrayAdapter(context, R.layout.spinner_item, arrange)
     adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
     return adapter

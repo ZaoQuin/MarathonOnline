@@ -64,8 +64,21 @@ class WeeklyStatisticsFragment : BaseFragment<WeeklyStatisticsViewModel, Fragmen
         observeViewModel()
     }
 
+    private fun showLoading(isLoading: Boolean) {
+        if (isLoading) {
+            binding.shimmerContainer.visibility = View.VISIBLE
+            binding.mainContent.visibility = View.GONE
+            binding.shimmerContainer.startShimmer()
+        } else {
+            binding.shimmerContainer.stopShimmer()
+            binding.shimmerContainer.visibility = View.GONE
+            binding.mainContent.visibility = View.VISIBLE
+        }
+    }
+
     private fun observeViewModel() {
         viewModel.getRecordResponse.observe(viewLifecycleOwner) { resource ->
+            showLoading(false)
             when (resource) {
                 is Resource.Success -> {
                     Log.d("WeeklyStatisticsFragment", "Records loaded successfully: ${resource.value.size} records")
@@ -76,6 +89,8 @@ class WeeklyStatisticsFragment : BaseFragment<WeeklyStatisticsViewModel, Fragmen
                     handleApiError(resource)
                 }
                 is Resource.Loading -> {
+
+                    showLoading(true)
                     Log.d("WeeklyStatisticsFragment", "Loading records...")
                 }
                 else -> Unit
@@ -121,6 +136,8 @@ class WeeklyStatisticsFragment : BaseFragment<WeeklyStatisticsViewModel, Fragmen
             .asGif()
             .load(R.drawable.ic_calories)
             .into(binding.calogiesIcon)
+
+        showLoading(true)
     }
 
     private fun setUpLineChart(record: Map<String, String>) {

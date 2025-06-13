@@ -1,6 +1,7 @@
 package com.university.marathononline.data.repository
 
 import com.university.marathononline.base.BaseRepository
+import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.user.UserApiService
 import com.university.marathononline.data.models.User
 import com.university.marathononline.data.request.CheckEmailRequest
@@ -8,6 +9,7 @@ import com.university.marathononline.data.request.CheckPhoneNumberRequest
 import com.university.marathononline.data.request.CheckUsernameRequest
 import com.university.marathononline.data.request.CreateUserRequest
 import com.university.marathononline.data.request.UpdatePasswordRequest
+import okhttp3.MultipartBody
 
 class UserRepository (
     private val api: UserApiService
@@ -43,5 +45,9 @@ class UserRepository (
 
     suspend fun updatePassword(updateRequest: UpdatePasswordRequest) = safeApiCall {
         api.updatePassword(updateRequest)
+    }
+
+    suspend fun uploadAvatar(id: Long, file: MultipartBody.Part)= safeApiCall  {
+        api.uploadAvatar(id, file)
     }
 }

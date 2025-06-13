@@ -1,8 +1,13 @@
 package com.university.marathononline.ui.view.activity
 
+import android.Manifest
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
 import com.university.marathononline.R
@@ -22,12 +27,50 @@ import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import java.util.Calendar
+import android.os.Handler
+import android.os.Looper
 
 class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityEditInformationBinding>() {
+    private var selectedImageUri: Uri? = null
+
+    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            binding.avatarImage.setImageURI(it)
+            selectedImageUri = it
+        }
+    }
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            pickImageLauncher.launch("image/*")
+        } else {
+            Toast.makeText(this, "Bạn cần cấp quyền để chọn ảnh", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleIntentExtras(intent)
         setUpObserve()
+        showShimmerLoading()
+    }
+
+    private fun showShimmerLoading() {
+        binding.apply {
+            shimmerFrameLayout.visibility = android.view.View.VISIBLE
+            mainContentLayout.visibility = android.view.View.GONE
+            shimmerFrameLayout.startShimmer()
+        }
+    }
+
+    private fun hideShimmerLoading() {
+        binding.apply {
+            shimmerFrameLayout.stopShimmer()
+            shimmerFrameLayout.visibility = android.view.View.GONE
+            mainContentLayout.visibility = android.view.View.VISIBLE
+        }
     }
 
     private fun handleIntentExtras(intent: Intent) {
@@ -40,23 +83,68 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
 
     private fun setUpObserve() {
         viewModel.user.observe(this, Observer {
-            initializeUI()
-            updateUI(it)
+            Handler(Looper.getMainLooper()).postDelayed({
+                initializeUI()
+                updateUI(it)
+                hideShimmerLoading()
+            }, 1000)
         })
 
         viewModel.updateResponse.observe(this, Observer {
             handleUpdateResponse(it)
         })
+
+        viewModel.uploadAvatarResponse.observe(this@EditInformationActivity) { result ->
+            when (result) {
+                is Resource.Success -> {
+                    Toast.makeText(
+                        this@EditInformationActivity,
+                        "Đăng tải ảnh thành công",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    saveInformation()
+                }
+                is Resource.Loading -> showLoadingDialog()
+                is Resource.Failure -> {
+                    hideLoadingDialog()
+                    result.fetchErrorMessage()
+                    Toast.makeText(
+                        this@EditInformationActivity,
+                        "Lỗi upload ảnh: ${result.errorMessage}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                else -> Unit
+            }
+        }
     }
 
     private fun handleUpdateResponse(resource: Resource<User>){
         when(resource){
+            is Resource.Loading -> showLoadingDialog()
             is Resource.Success -> {
+                hideLoadingDialog()
+                Toast.makeText(
+                    this@EditInformationActivity,
+                    "Cập nhật thành công",
+                    Toast.LENGTH_SHORT
+                ).show()
                 finishAndGoBack()
             }
-            is Resource.Failure -> handleApiError(resource)
+            is Resource.Failure -> {
+                hideLoadingDialog()
+                handleApiError(resource)
+            }
             else -> Unit
         }
+    }
+
+    private fun showLoadingDialog() {
+        binding.saveButton.isEnabled = false
+    }
+
+    private fun hideLoadingDialog() {
+        binding.saveButton.isEnabled = true
     }
 
     private fun updateUI(user: User) {
@@ -65,7 +153,7 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
             phoneNumberEditText.setText(user.phoneNumber)
             addressText.setText(user.address)
 
-            if(user!!.avatarUrl.isNullOrEmpty()){
+            if(user.avatarUrl.isNullOrEmpty()){
                 avatarImage.setImageResource(R.drawable.example_avatar)
             } else {
                 Glide.with(this@EditInformationActivity)
@@ -119,14 +207,30 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
     private fun setupClickListeners(){
         binding.apply {
             buttonBack.setOnClickListener{ finish() }
+
             saveButton.setOnClickListener { onSaveButtonCLick() }
+
+            editAvatarButton.setOnClickListener{
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    requestPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                } else {
+                    requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                }
+            }
         }
     }
 
     private fun onSaveButtonCLick() {
         if(!validateFields())
             return
+        if (selectedImageUri != null){
+            viewModel.uploadAvatar(selectedImageUri!!, this@EditInformationActivity)
+        } else {
+            saveInformation()
+        }
+    }
 
+    private fun saveInformation(){
         binding.apply {
             DateUtils.convertToDateString(
                 spinnerDay.getIntegerSelectedItem(),
@@ -149,7 +253,7 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
         binding.apply {
             binding.spinnerDay.adapter = adapterSpinner(1, 31, context)
             binding.spinnerMonth.adapter = adapterSpinner(1, 12, context)
-            binding.spinnerYear.adapter = adapterSpinner(1900, currentYear, context)
+            binding.spinnerYear.adapter = adapterSpinner(1900, currentYear, context, true)
         }
     }
 
@@ -163,6 +267,11 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
             )
             return fields.all { (field, errorText) -> !field.isEmpty(errorText, errorMessage) }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.shimmerFrameLayout.stopShimmer()
     }
 
     override fun getViewModel() = EditInformationViewModel::class.java

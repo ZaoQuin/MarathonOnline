@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.github.mikephil.charting.components.XAxis
@@ -17,14 +16,12 @@ import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.record.RecordApiService
-import com.university.marathononline.data.models.Record
 import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.databinding.FragmentMonthlyStatisticsBinding
 import com.university.marathononline.ui.components.MonthPickerBottomSheetFragment
 import com.university.marathononline.ui.viewModel.MonthlyStatisticsViewModel
 import com.university.marathononline.utils.DateUtils
-import com.university.marathononline.utils.KEY_RECORDS
 import com.university.marathononline.utils.KEY_USER
 import com.university.marathononline.utils.formatCalogies
 import com.university.marathononline.utils.formatDistance
@@ -35,7 +32,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 import java.util.Calendar
-import java.util.Date
 
 class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, FragmentMonthlyStatisticsBinding>() {
 
@@ -68,6 +64,18 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
         observeViewModel()
     }
 
+    private fun showLoading(isLoading: Boolean) {
+        if (isLoading) {
+            binding.shimmerContainer.visibility = View.VISIBLE
+            binding.mainContent.visibility = View.GONE
+            binding.shimmerContainer.startShimmer()
+        } else {
+            binding.shimmerContainer.stopShimmer()
+            binding.shimmerContainer.visibility = View.GONE
+            binding.mainContent.visibility = View.VISIBLE
+        }
+    }
+
     private fun initUI() {
         binding.filterText.text = DateUtils.getFormattedMonthYear(currentMonth, currentYear)
         binding.filterButton.setOnClickListener { showMonthPickerBottomSheet() }
@@ -76,6 +84,8 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
             .asGif()
             .load(R.drawable.ic_calories)
             .into(binding.calogiesIcon)
+
+        showLoading(true)
     }
 
     private fun setUpLineChart(record: Map<String, String>) {
@@ -151,6 +161,7 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
 
     private fun observeViewModel() {
         viewModel.getRecordResponse.observe(viewLifecycleOwner) { resource ->
+            showLoading(false)
             when (resource) {
                 is Resource.Success -> {
                     Log.d("MonthlyStatisticsFragment", "Records loaded successfully: ${resource.value.size} records")
@@ -162,6 +173,7 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
                 }
                 is Resource.Loading -> {
                     Log.d("MonthlyStatisticsFragment", "Loading records...")
+                    showLoading(true)
                 }
                 else -> Unit
             }

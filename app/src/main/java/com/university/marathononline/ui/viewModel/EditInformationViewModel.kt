@@ -1,5 +1,7 @@
 package com.university.marathononline.ui.viewModel
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,11 +11,13 @@ import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.models.EGender
 import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.UserRepository
+import com.university.marathononline.data.response.StringResponse
+import com.university.marathononline.utils.FileUtils
 import kotlinx.coroutines.launch
 
 class EditInformationViewModel(
     private val repository: UserRepository
-): BaseViewModel(listOf(repository)) {
+) : BaseViewModel(listOf(repository)) {
     private val _user: MutableLiveData<User> = MutableLiveData()
     val user: LiveData<User> get() = _user
 
@@ -23,11 +27,14 @@ class EditInformationViewModel(
     private val _updateResponse: MutableLiveData<Resource<User>> = MutableLiveData()
     val updateResponse: LiveData<Resource<User>> get() = _updateResponse
 
+    private val _uploadAvatarResponse = MutableLiveData<Resource<StringResponse>>()
+    val uploadAvatarResponse: LiveData<Resource<StringResponse>> get() = _uploadAvatarResponse
+
     fun setUser(user: User) {
         _user.value = user
     }
 
-    fun selectedGender(gender: EGender){
+    fun selectedGender(gender: EGender) {
         _selectedGender.value = gender
     }
 
@@ -47,6 +54,15 @@ class EditInformationViewModel(
                 Log.d("Edit User", request.fullName!!)
                 _updateResponse.value = repository.updateUser(request)
             }
+        }
+    }
+
+    fun uploadAvatar(uri: Uri, context: Context) {
+        viewModelScope.launch {
+            _uploadAvatarResponse.value = Resource.Loading
+            val filePart = FileUtils.prepareFilePart("file", uri, context)
+            val userId = user.value?.id ?: return@launch
+            _uploadAvatarResponse.value = repository.uploadAvatar(userId, filePart)
         }
     }
 }
