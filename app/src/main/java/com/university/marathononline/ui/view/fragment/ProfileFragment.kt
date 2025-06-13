@@ -25,10 +25,7 @@ import com.university.marathononline.databinding.FragmentProfileBinding
 import com.university.marathononline.ui.adapter.ProfilePagerAdapter
 import com.university.marathononline.ui.view.activity.InformationActivity
 import com.university.marathononline.ui.view.activity.RunnerContestActivity
-import com.university.marathononline.ui.view.activity.RunnerRewardsActivity
 import com.university.marathononline.ui.viewModel.ProfileViewModel
-import com.university.marathononline.utils.KEY_CONTESTS
-import com.university.marathononline.utils.KEY_EMAIL
 import com.university.marathononline.utils.startNewActivity
 import handleApiError
 import kotlinx.coroutines.flow.first
@@ -56,18 +53,17 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.getUser()
         setUpButton()
         observeViewModel()
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         viewModel.getUser()
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
         viewModel.getUser()
     }
 
@@ -78,34 +74,26 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
         }
 
         binding.myContest.setOnClickListener {
-            val contests = viewModel.contests.value?: emptyList()
-
-            if(contests!=null)
-                startNewActivity(
-                    RunnerContestActivity::class.java,
-                    mapOf(
-                        KEY_CONTESTS to contests
-                    )
-                )
+            startNewActivity(
+                RunnerContestActivity::class.java
+            )
         }
 
         binding.myReward.setOnClickListener{
-            val user = viewModel.user.value
-            val contests = viewModel.contests.value
-
-            if(contests!=null && user!= null)
-                startNewActivity(
-                    RunnerRewardsActivity::class.java,
-                    mapOf(
-                        KEY_EMAIL to user.email!!,
-                        KEY_CONTESTS to contests
-                    )
-                )
+//            val user = viewModel.user.value
+//
+//            if(contests!=null && user!= null)
+//                startNewActivity(
+//                    RunnerRewardsActivity::class.java,
+//                    mapOf(
+//                        KEY_EMAIL to user.email!!,
+//                        KEY_CONTESTS to contests
+//                    )
+//                )
         }
 
 
         binding.settingButton.setOnClickListener{
-            println("Setting ne")
             startNewActivity(SettingActivity::class.java)
         }
 
@@ -136,29 +124,33 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
         }
     }
 
-    private fun setUpViewPager(records: List<Record>, user: User) {
-        adapter = ProfilePagerAdapter(childFragmentManager, lifecycle, records, user)
+    private fun setUpViewPager(user: User) {
+        adapter = ProfilePagerAdapter(childFragmentManager, lifecycle, user)
         binding.viewPager2.adapter = adapter
     }
 
     private fun observeViewModel() {
-        viewModel.getRecordResponse.observe(viewLifecycleOwner) {
-            when(it){
-                is Resource.Success ->{
-                    setUpViewPager(it.value, viewModel.user.value!!)
-                    setUpTabLayout()
-                }
-                is Resource.Failure -> handleApiError(it)
-                else -> Unit
+        viewModel.user.observe(viewLifecycleOwner) {
+            val user = viewModel.user.value
+            setUpViewPager(user!!)
+            setUpTabLayout()
+            if(user!!.avatarUrl.isNullOrEmpty()){
+                binding.informationButton.setImageResource(R.drawable.example_avatar)
+            } else {
+                Glide.with(this)
+                    .load(user.avatarUrl)
+                    .placeholder(R.drawable.loading)
+                    .error(R.drawable.example_avatar)
+                    .into(binding.informationButton)
             }
         }
 
         viewModel.getUserResponse.observe(viewLifecycleOwner){
             when(it){
                 is Resource.Success -> {
-                    viewModel.setUser(it.value)
                     viewModel.getMyContest()
                     viewModel.getRecords()
+                    viewModel.setUser(it.value)
                 }
                 is Resource.Failure -> {
                     handleApiError(it)
@@ -186,8 +178,6 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
                     }
                     binding.myContestsNumber.text = it.value.contests.size.toString()
                     binding.myRewardsNumber.text = rewards?.size.toString()
-                    viewModel.setRewards(rewards?: emptyList())
-                    viewModel.setContests(it.value.contests)
                 }
                 is Resource.Failure -> handleApiError(it)
                 else -> Unit

@@ -12,7 +12,10 @@ import com.university.marathononline.databinding.FragmentWeekPickerBottomSheetBi
 import java.text.SimpleDateFormat
 import java.util.*
 
-class WeekPickerBottomSheetFragment(private val onWeekSelected: (String) -> Unit) : BottomSheetDialogFragment() {
+class WeekPickerBottomSheetFragment(
+    private val currentWeek: String? = null,
+    private val onWeekSelected: (String) -> Unit
+) : BottomSheetDialogFragment() {
 
     private lateinit var binding: FragmentWeekPickerBottomSheetBinding
     private lateinit var weekSpinner: Spinner
@@ -45,7 +48,13 @@ class WeekPickerBottomSheetFragment(private val onWeekSelected: (String) -> Unit
         val weekAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, weeks)
         weekAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         weekSpinner.adapter = weekAdapter
-        weekSpinner.setSelection(0)
+
+        val currentSelection = if (currentWeek != null) {
+            weeks.indexOf(currentWeek).takeIf { it >= 0 } ?: 0
+        } else {
+            0
+        }
+        weekSpinner.setSelection(currentSelection)
     }
 
     private fun generateWeeks(): List<String> {

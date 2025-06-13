@@ -1,10 +1,11 @@
 package com.university.marathononline.ui.adapter
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.university.marathononline.R
 import com.university.marathononline.ui.view.activity.ContestDetailsActivity
 import com.university.marathononline.databinding.ItemResultBinding
 import com.university.marathononline.data.models.Contest
@@ -15,13 +16,25 @@ class ResultAdapter (private var results: List<Contest>): RecyclerView.Adapter<R
     class ViewHolder(private val binding: ItemResultBinding): RecyclerView.ViewHolder(binding.root){
 
         fun bind(item: Contest){
-            binding.name.text = item.name
-            binding.organizerName.text = item.organizer?.fullName
+            binding.apply {
+                name.text = item.name
+                organizerName.text = item.organizer?.fullName
 
-            binding.showDetailsBtn.setOnClickListener {
-                it.context.startNewActivity(ContestDetailsActivity::class.java,
-                    mapOf( KEY_CONTEST to item)
-                )
+                if (item.imgUrl.isNullOrEmpty()) {
+                    eventImage.setImageResource(R.drawable.example_event)
+                } else {
+                    Glide.with(root.context)
+                        .load(item.imgUrl)
+                        .placeholder(R.drawable.loading)
+                        .error(R.drawable.example_event)
+                        .into(eventImage)
+                }
+
+                showDetailsBtn.setOnClickListener {
+                    it.context.startNewActivity(ContestDetailsActivity::class.java,
+                        mapOf( KEY_CONTEST to item)
+                    )
+                }
             }
         }
     }

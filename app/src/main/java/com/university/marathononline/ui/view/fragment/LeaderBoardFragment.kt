@@ -75,7 +75,7 @@ class LeaderBoardFragment : BaseFragment<LeaderBoardViewModel, FragmentLeaderBoa
             adapter.updateData(viewModel.rankUsers.value ?: emptyList())
 
             binding?.apply {
-                leaderBoards.visible(newRegistrations.isNotEmpty())
+                leaderBoardsContainer.visible(newRegistrations.isNotEmpty())
             }
 
             Log.d("LeaderBoardFragment", "Updated with ${newRegistrations.size} registrations")

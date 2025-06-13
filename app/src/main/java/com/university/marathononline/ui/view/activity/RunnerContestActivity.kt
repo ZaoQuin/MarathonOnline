@@ -1,6 +1,5 @@
 package com.university.marathononline.ui.view.activity
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,24 +10,31 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.university.marathononline.R
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
+import com.university.marathononline.data.api.Resource
+import com.university.marathononline.data.api.auth.AuthApiService
+import com.university.marathononline.data.api.contest.ContestApiService
+import com.university.marathononline.data.api.record.RecordApiService
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.EContestStatus
+import com.university.marathononline.data.repository.AuthRepository
+import com.university.marathononline.data.repository.ContestRepository
+import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.databinding.ActivityRunnerContestBinding
 import com.university.marathononline.ui.adapter.ContestRunnerAdapter
-import com.university.marathononline.ui.viewModel.RunnerContestsViewModel
+import com.university.marathononline.ui.viewModel.ProfileViewModel
 import com.university.marathononline.utils.ContestUserStatusManager
-import com.university.marathononline.utils.KEY_CONTESTS
 import com.university.marathononline.utils.finishAndGoBack
+import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
-class RunnerContestActivity : BaseActivity<RunnerContestsViewModel, ActivityRunnerContestBinding>() {
+class RunnerContestActivity : BaseActivity<ProfileViewModel, ActivityRunnerContestBinding>() {
 
     private lateinit var adapter: ContestRunnerAdapter
     private var allContests: List<Contest> = emptyList()
     private var userEmail: String = ""
 
-    // Filter options
     private val contestStatusOptions = listOf(
         "Tất cả trạng thái",
         "Đang diễn ra",
@@ -47,7 +53,7 @@ class RunnerContestActivity : BaseActivity<RunnerContestsViewModel, ActivityRunn
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        handleIntentExtras(intent)
+        viewModel.getMyContest()
 
         initializeUI()
         setupFilters()
@@ -63,10 +69,15 @@ class RunnerContestActivity : BaseActivity<RunnerContestsViewModel, ActivityRunn
     }
 
     private fun setUpObserve() {
-        viewModel.contests.observe(this) { contests ->
-            contests?.let {
-                allContests = it
-                applyFilters()
+        viewModel.getMyContestResponse.observe(this) {
+            when(it){
+                is Resource.Success -> {
+                    setUpAdapter(it.value.contests)
+                    allContests = it.value.contests
+                    applyFilters()
+                }
+                is Resource.Failure -> handleApiError(it)
+                else -> Unit
             }
         }
     }
@@ -94,7 +105,6 @@ class RunnerContestActivity : BaseActivity<RunnerContestsViewModel, ActivityRunn
     }
 
     private fun setupFilters() {
-        // Setup Contest Status Filter
         val contestStatusAdapter = ArrayAdapter(this, R.layout.dropdown_menu_popup_item, contestStatusOptions)
         (binding.tilContestStatus.editText as? AutoCompleteTextView)?.apply {
             setAdapter(contestStatusAdapter)
@@ -104,7 +114,6 @@ class RunnerContestActivity : BaseActivity<RunnerContestsViewModel, ActivityRunn
             }
         }
 
-        // Setup User Status Filter
         val userStatusAdapter = ArrayAdapter(this, R.layout.dropdown_menu_popup_item, userStatusOptions)
         (binding.tilUserStatus.editText as? AutoCompleteTextView)?.apply {
             setAdapter(userStatusAdapter)
@@ -121,7 +130,6 @@ class RunnerContestActivity : BaseActivity<RunnerContestsViewModel, ActivityRunn
 
         var filteredContests = allContests
 
-        // Filter by contest status
         if (contestStatusFilter != null && contestStatusFilter != contestStatusOptions[0]) {
             filteredContests = filteredContests.filter { contest ->
                 when (contestStatusFilter) {
@@ -133,7 +141,6 @@ class RunnerContestActivity : BaseActivity<RunnerContestsViewModel, ActivityRunn
             }
         }
 
-        // Filter by user status
         if (userStatusFilter != null && userStatusFilter != userStatusOptions[0]) {
             filteredContests = filteredContests.filter { contest ->
                 val userRegistration = contest.registrations?.find { it.runner.email == userEmail }
@@ -168,24 +175,20 @@ class RunnerContestActivity : BaseActivity<RunnerContestsViewModel, ActivityRunn
         binding.tvFilterResult.visibility = if (filteredCount != totalCount) View.VISIBLE else View.GONE
     }
 
-    private fun handleIntentExtras(intent: Intent) {
-        intent.apply {
-            viewModel.apply {
-                (getSerializableExtra(KEY_CONTESTS) as? List<Contest>)?.let {
-                    setUpAdapter(it)
-                    setContests(it)
-                }
-            }
-        }
-    }
-
-    override fun getViewModel(): Class<RunnerContestsViewModel> = RunnerContestsViewModel::class.java
+    override fun getViewModel(): Class<ProfileViewModel> = ProfileViewModel::class.java
 
     override fun getActivityBinding(inflater: LayoutInflater): ActivityRunnerContestBinding {
         return ActivityRunnerContestBinding.inflate(inflater)
     }
 
     override fun getActivityRepositories(): List<BaseRepository> {
-        return listOf()
+        val token = runBlocking { userPreferences.authToken.first() }
+        val apiAuth = retrofitInstance.buildApi(AuthApiService::class.java, token)
+        val apiRecord = retrofitInstance.buildApi(RecordApiService::class.java, token)
+        val apiContest = retrofitInstance.buildApi(ContestApiService::class.java, token)
+        return listOf(
+            AuthRepository(apiAuth, userPreferences),
+            RecordRepository(apiRecord), ContestRepository(apiContest)
+        )
     }
 }

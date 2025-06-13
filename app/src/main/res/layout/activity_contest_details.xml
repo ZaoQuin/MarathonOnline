@@ -1,6 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:shimmer="http://schemas.android.com/apk/res-auto">
 
     <data/>
 
@@ -9,37 +11,223 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmer_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            shimmer:shimmer_auto_start="true"
+            shimmer:shimmer_base_alpha="0.7"
+            shimmer:shimmer_duration="1000"
+            shimmer:shimmer_highlight_alpha="0.6"
+            shimmer:shimmer_intensity="0.5"
+            shimmer:shimmer_shape="linear"
+            android:visibility="gone"
+            android:layout_marginTop="40dp">
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingBottom="@dimen/_100sdp">
+
+                    <!-- Shimmer for Contest Image -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_150sdp"
+                        android:background="@color/shimmer_placeholder" />
+
+                    <!-- Shimmer for Contest Info -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_10sdp"
+                        android:background="@color/white"
+                        android:orientation="vertical"
+                        android:padding="@dimen/_10sdp">
+
+                        <!-- Contest Name Shimmer -->
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/_25sdp"
+                            android:layout_marginBottom="@dimen/_15sdp"
+                            android:background="@drawable/shimmer_placeholder_rounded" />
+
+                        <!-- Date Info Shimmer -->
+                        <View
+                            android:layout_width="200dp"
+                            android:layout_height="@dimen/_15sdp"
+                            android:layout_marginBottom="@dimen/_5sdp"
+                            android:background="@drawable/shimmer_placeholder_rounded" />
+
+                        <View
+                            android:layout_width="180dp"
+                            android:layout_height="@dimen/_15sdp"
+                            android:layout_marginBottom="@dimen/_5sdp"
+                            android:background="@drawable/shimmer_placeholder_rounded" />
+
+                        <View
+                            android:layout_width="170dp"
+                            android:layout_height="@dimen/_15sdp"
+                            android:background="@drawable/shimmer_placeholder_rounded" />
+
+                    </LinearLayout>
+
+                    <!-- Shimmer for Details Section -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_10sdp"
+                        android:background="@color/white"
+                        android:orientation="vertical"
+                        android:padding="@dimen/_10sdp">
+
+                        <!-- Section Title -->
+                        <View
+                            android:layout_width="150dp"
+                            android:layout_height="@dimen/_18sdp"
+                            android:layout_marginBottom="@dimen/_10sdp"
+                            android:background="@drawable/shimmer_placeholder_rounded" />
+
+                        <!-- Detail Items -->
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/_15sdp"
+                            android:layout_marginBottom="@dimen/_5sdp"
+                            android:background="@drawable/shimmer_placeholder_rounded" />
+
+                        <View
+                            android:layout_width="220dp"
+                            android:layout_height="@dimen/_15sdp"
+                            android:layout_marginBottom="@dimen/_5sdp"
+                            android:background="@drawable/shimmer_placeholder_rounded" />
+
+                        <View
+                            android:layout_width="180dp"
+                            android:layout_height="@dimen/_15sdp"
+                            android:layout_marginBottom="@dimen/_10sdp"
+                            android:background="@drawable/shimmer_placeholder_rounded" />
+
+                        <!-- Description -->
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/_60sdp"
+                            android:background="@drawable/shimmer_placeholder_rounded" />
+
+                    </LinearLayout>
+
+                    <!-- Shimmer for Countdown Section -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_10sdp"
+                        android:background="@color/white"
+                        android:orientation="vertical"
+                        android:padding="@dimen/_10sdp">
+
+                        <!-- Section Title -->
+                        <View
+                            android:layout_width="120dp"
+                            android:layout_height="@dimen/_18sdp"
+                            android:layout_marginBottom="@dimen/_10sdp"
+                            android:background="@drawable/shimmer_placeholder_rounded" />
+
+                        <!-- Countdown Timer -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/_80sdp"
+                            android:background="@drawable/shimmer_placeholder_rounded"
+                            android:orientation="horizontal" />
+
+                    </LinearLayout>
+
+                    <!-- Shimmer for Rewards Section -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_10sdp"
+                        android:background="@color/white"
+                        android:orientation="vertical"
+                        android:padding="@dimen/_10sdp">
+
+                        <View
+                            android:layout_width="100dp"
+                            android:layout_height="@dimen/_18sdp"
+                            android:layout_marginBottom="@dimen/_10sdp"
+                            android:background="@drawable/shimmer_placeholder_rounded" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/_60sdp"
+                            android:background="@drawable/shimmer_placeholder_rounded" />
+
+                    </LinearLayout>
+
+                    <!-- Shimmer for Rules Section -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_10sdp"
+                        android:background="@color/white"
+                        android:orientation="vertical"
+                        android:padding="@dimen/_10sdp">
+
+                        <View
+                            android:layout_width="140dp"
+                            android:layout_height="@dimen/_18sdp"
+                            android:layout_marginBottom="@dimen/_10sdp"
+                            android:background="@drawable/shimmer_placeholder_rounded" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/_80sdp"
+                            android:background="@drawable/shimmer_placeholder_rounded" />
+
+                    </LinearLayout>
+
+                    <!-- Shimmer for Organization Section -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/white"
+                        android:orientation="vertical"
+                        android:padding="@dimen/_10sdp">
+
+                        <View
+                            android:layout_width="130dp"
+                            android:layout_height="@dimen/_18sdp"
+                            android:layout_marginBottom="@dimen/_10sdp"
+                            android:background="@drawable/shimmer_placeholder_rounded" />
+
+                        <View
+                            android:layout_width="200dp"
+                            android:layout_height="@dimen/_15sdp"
+                            android:layout_marginBottom="@dimen/_5sdp"
+                            android:background="@drawable/shimmer_placeholder_rounded" />
+
+                        <View
+                            android:layout_width="180dp"
+                            android:layout_height="@dimen/_15sdp"
+                            android:background="@drawable/shimmer_placeholder_rounded" />
+
+                    </LinearLayout>
+                </LinearLayout>
+
+            </ScrollView>
+
+        </com.facebook.shimmer.ShimmerFrameLayout>
+
         <LinearLayout
+            android:id="@+id/main_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginTop="40dp">
 
-            <Toolbar
-                android:id="@+id/tool_bar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white">
-
-                <ImageButton
-                    android:id="@+id/button_back"
-                    android:layout_width="@dimen/_20sdp"
-                    android:layout_height="@dimen/_20sdp"
-                    android:background="@android:color/transparent"
-                    android:padding="0dp"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/ic_left" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="Chi tiết"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/_18sdp"
-                    android:textStyle="bold"
-                    android:padding="@dimen/_5sdp"/>
-
-            </Toolbar>
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabLayout"
@@ -60,10 +248,10 @@
                     android:orientation="vertical"
                     android:paddingBottom="@dimen/_100sdp">
 
-
                     <ImageView
+                        android:id="@+id/contestImg"
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/_150sdp"
+                        android:layout_height="@dimen/_200sdp"
                         android:scaleType="centerCrop"
                         android:src="@drawable/example_event" />
 
@@ -119,7 +307,6 @@
                                 android:layout_height="@dimen/_15sdp"
                                 android:layout_marginEnd="2dp" />
 
-
                             <TextView
                                 android:layout_width="100dp"
                                 android:layout_height="wrap_content"
@@ -172,7 +359,6 @@
                         </LinearLayout>
 
                     </LinearLayout>
-
                     <LinearLayout
                         android:id="@+id/section_details"
                         android:layout_width="match_parent"
@@ -488,10 +674,10 @@
                             android:textSize="@dimen/_13sdp"
                             android:textStyle="bold"/>
 
-                            <FrameLayout
-                                android:id="@+id/fragment_container"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content" />
+                        <FrameLayout
+                            android:id="@+id/fragment_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
 
 
                     </LinearLayout>
@@ -545,7 +731,6 @@
             </ScrollView>
 
         </LinearLayout>
-
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/register_container"
@@ -648,14 +833,12 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Tiến độ chạy của bạn là"
                         android:paddingStart="5dp"
                         android:paddingEnd="5dp"/>
-
 
                     <TextView
                         android:id="@+id/processBarValue"
@@ -668,7 +851,6 @@
                         android:paddingEnd="5dp"/>
 
                 </LinearLayout>
-
 
                 <ProgressBar
                     android:id="@+id/processBar"
@@ -683,17 +865,48 @@
 
             </LinearLayout>
 
-                <Button
-                    android:id="@+id/btnRecord"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:layout_marginBottom="@dimen/_10sdp"
-                    android:background="@drawable/btn_radius"
-                    android:text="Chạy"
-                    android:textColor="@color/white" />
+            <Button
+                android:id="@+id/btnRecord"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="@dimen/_10sdp"
+                android:background="@drawable/btn_radius"
+                android:text="Chạy"
+                android:textColor="@color/white" />
 
         </com.google.android.material.bottomnavigation.BottomNavigationView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Toolbar
+                android:id="@+id/tool_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#80FFFFFF">
+
+                <ImageButton
+                    android:id="@+id/button_back"
+                    android:layout_width="@dimen/_20sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:background="@android:color/transparent"
+                    android:padding="0dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_left" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Chi tiết"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/_18sdp"
+                    android:textStyle="bold"
+                    android:padding="@dimen/_5sdp"/>
+
+            </Toolbar>
+        </LinearLayout>
 
     </RelativeLayout>
 

@@ -4,6 +4,7 @@ import java.io.Serializable
 
 data class User(
     var id: Long,
+    var imgUrl: String? = null,
     var fullName: String? = null,
     var email: String? = null,
     var phoneNumber: String? = null,

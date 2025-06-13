@@ -12,8 +12,8 @@ class RecordRepository(
         api.addRecordAndSaveIntoRegistration(record)
     }
 
-    suspend fun getByRunner() = safeApiCall {
-        api.getByRunner()
+    suspend fun getByRunner(startDate: String?, endDate: String?) = safeApiCall {
+        api.getByRunner(startDate, endDate)
     }
 
     suspend fun sync(records: List<CreateRecordRequest>) = safeApiCall {

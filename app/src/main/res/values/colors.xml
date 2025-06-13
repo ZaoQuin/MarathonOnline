@@ -68,4 +68,8 @@
     <color name="silver_transparent">#33C0C0C0</color>
     <color name="bronze_transparent">#33CD7F32</color>
 
+    <color name="shimmer_placeholder">#E0E0E0</color>
+    <color name="shimmer_highlight">#F5F5F5</color>
+    <color name="shimmer_base">#EEEEEE</color>
+
 </resources>

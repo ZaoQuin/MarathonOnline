@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.github.mikephil.charting.components.XAxis
@@ -14,6 +15,7 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.university.marathononline.R
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
+import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.record.RecordApiService
 import com.university.marathononline.data.models.Record
 import com.university.marathononline.data.models.User
@@ -28,6 +30,7 @@ import com.university.marathononline.utils.formatCalogies
 import com.university.marathononline.utils.formatDistance
 import com.university.marathononline.utils.formatPace
 import com.university.marathononline.utils.formatSpeed
+import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
@@ -35,6 +38,9 @@ import java.util.Calendar
 import java.util.Date
 
 class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, FragmentMonthlyStatisticsBinding>() {
+
+    private var currentMonth = Calendar.getInstance().get(Calendar.MONTH)
+    private var currentYear = Calendar.getInstance().get(Calendar.YEAR)
 
     override fun getViewModel(): Class<MonthlyStatisticsViewModel> = MonthlyStatisticsViewModel::class.java
 
@@ -45,7 +51,7 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
         return FragmentMonthlyStatisticsBinding.inflate(inflater, container, false)
     }
 
-    override fun getFragmentRepositories():  List<BaseRepository> {
+    override fun getFragmentRepositories(): List<BaseRepository> {
         val token = runBlocking { userPreferences.authToken.first() }
         val api = retrofitInstance.buildApi(RecordApiService::class.java, token)
         return listOf(RecordRepository(api))
@@ -53,20 +59,18 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (arguments?.getSerializable(KEY_USER) as? User)?.let { viewModel.setUser(it)
-            (arguments?.getSerializable(KEY_RECORDS) as? List<Record>)?.let { viewModel.setRecords(it) }
+        (arguments?.getSerializable(KEY_USER) as? User)?.let { user ->
+            viewModel.setUser(user)
+            viewModel.setSelectedTime(currentMonth + 1, currentYear)
+            viewModel.getRecords(currentMonth + 1, currentYear)
         }
         initUI()
         observeViewModel()
     }
 
     private fun initUI() {
-        val currentMonth = Calendar.getInstance().get(Calendar.MONTH)
-        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
         binding.filterText.text = DateUtils.getFormattedMonthYear(currentMonth, currentYear)
-
         binding.filterButton.setOnClickListener { showMonthPickerBottomSheet() }
-
 
         Glide.with(this)
             .asGif()
@@ -76,8 +80,8 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
 
     private fun setUpLineChart(record: Map<String, String>) {
         val lineChart = binding.lineChart
-        val year = viewModel.selectedYear.value?: LocalDate.now().year
-        val month = viewModel.selectedMonth.value?: LocalDate.now().monthValue
+        val year = viewModel.selectedYear.value ?: currentYear
+        val month = viewModel.selectedMonth.value ?: (currentMonth + 1)
         val numberOfDaysInMonth = LocalDate.of(year, month, 1).lengthOfMonth()
 
         val xAxis = lineChart.xAxis
@@ -107,7 +111,7 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
         for (day in 1..numberOfDaysInMonth) {
             val formattedDay = day.toString().padStart(2, '0')
             val formattedMonth = month.toString().padStart(2, '0')
-            val key = "2024-$formattedMonth-$formattedDay"
+            val key = "$year-$formattedMonth-$formattedDay"
 
             val distance = record[key]?.toFloatOrNull() ?: 0f
             entries.add(Entry(day.toFloat(), distance))
@@ -142,51 +146,64 @@ class MonthlyStatisticsFragment : BaseFragment<MonthlyStatisticsViewModel, Fragm
             invalidate()
         }
 
-        Log.d("MonthlyStatisticsFragment", "Entries count: ${entries.size}")
+        Log.d("MonthlyStatisticsFragment", "Line chart updated with ${entries.size} entries")
     }
 
     private fun observeViewModel() {
-        viewModel.records.observe(viewLifecycleOwner){
-            val current = DateUtils.convertDateToLocalDate(Date())
-            viewModel.filterDataByMonth(current.monthValue, current.year)
-        }
-
-        viewModel.distance.observe(viewLifecycleOwner){
-            binding.tvDistance.text = formatDistance(it)
-        }
-
-        viewModel.timeTaken.observe(viewLifecycleOwner){
-            binding.tvTime.text = DateUtils.convertSecondsToHHMMSS(it)
-        }
-
-        viewModel.avgSpeed.observe(viewLifecycleOwner){
-            binding.tvSpeed.text = formatSpeed(it)
-        }
-
-        viewModel.steps.observe(viewLifecycleOwner){
-            binding.tvSteps.text = it.toString()
-        }
-
-        viewModel.calories.observe(viewLifecycleOwner){
-            binding.tvCalories.text = formatCalogies(it)
-        }
-
-        viewModel.pace.observe(viewLifecycleOwner){
-            binding.tvPace.text = formatPace(it)
-        }
-
-        viewModel.dataLineChart.observe(viewLifecycleOwner){
-            viewModel.dataLineChart.value?.let { it1 ->
-                setUpLineChart(it1)
+        viewModel.getRecordResponse.observe(viewLifecycleOwner) { resource ->
+            when (resource) {
+                is Resource.Success -> {
+                    Log.d("MonthlyStatisticsFragment", "Records loaded successfully: ${resource.value.size} records")
+                    viewModel.processRecords(resource.value)
+                }
+                is Resource.Failure -> {
+                    Log.e("MonthlyStatisticsFragment", "Failed to load records")
+                    handleApiError(resource)
+                }
+                is Resource.Loading -> {
+                    Log.d("MonthlyStatisticsFragment", "Loading records...")
+                }
+                else -> Unit
             }
+        }
+
+        viewModel.distance.observe(viewLifecycleOwner) { distance ->
+            binding.tvDistance.text = formatDistance(distance)
+        }
+
+        viewModel.timeTaken.observe(viewLifecycleOwner) { time ->
+            binding.tvTime.text = DateUtils.convertSecondsToHHMMSS(time)
+        }
+
+        viewModel.avgSpeed.observe(viewLifecycleOwner) { speed ->
+            binding.tvSpeed.text = formatSpeed(speed)
+        }
+
+        viewModel.steps.observe(viewLifecycleOwner) { steps ->
+            binding.tvSteps.text = steps.toString()
+        }
+
+        viewModel.calories.observe(viewLifecycleOwner) { calories ->
+            binding.tvCalories.text = formatCalogies(calories)
+        }
+
+        viewModel.pace.observe(viewLifecycleOwner) { pace ->
+            binding.tvPace.text = formatPace(pace)
+        }
+
+        viewModel.dataLineChart.observe(viewLifecycleOwner) { chartData ->
+            setUpLineChart(chartData)
         }
     }
 
     private fun showMonthPickerBottomSheet() {
-        val bottomSheet = MonthPickerBottomSheetFragment { month, year ->
+        val bottomSheet = MonthPickerBottomSheetFragment(currentMonth, currentYear) { month, year ->
+            currentMonth = month
+            currentYear = year
+
             binding.filterText.text = DateUtils.getFormattedMonthYear(month, year)
             viewModel.setSelectedTime(month + 1, year)
-            viewModel.filterDataByMonth(month + 1, year)
+            viewModel.getRecords(month + 1, year)
         }
         bottomSheet.show(parentFragmentManager, bottomSheet.tag)
     }

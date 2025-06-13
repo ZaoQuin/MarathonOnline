@@ -3,6 +3,8 @@ package com.university.marathononline.ui.view.activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.lifecycle.Observer
+import com.bumptech.glide.Glide
+import com.university.marathononline.R
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
@@ -109,6 +111,16 @@ class InformationActivity : BaseActivity<InformationViewModel, ActivityInformati
             birthdayText.text = user.birthday
             emailText.text = user.email
             phoneNumberText.text = user.phoneNumber
+
+            if(user!!.avatarUrl.isNullOrEmpty()){
+                avartar.setImageResource(R.drawable.example_avatar)
+            } else {
+                Glide.with(this@InformationActivity)
+                    .load(user.avatarUrl)
+                    .placeholder(R.drawable.loading)
+                    .error(R.drawable.example_avatar)
+                    .into(avartar)
+            }
         }
     }
 

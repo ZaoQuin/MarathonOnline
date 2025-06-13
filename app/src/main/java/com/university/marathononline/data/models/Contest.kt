@@ -5,6 +5,7 @@ import java.math.BigDecimal
 
 data class Contest(
     var id: Long,
+    var imgUrl: String? = null,
     var organizer: User,
     var rules: List<Rule>,
     var rewards: List<Reward>,

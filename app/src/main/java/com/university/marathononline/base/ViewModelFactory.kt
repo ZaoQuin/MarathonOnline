@@ -41,7 +41,6 @@ import com.university.marathononline.ui.viewModel.RecordViewModel
 import com.university.marathononline.ui.viewModel.RegisterBasicInformationViewModel
 import com.university.marathononline.ui.viewModel.RegisterViewModel
 import com.university.marathononline.ui.viewModel.RoleSelectionViewModel
-import com.university.marathononline.ui.viewModel.RunnerContestsViewModel
 import com.university.marathononline.ui.viewModel.RunnerRewardsViewModel
 import com.university.marathononline.ui.viewModel.SearchViewModel
 import com.university.marathononline.ui.viewModel.SettingViewModel
@@ -94,7 +93,6 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(ManagementDetailsContestActivityViewModel::class.java) -> ManagementDetailsContestActivityViewModel(findRepository(ContestRepository::class.java), findRepository(RegistrationRepository::class.java), findRepository(NotificationRepository::class.java)) as T
             modelClass.isAssignableFrom(LeaderBoardViewModel::class.java) -> LeaderBoardViewModel() as T
             modelClass.isAssignableFrom(SettingViewModel::class.java) -> SettingViewModel() as T
-            modelClass.isAssignableFrom(RunnerContestsViewModel::class.java) -> RunnerContestsViewModel() as T
             modelClass.isAssignableFrom(RunnerRewardsViewModel::class.java) -> RunnerRewardsViewModel(findRepository(ContestRepository::class.java)) as T
             modelClass.isAssignableFrom(NotifyViewModel::class.java) -> NotifyViewModel(findRepository(NotificationRepository::class.java)) as T
             modelClass.isAssignableFrom(TrainingPlanViewModel::class.java) -> TrainingPlanViewModel(findRepository(TrainingPlanRepository::class.java), findRepository(TrainingDayRepository::class.java), findRepository(

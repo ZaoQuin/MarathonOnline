@@ -14,6 +14,7 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.university.marathononline.R
 import com.university.marathononline.base.BaseFragment
 import com.university.marathononline.base.BaseRepository
+import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.record.RecordApiService
 import com.university.marathononline.data.models.Record
 import com.university.marathononline.data.models.User
@@ -22,17 +23,19 @@ import com.university.marathononline.ui.viewModel.DailyStatisticsViewModel
 import com.university.marathononline.ui.components.DatePickerBottomSheetFragment
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.data.repository.RecordRepository
-import com.university.marathononline.utils.KEY_RECORDS
 import com.university.marathononline.utils.KEY_USER
 import com.university.marathononline.utils.formatCalogies
 import com.university.marathononline.utils.formatDistance
 import com.university.marathononline.utils.formatPace
 import com.university.marathononline.utils.formatSpeed
+import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import java.util.Date
 
 class DailyStatisticsFragment : BaseFragment<DailyStatisticsViewModel, FragmentDailyStatisticsBinding>() {
+
+    private var currentSelectedDate = Date()
 
     override fun getViewModel(): Class<DailyStatisticsViewModel> = DailyStatisticsViewModel::class.java
 
@@ -48,8 +51,10 @@ class DailyStatisticsFragment : BaseFragment<DailyStatisticsViewModel, FragmentD
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (arguments?.getSerializable(KEY_USER) as? User)?.let { viewModel.setUser(it)
-            (arguments?.getSerializable(KEY_RECORDS) as? List<Record>)?.let { viewModel.setRecords(it) }
+        (arguments?.getSerializable(KEY_USER) as? User)?.let { user ->
+            viewModel.setUser(user)
+            viewModel.setSelectedDate(currentSelectedDate)
+            viewModel.getRecords(currentSelectedDate)
         }
 
         initUI()
@@ -57,39 +62,50 @@ class DailyStatisticsFragment : BaseFragment<DailyStatisticsViewModel, FragmentD
     }
 
     private fun observeViewModel() {
-        viewModel.records.observe(viewLifecycleOwner){
-            viewModel.filterDataByDay(Date())
-        }
-
-        viewModel.distance.observe(viewLifecycleOwner){
-            binding.tvDistance.text = formatDistance(it)
-        }
-
-        viewModel.timeTaken.observe(viewLifecycleOwner){
-            binding.tvTime.text = DateUtils.convertSecondsToHHMMSS(it)
-        }
-
-        viewModel.avgSpeed.observe(viewLifecycleOwner){
-            binding.tvSpeed.text = formatSpeed(it)
-        }
-
-        viewModel.steps.observe(viewLifecycleOwner){
-            binding.tvSteps.text = it.toString()
-        }
-
-        viewModel.calories.observe(viewLifecycleOwner){
-            binding.tvCalories.text = formatCalogies(it)
-        }
-
-        viewModel.pace.observe(viewLifecycleOwner){
-            binding.tvPace.text = formatPace(it)
-        }
-
-        viewModel.dataLineChart.observe(viewLifecycleOwner){
-            viewModel.dataLineChart.value?.let { it1 ->
-                setUpLineChart(it1)
-                Log.d("DailyStatisticsFragment", it1.toString())
+        viewModel.getRecordResponse.observe(viewLifecycleOwner) { resource ->
+            when (resource) {
+                is Resource.Success -> {
+                    Log.d("DailyStatisticsFragment", "Records loaded successfully: ${resource.value.size} records")
+                    viewModel.processRecords(resource.value)
+                }
+                is Resource.Failure -> {
+                    Log.e("DailyStatisticsFragment", "Failed to load records")
+                    handleApiError(resource)
+                }
+                is Resource.Loading -> {
+                    Log.d("DailyStatisticsFragment", "Loading records...")
+                }
+                else -> Unit
             }
+        }
+
+        viewModel.distance.observe(viewLifecycleOwner) { distance ->
+            binding.tvDistance.text = formatDistance(distance)
+        }
+
+        viewModel.timeTaken.observe(viewLifecycleOwner) { time ->
+            binding.tvTime.text = DateUtils.convertSecondsToHHMMSS(time)
+        }
+
+        viewModel.avgSpeed.observe(viewLifecycleOwner) { speed ->
+            binding.tvSpeed.text = formatSpeed(speed)
+        }
+
+        viewModel.steps.observe(viewLifecycleOwner) { steps ->
+            binding.tvSteps.text = steps.toString()
+        }
+
+        viewModel.calories.observe(viewLifecycleOwner) { calories ->
+            binding.tvCalories.text = formatCalogies(calories)
+        }
+
+        viewModel.pace.observe(viewLifecycleOwner) { pace ->
+            binding.tvPace.text = formatPace(pace)
+        }
+
+        viewModel.dataLineChart.observe(viewLifecycleOwner) { records ->
+            setUpLineChart(records)
+            Log.d("DailyStatisticsFragment", "Chart data updated with ${records.size} records")
         }
     }
 
@@ -115,6 +131,8 @@ class DailyStatisticsFragment : BaseFragment<DailyStatisticsViewModel, FragmentD
                 textColor = ContextCompat.getColor(requireContext(), R.color.text_color)
                 gridColor = ContextCompat.getColor(requireContext(), R.color.light_gray)
                 axisLineColor = ContextCompat.getColor(requireContext(), R.color.dark_main_color)
+                granularity = 1f
+                isGranularityEnabled = true
             }
 
             leftAxis.apply {
@@ -144,6 +162,8 @@ class DailyStatisticsFragment : BaseFragment<DailyStatisticsViewModel, FragmentD
                 val distance = hourlyDistances.getOrDefault(hour, 0.0)
                 entries.add(Entry(hour.toFloat(), distance.toFloat()))
             }
+
+            Log.d("DailyStatisticsFragment", "Line chart updated with ${entries.size} entries")
 
             val dataSet = LineDataSet(entries, "Quá trình chạy hằng giờ").apply {
                 color = ContextCompat.getColor(requireContext(), R.color.main_color)
@@ -175,12 +195,12 @@ class DailyStatisticsFragment : BaseFragment<DailyStatisticsViewModel, FragmentD
         }
     }
 
-
-
     private fun showDatePickerBottomSheet() {
-        val bottomSheet = DatePickerBottomSheetFragment() { day ->
-            binding.filterText.text = DateUtils.getFormattedDate(day)
-            viewModel.filterDataByDay(day)
+        val bottomSheet = DatePickerBottomSheetFragment(currentSelectedDate) { selectedDate ->
+            binding.filterText.text = DateUtils.getFormattedDate(selectedDate)
+            currentSelectedDate = selectedDate
+            viewModel.setSelectedDate(selectedDate)
+            viewModel.getRecords(selectedDate)
         }
 
         bottomSheet.show(parentFragmentManager, bottomSheet.tag)

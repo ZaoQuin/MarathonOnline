@@ -10,7 +10,10 @@ import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
+import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.material.tabs.TabLayout
+import com.university.marathononline.R
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
@@ -44,7 +47,7 @@ class ContestDetailsActivity :
 
     companion object {
         const val PAYMENT_REQUEST_CODE = 1001
-        private const val REFRESH_DELAY_MS = 1000L // Tăng delay để đảm bảo server đã cập nhật
+        private const val REFRESH_DELAY_MS = 1000L
     }
 
     private lateinit var ruleAdapter: RuleAdapter
@@ -53,12 +56,14 @@ class ContestDetailsActivity :
     private var isTabSelected = false
     private var statusManager: ContestUserStatusManager? = null
     private var leaderBoardFragment: LeaderBoardFragment? = null
-    private var isDataRefreshing = false // Flag để tránh refresh đồng thời
+    private var isDataRefreshing = false
+    private var shimmerContainer: ShimmerFrameLayout? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         try {
+            initializeShimmer()
             handleIntentExtras(intent)
             initializeUI()
             setRuleAdapter()
@@ -70,6 +75,37 @@ class ContestDetailsActivity :
             // Handle the error gracefully - maybe show error message and finish
             Toast.makeText(this, "Error loading contest details", Toast.LENGTH_LONG).show()
             finish()
+        }
+    }
+
+
+    private fun initializeShimmer() {
+        shimmerContainer = binding.shimmerContainer
+        showShimmer()
+    }
+
+    private fun showShimmer() {
+        shimmerContainer?.let { shimmer ->
+            shimmer.visible(true)
+            shimmer.startShimmer()
+            binding.apply{
+                binding.mainContent.visible(false)
+                binding.registerContainer.visible(false)
+                binding.recordContainer.visible(false)
+            }
+        }
+    }
+
+    private fun hideShimmer() {
+        shimmerContainer?.let { shimmer ->
+            shimmer.stopShimmer()
+            shimmer.visible(false)
+
+            binding.apply{
+                binding.mainContent.visible(true)
+                binding.registerContainer.visible(true)
+                binding.recordContainer.visible(true)
+            }
         }
     }
 
@@ -87,7 +123,7 @@ class ContestDetailsActivity :
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(binding.fragmentContainer.id, leaderBoardFragment!!)
+                .replace(binding.mainContent.id, leaderBoardFragment!!)
                 .commit()
         }
     }
@@ -110,27 +146,23 @@ class ContestDetailsActivity :
         }
 
         viewModel.contest.observe(this) { contest ->
-            // Add null safety check
             if (contest == null) {
                 Log.e("ContestDetailsActivity", "Contest is null")
-                // Handle null contest case - maybe finish activity or show error
                 return@observe
             }
 
             lifecycleScope.launch {
                 val emailValue = userPreferences.email.first()
                 emailValue?.let { email ->
-                    // Reset registration state before checking
                     viewModel.resetRegistrationState()
                     viewModel.checkRegister(email)
                     updateStatusManager(contest, null)
 
-                    // Update LeaderBoard with new data - safe handling
                     val safeRegistrations = contest.registrations ?: emptyList()
                     updateLeaderBoardFragment(safeRegistrations)
 
-                    // Update basic info with new data
                     populateBasicInfo(contest)
+                    hideShimmer()
                 }
             }
         }
@@ -352,6 +384,15 @@ class ContestDetailsActivity :
             else
                 contest.maxMembers.toString()
             contestName.text = contest.name
+            if (contest.imgUrl.isNullOrEmpty()) {
+                contestImg.setImageResource(R.drawable.example_event)
+            } else {
+                Glide.with(root.context)
+                    .load(contest.imgUrl)
+                    .placeholder(R.drawable.loading)
+                    .error(R.drawable.example_event)
+                    .into(contestImg)
+            }
             startDate.text = contest.startDate?.let { DateUtils.convertToVietnameseDate(it) }
             endDate.text = contest.endDate?.let { DateUtils.convertToVietnameseDate(it) }
             contentDetails.text = contest.description
@@ -370,15 +411,6 @@ class ContestDetailsActivity :
     private fun handleIntentExtras(intent: Intent) {
         intent.apply {
             viewModel.apply {
-                // Safe handling of Contest object
-                val contest = getSerializableExtra(KEY_CONTEST) as? Contest
-                contest?.let {
-                    setContest(it)
-                    it.rules?.let { rules -> setRules(rules) }
-                    it.rewards?.let { rewards -> setRewardGroups(rewards) }
-                    it.registrationDeadline?.let { deadline -> setDeadlineTime(deadline) }
-                }
-
                 val contestId = getSerializableExtra(KEY_CONTEST_ID) as? Long
                 contestId?.let {
                     viewModel.getById(it)

@@ -33,24 +33,13 @@ class ProfileViewModel(
     private val _getMyContestResponse: MutableLiveData<Resource<GetContestsResponse>> = MutableLiveData()
     val getMyContestResponse: LiveData<Resource<GetContestsResponse>> get() = _getMyContestResponse
 
-    private val _contests: MutableLiveData<List<Contest>> = MutableLiveData()
-    val contests: LiveData<List<Contest>> get() = _contests
-
     private val _rewards: MutableLiveData<List<Reward>> = MutableLiveData()
     val rewards: LiveData<List<Reward>> get() = _rewards
-
-    fun setContests(contests: List<Contest>){
-        _contests.value = contests
-    }
-
-    fun setRewards(rewards: List<Reward>){
-        _rewards.value = rewards
-    }
 
     fun getRecords(){
         viewModelScope.launch {
             _getRecordResponse.value = Resource.Loading
-            _getRecordResponse.value = recordRepository.getByRunner()
+            _getRecordResponse.value = recordRepository.getByRunner(null, null)
         }
     }
 

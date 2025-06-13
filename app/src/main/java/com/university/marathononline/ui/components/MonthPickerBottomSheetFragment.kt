@@ -11,7 +11,8 @@ import com.university.marathononline.R
 import com.university.marathononline.databinding.FragmentMonthPickerBottomSheetBinding
 import java.util.Calendar
 
-class MonthPickerBottomSheetFragment(private val onMonthYearSelected: (Int, Int) -> Unit) : BottomSheetDialogFragment() {
+class MonthPickerBottomSheetFragment(private val currentMonth: Int, private val currentYear: Int,
+                                     private val onMonthYearSelected: (Int, Int) -> Unit) : BottomSheetDialogFragment() {
 
     private lateinit var binding: FragmentMonthPickerBottomSheetBinding
     private lateinit var monthSpinner: Spinner
@@ -50,13 +51,14 @@ class MonthPickerBottomSheetFragment(private val onMonthYearSelected: (Int, Int)
         monthAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         monthSpinner.adapter = monthAdapter
 
-        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-        val years = (2023..currentYear).toList()
+        val currentCalendarYear = Calendar.getInstance().get(Calendar.YEAR)
+        val years = (2023..currentCalendarYear).toList()
         val yearAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, years)
         yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         yearSpinner.adapter = yearAdapter
 
-        monthSpinner.setSelection(Calendar.getInstance().get(Calendar.MONTH))
+        // Sử dụng currentMonth và currentYear được truyền vào thay vì Calendar.getInstance()
+        monthSpinner.setSelection(currentMonth)
         yearSpinner.setSelection(years.indexOf(currentYear))
     }
 }

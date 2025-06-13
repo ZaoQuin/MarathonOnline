@@ -94,7 +94,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:layout_marginTop="@dimen/_8sdp"
-                                android:text="Nguyễn Văn B"
+                                android:text="(Trống)"
                                 android:textColor="#1D1D1D"
                                 android:textSize="@dimen/_12ssp"
                                 android:textStyle="bold"
@@ -107,7 +107,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:layout_marginTop="@dimen/_4sdp"
-                                android:text="140 km"
+                                android:text="(Trống)"
                                 android:textColor="#646464"
                                 android:textSize="@dimen/_11ssp" />
                         </LinearLayout>
@@ -155,7 +155,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:layout_marginTop="@dimen/_10sdp"
-                                android:text="Trần Thị A"
+                                android:text="(Trống)"
                                 android:textColor="#1D1D1D"
                                 android:textSize="@dimen/_14ssp"
                                 android:textStyle="bold"
@@ -168,7 +168,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:layout_marginTop="@dimen/_4sdp"
-                                android:text="200 km"
+                                android:text="(Trống)"
                                 android:textColor="#646464"
                                 android:textSize="@dimen/_12ssp" />
                         </LinearLayout>
@@ -217,7 +217,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:layout_marginTop="@dimen/_8sdp"
-                                android:text="Lê Văn C"
+                                android:text="(Trống)"
                                 android:textColor="#1D1D1D"
                                 android:textSize="@dimen/_12ssp"
                                 android:textStyle="bold"
@@ -230,7 +230,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:layout_marginTop="@dimen/_4sdp"
-                                android:text="120 km"
+                                android:text="(Trống)"
                                 android:textColor="#646464"
                                 android:textSize="@dimen/_11ssp" />
                         </LinearLayout>
@@ -250,10 +250,12 @@
                     app:cardBackgroundColor="#FFFFFF">
 
                     <LinearLayout
+                        android:id="@+id/leaderBoardsContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="@dimen/_8sdp">
+                        android:padding="@dimen/_8sdp"
+                        android:visibility="gone">
 
                         <!-- Header for the list -->
                         <LinearLayout

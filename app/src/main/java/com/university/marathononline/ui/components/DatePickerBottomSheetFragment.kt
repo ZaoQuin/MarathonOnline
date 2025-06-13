@@ -10,6 +10,7 @@ import com.university.marathononline.databinding.FragmentDatePickerBottomSheetBi
 import java.util.Date
 
 class DatePickerBottomSheetFragment(
+    private val currentDate: Date = Date(),
     private val onDateSelected: (Date) -> Unit
 ) : BottomSheetDialogFragment() {
 
@@ -32,10 +33,11 @@ class DatePickerBottomSheetFragment(
 
         val calendarView = binding.calendarView
 
-        val currentDate = Calendar.getInstance().time
         calendarView.date = currentDate.time
 
-        val calendar = Calendar.getInstance()
+        val calendar = Calendar.getInstance().apply {
+            time = currentDate
+        }
 
         calendarView.setDate(calendar.timeInMillis, true, true)
 
@@ -45,7 +47,7 @@ class DatePickerBottomSheetFragment(
             }.time
 
             onDateSelected.invoke(selectedDate)
+            dismiss()
         }
     }
 }
-

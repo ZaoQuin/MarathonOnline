@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.lifecycle.Observer
+import com.bumptech.glide.Glide
+import com.university.marathononline.R
 import com.university.marathononline.R.string.*
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
@@ -62,6 +64,17 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
             fullNameEditText.setText(user.fullName)
             phoneNumberEditText.setText(user.phoneNumber)
             addressText.setText(user.address)
+
+            if(user!!.avatarUrl.isNullOrEmpty()){
+                avatarImage.setImageResource(R.drawable.example_avatar)
+            } else {
+                Glide.with(this@EditInformationActivity)
+                    .load(user.avatarUrl)
+                    .placeholder(R.drawable.loading)
+                    .error(R.drawable.example_avatar)
+                    .into(avatarImage)
+            }
+
             if(user.role == ERole.RUNNER) {
                 radioMale.isChecked = user.gender == EGender.MALE
                 radioFemale.isChecked = user.gender == EGender.FEMALE
