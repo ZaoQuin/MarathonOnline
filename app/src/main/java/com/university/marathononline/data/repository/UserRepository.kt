@@ -4,6 +4,7 @@ import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.user.UserApiService
 import com.university.marathononline.data.models.User
 import com.university.marathononline.data.request.CheckEmailRequest
+import com.university.marathononline.data.request.CheckPhoneNumberRequest
 import com.university.marathononline.data.request.CheckUsernameRequest
 import com.university.marathononline.data.request.CreateUserRequest
 import com.university.marathononline.data.request.UpdatePasswordRequest
@@ -34,6 +35,10 @@ class UserRepository (
 
     suspend fun checkUsername(username: CheckUsernameRequest) = safeApiCall {
         api.checkUsername(username)
+    }
+
+    suspend fun checkPhoneNumber(phoneNumber: CheckPhoneNumberRequest) = safeApiCall {
+        api.checkPhoneNumber(phoneNumber)
     }
 
     suspend fun updatePassword(updateRequest: UpdatePasswordRequest) = safeApiCall {

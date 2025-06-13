@@ -45,11 +45,32 @@ class RegisterRunnerInfoActivity : BaseActivity<RegisterViewModel, ActivityRegis
         viewModel.checkUsernameResponse.observe(this){
             when(it){
                 is Resource.Success -> {
+                    print("UserP " + it.value.exists)
                     if (!it.value.exists) {
                         binding.usernameErrorText.text = null
-                        registerHandle()
+                        viewModel.checkPhoneNumber(binding.phoneNumberText.text.toString())
                     } else {
                         binding.usernameErrorText.text = "Tên người dùng đã tồn tại"
+                    }
+                }
+                is Resource.Failure -> {
+                    handleApiError(it)
+                    it.fetchErrorMessage()
+                    print("UserP " + it.errorMessage)
+                }
+                else -> Unit
+            }
+        }
+
+        viewModel.checkPhoneNumberResponse.observe(this){
+            when(it){
+                is Resource.Success -> {
+                    print("phoneNumberErrorText " + it.value.exists)
+                    if (!it.value.exists) {
+                        binding.phoneNumberErrorText.text = null
+                        registerHandle()
+                    } else {
+                        binding.phoneNumberErrorText.text = "Số điện thoại đã tồn tại"
                     }
                 }
                 is Resource.Failure -> {
@@ -70,7 +91,6 @@ class RegisterRunnerInfoActivity : BaseActivity<RegisterViewModel, ActivityRegis
     }
 
     private fun registerHandle() {
-
         binding.apply {
             DateUtils.convertToDateString(
                 spinnerDay.selectedItem.toString().toInt(),
@@ -159,7 +179,6 @@ class RegisterRunnerInfoActivity : BaseActivity<RegisterViewModel, ActivityRegis
     private fun onRegisterButtonClick() {
         if(!validateFields())
             return
-
         viewModel.checkUsername(binding.usernameText.text.toString())
     }
 

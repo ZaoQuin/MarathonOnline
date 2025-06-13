@@ -29,6 +29,9 @@ interface UserApiService {
     @POST("/api/v1/user/check-username")
     suspend fun checkUsername(@Body username: CheckUsernameRequest): CheckUsernameResponse
 
+    @POST("/api/v1/user/check-phoneNumber")
+    suspend fun checkPhoneNumber(@Body phoneNumber: CheckPhoneNumberRequest): CheckPhoneNumberResponse
+
     @POST("/api/v1/user/update-password")
     suspend fun updatePassword(@Body email: UpdatePasswordRequest): UpdatePasswordResponse
 }

@@ -6,8 +6,10 @@ import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.models.*
 import com.university.marathononline.data.repository.UserRepository
+import com.university.marathononline.data.request.CheckPhoneNumberRequest
 import com.university.marathononline.data.request.CheckUsernameRequest
 import com.university.marathononline.data.request.CreateUserRequest
+import com.university.marathononline.data.response.CheckPhoneNumberResponse
 import com.university.marathononline.data.response.CheckUsernameResponse
 import kotlinx.coroutines.launch
 
@@ -30,9 +32,11 @@ class RegisterViewModel(
     private val _registerResponse: MutableLiveData<Resource<User>> = MutableLiveData()
     val registerResponse: LiveData<Resource<User>> get() = _registerResponse.distinctUntilChanged()
 
-
     private val _checkUsernameResponse: MutableLiveData<Resource<CheckUsernameResponse>> = MutableLiveData()
     val checkUsernameResponse: LiveData<Resource<CheckUsernameResponse>> get() = _checkUsernameResponse
+
+    private val _checkPhoneNumberResponse: MutableLiveData<Resource<CheckPhoneNumberResponse>> = MutableLiveData()
+    val checkPhoneNumberResponse: LiveData<Resource<CheckPhoneNumberResponse>> get() = _checkPhoneNumberResponse
 
     fun register(username: String, phoneNumber: String, birthday: String, address: String, role: ERole){
         viewModelScope.launch {
@@ -73,9 +77,18 @@ class RegisterViewModel(
     }
 
     fun checkUsername(username: String) {
+        println("Username " + username)
         viewModelScope.launch {
             _checkUsernameResponse.value = Resource.Loading
             _checkUsernameResponse.value = repository.checkUsername(CheckUsernameRequest(username))
+        }
+    }
+
+    fun checkPhoneNumber(phoneNumber: String) {
+        println("phoneNumber " + phoneNumber)
+        viewModelScope.launch {
+            _checkPhoneNumberResponse.value = Resource.Loading
+            _checkPhoneNumberResponse.value = repository.checkPhoneNumber(CheckPhoneNumberRequest(phoneNumber))
         }
     }
 }

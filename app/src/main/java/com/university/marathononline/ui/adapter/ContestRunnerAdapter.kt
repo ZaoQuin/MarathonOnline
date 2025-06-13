@@ -20,7 +20,8 @@ class ContestRunnerAdapter(
     private val email: String
 ) : RecyclerView.Adapter<ContestRunnerAdapter.ViewHolder>() {
 
-    class ViewHolder(private val binding: ItemContestRunnerBinding) : RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(private val binding: ItemContestRunnerBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: Contest, email: String) {
             binding.apply {
@@ -47,12 +48,12 @@ class ContestRunnerAdapter(
                 contestCardView.setOnClickListener {
                     it.context.startNewActivity(
                         ContestDetailsActivity::class.java,
-                        mapOf(KEY_CONTEST to item)
+                        mapOf(KEY_CONTEST_ID to item.id)
                     )
                 }
 
-                // Statistics button - only show if leaderboard is available
-                statisticsContest.visibility = if (displayState.showLeaderboard) View.VISIBLE else View.GONE
+                statisticsContest.visibility =
+                    if (displayState.showLeaderboard) View.VISIBLE else View.GONE
                 statisticsContest.setOnClickListener {
                     val dialog = ContestStatisticsDialog(context, item, email, false, null)
                     dialog.show()
@@ -68,21 +69,43 @@ class ContestRunnerAdapter(
                 // Set status text and colors
                 when (contest.status) {
                     EContestStatus.ACTIVE -> {
-                        tvContestStatus.setTextColor(ContextCompat.getColor(context, R.color.success_green))
-                        statusIndicator.backgroundTintList = ContextCompat.getColorStateList(context, R.color.success_green)
+                        tvContestStatus.setTextColor(
+                            ContextCompat.getColor(
+                                context,
+                                R.color.success_green
+                            )
+                        )
+                        statusIndicator.backgroundTintList =
+                            ContextCompat.getColorStateList(context, R.color.success_green)
                     }
+
                     EContestStatus.FINISHED -> {
-                        tvContestStatus.setTextColor(ContextCompat.getColor(context, R.color.warning_orange))
-                        statusIndicator.backgroundTintList = ContextCompat.getColorStateList(context, R.color.warning_orange)
+                        tvContestStatus.setTextColor(
+                            ContextCompat.getColor(
+                                context,
+                                R.color.warning_orange
+                            )
+                        )
+                        statusIndicator.backgroundTintList =
+                            ContextCompat.getColorStateList(context, R.color.warning_orange)
                     }
+
                     EContestStatus.COMPLETED -> {
                         tvContestStatus.setTextColor(ContextCompat.getColor(context, R.color.gray))
-                        statusIndicator.backgroundTintList = ContextCompat.getColorStateList(context, R.color.gray)
+                        statusIndicator.backgroundTintList =
+                            ContextCompat.getColorStateList(context, R.color.gray)
                     }
+
                     else -> {
                         tvContestStatus.text = "Không xác định"
-                        tvContestStatus.setTextColor(ContextCompat.getColor(context, R.color.disabled_gray))
-                        statusIndicator.backgroundTintList = ContextCompat.getColorStateList(context, R.color.disabled_gray)
+                        tvContestStatus.setTextColor(
+                            ContextCompat.getColor(
+                                context,
+                                R.color.disabled_gray
+                            )
+                        )
+                        statusIndicator.backgroundTintList =
+                            ContextCompat.getColorStateList(context, R.color.disabled_gray)
                     }
                 }
             }
@@ -121,7 +144,12 @@ class ContestRunnerAdapter(
                         progressPercentage >= 50 -> R.color.white
                         else -> R.color.white
                     }
-                    processBarValue.setTextColor(ContextCompat.getColor(itemView.context, textColor))
+                    processBarValue.setTextColor(
+                        ContextCompat.getColor(
+                            itemView.context,
+                            textColor
+                        )
+                    )
 
                     val backgroundColor = when {
                         progressPercentage >= 100 -> R.color.success_green
@@ -129,7 +157,8 @@ class ContestRunnerAdapter(
                         progressPercentage >= 50 -> R.color.warning_orange
                         else -> R.color.main_color
                     }
-                    processBarValue.backgroundTintList = ContextCompat.getColorStateList(itemView.context, backgroundColor)
+                    processBarValue.backgroundTintList =
+                        ContextCompat.getColorStateList(itemView.context, backgroundColor)
 
                 } else {
                     progressSection.visibility = View.GONE
@@ -194,6 +223,7 @@ class ContestRunnerAdapter(
                 val shouldShowPaymentButton = when (displayState.userStatus) {
                     ContestUserStatusManager.UserContestStatus.REGISTERED_UNPAID,
                     ContestUserStatusManager.UserContestStatus.PAYMENT_FAILED -> true
+
                     else -> false
                 }
 
@@ -203,17 +233,22 @@ class ContestRunnerAdapter(
                     when (displayState.userStatus) {
                         ContestUserStatusManager.UserContestStatus.REGISTERED_UNPAID -> {
                             text = "💳 Thanh toán"
-                            backgroundTintList = ContextCompat.getColorStateList(context, R.color.main_color)
+                            backgroundTintList =
+                                ContextCompat.getColorStateList(context, R.color.main_color)
                             setTextColor(ContextCompat.getColor(context, R.color.white))
                         }
+
                         ContestUserStatusManager.UserContestStatus.PAYMENT_FAILED -> {
                             text = "🔄 Thanh toán lại"
-                            backgroundTintList = ContextCompat.getColorStateList(context, R.color.error_red)
+                            backgroundTintList =
+                                ContextCompat.getColorStateList(context, R.color.error_red)
                             setTextColor(ContextCompat.getColor(context, R.color.white))
                         }
+
                         else -> {
                             text = "Thanh toán"
-                            backgroundTintList = ContextCompat.getColorStateList(context, R.color.main_color)
+                            backgroundTintList =
+                                ContextCompat.getColorStateList(context, R.color.main_color)
                             setTextColor(ContextCompat.getColor(context, R.color.white))
                         }
                     }
@@ -243,7 +278,8 @@ class ContestRunnerAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = ItemContestRunnerBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding =
+            ItemContestRunnerBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
     }
 

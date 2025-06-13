@@ -34,14 +34,15 @@ class EditContestAdapter(private var contests: List<Contest>) :
 
                 tvRegistrationStatus.visible(enableRegister(item))
 
-                val count = item.registrations?.count{
+                val count = item.registrations?.count {
                     it.status != ERegistrationStatus.PENDING
                 }.toString()
 
                 tvRegistrationCount.text = "Số lượng: ${count}/ ${item.maxMembers}"
 
-                contestCardView.setOnClickListener{
-                    it.context.startNewActivity(ManagementDetailsContestActivity::class.java,
+                contestCardView.setOnClickListener {
+                    it.context.startNewActivity(
+                        ManagementDetailsContestActivity::class.java,
                         mapOf(KEY_CONTEST to item)
                     )
                 }
