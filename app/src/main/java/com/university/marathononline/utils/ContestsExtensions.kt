@@ -42,9 +42,6 @@ fun Contest.isFinished(): Boolean {
     return this.status == EContestStatus.FINISHED || this.status == EContestStatus.COMPLETED
 }
 
-/**
- * Kiểm tra xem registration deadline có đã qua không
- */
 fun Contest.isRegistrationDeadlinePassed(): Boolean {
     return this.registrationDeadline?.let { deadline ->
         try {
@@ -55,9 +52,6 @@ fun Contest.isRegistrationDeadlinePassed(): Boolean {
     } ?: false
 }
 
-/**
- * Kiểm tra xem contest có đã đạt max members không
- */
 fun Contest.isMaxRegistrationsReached(): Boolean {
     return this.maxMembers != null &&
             this.maxMembers != 0 &&

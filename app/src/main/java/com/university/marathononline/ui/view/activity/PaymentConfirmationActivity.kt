@@ -56,6 +56,7 @@ class PaymentConfirmationActivity: BaseActivity<PaymentConfirmationViewModel, Ac
 
         viewModel.registerResponse.observe(this){
             binding.btnPayment.enable(false)
+
             when(it){
                 is Resource.Success -> {
                     viewModel.setRegistration(it.value)

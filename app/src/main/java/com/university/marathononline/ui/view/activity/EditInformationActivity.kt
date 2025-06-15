@@ -46,7 +46,7 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
         if (isGranted) {
             pickImageLauncher.launch("image/*")
         } else {
-            Toast.makeText(this, "Bạn cần cấp quyền để chọn ảnh", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Bạn cần cấp quyền để chọn ảnh", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -102,7 +102,7 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
                         "Đăng tải ảnh thành công",
                         Toast.LENGTH_SHORT
                     ).show()
-                    saveInformation()
+                    saveInformation(result.value.str)
                 }
                 is Resource.Loading -> showLoadingDialog()
                 is Resource.Failure -> {
@@ -140,11 +140,11 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
     }
 
     private fun showLoadingDialog() {
-        binding.saveButton.isEnabled = false
+        showShimmerLoading()
     }
 
     private fun hideLoadingDialog() {
-        binding.saveButton.isEnabled = true
+        hideShimmerLoading()
     }
 
     private fun updateUI(user: User) {
@@ -226,11 +226,11 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
         if (selectedImageUri != null){
             viewModel.uploadAvatar(selectedImageUri!!, this@EditInformationActivity)
         } else {
-            saveInformation()
+            saveInformation(null)
         }
     }
 
-    private fun saveInformation(){
+    private fun saveInformation(avatarLink: String?){
         binding.apply {
             DateUtils.convertToDateString(
                 spinnerDay.getIntegerSelectedItem(),
@@ -241,7 +241,8 @@ class EditInformationActivity : BaseActivity<EditInformationViewModel, ActivityE
                     fullNameEditText.text.toString(),
                     phoneNumberEditText.text.toString(),
                     it,
-                    addressText.text.toString()
+                    addressText.text.toString(),
+                    avatarLink
                 )
             }
         }

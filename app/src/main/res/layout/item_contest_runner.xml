@@ -10,8 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="8dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
         app:cardBackgroundColor="@color/white">
 
         <LinearLayout
@@ -19,10 +19,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp"
+            android:padding="16dp"
             android:foreground="?attr/selectableItemBackground">
 
-            <!-- Header Section -->
+            <!-- Header Section - Contest name and status -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -41,15 +41,15 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Contest Name"
-                        android:textSize="18sp"
+                        android:textSize="16sp"
                         android:textColor="@color/text_dark"
                         android:textStyle="bold"
-                        android:layout_marginBottom="8dp"
-                        android:maxLines="2"
+                        android:layout_marginBottom="4dp"
+                        android:maxLines="1"
                         android:ellipsize="end"
                         tools:text="Marathon 2024" />
 
-                    <!-- Contest Status Badge -->
+                    <!-- Compact Status -->
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -58,9 +58,9 @@
 
                         <View
                             android:id="@+id/statusIndicator"
-                            android:layout_width="8dp"
-                            android:layout_height="8dp"
-                            android:layout_marginEnd="6dp"
+                            android:layout_width="6dp"
+                            android:layout_height="6dp"
+                            android:layout_marginEnd="4dp"
                             android:background="@drawable/circle_indicator"
                             android:backgroundTint="@color/success_green" />
 
@@ -68,13 +68,10 @@
                             android:id="@+id/tvContestStatus"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:background="@drawable/status_badge_background"
-                            android:paddingHorizontal="12dp"
-                            android:paddingVertical="6dp"
                             android:text="Đang hoạt động"
                             android:textColor="@color/success_green"
-                            android:textStyle="bold"
-                            android:textSize="12sp"/>
+                            android:textSize="11sp"
+                            android:textStyle="bold"/>
 
                     </LinearLayout>
 
@@ -85,84 +82,55 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/statistics_button_background"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="8dp"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="6dp"
                     android:text="Thống kê"
                     android:textColor="@color/main_color"
-                    android:textStyle="bold"
-                    android:textSize="12sp"
-                    android:drawablePadding="4dp"/>
+                    android:textSize="11sp"
+                    android:textStyle="bold"/>
 
             </LinearLayout>
 
+            <!-- Compact Date Section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 android:background="@drawable/date_section_background"
-                android:padding="12dp"
-                android:layout_marginBottom="16dp">
+                android:padding="10dp"
+                android:layout_marginBottom="12dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/tvContestDatesStart"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:layout_weight="1"
+                    android:text="Bắt đầu: 01/01/2024"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_color"
+                    android:drawablePadding="4dp"
+                    tools:text="Bắt đầu: 01/01/2024" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp"
-                        android:layout_marginEnd="8dp" />
-
-                    <TextView
-                        android:id="@+id/tvContestDatesStart"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Start: YYYY-MM-DD"
-                        android:textSize="13sp"
-                        android:textColor="@color/text_color"
-                        tools:text="Bắt đầu: 01/01/2024" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/tvContestDatesEnd"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginTop="6dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp"
-                        android:layout_marginEnd="8dp" />
-
-                    <TextView
-                        android:id="@+id/tvContestDatesEnd"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="End: YYYY-MM-DD"
-                        android:textSize="13sp"
-                        android:textColor="@color/text_color"
-                        tools:text="Kết thúc: 10/01/2024" />
-
-                </LinearLayout>
+                    android:layout_weight="1"
+                    android:text="Kết thúc: 10/01/2024"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_color"
+                    android:gravity="end"
+                    tools:text="Kết thúc: 10/01/2024" />
 
             </LinearLayout>
 
-            <!-- Progress Section -->
+            <!-- Compact Progress Section -->
             <LinearLayout
                 android:id="@+id/progressSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/progress_section_background"
-                android:padding="16dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 android:visibility="visible">
 
                 <LinearLayout
@@ -170,34 +138,24 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="8dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="16sp"
-                        android:layout_marginEnd="8dp" />
+                    android:layout_marginBottom="6dp">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Tiến độ chạy của bạn"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_dark"
-                        android:textStyle="bold"/>
+                        android:text="Tiến độ"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_dark"/>
 
                     <TextView
                         android:id="@+id/processBarValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="50/100"
-                        android:textSize="14sp"
+                        android:text="15.5km/21km"
+                        android:textSize="12sp"
                         android:textColor="@color/main_color"
                         android:textStyle="bold"
-                        android:background="@drawable/progress_value_background"
-                        android:paddingHorizontal="8dp"
-                        android:paddingVertical="4dp"
                         tools:text="15.5km/21km"/>
 
                 </LinearLayout>
@@ -205,7 +163,7 @@
                 <ProgressBar
                     android:id="@+id/processBar"
                     android:layout_width="match_parent"
-                    android:layout_height="12dp"
+                    android:layout_height="8dp"
                     android:indeterminate="false"
                     android:max="100"
                     android:progress="50"
@@ -214,57 +172,54 @@
 
             </LinearLayout>
 
-            <!-- Enhanced Status and Payment Section -->
+            <!-- Compact Status and Payment Section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:orientation="horizontal"
-                    android:background="@drawable/status_card_background"
-                    android:padding="12dp"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
+                    android:gravity="center_vertical">
 
                     <TextView
                         android:id="@+id/statusIcon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="✅"
-                        android:textSize="18sp"
-                        android:layout_marginEnd="8dp" />
+                        android:textSize="14sp"
+                        android:layout_marginEnd="6dp" />
 
                     <TextView
                         android:id="@+id/tvCompletionStatus"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Trạng thái: Đang tham gia"
-                        android:textSize="14sp"
+                        android:text="Đang tham gia"
+                        android:textSize="12sp"
                         android:textColor="@color/main_color"
                         android:textStyle="bold"
-                        tools:text="Trạng thái: Đang tham gia" />
+                        tools:text="Đang tham gia" />
 
                 </LinearLayout>
 
                 <Button
                     android:id="@+id/btnPayment"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_height="32dp"
                     android:text="Thanh toán"
                     android:textColor="@color/white"
+                    android:textSize="11sp"
                     android:textStyle="bold"
                     android:background="@drawable/button_background_picker"
-                    android:paddingHorizontal="20dp"
+                    android:paddingHorizontal="16dp"
                     android:minWidth="0dp"
                     android:minHeight="0dp"
                     android:visibility="gone"
-                    android:elevation="4dp"
-                    tools:visibility="visible"
-                    android:layout_gravity="end"/>
+                    tools:visibility="visible"/>
 
             </LinearLayout>
 

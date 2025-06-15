@@ -17,6 +17,10 @@ class SearchViewModel(
     private val _getContestReponse = MutableLiveData<Resource<GetContestsResponse>> ()
     val getContestReponse: LiveData<Resource<GetContestsResponse>> get() = _getContestReponse
 
+
+    private val _results = MutableLiveData<List<Contest>> ()
+    val results: LiveData<List<Contest>> get() = _results
+
     private val _contests = MutableLiveData<List<Contest>>()
     val contests: LiveData<List<Contest>> get() = _contests
 
@@ -29,6 +33,7 @@ class SearchViewModel(
 
     fun setContests(contests: List<Contest>) {
         _contests.value = contests
+        _results.value = contests
         Log.d("SearchViewModel", contests.size.toString())
     }
 
@@ -39,8 +44,4 @@ class SearchViewModel(
         }
         _results.value = filteredList?: emptyList()
     }
-
-    private val _results = MutableLiveData<List<Contest>> ()
-    val results: LiveData<List<Contest>> get() = _results
-
 }

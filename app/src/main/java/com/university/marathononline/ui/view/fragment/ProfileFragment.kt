@@ -25,6 +25,7 @@ import com.university.marathononline.databinding.FragmentProfileBinding
 import com.university.marathononline.ui.adapter.ProfilePagerAdapter
 import com.university.marathononline.ui.view.activity.InformationActivity
 import com.university.marathononline.ui.view.activity.RunnerContestActivity
+import com.university.marathononline.ui.view.activity.RunnerRewardsActivity
 import com.university.marathononline.ui.viewModel.ProfileViewModel
 import com.university.marathononline.utils.startNewActivity
 import handleApiError
@@ -80,16 +81,9 @@ class ProfileFragment : BaseFragment<ProfileViewModel, FragmentProfileBinding>()
         }
 
         binding.myReward.setOnClickListener{
-//            val user = viewModel.user.value
-//
-//            if(contests!=null && user!= null)
-//                startNewActivity(
-//                    RunnerRewardsActivity::class.java,
-//                    mapOf(
-//                        KEY_EMAIL to user.email!!,
-//                        KEY_CONTESTS to contests
-//                    )
-//                )
+            startNewActivity(
+                RunnerRewardsActivity::class.java
+            )
         }
 
 

@@ -53,11 +53,38 @@ class RunnerContestActivity : BaseActivity<ProfileViewModel, ActivityRunnerConte
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.getMyContest()
 
         initializeUI()
         setupFilters()
         setUpObserve()
+
+        // Start shimmer and load data
+        showShimmerLoading()
+        viewModel.getMyContest()
+    }
+
+    private fun showShimmerLoading() {
+        binding.shimmerViewContainer.visibility = View.VISIBLE
+        binding.shimmerViewContainer.startShimmer()
+        binding.rvContests.visibility = View.GONE
+        binding.emptyState.visibility = View.GONE
+    }
+
+    private fun hideShimmerLoading() {
+        binding.shimmerViewContainer.stopShimmer()
+        binding.shimmerViewContainer.visibility = View.GONE
+    }
+
+    private fun showContent() {
+        hideShimmerLoading()
+        binding.rvContests.visibility = View.VISIBLE
+        binding.emptyState.visibility = View.GONE
+    }
+
+    private fun showEmptyState() {
+        hideShimmerLoading()
+        binding.rvContests.visibility = View.GONE
+        binding.emptyState.visibility = View.VISIBLE
     }
 
     private fun setUpAdapter(contests: List<Contest>) {
@@ -65,6 +92,12 @@ class RunnerContestActivity : BaseActivity<ProfileViewModel, ActivityRunnerConte
             userEmail = userPreferences.email.first() ?: ""
             adapter = ContestRunnerAdapter(contests, userEmail)
             binding.rvContests.adapter = adapter
+
+            if (contests.isEmpty()) {
+                showEmptyState()
+            } else {
+                showContent()
+            }
         }
     }
 
@@ -72,11 +105,19 @@ class RunnerContestActivity : BaseActivity<ProfileViewModel, ActivityRunnerConte
         viewModel.getMyContestResponse.observe(this) {
             when(it){
                 is Resource.Success -> {
-                    setUpAdapter(it.value.contests)
                     allContests = it.value.contests
+                    setUpAdapter(allContests)
                     applyFilters()
                 }
-                is Resource.Failure -> handleApiError(it)
+                is Resource.Failure -> {
+                    hideShimmerLoading()
+                    handleApiError(it)
+                    // Show empty state or error state
+                    showEmptyState()
+                }
+                is Resource.Loading -> {
+                    showShimmerLoading()
+                }
                 else -> Unit
             }
         }
@@ -160,8 +201,17 @@ class RunnerContestActivity : BaseActivity<ProfileViewModel, ActivityRunnerConte
             }
         }
 
-        adapter.updateData(filteredContests)
-        updateFilterResultText(filteredContests.size, allContests.size)
+        if (::adapter.isInitialized) {
+            adapter.updateData(filteredContests)
+            updateFilterResultText(filteredContests.size, allContests.size)
+
+            // Show appropriate state based on filtered results
+            if (filteredContests.isEmpty() && allContests.isNotEmpty()) {
+                showEmptyState()
+            } else if (filteredContests.isNotEmpty()) {
+                showContent()
+            }
+        }
     }
 
     private fun clearFilters() {
@@ -173,6 +223,26 @@ class RunnerContestActivity : BaseActivity<ProfileViewModel, ActivityRunnerConte
     private fun updateFilterResultText(filteredCount: Int, totalCount: Int) {
         binding.tvFilterResult.text = "Hiển thị $filteredCount/$totalCount cuộc thi"
         binding.tvFilterResult.visibility = if (filteredCount != totalCount) View.VISIBLE else View.GONE
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Stop shimmer to prevent memory leaks
+        binding.shimmerViewContainer.stopShimmer()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Pause shimmer when activity is not visible
+        binding.shimmerViewContainer.stopShimmer()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Resume shimmer if it's visible
+        if (binding.shimmerViewContainer.visibility == View.VISIBLE) {
+            binding.shimmerViewContainer.startShimmer()
+        }
     }
 
     override fun getViewModel(): Class<ProfileViewModel> = ProfileViewModel::class.java
@@ -188,7 +258,8 @@ class RunnerContestActivity : BaseActivity<ProfileViewModel, ActivityRunnerConte
         val apiContest = retrofitInstance.buildApi(ContestApiService::class.java, token)
         return listOf(
             AuthRepository(apiAuth, userPreferences),
-            RecordRepository(apiRecord), ContestRepository(apiContest)
+            RecordRepository(apiRecord),
+            ContestRepository(apiContest)
         )
     }
 }

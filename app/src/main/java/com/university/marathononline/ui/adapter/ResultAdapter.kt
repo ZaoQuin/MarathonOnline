@@ -9,7 +9,7 @@ import com.university.marathononline.R
 import com.university.marathononline.ui.view.activity.ContestDetailsActivity
 import com.university.marathononline.databinding.ItemResultBinding
 import com.university.marathononline.data.models.Contest
-import com.university.marathononline.utils.KEY_CONTEST
+import com.university.marathononline.utils.KEY_CONTEST_ID
 import com.university.marathononline.utils.startNewActivity
 
 class ResultAdapter (private var results: List<Contest>): RecyclerView.Adapter<ResultAdapter.ViewHolder>(){
@@ -32,7 +32,7 @@ class ResultAdapter (private var results: List<Contest>): RecyclerView.Adapter<R
 
                 showDetailsBtn.setOnClickListener {
                     it.context.startNewActivity(ContestDetailsActivity::class.java,
-                        mapOf( KEY_CONTEST to item)
+                        mapOf( KEY_CONTEST_ID to item.id)
                     )
                 }
             }

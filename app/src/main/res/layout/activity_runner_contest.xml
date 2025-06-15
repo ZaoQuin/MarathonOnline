@@ -23,14 +23,13 @@
 
             <ImageButton
                 android:id="@+id/button_back"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
                 android:background="@android:color/transparent"
+                android:padding="0dp"
+                android:scaleType="centerInside"
                 android:src="@drawable/ic_left"
-                android:contentDescription="Back Button"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                tools:ignore="MissingConstraints" />
 
             <TextView
                 android:layout_width="0dp"
@@ -162,14 +161,84 @@
 
         </LinearLayout>
 
-        <!-- Contest List -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvContests"
+        <!-- Content Container -->
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:padding="10dp"
-            android:clipToPadding="false" />
+            android:layout_weight="1">
+
+            <!-- Shimmer Loading -->
+            <com.facebook.shimmer.ShimmerFrameLayout
+                android:id="@+id/shimmer_view_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="visible">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/_7sdp">
+
+                    <!-- Multiple shimmer items -->
+                    <include layout="@layout/item_runner_contest_loading" />
+                    <include layout="@layout/item_runner_contest_loading" />
+                    <include layout="@layout/item_runner_contest_loading" />
+                    <include layout="@layout/item_runner_contest_loading" />
+                    <include layout="@layout/item_runner_contest_loading" />
+
+                </LinearLayout>
+
+            </com.facebook.shimmer.ShimmerFrameLayout>
+
+            <!-- Actual RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvContests"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="@dimen/_7sdp"
+                android:clipToPadding="false"
+                android:visibility="gone"
+                tools:listitem="@layout/item_contest_runner" />
+
+            <!-- Empty State -->
+            <LinearLayout
+                android:id="@+id/empty_state"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="32dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:src="@drawable/ic_empty_training"
+                    android:alpha="0.5"
+                    android:layout_marginBottom="16dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Không có cuộc thi nào"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_dark"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hãy tham gia các cuộc thi để xem kết quả tại đây"
+                    android:textSize="14sp"
+                    android:textColor="@color/gray"
+                    android:gravity="center"
+                    android:layout_marginBottom="16dp" />
+
+            </LinearLayout>
+
+        </FrameLayout>
 
     </LinearLayout>
 

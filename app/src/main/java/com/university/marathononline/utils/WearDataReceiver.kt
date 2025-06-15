@@ -34,7 +34,6 @@ class WearDataReceiver : WearableListenerService() {
         private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
         private val connectedNodes = mutableSetOf<String>()
 
-        // Add method to get current connection state
         fun getCurrentConnectionState(): Boolean {
             return connectedNodes.isNotEmpty()
         }
@@ -51,7 +50,6 @@ class WearDataReceiver : WearableListenerService() {
         Log.d(TAG, "=== WearDataReceiver onStartCommand ===")
         Log.d(TAG, "Intent: $intent, flags: $flags, startId: $startId")
 
-        // Force connection check when service is explicitly started
         checkExistingConnections()
 
         return START_STICKY
@@ -89,7 +87,6 @@ class WearDataReceiver : WearableListenerService() {
         super.onDataChanged(dataEvents)
         Log.d(TAG, "=== onDataChanged called with ${dataEvents.count} events ===")
 
-        // Emit connection state when receiving data
         serviceScope.launch {
             val currentState = _connectionStateFlow.replayCache.lastOrNull() ?: false
             if (!currentState) {
@@ -113,13 +110,11 @@ class WearDataReceiver : WearableListenerService() {
                     DataEvent.TYPE_CHANGED -> {
                         Log.d(TAG, "Data CHANGED for path: $path")
 
-                        // More flexible path matching
                         if (path?.contains("wear_health_data") == true || path == WearableConstants.DATA_PATH) {
                             Log.d(TAG, "✓ Health data path detected! Processing...")
                             handleWearHealthData(dataEvent.dataItem)
                         } else {
                             Log.w(TAG, "✗ Path mismatch! Expected: ${WearableConstants.DATA_PATH}, Got: $path")
-                            // Try to handle anyway if it looks like health data
                             if (path?.contains("health") == true || path?.contains("wear") == true) {
                                 Log.d(TAG, "Attempting to process potential health data...")
                                 handleWearHealthData(dataEvent.dataItem)
@@ -153,7 +148,6 @@ class WearDataReceiver : WearableListenerService() {
         Log.d(TAG, "Message data: ${String(messageEvent.data)}")
         Log.d(TAG, "Source node: ${messageEvent.sourceNodeId}")
 
-        // Emit connection state when receiving messages
         serviceScope.launch {
             val currentState = _connectionStateFlow.replayCache.lastOrNull() ?: false
             if (!currentState) {
@@ -198,14 +192,11 @@ class WearDataReceiver : WearableListenerService() {
             Log.d(TAG, "Parsing wear health data from: ${dataItem.uri}")
             val dataMap = DataMapItem.fromDataItem(dataItem).dataMap
 
-            // Log all available keys for debugging
             Log.d(TAG, "Available keys in dataMap: ${dataMap.keySet()}")
 
-            // Try different key patterns in case constants don't match
             val availableKeys = dataMap.keySet()
             Log.d(TAG, "All keys: $availableKeys")
 
-            // Extract data with fallback key names
             val heartRate = getDoubleValue(dataMap, listOf(
                 WearableConstants.KEY_HEART_RATE,
                 "heart_rate",
@@ -290,14 +281,12 @@ class WearDataReceiver : WearableListenerService() {
         }
     }
 
-    // Helper methods to extract data with fallback keys
     private fun getDoubleValue(dataMap: DataMap, keys: List<String>, default: Double = 0.0): Double {
         for (key in keys) {
             if (dataMap.containsKey(key)) {
                 return try {
                     dataMap.getDouble(key, default)
                 } catch (e: Exception) {
-                    // Try as float if double fails
                     try {
                         dataMap.getFloat(key, default.toFloat()).toDouble()
                     } catch (e2: Exception) {

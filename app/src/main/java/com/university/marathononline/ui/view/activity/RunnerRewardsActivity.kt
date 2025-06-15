@@ -1,8 +1,8 @@
 package com.university.marathononline.ui.view.activity
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.university.marathononline.base.BaseActivity
@@ -15,9 +15,8 @@ import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.databinding.ActivityRunnerRewardsBinding
 import com.university.marathononline.ui.adapter.RunnerRewardAdapter
 import com.university.marathononline.ui.viewModel.RunnerRewardsViewModel
-import com.university.marathononline.utils.KEY_CONTEST_ID
-import com.university.marathononline.utils.KEY_EMAIL
 import com.university.marathononline.utils.finishAndGoBack
+import com.university.marathononline.utils.visible
 import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -30,65 +29,85 @@ class RunnerRewardsActivity : BaseActivity<RunnerRewardsViewModel, ActivityRunne
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        handleIntentExtras(intent)
 
+        showLoading(true)
+
+        lifecycleScope.launch {
+            val emailValue = userPreferences.email.first()
+            viewModel.setEmail(emailValue!!)
+        }
+
+        viewModel.loadAllUserRewards()
         setUpAdapter()
         initializeUI()
         setUpObserve()
+    }
 
-        // Load data based on contestId if provided
-        contestId?.let {
-            viewModel.loadRewardsForContest(it)
-        } ?: run {
-            viewModel.loadAllUserRewards()
+    private fun showLoading(show: Boolean){
+        binding.apply{
+            if(show){
+                binding.shimmerViewContainer.startShimmer()
+                binding.shimmerViewContainer.visible(true)
+                binding.rvRewards.visible(false)
+            } else {
+
+                binding.shimmerViewContainer.stopShimmer()
+                binding.shimmerViewContainer.visible(false)
+                binding.rvRewards.visible(true)
+            }
         }
     }
 
     private fun setUpAdapter() {
         binding.rvRewards.layoutManager = LinearLayoutManager(this)
         adapter = RunnerRewardAdapter(mutableListOf()) { reward, contest ->
-            // Handle reward item click
             onRewardItemClick(reward, contest)
         }
         binding.rvRewards.adapter = adapter
     }
 
     private fun setUpObserve() {
-        // Fixed: Remove duplicate observer
         viewModel.rewardOfContests.observe(this) { rewardList ->
             val sortedRewards = sortRewardsByImportance(rewardList)
             adapter.updateData(sortedRewards.toMutableList())
+
+            showLoading(false)
         }
 
         viewModel.contests.observe(this) { contests ->
             viewModel.setRewardOfContest(contests)
         }
 
-//        viewModel.isLoading.observe(this) { isLoading ->
-//            // Handle loading state
-//            binding.progressBar?.let {
-//                it.visibility = if (isLoading) android.view.View.VISIBLE else android.view.View.GONE
-//            }
-//        }
-
         viewModel.getContest.observe(this) {
             when(it) {
+                is Resource.Loading -> {
+                    showLoading(true)
+                }
                 is Resource.Success -> {
                     viewModel.setRewardOfContest(listOf(it.value))
+                    showLoading(false)
                 }
-
-                is Resource.Failure -> handleApiError(it)
+                is Resource.Failure -> {
+                    handleApiError(it)
+                    showLoading(false)
+                }
                 else -> Unit
             }
         }
 
         viewModel.getContests.observe(this) {
             when(it) {
+                is Resource.Loading -> {
+                    showLoading(true)
+                }
                 is Resource.Success -> {
                     viewModel.setRewardOfContest(it.value.contests)
+                    showLoading(false)
                 }
-
-                is Resource.Failure -> handleApiError(it)
+                is Resource.Failure -> {
+                    handleApiError(it)
+                    showLoading(false)
+                }
                 else -> Unit
             }
         }
@@ -99,7 +118,6 @@ class RunnerRewardsActivity : BaseActivity<RunnerRewardsViewModel, ActivityRunne
             finishAndGoBack()
         }
 
-        // Update title based on context
         val titleText = if (contestId != null) {
             "Phần thưởng cuộc thi"
         } else {
@@ -108,35 +126,24 @@ class RunnerRewardsActivity : BaseActivity<RunnerRewardsViewModel, ActivityRunne
         binding.titleText?.text = titleText
     }
 
-    private fun handleIntentExtras(intent: Intent) {
-        intent.apply {
-            // Get contest ID for specific contest rewards
-            contestId = getLongExtra(KEY_CONTEST_ID, -1L).takeIf { it != -1L }
-
-            // Get email if needed
-            lifecycleScope.launch {
-                val email = userPreferences.email.first()
-                email?.let { viewModel.setEmail(it) }
-            }
-        }
-    }
-
     private fun sortRewardsByImportance(rewards: List<Pair<Contest, Reward>>): List<Pair<Contest, Reward>> {
         return rewards.sortedWith(compareBy<Pair<Contest, Reward>> { pair ->
-            // Sort by rank (lower rank = higher importance)
             when (pair.second.rewardRank) {
-                0 -> Int.MAX_VALUE // Completion rewards go last
+                0 -> Int.MAX_VALUE
                 else -> pair.second.rewardRank
             }
         }.thenBy { pair ->
-            // Then by contest end date (newer first)
             pair.first.endDate
         })
     }
 
     private fun onRewardItemClick(reward: Reward, contest: Contest) {
-        // Navigate to contest details or reward details
-        // You can add specific logic here
+        // Handle reward item click
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.shimmerViewContainer.stopShimmer()
     }
 
     override fun getViewModel(): Class<RunnerRewardsViewModel> = RunnerRewardsViewModel::class.java

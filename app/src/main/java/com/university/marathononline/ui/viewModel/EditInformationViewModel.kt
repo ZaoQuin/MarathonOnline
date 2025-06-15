@@ -38,7 +38,7 @@ class EditInformationViewModel(
         _selectedGender.value = gender
     }
 
-    fun updateUser(fullname: String, phoneNumber: String, birthday: String, address: String) {
+    fun updateUser(fullname: String, phoneNumber: String, birthday: String, address: String, avatarLink: String?) {
         viewModelScope.launch {
             _updateResponse.value = Resource.Loading
             _user.value?.let {
@@ -49,7 +49,8 @@ class EditInformationViewModel(
                     gender = selectedGender.value ?: EGender.MALE,
                     birthday = birthday,
                     address = address,
-                    refreshToken = it.refreshToken ?: ""
+                    refreshToken = it.refreshToken ?: "",
+                    avatarUrl = avatarLink
                 )
                 Log.d("Edit User", request.fullName!!)
                 _updateResponse.value = repository.updateUser(request)
@@ -59,8 +60,29 @@ class EditInformationViewModel(
 
     fun uploadAvatar(uri: Uri, context: Context) {
         viewModelScope.launch {
+            if (!FileUtils.isValidImageType(uri, context)) {
+                _uploadAvatarResponse.value = Resource.Failure(
+                    isNetworkError = false,
+                    errorCode = null,
+                    errorBody = null,
+                    errorMessage = FileUtils.getInvalidTypeErrorMessage()
+                )
+                return@launch
+            }
+
             _uploadAvatarResponse.value = Resource.Loading
             val filePart = FileUtils.prepareFilePart("file", uri, context)
+
+            if (filePart == null) {
+                _uploadAvatarResponse.value = Resource.Failure(
+                    isNetworkError = false,
+                    errorCode = null,
+                    errorBody = null,
+                    errorMessage = "Không thể xử lý file ảnh. Vui lòng chọn file khác."
+                )
+                return@launch
+            }
+
             val userId = user.value?.id ?: return@launch
             _uploadAvatarResponse.value = repository.uploadAvatar(userId, filePart)
         }

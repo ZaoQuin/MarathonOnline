@@ -30,10 +30,6 @@ class RunnerRewardsViewModel(
     private val _getContests = MutableLiveData<Resource<GetContestsResponse>>()
     val getContests: LiveData<Resource<GetContestsResponse>> get() = _getContests
 
-    fun setContests(contests: List<Contest>){
-        _contests.value = contests
-    }
-
     fun setEmail(email: String){
         _email.value = email
     }
@@ -55,14 +51,6 @@ class RunnerRewardsViewModel(
         }
 
         _rewardOfContests.value = theRewardOfContest
-    }
-
-    // Trong ViewModel, thêm method:
-    fun loadRewardsForContest(contestId: Long) {
-        viewModelScope.launch {
-            _getContest.value = Resource.Loading
-            _getContest.value = contestRepository.getById(contestId)
-        }
     }
 
     fun loadAllUserRewards() {

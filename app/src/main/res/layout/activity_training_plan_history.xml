@@ -122,7 +122,7 @@
                     android:orientation="vertical"
                     android:paddingVertical="@dimen/_8sdp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:itemCount="3"
+                    tools:itemCount="4"
                     tools:listitem="@layout/item_training_plan" />
 
                 <!-- Loading More Indicator -->

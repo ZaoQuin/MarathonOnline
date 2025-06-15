@@ -105,11 +105,9 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize location tracking FIRST, before handling intent extras
         viewModel.initializeLocationTracking(this)
         viewModel.initializeWearIntegration()
 
-        // Now it's safe to handle intent extras that might call setCurrentTrainingDay
         handleIntentExtras(intent)
 
         showModeSelectionDialog()
@@ -135,7 +133,6 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                 launch {
                     viewModel.averagePace.collect { pace ->
                         binding.tvPace.text = pace
-                        // Update guided mode fragment if active
                         guidedModeFragment?.updateCurrentStats(
                             pace,
                             binding.tvDistance.text.toString()
@@ -145,7 +142,6 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                 launch {
                     viewModel.distance.collect { distance ->
                         binding.tvDistance.text = distance
-                        // Update guided mode fragment if active
                         guidedModeFragment?.updateCurrentStats(
                             binding.tvPace.text.toString(),
                             distance
@@ -153,19 +149,15 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                     }
                 }
 
-                // CẬP NHẬT: Observer cho trạng thái kết nối Wear - ẩn/hiện nút start/stop
                 launch {
                     viewModel.isWearConnected.collect { isConnected ->
                         updateWearConnectionStatus(isConnected)
-                        // Ẩn nút start/stop khi kết nối với Wear
                         updateButtonVisibility(isConnected)
 
-                        // CẬP NHẬT: Xử lý map khi chuyển đổi giữa Wear và Phone tracking
                         handleMapTrackingMode(isConnected)
                     }
                 }
 
-                // Observer cho dữ liệu sức khỏe từ Wear
                 launch {
                     viewModel.wearHealthData.collect { wearData ->
                         wearData?.let {
@@ -174,7 +166,6 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                     }
                 }
 
-                // CẬP NHẬT: Chỉ hiển thị nút start/stop khi không kết nối Wear và không đang save
                 launch {
                     viewModel.isRecording.collect { isRecording ->
                         val isWearConnected = viewModel.isWearConnected.value
@@ -182,7 +173,6 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                             binding.playButton.visible(!isRecording)
                             binding.stopButton.visible(isRecording)
                         } else {
-                            // Khi kết nối Wear hoặc đang save, ẩn cả hai nút
                             binding.playButton.visible(false)
                             binding.stopButton.visible(false)
                         }
@@ -191,7 +181,6 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
             }
         }
 
-        // Observer cho Create Record Response
         viewModel.createRecordResponse.observe(this) {
             when (it) {
                 is Resource.Loading -> {
@@ -211,12 +200,8 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
             }
         }
 
-        // Observer cho Save Registration Response
         viewModel.saveRecordIntoRegistration.observe(this) {
             when (it) {
-                is Resource.Loading -> {
-                    // Loading đã được bắt đầu từ createRecord
-                }
                 is Resource.Success -> {
                     saveRegistrationCompleted = true
                     checkSavingComplete()
@@ -230,12 +215,8 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
             }
         }
 
-        // Observer cho Save Training Day Response
         viewModel.saveRecordIntoTrainingDay.observe(this) {
             when (it) {
-                is Resource.Loading -> {
-                    // Loading đã được bắt đầu từ createRecord
-                }
                 is Resource.Success -> {
                     saveTrainingDayCompleted = true
                     checkSavingComplete()
@@ -290,7 +271,6 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         if (saveRecordCompleted && saveRegistrationCompleted && saveTrainingDayCompleted) {
             Toast.makeText(this, "Lưu kết quả hoàn tất!", Toast.LENGTH_LONG).show()
 
-            // Optional: Auto close activity after successful save
             handler.postDelayed({
                 finishAndGoBack()
             }, 2000)
@@ -335,25 +315,17 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
             polyline?.remove()
             polyline = null
 
-            // Hiển thị thông báo trên map
             showWearTrackingMessage()
         } else {
-            // Khi dùng phone, bật lại GPS tracking trên map
             hideWearTrackingMessage()
-            // Map sẽ tự động cập nhật khi có location data từ GPS
         }
     }
 
     private fun showWearTrackingMessage() {
         if (::googleMap.isInitialized) {
-            // Có thể thêm một custom info window hoặc overlay
-            // Hoặc chỉ đơn giản là để map trống và hiển thị message
-
-            // Option 1: Zoom về vị trí mặc định
-            val defaultLocation = LatLng(10.762622, 106.660172) // HCM City
+            val defaultLocation = LatLng(10.762622, 106.660172)
             googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f))
 
-            // Option 2: Có thể thêm marker thông báo
             val wearTrackingMarker = googleMap.addMarker(
                 MarkerOptions()
                     .position(defaultLocation)
@@ -652,7 +624,6 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.routes.collect { routes ->
-                    // Chỉ vẽ route khi không dùng Wear tracking
                     if (!viewModel.isUsingWearTracking() && routes.isNotEmpty()) {
                         drawRoute(routes)
 
@@ -673,7 +644,6 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
 
                         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastPoint, 16f))
                     } else if (viewModel.isUsingWearTracking()) {
-                        // Clear map khi dùng Wear tracking
                         currentMarker?.remove()
                         currentMarker = null
                         polyline?.remove()
@@ -707,7 +677,7 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
 
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.stopRecording() // Đảm bảo tắt các dịch vụ khi activity bị hủy
+        viewModel.stopRecording()
         hideGuidedModeFragment()
     }
 }

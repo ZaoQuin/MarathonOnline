@@ -35,6 +35,8 @@ import com.university.marathononline.utils.KEY_NOTIFICATION_DATA
 import com.university.marathononline.utils.KEY_RECORD_ID
 import com.university.marathononline.utils.KEY_REGISTRATION_ID
 import com.university.marathononline.utils.finishAndGoBack
+import com.university.marathononline.utils.formatDistance
+import com.university.marathononline.utils.formatSpeed
 import com.university.marathononline.utils.visible
 import handleApiError
 import kotlinx.coroutines.flow.first
@@ -120,10 +122,10 @@ class RecordFeedbackActivity : BaseActivity<FeedBackViewModel, ActivityRecordFee
         binding.tvRecordId.text = "Record #${record.id}"
         binding.tvRecordUserName.text = "${record.user.fullName}"
         binding.tvRecordUserEmail.text = record.user.email
-        binding.tvDistance.text = String.format("%.2f km", record.distance * 1000)
+        binding.tvDistance.text = formatDistance(record.distance)
         binding.tvSteps.text = String.format("%,d", record.steps)
         binding.tvDuration.text =String.format("%,d giây", record.timeTaken)
-        binding.tvAvgSpeed.text = String.format("%.1f km/h", record.avgSpeed)
+        binding.tvAvgSpeed.text = formatSpeed(record.avgSpeed)
         binding.tvHeartRate.text = String.format("%.0f bpm", record.heartRate)
         binding.tvSource.text = record.source.name
         binding.tvStartTime.text = DateUtils.formatLocalDateTimeStrToDateTimeString(record.startTime)

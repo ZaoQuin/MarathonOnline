@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
-import com.university.marathononline.data.models.Record
 import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.data.request.CreateRecordRequest
@@ -16,7 +15,7 @@ import kotlinx.coroutines.launch
 class MainViewModel(
     private val notificationRepository: NotificationRepository,
     private val recordRepository: RecordRepository
-): BaseViewModel(listOf(notificationRepository)) {
+): BaseViewModel(listOf(notificationRepository, recordRepository)) {
     private val _selectedPage = MutableLiveData<Int>()
     val selectedPage: LiveData<Int> get() = _selectedPage
 
