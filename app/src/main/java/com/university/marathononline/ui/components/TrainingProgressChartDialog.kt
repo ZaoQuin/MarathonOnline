@@ -32,17 +32,13 @@ class TrainingProgressChartDialog(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Inflate the layout with View Binding
         binding = DialogTrainingProgressChartBinding.inflate(LayoutInflater.from(context))
         setContentView(binding.root)
 
-        // Setup dialog properties
         setupDialog()
 
-        // Setup the chart
         setupChart()
 
-        // Adjust dialog width to 95% of screen width
         window?.setLayout(
             (context.resources.displayMetrics.widthPixels * 0.95).toInt(),
             ViewGroup.LayoutParams.WRAP_CONTENT
@@ -61,12 +57,10 @@ class TrainingProgressChartDialog(
             return
         }
 
-        // Show chart and hide no data message
         binding.progressChart.visibility = ViewGroup.VISIBLE
         binding.noDataContainer.visibility = ViewGroup.GONE
         binding.legendContainer.visibility = ViewGroup.VISIBLE
 
-        // Prepare chart data
         val actualEntries = mutableListOf<Entry>()
         val goalEntries = mutableListOf<Entry>()
         val dateLabels = mutableListOf<String>()
@@ -74,35 +68,26 @@ class TrainingProgressChartDialog(
         var totalActual = 0f
         var totalGoal = 0f
 
-        // Sort training days by date and process
         trainingDays.sortedBy { DateUtils.convertStringToLocalDateTime(it.dateTime) }
             .forEachIndexed { index, trainingDay ->
-                // Calculate total actual distance from records (0 if no records or null)
                 val actualDistance = trainingDay.record?.distance?.toFloat() ?: 0f
-                // Goal distance from the session
                 val goalDistance = trainingDay.session.distance.toFloat()
 
-                // Add to totals
                 totalActual += actualDistance
                 totalGoal += goalDistance
 
-                // Add entries for both actual and goal distances
                 actualEntries.add(Entry(index.toFloat(), actualDistance))
                 goalEntries.add(Entry(index.toFloat(), goalDistance))
 
-                // Track maximum distance for Y-axis scaling
                 maxDistance = maxOf(maxDistance, actualDistance, goalDistance)
 
-                // Create shorter label for better display
                 val label = "T${trainingDay.week}N${trainingDay.dayOfWeek}"
                 dateLabels.add(label)
                 Log.d("TrainingProgressChart", "Label $index: $label")
             }
 
-        // Update summary statistics
         updateSummaryStats(totalActual, totalGoal)
 
-        // Setup the line chart
         val chart = binding.progressChart
         setupLineChart(chart, actualEntries, goalEntries, dateLabels, maxDistance)
     }
@@ -112,7 +97,6 @@ class TrainingProgressChartDialog(
         binding.noDataContainer.visibility = ViewGroup.VISIBLE
         binding.legendContainer.visibility = ViewGroup.GONE
 
-        // Reset summary stats
         binding.totalActualDistance.text = "0 km"
         binding.totalGoalDistance.text = "0 km"
 
@@ -120,8 +104,8 @@ class TrainingProgressChartDialog(
     }
 
     private fun updateSummaryStats(totalActual: Float, totalGoal: Float) {
-        binding.totalActualDistance.text = "${totalActual.toInt()} km"
-        binding.totalGoalDistance.text = "${totalGoal.toInt()} km"
+        binding.totalActualDistance.text = String.format("%.2f km", totalActual)
+        binding.totalGoalDistance.text = String.format("%.2f km", totalGoal)
     }
 
     private fun setupLineChart(
@@ -131,7 +115,6 @@ class TrainingProgressChartDialog(
         dateLabels: List<String>,
         maxDistance: Float
     ) {
-        // Actual distance dataset with improved styling
         val actualDataSet = LineDataSet(actualEntries, "Thực tế").apply {
             color = ContextCompat.getColor(context, R.color.success_color)
             setCircleColor(ContextCompat.getColor(context, R.color.success_color))
@@ -146,56 +129,51 @@ class TrainingProgressChartDialog(
             setDrawValues(true)
             valueFormatter = object : ValueFormatter() {
                 override fun getFormattedValue(value: Float): String {
-                    return if (value > 0) "${value.toInt()}km" else ""
+                    return if (value > 0) String.format("%.2fkm", value) else ""
                 }
             }
         }
 
-        // Goal distance dataset with improved styling
         val goalDataSet = LineDataSet(goalEntries, "Mục tiêu").apply {
             color = ContextCompat.getColor(context, R.color.warning_orange)
             setCircleColor(ContextCompat.getColor(context, R.color.warning_orange))
             lineWidth = 3f
             circleRadius = 5f
             setDrawCircleHole(false)
-            enableDashedLine(10f, 5f, 0f) // Dashed line for goals
+            enableDashedLine(10f, 5f, 0f)
             valueTextColor = ContextCompat.getColor(context, R.color.warning_orange)
             valueTextSize = 10f
             setDrawValues(true)
             valueFormatter = object : ValueFormatter() {
                 override fun getFormattedValue(value: Float): String {
-                    return if (value > 0) "${value.toInt()}km" else ""
+                    return if (value > 0) String.format("%.2fkm", value) else ""
                 }
             }
         }
 
-        // Combine datasets
         val lineData = LineData(actualDataSet, goalDataSet)
         chart.data = lineData
 
-        // Customize x-axis
         chart.xAxis.apply {
             valueFormatter = IndexAxisValueFormatter(dateLabels)
             granularity = 1f
             isGranularityEnabled = true
-            setLabelCount(minOf(dateLabels.size, 8), false) // Limit labels to prevent crowding
+            setLabelCount(minOf(dateLabels.size, 8), false)
             textColor = ContextCompat.getColor(context, R.color.text_dark)
             textSize = 10f
             setDrawGridLines(false)
             setAvoidFirstLastClipping(true)
-            labelRotationAngle = 0f // Keep horizontal for readability
+            labelRotationAngle = 0f
             position = XAxis.XAxisPosition.BOTTOM
             setDrawLabels(true)
         }
 
-        // Custom Y-axis formatter
         val kmFormatter = object : ValueFormatter() {
             override fun getFormattedValue(value: Float): String {
                 return "${value.toInt()}"
             }
         }
 
-        // Customize y-axis
         chart.axisLeft.apply {
             textColor = ContextCompat.getColor(context, R.color.text_dark)
             textSize = 10f
@@ -208,12 +186,11 @@ class TrainingProgressChartDialog(
         }
         chart.axisRight.isEnabled = false
 
-        // Chart appearance with modern styling
         chart.apply {
-            description.isEnabled = false // Disable default description
+            description.isEnabled = false
             setDrawGridBackground(false)
             setBackgroundColor(Color.TRANSPARENT)
-            legend.isEnabled = false // We have custom legend
+            legend.isEnabled = false
             animateY(1000)
             setExtraOffsets(10f, 20f, 10f, 10f)
             setTouchEnabled(true)

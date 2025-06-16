@@ -30,6 +30,7 @@ import com.university.marathononline.ui.components.TrainingProgressChartDialog
 import com.university.marathononline.ui.view.activity.TrainingPlanHistoryActivity
 import com.university.marathononline.ui.viewModel.TrainingPlanViewModel
 import com.university.marathononline.utils.DateUtils
+import com.university.marathononline.utils.calPace
 import com.university.marathononline.utils.startNewActivity
 import handleApiError
 import kotlinx.coroutines.flow.first
@@ -554,12 +555,7 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
         ).seconds
         var avgHeartRate = record.heartRate
 
-        val avgPaces = if (totalDistance > 0) {
-            val totalMinutes = TimeUnit.MILLISECONDS.toMinutes(totalTime)
-            totalMinutes.toDouble() / totalDistance
-        } else {
-            0.0
-        }
+        val avgPaces = calPace(record.avgSpeed)
 
         val hours = TimeUnit.MILLISECONDS.toHours(totalTime)
         val minutes = TimeUnit.MILLISECONDS.toMinutes(totalTime) % 60
@@ -584,6 +580,7 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
             timeTaken.text = formattedTime
             avgPace.text = String.format("%.1f phút/km", avgPaces)
             heartRate.text = String.format("%.1f bpm", avgHeartRate)
+            timeTaken.text = DateUtils.convertLongToHHMMSS(totalTime)
         }
     }
 

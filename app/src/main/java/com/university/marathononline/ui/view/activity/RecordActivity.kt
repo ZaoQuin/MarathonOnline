@@ -108,22 +108,10 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         viewModel.initializeLocationTracking(this)
         viewModel.initializeWearIntegration()
 
-        handleIntentExtras(intent)
-
         showModeSelectionDialog()
         initializeUI()
         setupObservers()
         checkAndRequestPermissions()
-    }
-
-    private fun handleIntentExtras(intent: Intent) {
-        intent.apply {
-            viewModel.apply {
-                (getSerializableExtra(KEY_TRAINING_DAY) as? TrainingDay)?.let { trainingDay ->
-                    setCurrentTrainingDay(trainingDay)
-                }
-            }
-        }
     }
 
     private fun setupObservers() {

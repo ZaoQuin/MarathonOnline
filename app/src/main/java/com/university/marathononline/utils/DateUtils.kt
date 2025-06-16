@@ -271,4 +271,20 @@ object DateUtils {
             Duration.ZERO
         }
     }
+
+    fun convertIntToHHMMSS(seconds: Int): String {
+        val duration = Duration.ofSeconds(seconds.toLong())
+        val hours = duration.toHours()
+        val minutes = duration.toMinutes() % 60
+        val secs = duration.seconds % 60
+        return String.format("%02d:%02d:%02d", hours, minutes, secs)
+    }
+
+    fun convertLongToHHMMSS(seconds: Long): String {
+        val duration = Duration.ofSeconds(seconds)
+        val hours = duration.toHours()
+        val minutes = duration.toMinutes() % 60
+        val secs = duration.seconds % 60
+        return String.format("%02d:%02d:%02d", hours, minutes, secs)
+    }
 }

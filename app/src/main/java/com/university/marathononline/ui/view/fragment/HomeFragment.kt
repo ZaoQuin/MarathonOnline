@@ -220,8 +220,7 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
             tvDateTime.text = DateUtils.convertToVietnameseDate(trainingDay.dateTime)
             tvSessionDetails.text = trainingDay.session.notes
             btnStartTraining.setOnClickListener{
-                startNewActivity(RecordActivity::class.java,
-                    mapOf(KEY_TRAINING_DAY to trainingDay))
+                startNewActivity(RecordActivity::class.java)
             }
         }
     }

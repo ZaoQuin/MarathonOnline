@@ -32,13 +32,10 @@ class WearIntegrationManager(
     fun initialize() {
         Log.d("WearIntegration", "=== Initializing wear integration ===")
 
-        // Reset connection state
         _isWearConnected.value = false
 
-        // Start the service
         startWearDataService()
 
-        // Wait a moment for service to initialize, then start collecting flows
         coroutineScope.launch {
             delay(1000)
             initializeFlowCollectors()
@@ -49,7 +46,6 @@ class WearIntegrationManager(
         try {
             val serviceIntent = Intent(context, WearDataReceiver::class.java)
 
-            // Use startForegroundService for Android 8+ to ensure service stays alive
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(serviceIntent)
             } else {
@@ -63,7 +59,6 @@ class WearIntegrationManager(
     }
 
     private suspend fun initializeFlowCollectors() {
-        // Connection state flow
         coroutineScope.launch {
             try {
                 Log.d("WearIntegration", "Starting to collect connectionStateFlow...")
@@ -83,7 +78,6 @@ class WearIntegrationManager(
             }
         }
 
-        // Health data flow
         coroutineScope.launch {
             try {
                 Log.d("WearIntegration", "Starting to collect wearHealthDataFlow...")
@@ -97,7 +91,6 @@ class WearIntegrationManager(
             }
         }
 
-        // Recording state flow
         coroutineScope.launch {
             try {
                 Log.d("WearIntegration", "Starting to collect recordingStateFlow...")
@@ -117,26 +110,22 @@ class WearIntegrationManager(
             }
         }
 
-        // Periodic connection health check
         coroutineScope.launch {
             while (true) {
-                delay(15000) // Check every 15 seconds
+                delay(15000)
                 checkConnectionHealth()
             }
         }
 
-        // Initial connection check after flows are set up
         delay(2000)
         manualCheckConnection()
     }
 
     private fun checkConnectionHealth() {
         try {
-            // Restart service if needed
             val serviceIntent = Intent(context, WearDataReceiver::class.java)
             context.startService(serviceIntent)
 
-            // Trigger manual connection check
             manualCheckConnection()
 
             Log.d("WearIntegration", "Connection health check completed")
@@ -157,7 +146,6 @@ class WearIntegrationManager(
                     Log.d("WearIntegration", "  - ${node.displayName} (${node.id})")
                 }
 
-                // Update connection state if it has changed
                 if (hasConnection != _isWearConnected.value) {
                     Log.d("WearIntegration", "Updating connection state: $hasConnection")
                     _isWearConnected.value = hasConnection
