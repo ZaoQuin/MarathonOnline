@@ -1,19 +1,28 @@
 package com.university.marathononline.ui.adapter
 
 import android.annotation.SuppressLint
+import android.os.CountDownTimer
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.university.marathononline.R
 import com.university.marathononline.databinding.ItemContestRunnerBinding
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.EContestStatus
+import com.university.marathononline.data.models.Registration
 import com.university.marathononline.ui.components.ContestStatisticsDialog
 import com.university.marathononline.ui.view.activity.ContestDetailsActivity
 import com.university.marathononline.ui.view.activity.PaymentConfirmationActivity
 import com.university.marathononline.utils.*
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 class ContestRunnerAdapter(
     private var contests: List<Contest>,
@@ -23,7 +32,11 @@ class ContestRunnerAdapter(
     class ViewHolder(private val binding: ItemContestRunnerBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
+        private var countDownTimer: CountDownTimer? = null
+
         fun bind(item: Contest, email: String) {
+            countDownTimer?.cancel()
+
             binding.apply {
                 val context = itemView.context
 
@@ -36,14 +49,16 @@ class ContestRunnerAdapter(
                 tvContestName.text = item.name
 
                 updateContestStatus(item)
-
                 updateContestDates(item)
-
                 updateProgressSection(displayState, progressInfo)
-
                 updateCompletionStatus(displayState)
 
-                updatePaymentButton(displayState, item)
+                userRegistration?.let { registration ->
+                    updatePaymentButton(displayState, item, registration)
+                } ?: run {
+                    btnPayment.visibility = View.GONE
+                    tvCountdown.visibility = View.GONE
+                }
 
                 contestCardView.setOnClickListener {
                     it.context.startNewActivity(
@@ -66,14 +81,10 @@ class ContestRunnerAdapter(
                 val context = itemView.context
                 tvContestStatus.text = contest.status.value
 
-                // Set status text and colors
                 when (contest.status) {
                     EContestStatus.ACTIVE -> {
                         tvContestStatus.setTextColor(
-                            ContextCompat.getColor(
-                                context,
-                                R.color.success_green
-                            )
+                            ContextCompat.getColor(context, R.color.success_green)
                         )
                         statusIndicator.backgroundTintList =
                             ContextCompat.getColorStateList(context, R.color.success_green)
@@ -81,10 +92,7 @@ class ContestRunnerAdapter(
 
                     EContestStatus.FINISHED -> {
                         tvContestStatus.setTextColor(
-                            ContextCompat.getColor(
-                                context,
-                                R.color.warning_orange
-                            )
+                            ContextCompat.getColor(context, R.color.warning_orange)
                         )
                         statusIndicator.backgroundTintList =
                             ContextCompat.getColorStateList(context, R.color.warning_orange)
@@ -99,10 +107,7 @@ class ContestRunnerAdapter(
                     else -> {
                         tvContestStatus.text = "Không xác định"
                         tvContestStatus.setTextColor(
-                            ContextCompat.getColor(
-                                context,
-                                R.color.disabled_gray
-                            )
+                            ContextCompat.getColor(context, R.color.disabled_gray)
                         )
                         statusIndicator.backgroundTintList =
                             ContextCompat.getColorStateList(context, R.color.disabled_gray)
@@ -113,8 +118,6 @@ class ContestRunnerAdapter(
 
         private fun updateContestDates(contest: Contest) {
             binding.apply {
-                val context = itemView.context
-
                 val startDate = contest.startDate?.let { DateUtils.convertToVietnameseDate(it) }
                 val endDate = contest.endDate?.let { DateUtils.convertToVietnameseDate(it) }
 
@@ -145,10 +148,7 @@ class ContestRunnerAdapter(
                         else -> R.color.white
                     }
                     processBarValue.setTextColor(
-                        ContextCompat.getColor(
-                            itemView.context,
-                            textColor
-                        )
+                        ContextCompat.getColor(itemView.context, textColor)
                     )
 
                     val backgroundColor = when {
@@ -170,7 +170,6 @@ class ContestRunnerAdapter(
             binding.apply {
                 val context = itemView.context
 
-                // Set status icon and text based on user status
                 val (statusIcon, statusText, statusColor) = when (displayState.userStatus) {
                     ContestUserStatusManager.UserContestStatus.NOT_REGISTERED ->
                         StatusInfo("❌", "Chưa đăng ký", R.color.disabled_gray)
@@ -203,7 +202,6 @@ class ContestRunnerAdapter(
                         StatusInfo("🔒", "Hết hạn đăng ký", R.color.gray)
                 }
 
-                binding.statusIcon.text = statusIcon
                 tvCompletionStatus.text = statusText
                 tvCompletionStatus.setTextColor(ContextCompat.getColor(context, statusColor))
 
@@ -213,51 +211,135 @@ class ContestRunnerAdapter(
             }
         }
 
+        private fun startCountdownTimer(
+            deadlineMillis: Long,
+            countdownView: TextView,
+            paymentButton: Button
+        ) {
+            val context = itemView.context
+            val now = System.currentTimeMillis()
+            val remainingMillis = deadlineMillis - now
+
+            Log.d("ContestAdapter", "Starting countdown - Remaining: $remainingMillis ms")
+
+            if (remainingMillis > 0) {
+                countdownView.visibility = View.VISIBLE
+
+                countDownTimer = object : CountDownTimer(remainingMillis, 1000) {
+                    override fun onTick(millisUntilFinished: Long) {
+                        val hours = millisUntilFinished / (1000 * 60 * 60)
+                        val minutes = (millisUntilFinished / (1000 * 60)) % 60
+                        val seconds = (millisUntilFinished / 1000) % 60
+
+                        val timeStr = String.format("%02d:%02d:%02d", hours, minutes, seconds)
+                        countdownView.text = "⏳ Còn lại: $timeStr"
+
+                        val color = when {
+                            millisUntilFinished <= 60 * 60 * 1000 -> R.color.error_red
+                            millisUntilFinished <= 6 * 60 * 60 * 1000 -> R.color.warning_orange
+                            else -> R.color.black
+                        }
+                        countdownView.setTextColor(ContextCompat.getColor(context, color))
+
+                        Log.d("ContestAdapter", "Countdown tick: $timeStr")
+                    }
+
+                    override fun onFinish() {
+                        countdownView.text = "⛔ Hết hạn thanh toán"
+                        countdownView.setTextColor(ContextCompat.getColor(context, R.color.disabled_gray))
+
+                        paymentButton.visibility = View.GONE
+
+                        Log.d("ContestAdapter", "Countdown finished")
+                    }
+                }.start()
+            } else {
+                countdownView.visibility = View.VISIBLE
+                countdownView.text = "⛔ Hết hạn thanh toán"
+                countdownView.setTextColor(ContextCompat.getColor(context, R.color.disabled_gray))
+                paymentButton.visibility = View.GONE
+
+                Log.d("ContestAdapter", "Payment deadline already passed")
+            }
+        }
+
         private fun updatePaymentButton(
             displayState: ContestUserStatusManager.ContestDisplayState,
-            contest: Contest
+            contest: Contest,
+            registration: Registration
         ) {
-            binding.btnPayment.apply {
+            binding.apply {
                 val context = itemView.context
+                val countdownView = tvCountdown
+                val paymentButton = btnPayment
+
+                Log.d("ContestAdapter", "UpdatePaymentButton - User status: ${displayState.userStatus}")
 
                 val shouldShowPaymentButton = when (displayState.userStatus) {
                     ContestUserStatusManager.UserContestStatus.REGISTERED_UNPAID,
                     ContestUserStatusManager.UserContestStatus.PAYMENT_FAILED -> true
-
                     else -> false
                 }
 
+                Log.d("ContestAdapter", "Should show payment button: $shouldShowPaymentButton")
+
                 if (shouldShowPaymentButton) {
-                    visibility = View.VISIBLE
+                    paymentButton.visibility = View.VISIBLE
 
                     when (displayState.userStatus) {
                         ContestUserStatusManager.UserContestStatus.REGISTERED_UNPAID -> {
-                            text = "💳 Thanh toán"
-                            backgroundTintList =
+                            paymentButton.text = "💳 Thanh toán"
+                            paymentButton.backgroundTintList =
                                 ContextCompat.getColorStateList(context, R.color.main_color)
-                            setTextColor(ContextCompat.getColor(context, R.color.white))
+                            paymentButton.setTextColor(ContextCompat.getColor(context, R.color.white))
                         }
 
                         ContestUserStatusManager.UserContestStatus.PAYMENT_FAILED -> {
-                            text = "🔄 Thanh toán lại"
-                            backgroundTintList =
+                            paymentButton.text = "🔄 Thanh toán lại"
+                            paymentButton.backgroundTintList =
                                 ContextCompat.getColorStateList(context, R.color.error_red)
-                            setTextColor(ContextCompat.getColor(context, R.color.white))
+                            paymentButton.setTextColor(ContextCompat.getColor(context, R.color.white))
                         }
 
                         else -> {
-                            text = "Thanh toán"
-                            backgroundTintList =
+                            paymentButton.text = "Thanh toán"
+                            paymentButton.backgroundTintList =
                                 ContextCompat.getColorStateList(context, R.color.main_color)
-                            setTextColor(ContextCompat.getColor(context, R.color.white))
+                            paymentButton.setTextColor(ContextCompat.getColor(context, R.color.white))
                         }
                     }
 
-                    setOnClickListener {
+                    try {
+                        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
+                        val createdAt = LocalDateTime.parse(registration.registrationDate, formatter)
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDateTime()
+
+                        val contestStartAt = DateUtils.convertStringToLocalDateTime(contest.startDate)
+                        val deadline24h = createdAt.plusHours(24)
+                        val finalDeadline = if (deadline24h.isBefore(contestStartAt)) deadline24h else contestStartAt
+                        val deadlineMillis = finalDeadline.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
+                        startCountdownTimer(deadlineMillis, countdownView, paymentButton)
+
+                    } catch (e: Exception) {
+                        Log.e("ContestAdapter", "Error calculating payment deadline", e)
+                        countdownView.visibility = View.VISIBLE
+                        countdownView.text = "❌ Lỗi tính toán thời gian"
+                        countdownView.setTextColor(ContextCompat.getColor(context, R.color.error_red))
+                    }
+
+                    paymentButton.setOnClickListener {
                         handlePaymentClick(contest)
                     }
+
                 } else {
-                    visibility = View.GONE
+                    paymentButton.visibility = View.GONE
+                    countdownView.visibility = View.GONE
+
+                    countDownTimer?.cancel()
+
+                    Log.d("ContestAdapter", "Payment button hidden")
                 }
             }
         }
@@ -269,7 +351,12 @@ class ContestRunnerAdapter(
             )
         }
 
-        // Data class for status information
+        fun cleanup() {
+            countDownTimer?.cancel()
+            countDownTimer = null
+            Log.d("ContestAdapter", "ViewHolder cleanup - CountDownTimer cancelled")
+        }
+
         private data class StatusInfo(
             val icon: String,
             val text: String,
@@ -289,9 +376,18 @@ class ContestRunnerAdapter(
 
     override fun getItemCount(): Int = contests.size
 
+    override fun onViewRecycled(holder: ViewHolder) {
+        super.onViewRecycled(holder)
+        holder.cleanup()
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     fun updateData(newContest: List<Contest>) {
         contests = newContest
         notifyDataSetChanged()
+    }
+
+    fun cleanup() {
+        Log.d("ContestAdapter", "Adapter cleanup called")
     }
 }

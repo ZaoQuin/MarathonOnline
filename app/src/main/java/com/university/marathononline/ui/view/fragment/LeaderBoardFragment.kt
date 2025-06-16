@@ -14,7 +14,6 @@ import com.university.marathononline.ui.adapter.LeaderBoardAdapter
 import com.university.marathononline.ui.viewModel.LeaderBoardViewModel
 import com.university.marathononline.utils.KEY_REGISTRATIONS
 import com.university.marathononline.utils.formatDistance
-import com.university.marathononline.utils.visible
 
 class LeaderBoardFragment : BaseFragment<LeaderBoardViewModel, FragmentLeaderBoardBinding>() {
 
@@ -73,10 +72,6 @@ class LeaderBoardFragment : BaseFragment<LeaderBoardViewModel, FragmentLeaderBoa
             viewModel.rankUsers()
 
             adapter.updateData(viewModel.rankUsers.value ?: emptyList())
-
-            binding?.apply {
-                leaderBoardsContainer.visible(newRegistrations.isNotEmpty())
-            }
 
             Log.d("LeaderBoardFragment", "Updated with ${newRegistrations.size} registrations")
         }

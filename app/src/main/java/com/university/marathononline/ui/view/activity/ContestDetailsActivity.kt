@@ -72,7 +72,6 @@ class ContestDetailsActivity :
             setUpObserve()
         } catch (e: Exception) {
             Log.e("ContestDetailsActivity", "Error in onCreate: ${e.message}", e)
-            // Handle the error gracefully - maybe show error message and finish
             Toast.makeText(this, "Error loading contest details", Toast.LENGTH_LONG).show()
             finish()
         }
@@ -123,7 +122,7 @@ class ContestDetailsActivity :
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(binding.mainContent.id, leaderBoardFragment!!)
+                .replace(binding.fragmentContainer.id, leaderBoardFragment!!)
                 .commit()
         }
     }
@@ -178,20 +177,17 @@ class ContestDetailsActivity :
         viewModel.refreshContest.observe(this) { resource ->
             when(resource) {
                 is Resource.Loading -> {
-                    // Hiển thị loading indicator nếu cần
                     Log.d("ContestDetailsActivity", "Refreshing contest data...")
                 }
                 is Resource.Success -> {
                     Log.d("ContestDetailsActivity", "Contest data refreshed successfully")
                     isDataRefreshing = false
 
-                    // Cập nhật toàn bộ data
                     viewModel.setContest(resource.value)
                     viewModel.setRewardGroups(resource.value.rewards)
                     viewModel.setRules(resource.value.rules)
                     viewModel.setDeadlineTime(resource.value.registrationDeadline)
 
-                    // Force refresh registration status với data mới
                     refreshUserRegistrationStatus()
                 }
                 is Resource.Failure -> {
@@ -203,7 +199,6 @@ class ContestDetailsActivity :
             }
         }
 
-        // Deprecated observers - giữ lại để debug
         viewModel.isRegistered.observe(this) {
             Log.d("ContestDetailsActivity", "isRegistered: $it")
         }
@@ -435,12 +430,10 @@ class ContestDetailsActivity :
 
                     handlePaymentResult(paymentSuccess, registrationStatus, errorMessage)
 
-                    // Refresh data với delay longer để đảm bảo server đã cập nhật
                     refreshContestDataWithDelay(REFRESH_DELAY_MS)
                 }
                 RESULT_CANCELED -> {
                     Log.d("ContestDetailsActivity", "Payment cancelled")
-                    // Vẫn refresh vì có thể có thay đổi data
                     refreshContestDataWithDelay(500L)
                 }
                 else -> {
@@ -536,7 +529,6 @@ class ContestDetailsActivity :
         )
     }
 
-    // Rest of the methods remain the same...
     private fun setUpBackButton() {
         binding.buttonBack.setOnClickListener {
             finish()
