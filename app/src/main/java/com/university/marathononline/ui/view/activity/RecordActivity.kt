@@ -108,13 +108,13 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
 
                         if (isStopping) {
                             Log.d("RecordActivity", "Service is stopping, ignoring update")
-                            binding.playButton.visible(false)
+                            binding.playButton.visible(true)
                             binding.stopButton.visible(false)
                             return
                         }
 
-                        binding.tvTime.text = it.getStringExtra("time") ?: "0:00:00"
-                        binding.tvDistance.text = it.getStringExtra("distance") ?: "0 km"
+                        binding.tvTime.text = it.getStringExtra("time") ?: "--:--:--"
+                        binding.tvDistance.text = it.getStringExtra("distance") ?: "- km"
                         binding.tvPace.text = it.getStringExtra("pace") ?: "-- min/km"
                         val isRecording = it.getBooleanExtra("isRecording", false)
                         val isPaused = it.getBooleanExtra("isPaused", false)
@@ -264,12 +264,14 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                 launch {
                     viewModel.isRecording.collect { isRecording ->
                         val isWearConnected = viewModel.isWearConnected.value
-                        if (!isWearConnected && !isSavingRecord) {
-                            binding.playButton.visible(!isRecording)
-                            binding.stopButton.visible(isRecording)
-                        } else {
-                            binding.playButton.visible(false)
-                            binding.stopButton.visible(false)
+                        if (!isSavingRecord && !hasProcessedStopped) {
+                            if (!isWearConnected) {
+                                binding.playButton.visible(!isRecording)
+                                binding.stopButton.visible(isRecording)
+                            } else {
+                                binding.playButton.visible(false)
+                                binding.stopButton.visible(false)
+                            }
                         }
                     }
                 }
@@ -364,9 +366,26 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         updateUIForSaving(false)
         if (saveRecordCompleted && saveRegistrationCompleted && saveTrainingDayCompleted) {
             Toast.makeText(this, "Lưu kết quả hoàn tất!", Toast.LENGTH_LONG).show()
+            updateButtonVisibilityAfterSave()
             handler.postDelayed({
                 finishAndGoBack()
             }, 2000)
+        }
+    }
+
+    private fun updateButtonVisibilityAfterSave() {
+        val isWearConnected = viewModel.isWearConnected.value
+        val isRecording = viewModel.isRecording.value
+
+        binding.apply {
+            if (isWearConnected) {
+                playButton.visible(false)
+                stopButton.visible(false)
+            } else {
+                playButton.visible(true)
+                stopButton.visible(false)
+                playButton.enable(hasLocationPermissions())
+            }
         }
     }
 
@@ -388,6 +407,9 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
             } else {
                 checkGPS.visible(false)
                 recordLayout.visible(true)
+                if (!isSavingRecord) {
+                    updateButtonVisibilityAfterSave()
+                }
             }
         }
     }
@@ -440,9 +462,14 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                     showWearControlMessage(true)
                 }
             } else {
-                val isRecording = viewModel.isRecording.value
-                playButton.visible(!isRecording && !hasProcessedStopped)
-                stopButton.visible(isRecording && !hasProcessedStopped)
+                if (!isSavingRecord && !hasProcessedStopped) {
+                    val isRecording = viewModel.isRecording.value
+                    playButton.visible(!isRecording)
+                    stopButton.visible(isRecording)
+                } else if (!isSavingRecord && hasProcessedStopped) {
+                    playButton.visible(true)
+                    stopButton.visible(false)
+                }
                 showWearControlMessage(false)
             }
         }

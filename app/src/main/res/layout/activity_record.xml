@@ -10,7 +10,6 @@
         android:layout_height="match_parent"
         android:background="@color/light_gray">
 
-        <!-- Modern Toolbar with elevation and better spacing -->
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -48,7 +47,6 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"/>
 
-                <!-- THÊM: Trạng thái kết nối Wear OS -->
                 <LinearLayout
                     android:id="@+id/wearStatusLayout"
                     android:layout_width="wrap_content"
@@ -80,7 +78,6 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.appbar.MaterialToolbar>
 
-        <!-- Main Content Container with rounded corners -->
         <androidx.cardview.widget.CardView
             android:id="@+id/map_container"
             android:layout_width="0dp"
@@ -97,14 +94,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <!-- Map Fragment -->
                 <fragment
                     android:id="@+id/map"
                     android:name="com.google.android.gms.maps.SupportMapFragment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
 
-                <!-- Status Container -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -115,7 +110,6 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent">
 
-                    <!-- GPS Status Text -->
                     <TextView
                         android:id="@+id/checkGPS"
                         android:layout_width="match_parent"
@@ -127,7 +121,6 @@
                         android:textColor="@color/text_color"
                         android:background="@color/light_main_color" />
 
-                    <!-- Stats Container -->
                     <LinearLayout
                         android:id="@+id/recordLayout"
                         android:layout_width="match_parent"
@@ -136,7 +129,6 @@
                         android:background="@color/transparent"
                         android:visibility="gone">
 
-                        <!-- Distance Card -->
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -172,7 +164,6 @@
                                 android:alpha="0.9"/>
                         </LinearLayout>
 
-                        <!-- Speed Card -->
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -209,7 +200,6 @@
                                 android:alpha="0.9"/>
                         </LinearLayout>
 
-                        <!-- THÊM: Heart Rate Card (chỉ hiện khi có đồng hồ) -->
                         <LinearLayout
                             android:id="@+id/heartRateCard"
                             android:layout_width="0dp"
@@ -249,7 +239,6 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- THÊM: Wear Connection Status Card -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/wearConnectionCard"
                     android:layout_width="0dp"
@@ -295,7 +284,6 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- Guided Mode Fragment Container -->
                 <FrameLayout
                     android:id="@+id/guided_mode_container"
                     android:layout_width="0dp"
@@ -304,7 +292,6 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent" />
 
-                <!-- FAB Play/Stop Button -->
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/play_button"
                     android:layout_width="wrap_content"
