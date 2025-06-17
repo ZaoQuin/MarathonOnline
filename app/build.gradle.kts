@@ -128,6 +128,9 @@ dependencies {
 
     // Health Connect
     implementation("androidx.health.connect:connect-client:1.1.0-alpha08")
+
+    // Media
+    implementation("androidx.media:media:1.6.0")
 }
 
 buildscript {

@@ -24,7 +24,7 @@ import com.university.marathononline.data.repository.FeedbackRepository
 import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.databinding.ActivityRecordFeedbackBinding
-import com.university.marathononline.firebase.MyFirebaseMessagingService
+import com.university.marathononline.service.firebase.MyFirebaseMessagingService
 import com.university.marathononline.ui.adapter.FeedbackAdapter
 import com.university.marathononline.ui.viewModel.FeedBackViewModel
 import com.university.marathononline.utils.ACTION_NEW_FEEDBACK

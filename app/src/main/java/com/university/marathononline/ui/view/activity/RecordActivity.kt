@@ -1,10 +1,14 @@
 package com.university.marathononline.ui.view.activity
 
 import android.Manifest
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -19,6 +23,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -39,12 +44,15 @@ import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.record.RecordApiService
 import com.university.marathononline.data.api.registration.RegistrationApiService
 import com.university.marathononline.data.api.training.TrainingDayApiService
+import com.university.marathononline.data.models.ERecordSource
 import com.university.marathononline.data.models.TrainingDay
 import com.university.marathononline.data.models.WearHealthData
 import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.data.repository.TrainingDayRepository
+import com.university.marathononline.data.request.CreateRecordRequest
 import com.university.marathononline.databinding.ActivityRecordBinding
+import com.university.marathononline.service.foreground.RunningForegroundService
 import com.university.marathononline.ui.components.ModeSelectionDialog
 import com.university.marathononline.ui.view.fragment.GuidedModeFragment
 import com.university.marathononline.ui.viewModel.RecordViewModel
@@ -56,6 +64,7 @@ import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.time.LocalDateTime
 
 class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), OnMapReadyCallback {
 
@@ -70,6 +79,7 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
     private var saveRecordCompleted = false
     private var saveRegistrationCompleted = false
     private var saveTrainingDayCompleted = false
+    private var hasProcessedStopped = false
 
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -85,6 +95,67 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                 "Ứng dụng cần quyền vị trí để hoạt động bình thường.",
                 Toast.LENGTH_SHORT
             ).show()
+        }
+    }
+
+    private val runningUpdateReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                "RUNNING_UPDATE" -> {
+                    intent.let {
+                        Log.d("RecordActivity", "Received RUNNING_UPDATE")
+                        val isStopping = it.getBooleanExtra("isStopping", false)
+
+                        if (isStopping) {
+                            Log.d("RecordActivity", "Service is stopping, ignoring update")
+                            binding.playButton.visible(false)
+                            binding.stopButton.visible(false)
+                            return
+                        }
+
+                        binding.tvTime.text = it.getStringExtra("time") ?: "0:00:00"
+                        binding.tvDistance.text = it.getStringExtra("distance") ?: "0 km"
+                        binding.tvPace.text = it.getStringExtra("pace") ?: "-- min/km"
+                        val isRecording = it.getBooleanExtra("isRecording", false)
+                        val isPaused = it.getBooleanExtra("isPaused", false)
+
+                        if (!isSavingRecord && !hasProcessedStopped) {
+                            binding.playButton.visible(!isRecording || isPaused)
+                            binding.stopButton.visible(isRecording && !isPaused)
+                        }
+                    }
+                }
+                "RUNNING_STOPPED" -> {
+                    if (!hasProcessedStopped) {
+                        hasProcessedStopped = true
+                        intent.let {
+                            Log.d("RecordActivity", "Received RUNNING_STOPPED, hasProcessedStopped=$hasProcessedStopped")
+
+                            binding.playButton.visible(false)
+                            binding.stopButton.visible(false)
+
+                            viewModel.forceStopRecording()
+
+                            val steps = it.getIntExtra("steps", 0)
+                            val distance = it.getDoubleExtra("distance", 0.0)
+                            val avgSpeed = it.getDoubleExtra("avgSpeed", 0.0)
+                            val startTime = it.getStringExtra("startTime") ?: LocalDateTime.now().toString()
+                            val endTime = it.getStringExtra("endTime") ?: LocalDateTime.now().toString()
+
+                            val createRecordRequest = CreateRecordRequest(
+                                steps = steps,
+                                distance = distance,
+                                avgSpeed = avgSpeed,
+                                heartRate = 0.0,
+                                startTime = startTime,
+                                endTime = endTime,
+                                source = ERecordSource.DEVICE
+                            )
+                            viewModel.createRecord(createRecordRequest)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -108,10 +179,46 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         viewModel.initializeLocationTracking(this)
         viewModel.initializeWearIntegration()
 
+        if (savedInstanceState != null) {
+            isSavingRecord = savedInstanceState.getBoolean("isSavingRecord", false)
+        } else {
+            val prefs = getSharedPreferences("RunningData", Context.MODE_PRIVATE)
+            if (prefs.contains("steps") && !isSavingRecord) {
+                val steps = prefs.getInt("steps", 0)
+                val distance = prefs.getFloat("distance", 0f).toDouble()
+                val avgSpeed = prefs.getFloat("avgSpeed", 0f).toDouble()
+                val startTime = prefs.getString("startTime", LocalDateTime.now().toString()) ?: LocalDateTime.now().toString()
+                val endTime = prefs.getString("endTime", LocalDateTime.now().toString()) ?: LocalDateTime.now().toString()
+
+                val createRecordRequest = CreateRecordRequest(
+                    steps = steps,
+                    distance = distance,
+                    avgSpeed = avgSpeed,
+                    heartRate = 0.0,
+                    startTime = startTime,
+                    endTime = endTime,
+                    source = ERecordSource.DEVICE
+                )
+                viewModel.createRecord(createRecordRequest)
+                prefs.edit().clear().apply()
+            }
+        }
+
         showModeSelectionDialog()
         initializeUI()
         setupObservers()
         checkAndRequestPermissions()
+
+        val filter = IntentFilter().apply {
+            addAction("RUNNING_UPDATE")
+            addAction("RUNNING_STOPPED")
+        }
+        LocalBroadcastManager.getInstance(this).registerReceiver(runningUpdateReceiver, filter)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("isSavingRecord", isSavingRecord)
     }
 
     private fun setupObservers() {
@@ -172,6 +279,7 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         viewModel.createRecordResponse.observe(this) {
             when (it) {
                 is Resource.Loading -> {
+                    Toast.makeText(this, "Đang lưu kết quả...", Toast.LENGTH_SHORT).show()
                     startSavingProcess()
                 }
                 is Resource.Success -> {
@@ -242,8 +350,6 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         saveTrainingDayCompleted = false
 
         updateUIForSaving(true)
-
-        Toast.makeText(this, "Đang lưu kết quả...", Toast.LENGTH_SHORT).show()
     }
 
     private fun checkSavingComplete() {
@@ -254,11 +360,10 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
 
     private fun completeSavingProcess() {
         isSavingRecord = false
+        hasProcessedStopped = false
         updateUIForSaving(false)
-
         if (saveRecordCompleted && saveRegistrationCompleted && saveTrainingDayCompleted) {
             Toast.makeText(this, "Lưu kết quả hoàn tất!", Toast.LENGTH_LONG).show()
-
             handler.postDelayed({
                 finishAndGoBack()
             }, 2000)
@@ -324,27 +429,20 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
     }
 
     private fun hideWearTrackingMessage() {
-        // Remove wear tracking message/marker if any
-        // Map sẽ tự động hiển thị GPS tracking khi có data
     }
 
     private fun updateButtonVisibility(isWearConnected: Boolean) {
         binding.apply {
             if (isWearConnected || isSavingRecord) {
-                // Khi kết nối Wear hoặc đang save, ẩn cả hai nút và hiển thị thông báo
                 playButton.visible(false)
                 stopButton.visible(false)
-
-                // Có thể thêm một TextView hoặc thông báo cho user biết điều khiển từ Wear
                 if (isWearConnected && !isSavingRecord) {
                     showWearControlMessage(true)
                 }
             } else {
-                // Khi không kết nối Wear và không đang save, hiển thị nút theo trạng thái recording
                 val isRecording = viewModel.isRecording.value
-                playButton.visible(!isRecording)
-                stopButton.visible(isRecording)
-
+                playButton.visible(!isRecording && !hasProcessedStopped)
+                stopButton.visible(isRecording && !hasProcessedStopped)
                 showWearControlMessage(false)
             }
         }
@@ -353,18 +451,12 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
     private fun showWearControlMessage(show: Boolean) {
         binding.apply {
             if (show) {
-                // Tạo hoặc hiển thị TextView thông báo (cần thêm vào layout)
-                // wearControlMessage.visible(true)
-                // wearControlMessage.text = "Điều khiển từ đồng hồ Wear OS"
-
-                // Hoặc hiển thị Toast
                 Toast.makeText(
                     this@RecordActivity,
                     "Sử dụng đồng hồ Wear OS để bắt đầu/dừng ghi lại",
                     Toast.LENGTH_LONG
                 ).show()
             } else {
-                // wearControlMessage.visible(false)
             }
         }
     }
@@ -372,23 +464,19 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
     private fun updateWearConnectionStatus(isConnected: Boolean) {
         binding.apply {
             if (isConnected) {
-                // Hiển thị trạng thái đã kết nối
                 wearStatusIcon.setImageResource(R.drawable.ic_watch)
                 wearStatusIcon.setColorFilter(ContextCompat.getColor(this@RecordActivity, R.color.light_main_color))
                 wearStatusText.text = "Đã kết nối"
                 wearStatusText.setTextColor(ContextCompat.getColor(this@RecordActivity, R.color.light_main_color))
 
-                // Hiển thị card thông báo kết nối thành công
                 wearConnectionCard.visible(true)
                 wearConnectionText.text = "Đồng hồ Wear OS đã kết nối"
 
-                // Ẩn card sau 3 giây
                 Handler(Looper.getMainLooper()).postDelayed({
                     wearConnectionCard.visible(false)
                 }, 3000)
 
             } else {
-                // Hiển thị trạng thái chưa kết nối
                 wearStatusIcon.setImageResource(R.drawable.ic_watch)
                 wearStatusIcon.setColorFilter(ContextCompat.getColor(this@RecordActivity, R.color.text_color))
                 wearStatusText.text = "Chưa kết nối"
@@ -398,33 +486,27 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
             }
         }
 
-        // Cập nhật visibility của các nút
         updateButtonVisibility(isConnected)
     }
 
     private fun updateUIWithWearData(wearData: WearHealthData) {
         binding.apply {
-            // Hiển thị heart rate card nếu có dữ liệu nhịp tim
             if (wearData.heartRate > 0) {
                 heartRateCard.visible(true)
                 tvHeartRate.text = "${wearData.heartRate.toInt()} bpm"
 
-                // Thay đổi màu theo nhịp tim
                 val heartRateColor = when {
-                    wearData.heartRate < 60 -> R.color.main_color  // Nhịp tim thấp
-                    wearData.heartRate > 160 -> R.color.light_red  // Nhịp tim cao
-                    else -> R.color.dark_main_color                // Nhịp tim bình thường
+                    wearData.heartRate < 60 -> R.color.main_color
+                    wearData.heartRate > 160 -> R.color.light_red
+                    else -> R.color.dark_main_color
                 }
                 heartRateCard.setBackgroundColor(ContextCompat.getColor(this@RecordActivity, heartRateColor))
             } else {
                 heartRateCard.visible(false)
             }
 
-            // Cập nhật layout để phù hợp với việc hiển thị heart rate
             if (heartRateCard.visibility == View.VISIBLE) {
-                // Điều chỉnh weight cho các LinearLayout con trong recordLayout
                 try {
-                    // Lấy các LinearLayout con của recordLayout
                     val recordLayoutChildren = recordLayout.childCount
                     for (i in 0 until recordLayoutChildren) {
                         val child = recordLayout.getChildAt(i)
@@ -436,15 +518,12 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                     }
                 } catch (e: ClassCastException) {
                     Log.e("RecordActivity", "Error adjusting layout weights: ${e.message}")
-                    // Fallback: don't adjust weights if casting fails
                 }
             } else {
-                // Khi heart rate card ẩn, reset weight cho distance và pace cards
                 try {
                     val recordLayoutChildren = recordLayout.childCount
                     var visibleCardCount = 0
 
-                    // Đếm số card visible (không bao gồm heart rate card)
                     for (i in 0 until recordLayoutChildren) {
                         val child = recordLayout.getChildAt(i)
                         if (child is LinearLayout && child != heartRateCard && child.visibility == View.VISIBLE) {
@@ -452,7 +531,6 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                         }
                     }
 
-                    // Điều chỉnh weight cho các card visible
                     for (i in 0 until recordLayoutChildren) {
                         val child = recordLayout.getChildAt(i)
                         if (child is LinearLayout && child != heartRateCard && child.visibility == View.VISIBLE) {
@@ -470,6 +548,27 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         Log.d("RecordActivity", "Updated UI with wear data: HR=${wearData.heartRate}, Steps=${wearData.steps}")
     }
 
+    private fun startRunningService() {
+        if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+            val serviceIntent = Intent(this, RunningForegroundService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent)
+            } else {
+                startService(serviceIntent)
+            }
+        } else {
+            Toast.makeText(this, "Không thể bắt đầu theo dõi khi ứng dụng không ở trạng thái hoạt động.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun stopRunningService() {
+        viewModel.forceStopRecording()
+
+        val serviceIntent = Intent(this, RunningForegroundService::class.java)
+        serviceIntent.action = RunningForegroundService.ACTION_STOP
+        startService(serviceIntent)
+    }
+
     private fun initializeUI() {
         binding.apply {
             playButton.enable(hasLocationPermissions())
@@ -483,11 +582,13 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
             playButton.setOnClickListener {
                 if (!isSavingRecord) {
                     viewModel.startRecording(this@RecordActivity)
+                    startRunningService()
                 }
             }
             stopButton.setOnClickListener {
                 if (!isSavingRecord) {
                     viewModel.stopRecording()
+                    stopRunningService()
                 }
             }
         }
@@ -665,7 +766,11 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
 
     override fun onDestroy() {
         super.onDestroy()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(runningUpdateReceiver)
         viewModel.stopRecording()
+        stopRunningService()
         hideGuidedModeFragment()
+        handler.removeCallbacksAndMessages(null)
+        hasProcessedStopped = false
     }
 }

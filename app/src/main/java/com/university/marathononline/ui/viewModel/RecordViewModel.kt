@@ -258,7 +258,7 @@ class RecordViewModel(
         createRecord(createRecordRequest)
     }
 
-    private fun createRecord(request: CreateRecordRequest) {
+    fun createRecord(request: CreateRecordRequest) {
         viewModelScope.launch {
             _createRecordResponse.value = Resource.Loading
             _createRecordResponse.value = recordRepository.addRecordAndSaveIntoRegistration(request)
@@ -301,8 +301,10 @@ class RecordViewModel(
         }
     }
 
-    fun refreshWearConnection() {
-        wearIntegrationManager.refreshConnection()
+    fun forceStopRecording() {
+        locationTracker.stopLocationUpdates()
+        stepCounter.stopCounting()
+        recordingManager.stopRecording()
     }
 
     fun isUsingWearTracking(): Boolean = isUsingWearForTracking

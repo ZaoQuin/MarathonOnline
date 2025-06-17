@@ -37,7 +37,7 @@ import com.university.marathononline.databinding.FragmentHomeBinding
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.data.repository.TrainingDayRepository
-import com.university.marathononline.firebase.MyFirebaseMessagingService
+import com.university.marathononline.service.firebase.MyFirebaseMessagingService
 import com.university.marathononline.ui.adapter.ContestAdapter
 import com.university.marathononline.ui.view.activity.NotificationsActivity
 import com.university.marathononline.ui.view.activity.RecordActivity

@@ -12,8 +12,8 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="com.google.android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND" /> <!-- Also make sure you have these permissions -->
-    <uses-permission android:name="com.google.android.permission.BIND_LISTENER" /> <!-- Vibration permission for notifications -->
+    <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND" />
+    <uses-permission android:name="com.google.android.permission.BIND_LISTENER" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.health.READ_STEPS" />
@@ -21,6 +21,11 @@
     <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
     <uses-permission android:name="android.permission.health.WRITE_STEPS" />
     <uses-permission android:name="android.permission.health.WRITE_DISTANCE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
 
     <queries>
         <package android:name="com.google.android.apps.healthdata" />
@@ -52,6 +57,13 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:theme"
         tools:targetApi="31">
+
+        <service
+            android:name=".service.foreground.RunningForegroundService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="location" />
+
         <activity
             android:name=".ui.view.activity.RecordFeedbackActivity"
             android:exported="false" />
@@ -82,7 +94,7 @@
             android:value="false" />
 
         <service
-            android:name=".firebase.MyFirebaseMessagingService"
+            android:name=".service.firebase.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -90,7 +102,7 @@
         </service>
 
         <receiver
-            android:name=".firebase.FeedbackBroadcastReceiver"
+            android:name=".service.firebase.FeedbackBroadcastReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
@@ -98,7 +110,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".firebase.NotificationBroadcastReceiver"
+            android:name=".service.firebase.NotificationBroadcastReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="DISMISS_NOTIFICATION" />
@@ -210,7 +222,7 @@
             android:exported="false" />
         <activity
             android:name=".ui.view.activity.RecordActivity"
-            android:exported="false" />
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity
             android:name=".ui.view.activity.SearchActivity"
             android:exported="false" />

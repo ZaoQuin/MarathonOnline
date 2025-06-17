@@ -85,7 +85,6 @@ class LocationTracker(private val context: Context) {
             val distanceInKm = distance.div(1000)
             currentLocation = location
 
-            // Notify callback about location update
             onLocationUpdate?.invoke(location, distanceInKm.toDouble())
         }
     }
