@@ -1,10 +1,14 @@
 package com.university.marathononline.ui.view.activity
 
 import android.Manifest
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -19,6 +23,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -39,12 +44,15 @@ import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.record.RecordApiService
 import com.university.marathononline.data.api.registration.RegistrationApiService
 import com.university.marathononline.data.api.training.TrainingDayApiService
+import com.university.marathononline.data.models.ERecordSource
 import com.university.marathononline.data.models.TrainingDay
 import com.university.marathononline.data.models.WearHealthData
 import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.data.repository.TrainingDayRepository
+import com.university.marathononline.data.request.CreateRecordRequest
 import com.university.marathononline.databinding.ActivityRecordBinding
+import com.university.marathononline.service.foreground.RunningForegroundService
 import com.university.marathononline.ui.components.ModeSelectionDialog
 import com.university.marathononline.ui.view.fragment.GuidedModeFragment
 import com.university.marathononline.ui.viewModel.RecordViewModel
@@ -56,6 +64,7 @@ import handleApiError
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.time.LocalDateTime
 
 class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), OnMapReadyCallback {
 
@@ -88,6 +97,43 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         }
     }
 
+    private val runningUpdateReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                "RUNNING_UPDATE" -> {
+                    intent.let {
+                        binding.tvTime.text = it.getStringExtra("time") ?: "0:00:00"
+                        binding.tvDistance.text = it.getStringExtra("distance") ?: "0 km"
+                        binding.tvPace.text = it.getStringExtra("pace") ?: "-- min/km"
+                        val isRecording = it.getBooleanExtra("isRecording", false)
+                        binding.playButton.visible(!isRecording)
+                        binding.stopButton.visible(isRecording)
+                    }
+                }
+                "RUNNING_STOPPED" -> {
+                    intent.let {
+                        val steps = it.getIntExtra("steps", 0)
+                        val distance = it.getDoubleExtra("distance", 0.0)
+                        val avgSpeed = it.getDoubleExtra("avgSpeed", 0.0)
+                        val startTime = it.getStringExtra("startTime") ?: LocalDateTime.now().toString()
+                        val endTime = it.getStringExtra("endTime") ?: LocalDateTime.now().toString()
+
+                        val createRecordRequest = CreateRecordRequest(
+                            steps = steps,
+                            distance = distance,
+                            avgSpeed = avgSpeed,
+                            heartRate = 0.0,
+                            startTime = startTime,
+                            endTime = endTime,
+                            source = ERecordSource.DEVICE
+                        )
+                        viewModel.createRecord(createRecordRequest)
+                    }
+                }
+            }
+        }
+    }
+
     private val activityRecognitionPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -108,10 +154,47 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         viewModel.initializeLocationTracking(this)
         viewModel.initializeWearIntegration()
 
+        if (savedInstanceState != null) {
+            isSavingRecord = savedInstanceState.getBoolean("isSavingRecord", false)
+        } else {
+            val prefs = getSharedPreferences("RunningData", Context.MODE_PRIVATE)
+            if (prefs.contains("steps")) {
+                val steps = prefs.getInt("steps", 0)
+                val distance = prefs.getFloat("distance", 0f).toDouble()
+                val avgSpeed = prefs.getFloat("avgSpeed", 0f).toDouble()
+                val startTime = prefs.getString("startTime", LocalDateTime.now().toString()) ?: LocalDateTime.now().toString()
+                val endTime = prefs.getString("endTime", LocalDateTime.now().toString()) ?: LocalDateTime.now().toString()
+
+                val createRecordRequest = CreateRecordRequest(
+                    steps = steps,
+                    distance = distance,
+                    avgSpeed = avgSpeed,
+                    heartRate = 0.0,
+                    startTime = startTime,
+                    endTime = endTime,
+                    source = ERecordSource.DEVICE
+                )
+                viewModel.createRecord(createRecordRequest)
+
+                prefs.edit().clear().apply()
+            }
+        }
+
         showModeSelectionDialog()
         initializeUI()
         setupObservers()
         checkAndRequestPermissions()
+
+        val filter = IntentFilter().apply {
+            addAction("RUNNING_UPDATE")
+            addAction("RUNNING_STOPPED")
+        }
+        LocalBroadcastManager.getInstance(this).registerReceiver(runningUpdateReceiver, filter)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("isSavingRecord", isSavingRecord)
     }
 
     private fun setupObservers() {
@@ -470,6 +553,25 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         Log.d("RecordActivity", "Updated UI with wear data: HR=${wearData.heartRate}, Steps=${wearData.steps}")
     }
 
+    private fun startRunningService() {
+        if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+            val serviceIntent = Intent(this, RunningForegroundService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent)
+            } else {
+                startService(serviceIntent)
+            }
+        } else {
+            Toast.makeText(this, "Không thể bắt đầu theo dõi khi ứng dụng không ở trạng thái hoạt động.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun stopRunningService() {
+        val serviceIntent = Intent(this, RunningForegroundService::class.java)
+        serviceIntent.action = RunningForegroundService.ACTION_STOP
+        startService(serviceIntent)
+    }
+
     private fun initializeUI() {
         binding.apply {
             playButton.enable(hasLocationPermissions())
@@ -483,11 +585,13 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
             playButton.setOnClickListener {
                 if (!isSavingRecord) {
                     viewModel.startRecording(this@RecordActivity)
+                    startRunningService()
                 }
             }
             stopButton.setOnClickListener {
                 if (!isSavingRecord) {
                     viewModel.stopRecording()
+                    stopRunningService()
                 }
             }
         }
@@ -664,6 +768,7 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
     }
 
     override fun onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(runningUpdateReceiver)
         super.onDestroy()
         viewModel.stopRecording()
         hideGuidedModeFragment()

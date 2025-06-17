@@ -1,4 +1,4 @@
-package com.university.marathononline.firebase
+package com.university.marathononline.service.firebase
 
 import android.content.BroadcastReceiver
 import android.content.Context

@@ -30,7 +30,7 @@ import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.data.request.CreateRecordRequest
 import com.university.marathononline.databinding.ActivityMainBinding
-import com.university.marathononline.firebase.FeedbackBroadcastReceiver
+import com.university.marathononline.service.firebase.FeedbackBroadcastReceiver
 import com.university.marathononline.ui.adapter.MainPagerAdapter
 import com.university.marathononline.ui.viewModel.MainViewModel
 import com.university.marathononline.utils.ACTION_NEW_FEEDBACK
