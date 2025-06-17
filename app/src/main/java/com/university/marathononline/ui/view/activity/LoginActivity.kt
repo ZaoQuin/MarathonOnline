@@ -13,7 +13,7 @@ import com.university.marathononline.data.api.auth.AuthApiService
 import com.university.marathononline.data.models.ERole
 import com.university.marathononline.data.models.LoginInfo
 import com.university.marathononline.data.repository.AuthRepository
-import com.university.marathononline.data.response.AuthResponse
+import com.university.marathononline.data.api.auth.AuthResponse
 import com.university.marathononline.databinding.ActivityLoginBinding
 import com.university.marathononline.ui.viewModel.LoginViewModel
 import com.university.marathononline.utils.*

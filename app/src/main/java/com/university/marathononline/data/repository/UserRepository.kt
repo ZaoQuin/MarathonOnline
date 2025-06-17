@@ -1,14 +1,13 @@
 package com.university.marathononline.data.repository
 
 import com.university.marathononline.base.BaseRepository
-import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.user.UserApiService
 import com.university.marathononline.data.models.User
-import com.university.marathononline.data.request.CheckEmailRequest
-import com.university.marathononline.data.request.CheckPhoneNumberRequest
-import com.university.marathononline.data.request.CheckUsernameRequest
-import com.university.marathononline.data.request.CreateUserRequest
-import com.university.marathononline.data.request.UpdatePasswordRequest
+import com.university.marathononline.data.api.user.CheckEmailRequest
+import com.university.marathononline.data.api.user.CheckPhoneNumberRequest
+import com.university.marathononline.data.api.user.CheckUsernameRequest
+import com.university.marathononline.data.api.user.CreateUserRequest
+import com.university.marathononline.data.api.user.UpdatePasswordRequest
 import okhttp3.MultipartBody
 
 class UserRepository (

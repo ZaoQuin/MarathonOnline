@@ -5,14 +5,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
-import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.Record
 import com.university.marathononline.data.models.Reward
 import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.data.repository.RecordRepository
-import com.university.marathononline.data.response.GetContestsResponse
+import com.university.marathononline.data.api.contest.GetContestsResponse
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(

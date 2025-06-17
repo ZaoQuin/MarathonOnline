@@ -20,6 +20,7 @@ import com.university.marathononline.ui.view.activity.RecordActivity
 import com.university.marathononline.ui.viewModel.tracking.LocationTracker
 import com.university.marathononline.ui.viewModel.tracking.RecordingManager
 import com.university.marathononline.ui.viewModel.tracking.StepCounter
+import com.university.marathononline.utils.FgRecordConstants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -38,14 +39,6 @@ class RunningForegroundService : Service() {
     private var isPaused = false
     private var isStopping = false
 
-    companion object {
-        const val CHANNEL_ID = "RunningServiceChannel"
-        const val NOTIFICATION_ID = 1
-        const val ACTION_STOP = "ACTION_STOP"
-        const val ACTION_PLAY = "ACTION_PLAY"
-        const val ACTION_PAUSE = "ACTION_PAUSE"
-    }
-
     override fun onCreate() {
         super.onCreate()
         locationTracker = LocationTracker(this)
@@ -55,7 +48,7 @@ class RunningForegroundService : Service() {
         startTime = LocalDateTime.now()
 
         createNotificationChannel()
-        startForeground(NOTIFICATION_ID, buildNotification())
+        startForeground(FgRecordConstants.NOTIFICATION_ID, buildNotification())
 
         setupTracking()
     }
@@ -102,7 +95,7 @@ class RunningForegroundService : Service() {
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                CHANNEL_ID,
+                FgRecordConstants.CHANNEL_ID,
                 "Running Tracker",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
@@ -119,7 +112,7 @@ class RunningForegroundService : Service() {
 
     private fun buildNotification(): Notification {
         val stopIntent = Intent(this, RunningForegroundService::class.java).apply {
-            action = ACTION_STOP
+            action = FgRecordConstants.ACTION_STOP
         }
         val stopPendingIntent = PendingIntent.getService(
             this, 0, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
@@ -136,7 +129,7 @@ class RunningForegroundService : Service() {
         val distance = recordingManager.distance.value
         val pace = recordingManager.averagePace.value
 
-        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(this, FgRecordConstants.CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_runner)
             .setContentTitle("🏃‍♂️ Marathon Online")
             .setContentText("$formattedTime")
@@ -172,30 +165,30 @@ class RunningForegroundService : Service() {
     private fun updateNotification() {
         if (!isStopping) {
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.notify(NOTIFICATION_ID, buildNotification())
+            notificationManager.notify(FgRecordConstants.NOTIFICATION_ID, buildNotification())
         }
     }
 
     private fun broadcastUpdate() {
         if (!isStopping) {
-            val intent = Intent("RUNNING_UPDATE")
-            intent.putExtra("time", recordingManager.time.value)
-            intent.putExtra("distance", recordingManager.distance.value)
-            intent.putExtra("pace", recordingManager.averagePace.value)
-            intent.putExtra("isRecording", recordingManager.isRecording.value && !isPaused && !isStopping)
-            intent.putExtra("isPaused", isPaused)
-            intent.putExtra("isStopping", isStopping)
+            val intent = Intent(FgRecordConstants.RUNNING_UPDATE)
+            intent.putExtra(FgRecordConstants.time, recordingManager.time.value)
+            intent.putExtra(FgRecordConstants.distance, recordingManager.distance.value)
+            intent.putExtra(FgRecordConstants.pace, recordingManager.averagePace.value)
+            intent.putExtra(FgRecordConstants.isRecording, recordingManager.isRecording.value && !isPaused && !isStopping)
+            intent.putExtra(FgRecordConstants.isPaused, isPaused)
+            intent.putExtra(FgRecordConstants.isStopping, isStopping)
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
         }
     }
 
     private fun broadcastStop() {
-        val intent = Intent("RUNNING_STOPPED")
-        intent.putExtra("steps", stepCounter.steps.value)
-        intent.putExtra("distance", recordingManager.totalDistance)
-        intent.putExtra("avgSpeed", recordingManager.getAverageSpeed())
-        intent.putExtra("startTime", startTime?.toString() ?: LocalDateTime.now().toString())
-        intent.putExtra("endTime", LocalDateTime.now().toString())
+        val intent = Intent(FgRecordConstants.RUNNING_STOPPED)
+        intent.putExtra(FgRecordConstants.steps, stepCounter.steps.value)
+        intent.putExtra(FgRecordConstants.distance, recordingManager.totalDistance)
+        intent.putExtra(FgRecordConstants.avgSpeed, recordingManager.getAverageSpeed())
+        intent.putExtra(FgRecordConstants.startTime, startTime?.toString() ?: LocalDateTime.now().toString())
+        intent.putExtra(FgRecordConstants.endTime, LocalDateTime.now().toString())
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 
@@ -213,11 +206,11 @@ class RunningForegroundService : Service() {
 
         val prefs = getSharedPreferences("RunningData", Context.MODE_PRIVATE)
         with(prefs.edit()) {
-            putInt("steps", stepCounter.steps.value)
-            putFloat("distance", recordingManager.totalDistance.toFloat())
-            putFloat("avgSpeed", recordingManager.getAverageSpeed().toFloat())
-            putString("startTime", startTime?.toString() ?: LocalDateTime.now().toString())
-            putString("endTime", LocalDateTime.now().toString())
+            putInt(FgRecordConstants.steps, stepCounter.steps.value)
+            putFloat(FgRecordConstants.distance, recordingManager.totalDistance.toFloat())
+            putFloat(FgRecordConstants.avgSpeed, recordingManager.getAverageSpeed().toFloat())
+            putString(FgRecordConstants.startTime, startTime?.toString() ?: LocalDateTime.now().toString())
+            putString(FgRecordConstants.endTime, LocalDateTime.now().toString())
             apply()
         }
 
@@ -248,7 +241,7 @@ class RunningForegroundService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            ACTION_STOP -> {
+            FgRecordConstants.ACTION_STOP -> {
                 Log.d("RunningForegroundService", "Received ACTION_STOP")
                 stopTracking()
 
@@ -258,13 +251,13 @@ class RunningForegroundService : Service() {
                 stopSelf()
                 return START_NOT_STICKY
             }
-            ACTION_PLAY -> {
+            FgRecordConstants.ACTION_PLAY -> {
                 Log.d("RunningForegroundService", "Received play action")
                 if (!isStopping) {
                     resumeTracking()
                 }
             }
-            ACTION_PAUSE -> {
+            FgRecordConstants.ACTION_PAUSE -> {
                 Log.d("RunningForegroundService", "Received pause action")
                 if (!isStopping) {
                     pauseTracking()

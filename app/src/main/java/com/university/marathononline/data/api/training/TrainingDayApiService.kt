@@ -2,7 +2,7 @@ package com.university.marathononline.data.api.training
 
 import com.university.marathononline.data.models.Record
 import com.university.marathononline.data.models.TrainingDay
-import com.university.marathononline.data.response.StringResponse
+import com.university.marathononline.data.api.share.StringResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST

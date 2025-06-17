@@ -14,8 +14,8 @@ import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.data.repository.PaymentRepository
 import com.university.marathononline.data.repository.RegistrationRepository
-import com.university.marathononline.data.request.CreatePaymentRequest
-import com.university.marathononline.data.response.StringResponse
+import com.university.marathononline.data.api.payment.CreatePaymentRequest
+import com.university.marathononline.data.api.share.StringResponse
 import kotlinx.coroutines.launch
 
 class PaymentConfirmationViewModel(

@@ -10,7 +10,7 @@ import androidx.viewbinding.ViewBinding
 import com.google.firebase.messaging.FirebaseMessaging
 import com.university.marathononline.data.api.RetrofitInstance
 import com.university.marathononline.data.api.auth.AuthApiService
-import com.university.marathononline.data.response.UserPreferences
+import com.university.marathononline.data.preferences.UserPreferences
 import com.university.marathononline.ui.view.activity.MainActivity.Companion.TAG
 import com.university.marathononline.ui.view.activity.SplashRedirectActivity
 import com.university.marathononline.utils.startNewActivity

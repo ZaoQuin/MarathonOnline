@@ -2,7 +2,7 @@ package com.university.marathononline.data.repository
 
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.payment.PaymentApiService
-import com.university.marathononline.data.request.CreatePaymentRequest
+import com.university.marathononline.data.api.payment.CreatePaymentRequest
 
 class PaymentRepository (
     private val api: PaymentApiService

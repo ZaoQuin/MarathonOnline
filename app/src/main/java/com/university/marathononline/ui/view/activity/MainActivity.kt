@@ -28,7 +28,7 @@ import com.university.marathononline.data.api.notify.NotificationApiService
 import com.university.marathononline.data.api.record.RecordApiService
 import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.data.repository.RecordRepository
-import com.university.marathononline.data.request.CreateRecordRequest
+import com.university.marathononline.data.api.record.CreateRecordRequest
 import com.university.marathononline.databinding.ActivityMainBinding
 import com.university.marathononline.service.firebase.FeedbackBroadcastReceiver
 import com.university.marathononline.ui.adapter.MainPagerAdapter

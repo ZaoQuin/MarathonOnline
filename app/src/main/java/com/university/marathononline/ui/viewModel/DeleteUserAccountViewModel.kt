@@ -8,7 +8,7 @@ import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.ContestRepository
-import com.university.marathononline.data.response.CheckActiveContestResponse
+import com.university.marathononline.data.api.contest.CheckActiveContestResponse
 import com.university.marathononline.utils.EMAIL
 import com.university.marathononline.utils.SENDER_PASS
 import kotlinx.coroutines.launch

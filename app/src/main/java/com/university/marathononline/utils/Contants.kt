@@ -85,3 +85,25 @@ object WearableConstants {
     const val KEY_TIMESTAMP = "timestamp"
     const val KEY_IS_RECORDING = "isRecording"
 }
+
+object FgRecordConstants {
+    const val CHANNEL_ID = "RunningServiceChannel"
+    const val NOTIFICATION_ID = 1
+    const val ACTION_STOP = "ACTION_STOP"
+    const val ACTION_PLAY = "ACTION_PLAY"
+    const val ACTION_PAUSE = "ACTION_PAUSE"
+
+    const val RUNNING_UPDATE = "RUNNING_UPDATE"
+    const val RUNNING_STOPPED = "RUNNING_STOPPED"
+    const val time = "time"
+    const val distance = "distance"
+    const val pace = "pace"
+    const val isRecording = "isRecording"
+    const val isPaused = "isPaused"
+    const val isStopping = "isStopping"
+    const val steps = "steps"
+    const val avgSpeed = "avgSpeed"
+    const val startTime = "startTime"
+    const val endTime = "endTime"
+    const val isSavingRecord = "isSavingRecord"
+}

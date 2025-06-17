@@ -9,8 +9,8 @@ import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.models.ERole
 import com.university.marathononline.data.models.LoginInfo
 import com.university.marathononline.data.repository.AuthRepository
-import com.university.marathononline.data.request.AuthRequest
-import com.university.marathononline.data.response.AuthResponse
+import com.university.marathononline.data.api.auth.AuthRequest
+import com.university.marathononline.data.api.auth.AuthResponse
 import kotlinx.coroutines.launch
 
 class LoginViewModel(

@@ -10,7 +10,7 @@ import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import com.university.marathononline.data.models.ERecordSource
-import com.university.marathononline.data.request.CreateRecordRequest
+import com.university.marathononline.data.api.record.CreateRecordRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

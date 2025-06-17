@@ -4,10 +4,10 @@ import android.content.Context
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.notify.NotificationApiService
 import com.university.marathononline.data.models.Notification
-import com.university.marathononline.data.request.CreateAllNotificationRequest
-import com.university.marathononline.data.request.CreateGroupNotificationRequest
-import com.university.marathononline.data.request.CreateIndividualNotificationRequest
-import com.university.marathononline.data.request.UpdateFCMTokenRequest
+import com.university.marathononline.data.api.contest.CreateAllNotificationRequest
+import com.university.marathononline.data.api.notify.CreateGroupNotificationRequest
+import com.university.marathononline.data.api.notify.CreateIndividualNotificationRequest
+import com.university.marathononline.data.api.notify.UpdateFCMTokenRequest
 
 class NotificationRepository(
     private val api: NotificationApiService

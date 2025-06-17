@@ -5,10 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
-import com.university.marathononline.data.models.ERole
 import com.university.marathononline.data.repository.UserRepository
-import com.university.marathononline.data.request.CheckEmailRequest
-import com.university.marathononline.data.response.CheckEmailResponse
+import com.university.marathononline.data.api.user.CheckEmailRequest
+import com.university.marathononline.data.api.user.CheckEmailResponse
 import kotlinx.coroutines.launch
 
 class RegisterBasicInformationViewModel(

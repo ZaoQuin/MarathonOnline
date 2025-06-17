@@ -1,10 +1,7 @@
 package com.university.marathononline.data.api.notify
 
 import com.university.marathononline.data.models.Notification
-import com.university.marathononline.data.request.CreateAllNotificationRequest
-import com.university.marathononline.data.request.CreateGroupNotificationRequest
-import com.university.marathononline.data.request.CreateIndividualNotificationRequest
-import com.university.marathononline.data.request.UpdateFCMTokenRequest
+import com.university.marathononline.data.api.contest.CreateAllNotificationRequest
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST

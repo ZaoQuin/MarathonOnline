@@ -1,6 +1,0 @@
-package com.university.marathononline.data.response
-
-data class CheckEmailResponse(
-    var exists: Boolean,
-    var message: String
-)

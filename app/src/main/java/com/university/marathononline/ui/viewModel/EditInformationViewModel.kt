@@ -11,7 +11,7 @@ import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.models.EGender
 import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.UserRepository
-import com.university.marathononline.data.response.StringResponse
+import com.university.marathononline.data.api.share.StringResponse
 import com.university.marathononline.utils.FileUtils
 import kotlinx.coroutines.launch
 

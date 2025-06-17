@@ -1,6 +1,8 @@
 package com.university.marathononline.ui.viewModel
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,8 +16,8 @@ import com.university.marathononline.data.models.WearHealthData
 import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.data.repository.TrainingDayRepository
-import com.university.marathononline.data.request.CreateRecordRequest
-import com.university.marathononline.data.response.RegistrationsResponse
+import com.university.marathononline.data.api.record.CreateRecordRequest
+import com.university.marathononline.data.api.share.RegistrationsResponse
 import com.university.marathononline.ui.viewModel.tracking.GuidedModeManager
 import com.university.marathononline.ui.viewModel.tracking.LocationTracker
 import com.university.marathononline.ui.viewModel.tracking.RecordingManager
@@ -23,9 +25,12 @@ import com.university.marathononline.ui.viewModel.tracking.StepCounter
 import com.university.marathononline.ui.viewModel.tracking.WearIntegrationManager
 import com.google.android.gms.maps.model.LatLng
 import com.university.marathononline.data.models.ERecordSource
+import com.university.marathononline.data.preferences.RecordPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
 
 class RecordViewModel(
@@ -33,6 +38,41 @@ class RecordViewModel(
     private val recordRepository: RecordRepository,
     private val trainingDayRepository: TrainingDayRepository
 ) : BaseViewModel(listOf(registrationRepository, recordRepository, trainingDayRepository)) {
+
+    private lateinit var recordPreferences: RecordPreferences
+    private val handler = Handler(Looper.getMainLooper())
+    private val saveInterval = 5000L
+
+    fun saveRunningDataToPrefs() {
+        viewModelScope.launch {
+            val record = CreateRecordRequest(
+                steps = stepCounter.steps.value,
+                distance = recordingManager.totalDistance,
+                avgSpeed = recordingManager.getAverageSpeed(),
+                heartRate = if (isUsingWearForTracking) latestHeartRate else 0.0,
+                startTime = startTime?.toString() ?: LocalDateTime.now().toString(),
+                endTime = LocalDateTime.now().toString(),
+                source = ERecordSource.DEVICE
+            )
+            recordPreferences.saveRecord(record)
+            Log.d("RecordViewModel", "Saved running data to RecordPreferences")
+        }
+    }
+
+    fun restoreRunningData(context: Context): CreateRecordRequest? {
+        return runBlocking {
+            recordPreferences.record.first()
+        }
+    }
+
+    private val saveDataRunnable = object : Runnable {
+        override fun run() {
+            saveRunningDataToPrefs()
+            if (recordingManager.isRecording.value) {
+                handler.postDelayed(this, saveInterval)
+            }
+        }
+    }
 
     private val _trainingDay = MutableLiveData<TrainingDay>()
     val trainingDay: LiveData<TrainingDay> get() = _trainingDay
@@ -82,6 +122,7 @@ class RecordViewModel(
 
     fun initializeLocationTracking(context: Context) {
         applicationContext = context.applicationContext
+        recordPreferences = RecordPreferences(context)
         locationTracker = LocationTracker(context)
         stepCounter = StepCounter(context)
         guidedModeManager = GuidedModeManager(context)
@@ -174,9 +215,7 @@ class RecordViewModel(
 
     fun startRecording(context: Context) {
         applicationContext = context.applicationContext
-
         startTime = LocalDateTime.now()
-
         recordingManager.startRecording()
 
         if (isUsingWearForTracking) {
@@ -192,6 +231,8 @@ class RecordViewModel(
             }
             stepCounter.startCounting()
         }
+
+        handler.postDelayed(saveDataRunnable, saveInterval)
 
         viewModelScope.launch {
             while (recordingManager.isRecording.value) {
@@ -230,6 +271,8 @@ class RecordViewModel(
     fun stopRecording() {
         if (!recordingManager.isRecording.value) return
 
+        handler.removeCallbacks(saveDataRunnable)
+
         val heartRateToUse = if (isUsingWearForTracking) latestHeartRate else 0.0
 
         locationTracker.stopLocationUpdates()
@@ -256,6 +299,13 @@ class RecordViewModel(
         Log.d("RecordViewModel", "Data source: ${if (isUsingWearForTracking) "Wear OS" else "Phone sensors"}")
 
         createRecord(createRecordRequest)
+        clearLocal()
+    }
+
+    fun clearLocal(){
+        viewModelScope.launch {
+            recordPreferences.clearRecord()
+        }
     }
 
     fun createRecord(request: CreateRecordRequest) {

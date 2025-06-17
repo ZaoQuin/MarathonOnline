@@ -1,12 +1,7 @@
 package com.university.marathononline.data.api.contest
 
 import com.university.marathononline.data.models.Contest
-import com.university.marathononline.data.request.CheckContestNameRequest
-import com.university.marathononline.data.request.CreateContestRequest
-import com.university.marathononline.data.response.CheckActiveContestResponse
-import com.university.marathononline.data.response.CheckContestNameResponse
-import com.university.marathononline.data.response.StringResponse
-import com.university.marathononline.data.response.GetContestsResponse
+import com.university.marathononline.data.api.share.StringResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET

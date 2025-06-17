@@ -6,14 +6,13 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.view.Window
 import android.widget.ArrayAdapter
 import android.widget.SeekBar
 import com.university.marathononline.R
 import com.university.marathononline.data.models.ETrainingPlanInputGoal
 import com.university.marathononline.data.models.ETrainingPlanInputLevel
-import com.university.marathononline.data.request.InputTrainingPlanRequest
+import com.university.marathononline.data.api.training.InputTrainingPlanRequest
 import com.university.marathononline.databinding.DialogCreateTrainingPlanBinding
 
 class CreateTrainingPlanDialog(

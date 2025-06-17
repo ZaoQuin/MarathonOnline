@@ -3,8 +3,8 @@ package com.university.marathononline.data.repository
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.contest.ContestApiService
 import com.university.marathononline.data.models.Contest
-import com.university.marathononline.data.request.CheckContestNameRequest
-import com.university.marathononline.data.request.CreateContestRequest
+import com.university.marathononline.data.api.contest.CheckContestNameRequest
+import com.university.marathononline.data.api.contest.CreateContestRequest
 
 class ContestRepository(
     private val api: ContestApiService

@@ -8,8 +8,8 @@ import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.data.repository.RecordRepository
-import com.university.marathononline.data.request.CreateRecordRequest
-import com.university.marathononline.data.response.StringResponse
+import com.university.marathononline.data.api.record.CreateRecordRequest
+import com.university.marathononline.data.api.share.StringResponse
 import kotlinx.coroutines.launch
 
 class MainViewModel(

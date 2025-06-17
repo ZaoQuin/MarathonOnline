@@ -6,11 +6,11 @@ import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.models.*
 import com.university.marathononline.data.repository.UserRepository
-import com.university.marathononline.data.request.CheckPhoneNumberRequest
-import com.university.marathononline.data.request.CheckUsernameRequest
-import com.university.marathononline.data.request.CreateUserRequest
-import com.university.marathononline.data.response.CheckPhoneNumberResponse
-import com.university.marathononline.data.response.CheckUsernameResponse
+import com.university.marathononline.data.api.user.CheckPhoneNumberRequest
+import com.university.marathononline.data.api.user.CheckUsernameRequest
+import com.university.marathononline.data.api.user.CreateUserRequest
+import com.university.marathononline.data.api.user.CheckPhoneNumberResponse
+import com.university.marathononline.data.api.user.CheckUsernameResponse
 import kotlinx.coroutines.launch
 
 class RegisterViewModel(

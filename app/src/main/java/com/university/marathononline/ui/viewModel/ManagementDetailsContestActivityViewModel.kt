@@ -16,8 +16,8 @@ import com.university.marathononline.data.models.User
 import com.university.marathononline.data.repository.ContestRepository
 import com.university.marathononline.data.repository.NotificationRepository
 import com.university.marathononline.data.repository.RegistrationRepository
-import com.university.marathononline.data.request.CreateGroupNotificationRequest
-import com.university.marathononline.data.request.CreateIndividualNotificationRequest
+import com.university.marathononline.data.api.notify.CreateGroupNotificationRequest
+import com.university.marathononline.data.api.notify.CreateIndividualNotificationRequest
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter

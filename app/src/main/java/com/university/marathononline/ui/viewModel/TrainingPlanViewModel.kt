@@ -13,9 +13,9 @@ import com.university.marathononline.data.models.TrainingPlan
 import com.university.marathononline.data.repository.TrainingDayRepository
 import com.university.marathononline.data.repository.TrainingFeedbackRepository
 import com.university.marathononline.data.repository.TrainingPlanRepository
-import com.university.marathononline.data.request.InputTrainingPlanRequest
-import com.university.marathononline.data.response.PageResponse
-import com.university.marathononline.data.response.StringResponse
+import com.university.marathononline.data.api.training.InputTrainingPlanRequest
+import com.university.marathononline.data.api.share.PageResponse
+import com.university.marathononline.data.api.share.StringResponse
 import kotlinx.coroutines.launch
 
 class TrainingPlanViewModel (

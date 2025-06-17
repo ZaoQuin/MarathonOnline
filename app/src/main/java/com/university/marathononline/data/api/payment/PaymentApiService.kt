@@ -1,9 +1,7 @@
 package com.university.marathononline.data.api.payment
 
-import com.google.android.gms.common.internal.safeparcel.SafeParcelable.Param
 import com.university.marathononline.data.models.Payment
-import com.university.marathononline.data.request.CreatePaymentRequest
-import com.university.marathononline.data.response.StringResponse
+import com.university.marathononline.data.api.share.StringResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST

@@ -1,10 +1,6 @@
 package com.university.marathononline.data.api.auth
 
 import com.university.marathononline.data.models.User
-import com.university.marathononline.data.request.AuthRequest
-import com.university.marathononline.data.request.RefreshTokenRequest
-import com.university.marathononline.data.response.AuthResponse
-import com.university.marathononline.data.response.TokenResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET

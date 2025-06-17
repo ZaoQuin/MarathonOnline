@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.repository.UserRepository
-import com.university.marathononline.data.request.UpdatePasswordRequest
-import com.university.marathononline.data.response.UpdatePasswordResponse
+import com.university.marathononline.data.api.user.UpdatePasswordRequest
+import com.university.marathononline.data.api.user.UpdatePasswordResponse
 import com.university.marathononline.utils.EMAIL
 import com.university.marathononline.utils.SENDER_PASS
 import kotlinx.coroutines.launch

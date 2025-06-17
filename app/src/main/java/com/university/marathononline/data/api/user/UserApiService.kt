@@ -1,10 +1,8 @@
 package com.university.marathononline.data.api.user
 
+import com.university.marathononline.data.api.share.StringResponse
 import com.university.marathononline.data.models.*
-import com.university.marathononline.data.request.*
-import com.university.marathononline.data.response.*
 import okhttp3.MultipartBody
-import okhttp3.ResponseBody
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Multipart

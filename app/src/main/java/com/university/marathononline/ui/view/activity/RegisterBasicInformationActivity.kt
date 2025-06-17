@@ -10,7 +10,7 @@ import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.api.user.UserApiService
 import com.university.marathononline.data.repository.UserRepository
-import com.university.marathononline.data.response.CheckEmailResponse
+import com.university.marathononline.data.api.user.CheckEmailResponse
 import com.university.marathononline.databinding.ActivityRegisterBasicInformationBinding
 import com.university.marathononline.ui.viewModel.RegisterBasicInformationViewModel
 import com.university.marathononline.utils.*

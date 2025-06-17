@@ -1,7 +1,7 @@
 package com.university.marathononline.utils
 
 import android.util.Log
-import com.university.marathononline.data.request.CreateRecordRequest
+import com.university.marathononline.data.api.record.CreateRecordRequest
 import java.time.format.DateTimeParseException
 
 object RecordValidator {

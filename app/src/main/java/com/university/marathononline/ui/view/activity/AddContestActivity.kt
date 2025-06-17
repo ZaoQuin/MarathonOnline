@@ -4,14 +4,11 @@ import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.university.marathononline.R.string.error_field_required
-import com.university.marathononline.R.string.exist_email
 import com.university.marathononline.base.BaseActivity
 import com.university.marathononline.base.BaseRepository
 import com.university.marathononline.data.api.Resource
@@ -21,7 +18,7 @@ import com.university.marathononline.data.models.EContestStatus
 import com.university.marathononline.data.models.Reward
 import com.university.marathononline.data.models.Rule
 import com.university.marathononline.data.repository.ContestRepository
-import com.university.marathononline.data.request.CreateContestRequest
+import com.university.marathononline.data.api.contest.CreateContestRequest
 import com.university.marathononline.databinding.ActivityAddContestBinding
 import com.university.marathononline.ui.adapter.EditRewardAdapter
 import com.university.marathononline.ui.adapter.EditRuleAdapter

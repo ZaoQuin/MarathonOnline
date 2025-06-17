@@ -10,7 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import com.university.marathononline.data.api.RetrofitInstance
 import com.university.marathononline.data.api.auth.AuthApiService
-import com.university.marathononline.data.response.UserPreferences
+import com.university.marathononline.data.preferences.UserPreferences
 import com.university.marathononline.ui.view.activity.SplashRedirectActivity
 import com.university.marathononline.utils.startNewActivity
 import kotlinx.coroutines.flow.first

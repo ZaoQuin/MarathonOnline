@@ -1,11 +1,10 @@
 package com.university.marathononline.data.api.feedback
 
 import com.university.marathononline.data.models.Feedback
-import com.university.marathononline.data.response.StringResponse
+import com.university.marathononline.data.api.share.StringResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 

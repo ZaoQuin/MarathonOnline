@@ -45,18 +45,17 @@ import com.university.marathononline.data.api.record.RecordApiService
 import com.university.marathononline.data.api.registration.RegistrationApiService
 import com.university.marathononline.data.api.training.TrainingDayApiService
 import com.university.marathononline.data.models.ERecordSource
-import com.university.marathononline.data.models.TrainingDay
 import com.university.marathononline.data.models.WearHealthData
 import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.data.repository.RegistrationRepository
 import com.university.marathononline.data.repository.TrainingDayRepository
-import com.university.marathononline.data.request.CreateRecordRequest
+import com.university.marathononline.data.api.record.CreateRecordRequest
 import com.university.marathononline.databinding.ActivityRecordBinding
 import com.university.marathononline.service.foreground.RunningForegroundService
 import com.university.marathononline.ui.components.ModeSelectionDialog
 import com.university.marathononline.ui.view.fragment.GuidedModeFragment
 import com.university.marathononline.ui.viewModel.RecordViewModel
-import com.university.marathononline.utils.KEY_TRAINING_DAY
+import com.university.marathononline.utils.FgRecordConstants
 import com.university.marathononline.utils.enable
 import com.university.marathononline.utils.finishAndGoBack
 import com.university.marathononline.utils.visible
@@ -101,7 +100,7 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
     private val runningUpdateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
-                "RUNNING_UPDATE" -> {
+                FgRecordConstants.RUNNING_UPDATE -> {
                     intent.let {
                         Log.d("RecordActivity", "Received RUNNING_UPDATE")
                         val isStopping = it.getBooleanExtra("isStopping", false)
@@ -113,11 +112,11 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                             return
                         }
 
-                        binding.tvTime.text = it.getStringExtra("time") ?: "--:--:--"
-                        binding.tvDistance.text = it.getStringExtra("distance") ?: "- km"
-                        binding.tvPace.text = it.getStringExtra("pace") ?: "-- min/km"
-                        val isRecording = it.getBooleanExtra("isRecording", false)
-                        val isPaused = it.getBooleanExtra("isPaused", false)
+                        binding.tvTime.text = it.getStringExtra(FgRecordConstants.time) ?: "--:--:--"
+                        binding.tvDistance.text = it.getStringExtra(FgRecordConstants.distance) ?: "- km"
+                        binding.tvPace.text = it.getStringExtra(FgRecordConstants.pace) ?: "-- min/km"
+                        val isRecording = it.getBooleanExtra(FgRecordConstants.isRecording, false)
+                        val isPaused = it.getBooleanExtra(FgRecordConstants.isPaused, false)
 
                         if (!isSavingRecord && !hasProcessedStopped) {
                             binding.playButton.visible(!isRecording || isPaused)
@@ -125,7 +124,7 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                         }
                     }
                 }
-                "RUNNING_STOPPED" -> {
+                FgRecordConstants.RUNNING_STOPPED -> {
                     if (!hasProcessedStopped) {
                         hasProcessedStopped = true
                         intent.let {
@@ -136,11 +135,11 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
 
                             viewModel.forceStopRecording()
 
-                            val steps = it.getIntExtra("steps", 0)
-                            val distance = it.getDoubleExtra("distance", 0.0)
-                            val avgSpeed = it.getDoubleExtra("avgSpeed", 0.0)
-                            val startTime = it.getStringExtra("startTime") ?: LocalDateTime.now().toString()
-                            val endTime = it.getStringExtra("endTime") ?: LocalDateTime.now().toString()
+                            val steps = it.getIntExtra(FgRecordConstants.steps, 0)
+                            val distance = it.getDoubleExtra(FgRecordConstants.distance, 0.0)
+                            val avgSpeed = it.getDoubleExtra(FgRecordConstants.avgSpeed, 0.0)
+                            val startTime = it.getStringExtra(FgRecordConstants.startTime) ?: LocalDateTime.now().toString()
+                            val endTime = it.getStringExtra(FgRecordConstants.endTime) ?: LocalDateTime.now().toString()
 
                             val createRecordRequest = CreateRecordRequest(
                                 steps = steps,
@@ -180,15 +179,15 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         viewModel.initializeWearIntegration()
 
         if (savedInstanceState != null) {
-            isSavingRecord = savedInstanceState.getBoolean("isSavingRecord", false)
+            isSavingRecord = savedInstanceState.getBoolean(FgRecordConstants.isSavingRecord, false)
         } else {
             val prefs = getSharedPreferences("RunningData", Context.MODE_PRIVATE)
-            if (prefs.contains("steps") && !isSavingRecord) {
-                val steps = prefs.getInt("steps", 0)
-                val distance = prefs.getFloat("distance", 0f).toDouble()
-                val avgSpeed = prefs.getFloat("avgSpeed", 0f).toDouble()
-                val startTime = prefs.getString("startTime", LocalDateTime.now().toString()) ?: LocalDateTime.now().toString()
-                val endTime = prefs.getString("endTime", LocalDateTime.now().toString()) ?: LocalDateTime.now().toString()
+            if (prefs.contains(FgRecordConstants.steps) && !isSavingRecord) {
+                val steps = prefs.getInt(FgRecordConstants.steps, 0)
+                val distance = prefs.getFloat(FgRecordConstants.distance, 0f).toDouble()
+                val avgSpeed = prefs.getFloat(FgRecordConstants.avgSpeed, 0f).toDouble()
+                val startTime = prefs.getString(FgRecordConstants.startTime, LocalDateTime.now().toString()) ?: LocalDateTime.now().toString()
+                val endTime = prefs.getString(FgRecordConstants.endTime, LocalDateTime.now().toString()) ?: LocalDateTime.now().toString()
 
                 val createRecordRequest = CreateRecordRequest(
                     steps = steps,
@@ -202,6 +201,13 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                 viewModel.createRecord(createRecordRequest)
                 prefs.edit().clear().apply()
             }
+
+            viewModel.restoreRunningData(this)?.let { request ->
+                if (!isSavingRecord) {
+                    viewModel.createRecord(request)
+                    Log.d("RecordActivity", "Restored and saved record from RecordPreferences")
+                }
+            }
         }
 
         showModeSelectionDialog()
@@ -210,15 +216,15 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         checkAndRequestPermissions()
 
         val filter = IntentFilter().apply {
-            addAction("RUNNING_UPDATE")
-            addAction("RUNNING_STOPPED")
+            addAction(FgRecordConstants.RUNNING_UPDATE)
+            addAction(FgRecordConstants.RUNNING_STOPPED)
         }
         LocalBroadcastManager.getInstance(this).registerReceiver(runningUpdateReceiver, filter)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putBoolean("isSavingRecord", isSavingRecord)
+        outState.putBoolean(FgRecordConstants.isSavingRecord, isSavingRecord)
     }
 
     private fun setupObservers() {
@@ -289,6 +295,7 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                     checkSavingComplete()
                     viewModel.saveRecordIntoRegistration(it.value)
                     viewModel.saveRecordIntoTrainingDay(it.value)
+                    viewModel.clearLocal()
                 }
                 is Resource.Failure -> {
                     completeSavingProcess()
@@ -330,7 +337,7 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
 
         viewModel.isGPSEnabled.observe(this, Observer { isEnabled ->
             if (isEnabled) {
-                binding.checkGPS.text = "GPS is Enabled"
+                binding.checkGPS.text = "GPS có sẵn"
                 handler.postDelayed({
                     binding.checkGPS.visible(false)
                     binding.recordLayout.visible(true)
@@ -340,7 +347,7 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                 }, 3000)
             } else {
                 binding.playButton.enable(false)
-                binding.checkGPS.text = "GPS is Disabled"
+                binding.checkGPS.text = "GPS không có sẵn"
             }
         })
     }
@@ -592,7 +599,7 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
         viewModel.forceStopRecording()
 
         val serviceIntent = Intent(this, RunningForegroundService::class.java)
-        serviceIntent.action = RunningForegroundService.ACTION_STOP
+        serviceIntent.action = FgRecordConstants.ACTION_STOP
         startService(serviceIntent)
     }
 

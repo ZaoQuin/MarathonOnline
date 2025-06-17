@@ -7,7 +7,7 @@ import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.repository.AuthRepository
 import com.university.marathononline.data.repository.ContestRepository
-import com.university.marathononline.data.response.GetContestsResponse
+import com.university.marathononline.data.api.contest.GetContestsResponse
 import kotlinx.coroutines.launch
 
 class ContestViewModel(

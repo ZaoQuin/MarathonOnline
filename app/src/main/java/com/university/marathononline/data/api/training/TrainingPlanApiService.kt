@@ -2,8 +2,7 @@ package com.university.marathononline.data.api.training
 
 import com.university.marathononline.data.models.SingleTrainingPlan
 import com.university.marathononline.data.models.TrainingPlan
-import com.university.marathononline.data.request.InputTrainingPlanRequest
-import com.university.marathononline.data.response.PageResponse
+import com.university.marathononline.data.api.share.PageResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST

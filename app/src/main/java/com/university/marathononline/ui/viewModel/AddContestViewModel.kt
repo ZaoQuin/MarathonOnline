@@ -1,7 +1,6 @@
 package com.university.marathononline.ui.viewModel
 
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -9,9 +8,9 @@ import com.university.marathononline.base.BaseViewModel
 import com.university.marathononline.data.api.Resource
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.repository.ContestRepository
-import com.university.marathononline.data.request.CheckContestNameRequest
-import com.university.marathononline.data.request.CreateContestRequest
-import com.university.marathononline.data.response.CheckContestNameResponse
+import com.university.marathononline.data.api.contest.CheckContestNameRequest
+import com.university.marathononline.data.api.contest.CreateContestRequest
+import com.university.marathononline.data.api.contest.CheckContestNameResponse
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 

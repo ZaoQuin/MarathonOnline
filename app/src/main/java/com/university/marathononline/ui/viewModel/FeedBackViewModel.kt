@@ -11,7 +11,7 @@ import com.university.marathononline.data.models.Registration
 import com.university.marathononline.data.repository.FeedbackRepository
 import com.university.marathononline.data.repository.RecordRepository
 import com.university.marathononline.data.repository.RegistrationRepository
-import com.university.marathononline.data.response.StringResponse
+import com.university.marathononline.data.api.share.StringResponse
 import kotlinx.coroutines.launch
 
 class FeedBackViewModel(

@@ -3,7 +3,7 @@ package com.university.marathononline.data.api.registration
 import com.university.marathononline.data.models.Contest
 import com.university.marathononline.data.models.Record
 import com.university.marathononline.data.models.Registration
-import com.university.marathononline.data.response.RegistrationsResponse
+import com.university.marathononline.data.api.share.RegistrationsResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
