@@ -44,6 +44,10 @@ class LocationTracker(private val context: Context) {
 
     var onLocationUpdate: ((Location, Double) -> Unit)? = null
 
+    private var isStationary = false
+    private val stationaryThreshold = 0.3f
+    private val maxRunningSpeed = 5.56f
+
     init {
         initializeLocationTracking()
         setupGPSStatusObserver()
@@ -51,7 +55,11 @@ class LocationTracker(private val context: Context) {
 
     private fun initializeLocationTracking() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000).build()
+        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 3000)
+            .setMinUpdateIntervalMillis(1500)
+            .setMinUpdateDistanceMeters(5f)
+            .setMaxUpdateDelayMillis(6000)
+            .build()
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
@@ -64,6 +72,29 @@ class LocationTracker(private val context: Context) {
 
     @SuppressLint("DefaultLocale")
     private fun processLocationUpdate(location: Location) {
+        if (location.accuracy > 15f || location.speed > maxRunningSpeed) return
+
+        val distance = currentLocation?.let { it.distanceTo(location) } ?: 0f
+        val timeDelta = currentLocation?.let { (location.time - it.time) / 1000f } ?: 0f
+        if (timeDelta > 0 && distance / timeDelta > maxRunningSpeed) return
+
+        if (location.speed < stationaryThreshold) {
+            if (!isStationary) {
+                isStationary = true
+                adjustLocationUpdateInterval(10000)
+            }
+        } else {
+            if (isStationary) {
+                isStationary = false
+                adjustLocationUpdateInterval(3000)
+            }
+        }
+
+        val accuracyFactor = location.accuracy.coerceIn(1f, 15f)
+        kalmanLatitude.r = accuracyFactor * 0.05
+        kalmanLongitude.r = accuracyFactor * 0.05
+        speedFilter.r = accuracyFactor * 0.05
+
         val filteredLatitude = kalmanLatitude.processMeasurement(location.latitude)
         val filteredLongitude = kalmanLongitude.processMeasurement(location.longitude)
 
@@ -75,23 +106,15 @@ class LocationTracker(private val context: Context) {
         _routes.value = newRoutes
 
         val filteredSpeed = speedFilter.processMeasurement(location.speed.toDouble()).toFloat()
-        val distance = currentLocation?.distanceTo(location) ?: 0f
-
-        if (currentLocation == null) {
+        if (currentLocation == null || distance >= 1f) {
             currentLocation = location
-        }
-
-        if (distance >= 1) {
-            val distanceInKm = distance.div(1000)
-            currentLocation = location
-
+            val distanceInKm = distance / 1000
             onLocationUpdate?.invoke(location, distanceInKm.toDouble())
         }
     }
 
     private fun setupGPSStatusObserver() {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-
         val isGPSAvailable = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         _isGPSEnabled.value = isGPSAvailable
 
@@ -108,14 +131,41 @@ class LocationTracker(private val context: Context) {
         handler.post(checkGPSRunnable)
     }
 
+    private fun adjustLocationUpdateInterval(interval: Long) {
+        stopLocationUpdates()
+        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, interval)
+            .setMinUpdateIntervalMillis(interval / 2)
+            .setMinUpdateDistanceMeters(1f)
+            .setMaxUpdateDelayMillis(interval * 2)
+            .build()
+        startLocationUpdates()
+    }
+
     fun startLocationUpdates(): Boolean {
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
+        val fineLocationGranted = ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        val coarseLocationGranted = ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (!fineLocationGranted && !coarseLocationGranted) {
             return false
         }
+
+        val priority = if (fineLocationGranted) {
+            Priority.PRIORITY_HIGH_ACCURACY
+        } else {
+            Priority.PRIORITY_BALANCED_POWER_ACCURACY
+        }
+
+        locationRequest = LocationRequest.Builder(priority, 3000)
+            .setMinUpdateIntervalMillis(1000)
+            .setMinUpdateDistanceMeters(1f)
+            .setMaxUpdateDelayMillis(6000)
+            .build()
 
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
         return true
@@ -131,5 +181,6 @@ class LocationTracker(private val context: Context) {
         _position.value = ""
         _routes.value = emptyList()
         currentLocation = null
+        isStationary = false
     }
 }

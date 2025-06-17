@@ -1,6 +1,6 @@
 package com.university.marathononline.utils
 
-class KalmanFilter(private val q: Double, private val r: Double) {
+class KalmanFilter(private val q: Double, var r: Double) {
     private var x: Double = 0.0
     private var p: Double = 1.0
     private var k: Double = 0.0
