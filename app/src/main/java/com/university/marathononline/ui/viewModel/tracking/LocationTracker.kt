@@ -171,6 +171,28 @@ class LocationTracker(private val context: Context) {
         return true
     }
 
+    fun getLastKnownLocation(callback: (LatLng?) -> Unit) {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED ||
+            ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                location?.let {
+                    val filteredLatitude = kalmanLatitude.processMeasurement(it.latitude)
+                    val filteredLongitude = kalmanLongitude.processMeasurement(it.longitude)
+                    callback(LatLng(filteredLatitude, filteredLongitude))
+                } ?: callback(null)
+            }
+        } else {
+            callback(null)
+        }
+    }
+
     fun stopLocationUpdates() {
         if (::fusedLocationClient.isInitialized) {
             fusedLocationClient.removeLocationUpdates(locationCallback)

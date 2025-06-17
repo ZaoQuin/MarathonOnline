@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -18,12 +19,14 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -174,53 +177,67 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        viewModel.initializeLocationTracking(this)
-        viewModel.initializeWearIntegration()
-
-        if (savedInstanceState != null) {
-            isSavingRecord = savedInstanceState.getBoolean(FgRecordConstants.isSavingRecord, false)
-        } else {
-            val prefs = getSharedPreferences("RunningData", Context.MODE_PRIVATE)
-            if (prefs.contains(FgRecordConstants.steps) && !isSavingRecord) {
-                val steps = prefs.getInt(FgRecordConstants.steps, 0)
-                val distance = prefs.getFloat(FgRecordConstants.distance, 0f).toDouble()
-                val avgSpeed = prefs.getFloat(FgRecordConstants.avgSpeed, 0f).toDouble()
-                val startTime = prefs.getString(FgRecordConstants.startTime, LocalDateTime.now().toString()) ?: LocalDateTime.now().toString()
-                val endTime = prefs.getString(FgRecordConstants.endTime, LocalDateTime.now().toString()) ?: LocalDateTime.now().toString()
-
-                val createRecordRequest = CreateRecordRequest(
-                    steps = steps,
-                    distance = distance,
-                    avgSpeed = avgSpeed,
-                    heartRate = 0.0,
-                    startTime = startTime,
-                    endTime = endTime,
-                    source = ERecordSource.DEVICE
-                )
-                viewModel.createRecord(createRecordRequest)
-                prefs.edit().clear().apply()
-            }
-
-            viewModel.restoreRunningData(this)?.let { request ->
-                if (!isSavingRecord) {
-                    viewModel.createRecord(request)
-                    Log.d("RecordActivity", "Restored and saved record from RecordPreferences")
+        initializeUI()
+        viewModel.setInitializationCallback {
+            runOnUiThread {
+                if (!isFinishing && !isSavingRecord) {
+                    showModeSelectionDialog()
                 }
             }
         }
-
-        showModeSelectionDialog()
-        initializeUI()
+        initializeViewModel(savedInstanceState)
         setupObservers()
         checkAndRequestPermissions()
-
         val filter = IntentFilter().apply {
             addAction(FgRecordConstants.RUNNING_UPDATE)
             addAction(FgRecordConstants.RUNNING_STOPPED)
         }
         LocalBroadcastManager.getInstance(this).registerReceiver(runningUpdateReceiver, filter)
     }
+
+    private fun initializeViewModel(savedInstanceState: Bundle?) {
+        viewModel.initializeLocationTracking(this)
+        viewModel.initializeWearIntegration()
+
+        if (savedInstanceState != null) {
+            isSavingRecord = savedInstanceState.getBoolean(FgRecordConstants.isSavingRecord, false)
+        } else {
+            handleExistingRunningData()
+        }
+    }
+
+    private fun handleExistingRunningData() {
+        val prefs = getSharedPreferences("RunningData", Context.MODE_PRIVATE)
+        if (prefs.contains(FgRecordConstants.steps) && !isSavingRecord) {
+            val steps = prefs.getInt(FgRecordConstants.steps, 0)
+            val distance = prefs.getFloat(FgRecordConstants.distance, 0f).toDouble()
+            val avgSpeed = prefs.getFloat(FgRecordConstants.avgSpeed, 0f).toDouble()
+            val startTime = prefs.getString(FgRecordConstants.startTime, LocalDateTime.now().toString())
+                ?: LocalDateTime.now().toString()
+            val endTime = prefs.getString(FgRecordConstants.endTime, LocalDateTime.now().toString())
+                ?: LocalDateTime.now().toString()
+
+            val createRecordRequest = CreateRecordRequest(
+                steps = steps,
+                distance = distance,
+                avgSpeed = avgSpeed,
+                heartRate = 0.0,
+                startTime = startTime,
+                endTime = endTime,
+                source = ERecordSource.DEVICE
+            )
+            viewModel.createRecord(createRecordRequest)
+            prefs.edit().clear().apply()
+        }
+
+        viewModel.restoreRunningData(this)?.let { request ->
+            if (!isSavingRecord) {
+                viewModel.createRecord(request)
+                Log.d("RecordActivity", "Restored and saved record from RecordPreferences")
+            }
+        }
+    }
+
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
@@ -636,7 +653,11 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
     }
 
     private fun showModeSelectionDialog() {
-        println("Attempting to show mode selection dialog")
+        if (isSavingRecord) {
+            return
+        }
+
+        println("Showing mode selection dialog - ViewModel is ready")
         ModeSelectionDialog(
             this,
             onNormalModeSelected = {
@@ -650,6 +671,20 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                 initGuidedMode()
             }
         ).show()
+    }
+
+    private fun initializeViewModelWithCallback() {
+        viewModel.initializeLocationTracking(this)
+        viewModel.initializeWearIntegration()
+
+        lifecycleScope.launch {
+            kotlinx.coroutines.delay(100)
+            if (!isFinishing && !isSavingRecord) {
+                runOnUiThread {
+                    showModeSelectionDialog()
+                }
+            }
+        }
     }
 
     private fun initGuidedMode() {
@@ -695,8 +730,63 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
     private fun checkAndRequestPermissions() {
         if (hasLocationPermissions()) {
             checkActivityRecognitionPermission()
+            viewModel.isGPSEnabled.observe(this, Observer { isEnabled ->
+                if (isEnabled) {
+                    binding.checkGPS.text = "GPS có sẵn"
+                    handler.postDelayed({
+                        binding.checkGPS.visible(false)
+                        binding.recordLayout.visible(true)
+                        if (!isSavingRecord) {
+                            binding.playButton.enable(true)
+                            fetchInitialLocation()
+                        }
+                    }, 3000)
+                } else {
+                    binding.playButton.enable(false)
+                    binding.checkGPS.text = "GPS không có sẵn"
+                }
+            })
         } else {
             requestLocationPermissions()
+        }
+    }
+
+    private fun fetchInitialLocation() {
+        if (::googleMap.isInitialized) {
+            val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                    location?.let {
+                        val currentLatLng = LatLng(it.latitude, it.longitude)
+                        updateMapWithCurrentLocation(currentLatLng)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun updateMapWithCurrentLocation(latLng: LatLng) {
+        if (::googleMap.isInitialized) {
+            currentMarker?.remove()
+            val originalBitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_runner)
+            val scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, 48, 48, false)
+            val customIcon = BitmapDescriptorFactory.fromBitmap(scaledBitmap)
+            currentMarker = googleMap.addMarker(
+                MarkerOptions()
+                    .position(latLng)
+                    .title("Current Location")
+                    .icon(customIcon)
+                    .anchor(0.5f, 0.5f)
+            )
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16f))
         }
     }
 
@@ -749,7 +839,6 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                 viewModel.routes.collect { routes ->
                     if (!viewModel.isUsingWearTracking() && routes.isNotEmpty()) {
                         drawRoute(routes)
-
                         val lastPoint = routes.last()
                         if (currentMarker == null) {
                             val originalBitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_runner)
@@ -760,17 +849,18 @@ class RecordActivity : BaseActivity<RecordViewModel, ActivityRecordBinding>(), O
                                     .position(lastPoint)
                                     .title("Current Location")
                                     .icon(customIcon)
-                                    .anchor(0.5f, 0.5f))
+                                    .anchor(0.5f, 0.5f)
+                            )
                         } else {
                             currentMarker?.position = lastPoint
                         }
-
                         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastPoint, 16f))
                     } else if (viewModel.isUsingWearTracking()) {
                         currentMarker?.remove()
                         currentMarker = null
                         polyline?.remove()
                         polyline = null
+                        showWearTrackingMessage()
                     }
                 }
             }

@@ -39,6 +39,18 @@ class RecordViewModel(
     private val trainingDayRepository: TrainingDayRepository
 ) : BaseViewModel(listOf(registrationRepository, recordRepository, trainingDayRepository)) {
 
+    private var onInitializationComplete: (() -> Unit)? = null
+    private var isInitialized = false
+
+
+    fun setInitializationCallback(callback: () -> Unit) {
+        onInitializationComplete = callback
+        if (isInitialized) {
+            callback()
+        }
+    }
+
+
     private lateinit var recordPreferences: RecordPreferences
     private val handler = Handler(Looper.getMainLooper())
     private val saveInterval = 5000L
@@ -147,6 +159,14 @@ class RecordViewModel(
             }
         }
 
+        locationTracker.getLastKnownLocation { latLng ->
+            latLng?.let {
+                if (!isUsingWearForTracking) {
+                    _routesOverride.value = listOf(it)
+                }
+            }
+        }
+
         viewModelScope.launch {
             locationTracker.isGPSEnabled.collect { isEnabled ->
                 _isGPSEnabled.postValue(isEnabled)
@@ -156,6 +176,25 @@ class RecordViewModel(
         viewModelScope.launch {
             wearIntegrationManager.isWearConnected.collect { isConnected ->
                 handleWearConnectionChange(isConnected)
+            }
+        }
+
+        isInitialized = true
+        onInitializationComplete?.invoke()
+    }
+
+    fun initializeWearIntegration() {
+        wearIntegrationManager.initialize()
+        wearIntegrationManager.onStartRecording = {
+            applicationContext?.let { startRecording(it) }
+        }
+        wearIntegrationManager.onStopRecording = {
+            stopRecording()
+        }
+        wearIntegrationManager.onHealthDataUpdate = { wearData ->
+            latestHeartRate = wearData.heartRate
+            if (isRecording.value && isUsingWearForTracking) {
+                updateUIFromWearData(wearData)
             }
         }
     }
@@ -179,22 +218,6 @@ class RecordViewModel(
             if (recordingManager.isRecording.value) {
                 locationTracker.startLocationUpdates()
                 stepCounter.startCounting()
-            }
-        }
-    }
-
-    fun initializeWearIntegration() {
-        wearIntegrationManager.initialize()
-        wearIntegrationManager.onStartRecording = {
-            applicationContext?.let { startRecording(it) }
-        }
-        wearIntegrationManager.onStopRecording = {
-            stopRecording()
-        }
-        wearIntegrationManager.onHealthDataUpdate = { wearData ->
-            latestHeartRate = wearData.heartRate
-            if (isRecording.value && isUsingWearForTracking) {
-                updateUIFromWearData(wearData)
             }
         }
     }
@@ -372,12 +395,6 @@ class RecordViewModel(
 
         if (::stepCounter.isInitialized) {
             stepCounter.reset()
-        }
-
-        if (::wearIntegrationManager.isInitialized) {
-        }
-
-        if (::recordingManager.isInitialized) {
         }
     }
 }
