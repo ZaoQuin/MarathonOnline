@@ -42,7 +42,6 @@ class RecordingManager {
         totalDistance += additionalDistance
         _distance.value = formatDistance(totalDistance)
 
-        // Recalculate average pace
         updateAveragePace()
     }
 
@@ -54,7 +53,6 @@ class RecordingManager {
         val seconds = (elapsedTime % 60).toInt()
         _time.value = String.format("%d:%02d:%02d", hours, minutes, seconds)
 
-        // Update average pace if distance has changed
         if (totalDistance > 0) {
             updateAveragePace()
         }
@@ -105,9 +103,9 @@ class RecordingManager {
     }
 
     private fun reset() {
-        _time.value = "0:00:00"
+        _time.value = "--:--:--"
         _averagePace.value = "-- min/km"
-        _distance.value = "0 km"
+        _distance.value = "- km"
         totalDistance = 0.0
         currentAvgPace = 0.0
     }

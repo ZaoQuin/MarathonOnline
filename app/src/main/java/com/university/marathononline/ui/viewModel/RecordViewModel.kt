@@ -301,8 +301,10 @@ class RecordViewModel(
         }
     }
 
-    fun refreshWearConnection() {
-        wearIntegrationManager.refreshConnection()
+    fun forceStopRecording() {
+        locationTracker.stopLocationUpdates()
+        stepCounter.stopCounting()
+        recordingManager.stopRecording()
     }
 
     fun isUsingWearTracking(): Boolean = isUsingWearForTracking

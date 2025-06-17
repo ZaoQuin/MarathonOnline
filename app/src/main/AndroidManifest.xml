@@ -222,8 +222,7 @@
             android:exported="false" />
         <activity
             android:name=".ui.view.activity.RecordActivity"
-            android:exported="false"
-            android:launchMode="standard" />
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity
             android:name=".ui.view.activity.SearchActivity"
             android:exported="false" />
