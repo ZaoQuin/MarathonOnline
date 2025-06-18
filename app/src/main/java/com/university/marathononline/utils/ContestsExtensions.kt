@@ -45,7 +45,11 @@ fun Contest.isFinished(): Boolean {
 fun Contest.isRegistrationDeadlinePassed(): Boolean {
     return this.registrationDeadline?.let { deadline ->
         try {
-            DateUtils.convertStringToLocalDateTime(deadline).isBefore(LocalDateTime.now())
+            val deadlineTime = DateUtils.convertStringToLocalDateTime(deadline)
+            val now = LocalDateTime.now()
+            val isPassed = deadlineTime.isBefore(now)
+
+            isPassed
         } catch (e: Exception) {
             false
         }
@@ -82,7 +86,9 @@ fun Contest.getCurrentRegistrationCount(): Int {
  * Lấy tổng distance đã chạy của registration
  */
 fun Registration.getTotalDistance(): Double {
-    return this.records?.sumOf { it.distance } ?: 0.0
+    return this.records
+        ?.filter { it.approval!!.approvalStatus != ERecordApprovalStatus.REJECTED }
+        ?.sumOf { it.distance } ?: 0.0
 }
 
 /**

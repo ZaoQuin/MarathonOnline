@@ -33,7 +33,6 @@ class TrainingPlanHistoryActivity: BaseActivity<TrainingPlanViewModel, ActivityT
     private var isLastPage = false
     private var isLoading = false
 
-    // Filter variables
     private var startDate: LocalDateTime? = null
     private var endDate: LocalDateTime? = null
 

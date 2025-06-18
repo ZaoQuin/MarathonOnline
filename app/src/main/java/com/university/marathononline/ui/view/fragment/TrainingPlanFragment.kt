@@ -31,6 +31,8 @@ import com.university.marathononline.ui.view.activity.TrainingPlanHistoryActivit
 import com.university.marathononline.ui.viewModel.TrainingPlanViewModel
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.calPace
+import com.university.marathononline.utils.formatDistance
+import com.university.marathononline.utils.formatPace
 import com.university.marathononline.utils.startNewActivity
 import handleApiError
 import kotlinx.coroutines.flow.first
@@ -376,8 +378,9 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
                     root.visibility = View.VISIBLE
                     sessionName.text = filteredDay.session.name
                     sessionNotes.text = filteredDay.session.notes
-                    sessionPace.text = filteredDay.session.pace.toString()
-                    sessionDistance.text = filteredDay.session.distance.toString()
+                    sessionPace.text =  formatPace(filteredDay.session.pace)
+                    sessionDistance.text = formatDistance(filteredDay.session.distance)
+                    sessionType.text = filteredDay.session.type.value
 
                     if (filteredDay.session.type == ETrainingSessionType.REST) {
                         sessionDetails.visibility = View.GONE
@@ -542,10 +545,28 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
 
     private fun updateSessionProgress(trainingDay: TrainingDay) {
         if (trainingDay.record == null) {
+            resetProgressUI()
+            setupFeedbackButton(trainingDay)
             binding.itemDetails.itemTrainingDay.trainingSessionCard.progressDetails.root.visibility = View.GONE
             return
         }
+        bindProgressData(trainingDay)
+        setupFeedbackButton(trainingDay)
+    }
 
+    private fun resetProgressUI() {
+        binding.itemDetails.itemTrainingDay.trainingSessionCard.progressDetails.apply {
+            completedDistance.text = "0.0"
+            goalDistance.text = "0.0"
+            distanceProgress.progress = 0
+            stepsCount.text = "0"
+            timeTaken.text = "00:00:00"
+            avgPace.text = "0.0 phút/km"
+            heartRate.text = "0.0 bpm"
+        }
+    }
+
+    private fun bindProgressData(trainingDay: TrainingDay){
         val record = trainingDay.record
         var totalDistance = record.distance
         var totalSteps = record.steps
@@ -571,18 +592,19 @@ class TrainingPlanFragment : BaseFragment<TrainingPlanViewModel, FragmentTrainin
         }
 
         binding.itemDetails.itemTrainingDay.trainingSessionCard.progressDetails.apply {
-            root.visibility = View.VISIBLE
-            completedDistance.text = String.format("%.1f", totalDistance)
-            goalDistance.text = String.format("%.1f", goal)
+            root.visibility = android.view.View.VISIBLE
+            completedDistance.text = kotlin.String.format("%.1f", totalDistance)
+            goalDistance.text = kotlin.String.format("%.1f", goal)
             distanceProgress.progress = progressPercentage
 
             stepsCount.text = totalSteps.toString()
             timeTaken.text = formattedTime
-            avgPace.text = String.format("%.1f phút/km", avgPaces)
-            heartRate.text = String.format("%.1f bpm", avgHeartRate)
-            timeTaken.text = DateUtils.convertLongToHHMMSS(totalTime)
+            avgPace.text = kotlin.String.format("%.1f phút/km", avgPaces)
+            heartRate.text = kotlin.String.format("%.1f bpm", avgHeartRate)
+            timeTaken.text = com.university.marathononline.utils.DateUtils.convertLongToHHMMSS(totalTime)
         }
     }
+
 
     private fun filterTrainingDayByDate(): TrainingDay? {
         try {

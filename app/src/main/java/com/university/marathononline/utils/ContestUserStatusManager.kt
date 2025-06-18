@@ -34,48 +34,47 @@ class ContestUserStatusManager(
     )
 
     fun getUserContestStatus(): UserContestStatus {
-
         if (!contest.isValid()) {
             return UserContestStatus.NOT_REGISTERED
         }
 
         if (userRegistration == null) {
-            when (contest.status) {
-                EContestStatus.PENDING -> return UserContestStatus.NOT_REGISTERED
-                EContestStatus.COMPLETED, EContestStatus.FINISHED -> {
-                    return UserContestStatus.CONTEST_EXPIRED
-                }
-                null -> return UserContestStatus.NOT_REGISTERED
+            return when (contest.status) {
+                EContestStatus.PENDING,
+                null -> UserContestStatus.NOT_REGISTERED
+
+                EContestStatus.COMPLETED,
+                EContestStatus.FINISHED -> UserContestStatus.CONTEST_EXPIRED
+
                 EContestStatus.ACTIVE -> {
-                    return when {
+                    when {
                         contest.isRegistrationDeadlinePassed() -> UserContestStatus.REGISTRATION_CLOSED
                         contest.isMaxRegistrationsReached() -> UserContestStatus.REGISTRATION_FULL
                         else -> UserContestStatus.NOT_REGISTERED
                     }
                 }
-                else ->  UserContestStatus.NOT_REGISTERED
-            }
-        }
 
-        val paymentStatus = userRegistration!!.getPaymentStatusSafely()
-
-        return when {
-            paymentStatus == null -> {
-                UserContestStatus.REGISTERED_UNPAID
+                else -> UserContestStatus.NOT_REGISTERED
             }
-            paymentStatus == EPaymentStatus.FAILED -> UserContestStatus.PAYMENT_FAILED
-            paymentStatus == EPaymentStatus.PENDING -> UserContestStatus.PAYMENT_PENDING
-            paymentStatus == EPaymentStatus.SUCCESS -> {
-                when {
-                    userRegistration.isBlocked() -> UserContestStatus.REGISTERED_BLOCKED
-                    userRegistration.isCompleted() -> UserContestStatus.REGISTRATION_COMPLETED
-                    userRegistration.isActive() -> UserContestStatus.REGISTERED_ACTIVE
-                    else -> UserContestStatus.REGISTERED_UNPAID
+        } else {
+            val paymentStatus = userRegistration!!.getPaymentStatusSafely()
+            return when {
+                paymentStatus == null -> UserContestStatus.REGISTERED_UNPAID
+                paymentStatus == EPaymentStatus.FAILED -> UserContestStatus.PAYMENT_FAILED
+                paymentStatus == EPaymentStatus.PENDING -> UserContestStatus.PAYMENT_PENDING
+                paymentStatus == EPaymentStatus.SUCCESS -> {
+                    when {
+                        userRegistration.isBlocked() -> UserContestStatus.REGISTERED_BLOCKED
+                        userRegistration.isCompleted() -> UserContestStatus.REGISTRATION_COMPLETED
+                        userRegistration.isActive() -> UserContestStatus.REGISTERED_ACTIVE
+                        else -> UserContestStatus.REGISTERED_UNPAID
+                    }
                 }
+                else -> UserContestStatus.REGISTERED_UNPAID
             }
-            else -> UserContestStatus.REGISTERED_UNPAID
         }
     }
+
 
     fun getDisplayState(): ContestDisplayState {
         val userStatus = getUserContestStatus()

@@ -18,6 +18,7 @@ import com.university.marathononline.ui.adapter.RecordStatisticsAdapter
 import com.university.marathononline.utils.DateUtils
 import com.university.marathononline.utils.formatDistance
 import com.university.marathononline.utils.getContestStatusColor
+import com.university.marathononline.utils.getTotalDistance
 import com.university.marathononline.utils.visible
 
 class ContestStatisticsDialog(
@@ -43,17 +44,14 @@ class ContestStatisticsDialog(
     }
 
     private fun setupDialog() {
-        // Apply same transparent background style as TrainingFeedbackDialog
         window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         setCancelable(true)
         setCanceledOnTouchOutside(true)
     }
 
     private fun setupContent() {
-        // Set dialog title
         binding.tvDialogTitle?.text = "Thống Kê Cuộc Thi"
 
-        // Contest basic information
         binding.tvContestName.text = contest.name
         binding.tvContestStatus.apply {
             text = contest.status?.value ?: "Không rõ"
@@ -62,7 +60,6 @@ class ContestStatisticsDialog(
             }
         }
 
-        // Find user registration
         currentRegistration = contest.registrations?.find { it.runner.email == email }
 
         currentRegistration?.let { registration ->
@@ -70,18 +67,15 @@ class ContestStatisticsDialog(
             setupRecordsList(registration)
             setupManagerActions(registration)
         } ?: run {
-            // Handle case where user is not registered
             setupNotRegisteredState()
         }
     }
 
     private fun setupRegistrationDetails(registration: Registration) {
-        val recordList = registration.records ?: emptyList()
-        val currentDistance = recordList.sumOf { it.distance }
+        val currentDistance = registration.getTotalDistance()
         val contestDistance = contest.distance ?: 0.0
         val ratio = if (contestDistance > 0) (currentDistance / contestDistance) * 100 else 0.0
 
-        // Registration information
         binding.tvContestDatesRegister.text = context.getString(
             R.string.registration_register_date,
             DateUtils.convertToVietnameseDate(registration.registrationDate)
@@ -92,13 +86,25 @@ class ContestStatisticsDialog(
             registration.status.value
         )
 
-        // Progress information
         binding.processBar.progress = ratio.toInt()
         binding.processBarValue.text = "${formatDistance(currentDistance)}/${formatDistance(contestDistance)}"
 
-        // Show additional statistics if needed
-        binding.tvTotalRecords?.text = "Tổng số bản ghi: ${recordList.size}"
+        binding.tvTotalRecords?.text = "Tổng số bản ghi: ${registration.records.size}"
         binding.tvCompletionPercentage?.text = "Hoàn thành: ${String.format("%.1f", ratio)}%"
+
+        setupApprovalStatistics(registration.records)
+    }
+
+    private fun setupApprovalStatistics(recordList: List<com.university.marathononline.data.models.Record>) {
+        val approvedCount = recordList.count { it.approval?.approvalStatus == com.university.marathononline.data.models.ERecordApprovalStatus.APPROVED }
+        val pendingCount = recordList.count { it.approval?.approvalStatus == com.university.marathononline.data.models.ERecordApprovalStatus.PENDING }
+        val rejectedCount = recordList.count { it.approval?.approvalStatus == com.university.marathononline.data.models.ERecordApprovalStatus.REJECTED }
+        val noApprovalCount = recordList.count { it.approval == null }
+
+        binding.tvApprovalStatistics?.apply {
+            text = "Trạng thái duyệt: Đã duyệt($approvedCount), Chờ duyệt($pendingCount), Từ chối($rejectedCount), Chưa xét($noApprovalCount)"
+            visibility = View.VISIBLE
+        }
     }
 
     private fun setupRecordsList(registration: Registration) {
@@ -144,6 +150,7 @@ class ContestStatisticsDialog(
             visibility = View.VISIBLE
         }
         binding.reportButton.visibility = View.GONE
+        binding.tvApprovalStatistics?.visibility = View.GONE
     }
 
     private fun setupButtons() {

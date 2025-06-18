@@ -42,7 +42,6 @@ class RecordViewModel(
     private var onInitializationComplete: (() -> Unit)? = null
     private var isInitialized = false
 
-
     fun setInitializationCallback(callback: () -> Unit) {
         onInitializationComplete = callback
         if (isInitialized) {

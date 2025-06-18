@@ -142,6 +142,19 @@
                     android:gravity="center_vertical"
                     android:layout_marginTop="@dimen/_4sdp"/>
 
+                <!-- Approval Statistics -->
+                <TextView
+                    android:id="@+id/tvApprovalStatistics"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Trạng thái duyệt: Đã duyệt(0), Chờ duyệt(0), Từ chối(0), Chưa xét(0)"
+                    android:textColor="@color/gray"
+                    android:textSize="@dimen/_12ssp"
+                    android:drawablePadding="@dimen/_8sdp"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="@dimen/_4sdp"
+                    android:visibility="gone"/>
+
             </LinearLayout>
 
             <!-- Progress Section -->
@@ -183,24 +196,24 @@
 
             </LinearLayout>
 
-            <!-- Records Header -->
+            <!-- Records Header - Reduced columns for mobile -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:background="@drawable/rounded_background"
-                android:padding="@dimen/_8sdp"
+                android:padding="@dimen/_6sdp"
                 android:layout_marginBottom="@dimen/_8sdp">
 
                 <TextView
                     android:id="@+id/tvTimestamp"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Thời gian"
+                    android:layout_weight="1.2"
+                    android:text="Ngày"
                     android:textStyle="bold"
-                    android:textSize="@dimen/_12ssp"
+                    android:textSize="@dimen/_10ssp"
                     android:textColor="@color/white"
                     android:gravity="center"/>
 
@@ -209,8 +222,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Khoảng cách"
-                    android:textSize="@dimen/_12ssp"
+                    android:text="K.cách"
+                    android:textSize="@dimen/_10ssp"
                     android:textStyle="bold"
                     android:textColor="@color/white"
                     android:gravity="center"/>
@@ -220,30 +233,20 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Thời gian"
-                    android:textSize="@dimen/_12ssp"
+                    android:text="T.gian"
+                    android:textSize="@dimen/_10ssp"
                     android:textStyle="bold"
                     android:textColor="@color/white"
                     android:gravity="center"/>
 
+                <!-- Approval Status Column Header -->
                 <TextView
-                    android:id="@+id/tvAvgSpeed"
+                    android:id="@+id/tvApprovalStatus"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Tốc độ"
-                    android:textSize="@dimen/_12ssp"
-                    android:textStyle="bold"
-                    android:textColor="@color/white"
-                    android:gravity="center"/>
-
-                <TextView
-                    android:id="@+id/tvSteps"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Bước chân"
-                    android:textSize="@dimen/_12ssp"
+                    android:text="Duyệt"
+                    android:textSize="@dimen/_10ssp"
                     android:textStyle="bold"
                     android:textColor="@color/white"
                     android:gravity="center"/>

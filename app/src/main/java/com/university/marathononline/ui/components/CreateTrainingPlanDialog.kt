@@ -28,7 +28,6 @@ class CreateTrainingPlanDialog(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Remove default window features
         requestWindowFeature(Window.FEATURE_NO_TITLE)
 
         binding = DialogCreateTrainingPlanBinding.inflate(LayoutInflater.from(context))
@@ -53,16 +52,13 @@ class CreateTrainingPlanDialog(
         goalAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.goalSpinner.adapter = goalAdapter
 
-        // Set initial days per week
         binding.daysPerWeekSeekbar.progress = trainingWeeks
         binding.daysPerWeekText.text = "$trainingWeeks tuần"
 
-        // Set default radio button
         binding.levelBeginner.isChecked = true
     }
 
     private fun setupListeners() {
-        // Level selection
         binding.levelRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             selectedLevel = when (checkedId) {
                 R.id.level_beginner -> ETrainingPlanInputLevel.BEGINNER

@@ -19,10 +19,7 @@ import com.university.marathononline.ui.components.ContestStatisticsDialog
 import com.university.marathononline.ui.view.activity.ContestDetailsActivity
 import com.university.marathononline.ui.view.activity.PaymentConfirmationActivity
 import com.university.marathononline.utils.*
-import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
 class ContestRunnerAdapter(
     private var contests: List<Contest>,
@@ -310,16 +307,15 @@ class ContestRunnerAdapter(
                     }
 
                     try {
-                        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
-                        val createdAt = LocalDateTime.parse(registration.registrationDate, formatter)
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDateTime()
-
-                        val contestStartAt = DateUtils.convertStringToLocalDateTime(contest.startDate)
+                        val createdAt = DateUtils.convertStringToLocalDateTime(registration.registrationDate)
+                        val registrationDeadline = DateUtils.convertStringToLocalDateTime(contest.registrationDeadline)
                         val deadline24h = createdAt.plusHours(24)
-                        val finalDeadline = if (deadline24h.isBefore(contestStartAt)) deadline24h else contestStartAt
-                        val deadlineMillis = finalDeadline.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                        val finalDeadline = if (deadline24h.isBefore(registrationDeadline)) deadline24h else registrationDeadline
 
+                        val deadlineMillis = finalDeadline
+                            .atZone(ZoneId.of("Asia/Ho_Chi_Minh"))
+                            .toInstant()
+                            .toEpochMilli()
                         startCountdownTimer(deadlineMillis, countdownView, paymentButton)
 
                     } catch (e: Exception) {

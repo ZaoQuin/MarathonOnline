@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data />
@@ -6,53 +7,62 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp"
-        android:background="?android:attr/selectableItemBackground"
+        android:padding="@dimen/_6sdp"
+        android:background="@drawable/background_radius_12sdp"
+        android:layout_marginBottom="@dimen/_2sdp"
         android:gravity="center_vertical">
 
+        <!-- Timestamp - wider for readability -->
         <TextView
             android:id="@+id/tvTimestamp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="2024-01-01 14:30"
-            android:textSize="14sp"
-            android:textColor="#888888" />
+            android:layout_weight="1.2"
+            android:text="20/12"
+            android:textSize="@dimen/_9ssp"
+            android:textColor="@color/black"
+            android:gravity="center"
+            android:maxLines="2"
+            android:ellipsize="end"/>
 
+        <!-- Distance -->
         <TextView
             android:id="@+id/tvDistance"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="5.0 km"
-            android:textSize="14sp"
-            android:textColor="#000000" />
+            android:text="5.2km"
+            android:textSize="@dimen/_9ssp"
+            android:textColor="@color/black"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"/>
 
+        <!-- Time Taken -->
         <TextView
             android:id="@+id/tvTimeTaken"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="30 min"
-            android:textSize="14sp"
-            android:textColor="#000000" />
+            android:text="30p"
+            android:textSize="@dimen/_9ssp"
+            android:textColor="@color/black"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"/>
 
+        <!-- Approval Status with icons for space saving -->
         <TextView
-            android:id="@+id/tvAvgSpeed"
+            android:id="@+id/tvApprovalStatus"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="10 km/h"
-            android:textSize="14sp"
-            android:textColor="#000000" />
-
-        <TextView
-            android:id="@+id/tvSteps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="5000"
-            android:textSize="14sp"
-            android:textColor="#000000" />
+            android:text="✓"
+            android:textSize="@dimen/_12ssp"
+            android:textColor="@color/main_color"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:maxLines="1"/>
 
     </LinearLayout>
 </layout>
