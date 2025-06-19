@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.university.marathononline.R
 import com.university.marathononline.databinding.ItemRewardGroupBinding
 import com.university.marathononline.databinding.ItemRewardBinding
 import com.university.marathononline.data.models.Reward
@@ -59,6 +60,12 @@ class RewardChildAdapter(private val rewards: List<Reward>) :
             binding.apply {
                 rewardName.text = reward.name
                 rewardDescription.text = reward.description
+                when (reward.rewardRank) {
+                    1 -> rewardIcon.setImageResource(R.drawable.ic_gold_medal)
+                    2 -> rewardIcon.setImageResource(R.drawable.ic_silver_medal)
+                    3 -> rewardIcon.setImageResource(R.drawable.ic_bronze_medal)
+                    else -> rewardIcon.setImageResource(R.drawable.ic_reward)
+                }
             }
         }
     }

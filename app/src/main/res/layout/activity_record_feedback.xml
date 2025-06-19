@@ -76,11 +76,10 @@
                             android:orientation="horizontal">
 
                             <TextView
-                                android:id="@+id/tv_record_id"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="Record #123"
+                                android:text="Record"
                                 android:textColor="@color/colorPrimary"
                                 android:textSize="20sp"
                                 android:textStyle="bold" />
@@ -116,7 +115,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="8dp"
-                                android:text="Nguyễn Văn A"
+                                android:text=""
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
 
@@ -126,7 +125,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="8dp"
                                 android:layout_weight="1"
-                                android:text="nguyenvana@gmail.com"
+                                android:text="---"
                                 android:textColor="@android:color/darker_gray"
                                 android:textSize="14sp" />
 
@@ -163,7 +162,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
-                                    android:text="5.2 km"
+                                    android:text="-- km"
                                     android:textSize="16sp"
                                     android:textStyle="bold" />
 
@@ -195,7 +194,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
-                                    android:text="7,523"
+                                    android:text="--"
                                     android:textSize="16sp"
                                     android:textStyle="bold" />
 
@@ -227,7 +226,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
-                                    android:text="32:15"
+                                    android:text="--:--"
                                     android:textSize="16sp"
                                     android:textStyle="bold" />
 
@@ -268,7 +267,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
-                                    android:text="9.7 km/h"
+                                    android:text="-- km/h"
                                     android:textSize="16sp"
                                     android:textStyle="bold" />
 
@@ -300,7 +299,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
-                                    android:text="145 bpm"
+                                    android:text="-- bpm"
                                     android:textSize="16sp"
                                     android:textStyle="bold" />
 
@@ -333,7 +332,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
-                                    android:text="DEVICE"
+                                    android:text="---"
                                     android:textSize="16sp"
                                     android:textStyle="bold" />
 
@@ -372,7 +371,7 @@
                                     android:id="@+id/tv_start_time"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="08:30 AM"
+                                    android:text="--:-- AM"
                                     android:textSize="14sp"
                                     android:textStyle="bold" />
 
@@ -396,7 +395,7 @@
                                     android:id="@+id/tv_end_time"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="09:02 AM"
+                                    android:text="--:-- AM"
                                     android:textSize="14sp"
                                     android:textStyle="bold" />
 
@@ -414,7 +413,6 @@
                         android:padding="20dp"
                         android:visibility="gone">
 
-                        <!-- Registration Title with Status -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -422,11 +420,10 @@
                             android:orientation="horizontal">
 
                             <TextView
-                                android:id="@+id/tv_registration_id"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="Registration #123"
+                                android:text="Registration"
                                 android:textColor="@color/colorPrimary"
                                 android:textSize="20sp"
                                 android:textStyle="bold" />
@@ -435,7 +432,7 @@
                                 android:id="@+id/chip_registration_status"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="PENDING"
+                                android:text="---"
                                 android:textColor="@android:color/white"
                                 app:chipBackgroundColor="@color/light_main_color"
                                 app:chipIcon="@drawable/ic_time"
@@ -462,7 +459,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="8dp"
-                                android:text="Nguyễn Văn A"
+                                android:text=""
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
 
@@ -472,7 +469,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="8dp"
                                 android:layout_weight="1"
-                                android:text="nguyenvana@gmail.com"
+                                android:text=""
                                 android:textColor="@android:color/darker_gray"
                                 android:textSize="14sp" />
 
@@ -541,7 +538,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
-                                    android:text="01/01/2025"
+                                    android:text="--/--/----"
                                     android:textSize="16sp"
                                     android:textStyle="bold" />
 

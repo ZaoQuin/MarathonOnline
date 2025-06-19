@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.university.marathononline.R
 import com.university.marathononline.databinding.ItemRuleBinding
 import com.university.marathononline.data.models.Rule
 
@@ -12,7 +14,12 @@ class RuleAdapter(private var rules: List<Rule>) : RecyclerView.Adapter<RuleAdap
     class ViewHolder(private val binding: ItemRuleBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: Rule) {
             binding.apply {
-//                icon.setImageResource(item.icon)
+                if(item.icon != null)
+                    Glide.with(root.context)
+                        .load(item.icon)
+                        .placeholder(R.drawable.loading)
+                        .error(R.drawable.ic_rule)
+                        .into(icon)
                 name.text = item.name
                 description.text = item.description
             }

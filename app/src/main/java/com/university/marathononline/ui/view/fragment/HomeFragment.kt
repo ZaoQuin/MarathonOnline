@@ -96,6 +96,32 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
         handler.postDelayed(runnable, 3000)
     }
 
+    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
+        super.setUserVisibleHint(isVisibleToUser)
+        if (isVisibleToUser && isResumed) {
+            refreshData()
+        }
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!hidden) {
+            refreshData()
+        }
+    }
+
+    private fun refreshData() {
+        viewModel.getCurrentTrainingDay()
+        viewModel.getActiveContests()
+        viewModel.getNotifications()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshData()
+    }
+
+
     private fun setupNotificationReceivers() {
         notificationReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {

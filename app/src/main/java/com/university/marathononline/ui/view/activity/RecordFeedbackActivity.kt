@@ -119,7 +119,6 @@ class RecordFeedbackActivity : BaseActivity<FeedBackViewModel, ActivityRecordFee
     }
 
     private fun populateRecordDetails(record: Record) {
-        binding.tvRecordId.text = "Record #${record.id}"
         binding.tvRecordUserName.text = "${record.user.fullName}"
         binding.tvRecordUserEmail.text = record.user.email
         binding.tvDistance.text = formatDistance(record.distance)
@@ -134,7 +133,6 @@ class RecordFeedbackActivity : BaseActivity<FeedBackViewModel, ActivityRecordFee
     }
 
     private fun populateRegistrationDetails(registration: Registration) {
-        binding.tvRegistrationId.text = "Registration #${registration.id}"
         binding.tvRegistrationUserName.text = registration.runner?.fullName ?: "Không xác định"
         binding.tvRegistrationUserEmail.text = registration.runner?.email ?: "N/A"
         binding.tvRegistrationRank.text = registration.registrationRank.toString()

@@ -56,9 +56,6 @@ class LocationTracker(private val context: Context) {
     private fun initializeLocationTracking() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
         locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 3000)
-            .setMinUpdateIntervalMillis(1500)
-            .setMinUpdateDistanceMeters(5f)
-            .setMaxUpdateDelayMillis(6000)
             .build()
 
         locationCallback = object : LocationCallback() {

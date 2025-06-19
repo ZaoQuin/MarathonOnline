@@ -6,7 +6,10 @@
         <item name="android:windowLightStatusBar">true</item>
     </style>
 
-    <style name="Theme.MarathonOnline" parent="Base.Theme.MarathonOnline" />
+    <style name="Theme.MarathonOnline" parent="Base.Theme.MarathonOnline">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
     <style name="VerticalProgressBar" parent="Widget.AppCompat.ProgressBar">
         <item name="android:layout_width">10dp</item>
         <item name="android:layout_height">match_parent</item>

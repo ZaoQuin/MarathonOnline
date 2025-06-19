@@ -111,7 +111,7 @@ class SettingActivity: BaseActivity<SettingViewModel, ActivitySettingBinding>() 
                     userPreferences.updateLastSyncTime()
                     HealthConnectSyncHelper.manualSync(this@SettingActivity, startTime) { success, recordRequest ->
                         if (success && recordRequest != null) {
-                            Toast.makeText(this@SettingActivity, "Đồng bộ thử nghiệm thành công", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@SettingActivity, "Đồng bộ thành công", Toast.LENGTH_SHORT).show()
                         } else {
                             Toast.makeText(this@SettingActivity, "Không thể đồng bộ dữ liệu", Toast.LENGTH_SHORT).show()
                         }
@@ -128,7 +128,6 @@ class SettingActivity: BaseActivity<SettingViewModel, ActivitySettingBinding>() 
 
     private suspend fun checkAndRequestPermissions() {
         try {
-            // Check if Health Connect is available
             val availability = HealthConnectClient.getSdkStatus(this)
             if (availability != HealthConnectClient.SDK_AVAILABLE) {
                 binding.switchSyncHealthConnect.isChecked = false
