@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "216437431948",
+    "project_id": "marathon-c1c06",
+    "storage_bucket": "marathon-c1c06.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:216437431948:android:e8df9299f335395ca2e5a9",
+        "android_client_info": {
+          "package_name": "com.university.marathononline"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRD7QfWvQf8tDJJOM7vuobJmi6GpYVDMs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,29 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Nền của thanh tiến trình -->
+    <item android:id="@android:id/background">
+        <shape android:shape="rectangle">
+            <corners android:radius="10dp" /> <!-- Bo tròn -->
+            <solid android:color="#730A0A" /> <!-- Màu nền -->
+        </shape>
+    </item>
+
+    <!-- Thanh tiến trình đã hoàn thành -->
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape android:shape="rectangle">
+                <corners android:radius="10dp" /> <!-- Bo tròn -->
+                <solid android:color="#FF5722" /> <!-- Màu thanh tiến trình -->
+            </shape>
+        </clip>
+    </item>
+
+    <!-- Thanh tiến trình phụ (nếu có) -->
+    <item android:id="@android:id/secondaryProgress">
+        <clip>
+            <shape android:shape="rectangle">
+                <corners android:radius="10dp" /> <!-- Bo tròn -->
+                <solid android:color="#FFA726" /> <!-- Màu thanh phụ -->
+            </shape>
+        </clip>
+    </item>
+</layer-list>

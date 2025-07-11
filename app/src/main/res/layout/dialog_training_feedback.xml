@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/_20sdp"
+        app:cardCornerRadius="@dimen/_16sdp"
+        app:cardElevation="@dimen/_8sdp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:minWidth="@dimen/_300sdp"
+            android:padding="@dimen/_10sdp">
+
+            <!-- Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@drawable/rounded_background"
+                android:layout_marginBottom="@dimen/_15sdp">
+
+                <TextView
+                    android:id="@+id/tv_dialog_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Phản Hồi Bài Tập"
+                    android:textColor="@color/dark_main_color"
+                    android:textSize="@dimen/_16sdp"
+                    android:textStyle="bold"
+                    android:padding="10dp"
+                    android:textAlignment="center" />
+            </LinearLayout>
+
+            <!-- Content ScrollView -->
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/_10sdp">
+
+                    <!-- Difficulty Rating Section -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Mức độ khó của bài tập"
+                        android:textColor="@color/dark_main_color"
+                        android:textSize="@dimen/_14sdp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="@dimen/_5sdp" />
+
+                    <Spinner
+                        android:id="@+id/spinner_difficulty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:layout_marginBottom="@dimen/_15sdp"
+                        android:background="@drawable/spinner_background"
+                        android:padding="@dimen/_10sdp" />
+
+                    <!-- Feeling Rating Section -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Cảm giác sau khi tập"
+                        android:textColor="@color/dark_main_color"
+                        android:textSize="@dimen/_14sdp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="@dimen/_5sdp" />
+
+                    <Spinner
+                        android:id="@+id/spinner_feeling"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:layout_marginBottom="@dimen/_15sdp"
+                        android:background="@drawable/spinner_background"
+                        android:padding="@dimen/_10sdp" />
+
+                    <!-- Notes Section -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Ghi chú thêm (tùy chọn)"
+                        android:textColor="@color/dark_main_color"
+                        android:textSize="@dimen/_14sdp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="@dimen/_5sdp" />
+
+                    <EditText
+                        android:id="@+id/et_notes"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_100sdp"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:background="@drawable/spinner_background"
+                        android:padding="@dimen/_10sdp"
+                        android:hint="Chia sẻ cảm nhận của bạn về bài tập này..."
+                        android:textSize="@dimen/_12sdp"
+                        android:gravity="top|start"
+                        android:inputType="textMultiLine"
+                        android:maxLines="4"
+                        android:scrollbars="vertical" />
+
+                </LinearLayout>
+            </ScrollView>
+
+            <!-- Action Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="@dimen/_10sdp">
+
+                <Button
+                    android:id="@+id/btn_cancel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/_5sdp"
+                    android:background="@drawable/rounded_button_secondary_bg"
+                    android:text="Hủy"
+                    android:textColor="@color/dark_main_color" />
+
+                <Button
+                    android:id="@+id/btn_submit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/_5sdp"
+                    android:background="@drawable/rounded_button_bg"
+                    android:text="Gửi Phản Hồi"
+                    android:textColor="@color/white" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</layout>

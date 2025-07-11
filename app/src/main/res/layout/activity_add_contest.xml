@@ -1,0 +1,354 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <!-- Add ViewModel binding or any data to bind with the layout here -->
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/_5sdp"
+            android:background="@color/white">
+
+            <ImageButton
+                android:id="@+id/button_back"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:background="@android:color/transparent"
+                android:padding="0dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_left"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thông tin cuộc thi"
+                android:textStyle="bold"
+                android:textSize="@dimen/_18ssp"
+                android:textColor="@color/black"
+                android:layout_gravity="center"/>
+
+            <ImageButton
+                android:id="@+id/btnSaveContest"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:background="@android:color/transparent"
+                android:padding="0dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_save"
+                android:layout_gravity="end"
+                android:layout_marginEnd="@dimen/_10sdp"/>
+        </Toolbar>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:weightSum="1">
+
+            <!-- Tên cuộc thi -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.7"
+                android:text="Tên cuộc thi"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etContestName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Tên cuộc thi" />
+
+
+            <TextView
+                android:id="@+id/etContestNameErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
+
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="10dp" />
+
+            <!-- Contest Description -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.7"
+                android:text="Mô tả cuộc thi"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etContestDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Mô tả cuộc thi" />
+
+
+            <TextView
+                android:id="@+id/etContestDescriptionErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="10dp" />
+
+            <!-- Distance -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.7"
+                android:text="Quãng đường (km)"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etContestDistance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Quãng đường"
+                android:inputType="numberDecimal"/>
+
+
+            <TextView
+                android:id="@+id/etContestDistanceErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="10dp" />
+
+            <!-- Fee -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.7"
+                android:text="Chi phí (VNĐ)"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etContestFee"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Chi phí"
+                android:inputType="numberDecimal"/>
+
+            <TextView
+                android:id="@+id/etContestFeeErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
+
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="10dp" />
+
+            <!-- Max Members -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.7"
+                android:text="Số lượng đăng ký"
+                android:textStyle="bold"
+                android:inputType="numberDecimal"/>
+
+            <EditText
+                android:id="@+id/etMaxMembers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Số lượng đăng ký"
+                android:inputType="numberDecimal"/>
+
+            <TextView
+                android:id="@+id/etMaxMembersErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="10dp" />
+
+            <!-- Start Date -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.7"
+                android:text="Ngày bắt đầu"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnStartDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:text="Select Start Date" />
+
+
+            <TextView
+                android:id="@+id/startDateErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="10dp" />
+
+            <!-- End Date -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.7"
+                android:text="Ngày kết thúc"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnEndDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:text="Select End Date" />
+
+
+            <TextView
+                android:id="@+id/endDateErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="10dp" />
+
+            <!-- Registration Deadline -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.7"
+                android:text="Ngày hạn đăng ký"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnRegistrationDeadline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:text="Select Registration Deadline" />
+
+            <TextView
+                android:id="@+id/deadlineDateErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="10dp" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="10dp" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="10dp" />
+
+            <!-- Rules Section -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tvRules"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Quy định"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_weight="1" />
+
+                <ImageButton
+                    android:id="@+id/btnAddRule"
+                    android:layout_width="@dimen/_30sdp"
+                    android:layout_height="@dimen/_30sdp"
+                    android:src="@drawable/ic_add"/>
+
+            </LinearLayout>
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerRules"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="10dp" />
+
+            <!-- Rewards Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tvRewards"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Giải thưởng"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <ImageButton
+                    android:id="@+id/btnAddReward"
+                    android:layout_width="@dimen/_30sdp"
+                    android:layout_height="@dimen/_30sdp"
+                    android:src="@drawable/ic_add"/>
+
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerRewards"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="10dp" />
+
+        </LinearLayout>
+    </ScrollView>
+    </LinearLayout>
+</layout>

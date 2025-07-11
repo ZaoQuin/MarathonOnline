@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="@dimen/_4sdp"
+    android:layout_marginHorizontal="@dimen/_8sdp"
+    app:cardCornerRadius="@dimen/_12sdp"
+    app:cardElevation="@dimen/_2sdp"
+    app:cardBackgroundColor="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/_12sdp">
+
+        <!-- Header shimmer -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="@dimen/_6sdp">
+
+            <!-- Icon shimmer -->
+            <View
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:background="@drawable/background_shimmer_v2"
+                android:layout_marginEnd="@dimen/_6sdp" />
+
+            <!-- Timestamp shimmer -->
+            <View
+                android:layout_width="@dimen/_60sdp"
+                android:layout_height="@dimen/_10sdp"
+                android:background="@drawable/background_shimmer_v2" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <!-- Status indicator shimmer -->
+            <View
+                android:layout_width="@dimen/_6sdp"
+                android:layout_height="@dimen/_6sdp"
+                android:background="@drawable/background_shimmer_v2" />
+
+        </LinearLayout>
+
+        <!-- Title shimmer -->
+        <View
+            android:layout_width="@dimen/_160sdp"
+            android:layout_height="@dimen/_14sdp"
+            android:layout_marginBottom="@dimen/_4sdp"
+            android:background="@drawable/background_shimmer_v2" />
+
+        <!-- Content shimmer lines -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_12sdp"
+            android:layout_marginBottom="@dimen/_2sdp"
+            android:background="@drawable/background_shimmer_v2" />
+
+        <View
+            android:layout_width="@dimen/_180sdp"
+            android:layout_height="@dimen/_12sdp"
+            android:background="@drawable/background_shimmer_v2" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

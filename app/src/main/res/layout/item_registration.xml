@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:padding="8dp"
+        android:background="@android:color/white"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Full Name -->
+            <TextView
+                android:id="@+id/tvFullName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?attr/textAppearanceSubtitle1"
+                android:textStyle="bold"
+                tools:text="Nguyễn Văn A" />
+
+            <!-- Username -->
+            <TextView
+                android:id="@+id/tvUsername"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:textColor="@android:color/darker_gray"
+                tools:text="username123" />
+
+            <!-- Tổng quãng đường đã chạy -->
+            <TextView
+                android:id="@+id/tvTotalDistance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?attr/textAppearanceBody2"
+                tools:text="Tổng quãng đường: 42 km" />
+
+            <!-- Thời gian chạy -->
+            <TextView
+                android:id="@+id/tvTotalTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?attr/textAppearanceBody2"
+                tools:text="Thời gian chạy: 02:30:45" />
+
+            <!-- Trạng thái đăng ký -->
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:textStyle="bold"
+                tools:text="Trạng thái: ACTIVE" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/statisticsContest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/background_border_grey_12sp"
+            android:padding="@dimen/_4sdp"
+            android:text="Xem thống kê"
+            android:textColor="@color/main_color"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            android:layout_gravity="top|end"
+            android:layout_margin="@dimen/_10sdp"/>
+
+    </androidx.cardview.widget.CardView>
+</layout>

@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+    </data>
+
+    <!-- Main Container with Card-like appearance -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/_16sdp"
+        app:cardCornerRadius="@dimen/_12sdp"
+        app:cardElevation="@dimen/_8sdp"
+        android:background="@color/white">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/_20sdp"
+            android:background="@color/white">
+
+            <!-- Dialog Title -->
+            <TextView
+                android:id="@+id/tvDialogTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Thống Kê Cuộc Thi"
+                android:textSize="@dimen/_18ssp"
+                android:textStyle="bold"
+                android:textColor="@color/dark_main_color"
+                android:gravity="center"
+                android:layout_marginBottom="@dimen/_16sdp"/>
+
+            <!-- Contest Header Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/rounded_background"
+                android:padding="@dimen/_12sdp"
+                android:layout_marginBottom="@dimen/_12sdp">
+
+                <!-- Contest Name with Report Button -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvContestName"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Contest Name"
+                        android:textSize="@dimen/_16ssp"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        android:maxLines="2"
+                        android:ellipsize="end"/>
+
+                    <ImageButton
+                        android:id="@+id/reportButton"
+                        android:layout_width="@dimen/_24sdp"
+                        android:layout_height="@dimen/_24sdp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_report"
+                        android:tint="@color/white"
+                        android:visibility="gone"
+                        android:contentDescription="Report User"/>
+
+                </LinearLayout>
+
+                <!-- Contest Status -->
+                <TextView
+                    android:id="@+id/tvContestStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Contest Status"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_14ssp"
+                    android:layout_marginTop="@dimen/_4sdp"/>
+
+            </LinearLayout>
+
+            <!-- Registration Information Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/background_radius_8sdp_light_gray"
+                android:padding="@dimen/_12sdp"
+                android:layout_marginBottom="@dimen/_12sdp">
+
+                <!-- Registration Date -->
+                <TextView
+                    android:id="@+id/tvContestDatesRegister"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Register Date"
+                    android:textColor="@color/gray"
+                    android:textSize="@dimen/_12ssp"
+                    android:drawableStart="@drawable/ic_calendar"
+                    android:drawablePadding="@dimen/_8sdp"
+                    android:gravity="center_vertical"/>
+
+                <!-- Completion Status -->
+                <TextView
+                    android:id="@+id/tvCompletionStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Completion Status"
+                    android:textColor="@color/gray"
+                    android:textSize="@dimen/_12ssp"
+                    android:drawablePadding="@dimen/_8sdp"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="@dimen/_4sdp"/>
+
+                <!-- Additional Statistics -->
+                <TextView
+                    android:id="@+id/tvTotalRecords"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Tổng số bản ghi: 0"
+                    android:textColor="@color/gray"
+                    android:textSize="@dimen/_12ssp"
+                    android:drawablePadding="@dimen/_8sdp"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="@dimen/_4sdp"/>
+
+                <TextView
+                    android:id="@+id/tvCompletionPercentage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Hoàn thành: 0%"
+                    android:textColor="@color/gray"
+                    android:textSize="@dimen/_12ssp"
+                    android:drawablePadding="@dimen/_8sdp"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="@dimen/_4sdp"/>
+
+                <!-- Approval Statistics -->
+                <TextView
+                    android:id="@+id/tvApprovalStatistics"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Trạng thái duyệt: Đã duyệt(0), Chờ duyệt(0), Từ chối(0), Chưa xét(0)"
+                    android:textColor="@color/gray"
+                    android:textSize="@dimen/_12ssp"
+                    android:drawablePadding="@dimen/_8sdp"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="@dimen/_4sdp"
+                    android:visibility="gone"/>
+
+            </LinearLayout>
+
+            <!-- Progress Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/background_radius_8sdp_light_gray"
+                android:padding="@dimen/_12sdp"
+                android:layout_marginBottom="@dimen/_16sdp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Tiến Độ Hoàn Thành"
+                    android:textSize="@dimen/_14ssp"
+                    android:textStyle="bold"
+                    android:textColor="@color/dark_main_color"
+                    android:layout_marginBottom="@dimen/_8sdp"/>
+
+                <ProgressBar
+                    android:id="@+id/processBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_8sdp"
+                    style="@android:style/Widget.ProgressBar.Horizontal"
+                    android:max="100"
+                    android:progress="0"
+                    android:progressDrawable="@drawable/progress_bar_custom"
+                    android:layout_marginBottom="@dimen/_4sdp"/>
+
+                <TextView
+                    android:id="@+id/processBarValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="0/0"
+                    android:textAlignment="center"
+                    android:textSize="@dimen/_12ssp"
+                    android:textColor="@color/gray"/>
+
+            </LinearLayout>
+
+            <!-- Records Header - Reduced columns for mobile -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/rounded_background"
+                android:padding="@dimen/_6sdp"
+                android:layout_marginBottom="@dimen/_8sdp">
+
+                <TextView
+                    android:id="@+id/tvTimestamp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.2"
+                    android:text="Ngày"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/_10ssp"
+                    android:textColor="@color/white"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/tvDistance"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="K.cách"
+                    android:textSize="@dimen/_10ssp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/tvTimeTaken"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="T.gian"
+                    android:textSize="@dimen/_10ssp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:gravity="center"/>
+
+                <!-- Approval Status Column Header -->
+                <TextView
+                    android:id="@+id/tvApprovalStatus"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Duyệt"
+                    android:textSize="@dimen/_10ssp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:gravity="center"/>
+
+            </LinearLayout>
+
+            <!-- Records List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewContests"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="@dimen/_200sdp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_record_statistics"
+                android:nestedScrollingEnabled="false"
+                android:layout_marginBottom="@dimen/_12sdp"/>
+
+            <!-- Empty State Message -->
+            <TextView
+                android:id="@+id/tvEmptyRecords"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chưa có bản ghi nào"
+                android:textSize="@dimen/_14ssp"
+                android:textColor="@color/gray"
+                android:gravity="center"
+                android:padding="@dimen/_20sdp"
+                android:visibility="gone"
+                android:drawablePadding="@dimen/_8sdp"/>
+
+            <!-- Button Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="@dimen/_16sdp">
+
+                <Button
+                    android:id="@+id/btnClose"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/_40sdp"
+                    android:layout_weight="1"
+                    android:text="Đóng"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/_14ssp"
+                    android:background="@drawable/background_radius_12sdp_light_green"
+                    android:elevation="@dimen/_2sdp"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</layout>

@@ -1,0 +1,106 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <!-- Nếu cần Binding, bạn có thể thêm các biến tại đây -->
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="6dp">
+
+        <LinearLayout
+            android:id="@+id/contestCardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="@color/white">
+
+            <!-- Tên cuộc thi -->
+            <TextView
+                android:id="@+id/tvContestName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tên cuộc thi"
+                android:textAppearance="?attr/textAppearanceHeadline6"
+                android:textColor="@color/black"
+                android:ellipsize="end"
+                android:maxLines="1"
+                tools:text="Chạy Marathon Toàn Quốc" />
+
+            <!-- Mô tả cuộc thi -->
+            <TextView
+                android:id="@+id/tvContestDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Mô tả cuộc thi"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:textColor="@color/gray"
+                android:ellipsize="end"
+                android:maxLines="2"
+                tools:text="Cùng tham gia cuộc thi chạy marathon để thử thách bản thân!" />
+
+            <TextView
+                android:id="@+id/tvRegistrationCount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Số lượng người đăng ký"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:ellipsize="end"
+                android:maxLines="2"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvContestStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/status_background"
+                    android:padding="4dp"
+                    android:text="Đang hoạt động"
+                    android:textColor="@color/dark_main_color"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    android:layout_margin="@dimen/_2ssp"/>
+
+                <TextView
+                    android:id="@+id/tvStartStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/status_background"
+                    android:padding="4dp"
+                    android:text="Đã bắt đầu"
+                    android:textColor="@color/dark_main_color"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    android:layout_margin="@dimen/_2ssp"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/tvRegistrationStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/status_background"
+                    android:padding="4dp"
+                    android:text="Trong thời gian đăng ký"
+                    android:textColor="@color/dark_main_color"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    android:layout_margin="@dimen/_2ssp"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</layout>

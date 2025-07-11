@@ -1,0 +1,138 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Toolbar -->
+        <Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/_5sdp"
+            android:background="@color/white">
+
+            <ImageButton
+                android:id="@+id/button_back"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:background="@android:color/transparent"
+                android:padding="0dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_left"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Xóa Tài Khoản"
+                android:textStyle="bold"
+                android:textSize="@dimen/_18ssp"
+                android:textColor="@color/black"
+                android:layout_gravity="center"/>
+
+        </Toolbar>
+
+        <!-- Content Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/_20sdp"
+            android:background="@color/white">
+
+            <!-- Email Input -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Địa Chỉ Email"
+                android:textStyle="bold"
+                android:alpha="0.7"/>
+
+            <EditText
+                android:id="@+id/emailEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                android:enabled="false"/>
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"/>
+
+            <!-- OTP Input -->
+            <TextView
+                android:id="@+id/otpEditLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.7"
+                android:text="Nhập mã xác nhận"
+                android:textStyle="bold"
+                android:visibility="gone"/>
+
+            <EditText
+                android:id="@+id/otpEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/otpErrorText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_10ssp"
+                android:textColor="@android:color/holo_red_dark"/>
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"/>
+
+            <!-- Confirm Deletion Message -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bạn chắc chắn muốn xóa tài khoản này?"
+                android:textStyle="bold"
+                android:textColor="@android:color/holo_red_dark"
+                android:paddingTop="@dimen/_10sdp"
+                android:paddingBottom="@dimen/_10sdp"/>
+
+            <!-- Submit Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/sendOTPButton"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:text="Gửi OTP"
+                android:textColor="@android:color/white"
+                app:backgroundTint="@android:color/holo_red_dark"
+                app:cornerRadius="32dp"/>
+
+            <!-- Reset Button (xóa tài khoản) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/deleteAccountButton"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:text="Xóa Tài Khoản"
+                android:textColor="@android:color/white"
+                android:visibility="gone"
+                app:backgroundTint="@android:color/holo_red_dark"
+                app:cornerRadius="32dp"/>
+
+            <!-- Cancel Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cancelButton"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:text="Hủy"
+                android:textColor="@android:color/white"
+                app:backgroundTint="@color/dark_main_color"
+                app:cornerRadius="32dp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>

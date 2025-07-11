@@ -1,0 +1,70 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPager2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/bottomAppBar"/>
+
+
+        <com.google.android.material.bottomappbar.BottomAppBar
+            android:id="@+id/bottomAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_50sdp"
+            android:layout_gravity="bottom"
+            app:fabCradleMargin="@dimen/_20sdp"
+            app:fabCradleVerticalOffset="@dimen/_10sdp"
+            app:fabCradleRoundedCornerRadius="@dimen/_50sdp"
+            tools:ignore="BottomAppBar">
+
+            <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:id="@+id/bottomNavView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:padding="5dp"
+                app:menu="@menu/organizer_nav_menu"
+                android:background="@android:color/transparent"
+                app:itemIconTint="@color/bottom_nav_color_selector"
+                app:itemTextColor="@color/bottom_nav_color_selector"/>
+
+        </com.google.android.material.bottomappbar.BottomAppBar>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnAddContest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_add"
+            app:layout_anchor="@id/bottomAppBar"
+            android:backgroundTint="@color/main_color"
+            app:borderWidth="0dp"/>
+
+
+        <ImageView
+            android:id="@+id/animationBtnRecord"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginBottom="@dimen/_40sdp"
+            android:background="@drawable/circle"/>
+
+        <ImageView
+            android:id="@+id/animation2BtnRecord"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginBottom="@dimen/_40sdp"
+            android:background="@drawable/circle"/>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

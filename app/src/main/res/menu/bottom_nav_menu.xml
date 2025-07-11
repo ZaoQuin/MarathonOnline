@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/tabHome"
+        android:title="Trang chủ"
+        android:icon="@drawable/ic_home"/>
 
+    <item android:id="@+id/tabContest"
+        android:title="Giải đấu"
+        android:icon="@drawable/ic_contest"/>
+
+    <item android:id="@+id/tabNone"
+        android:title=""
+        android:enabled="false"/>
+
+    <item android:id="@+id/tabTrain"
+        android:title="Luyện tập"
+        android:icon="@drawable/ic_weight"/>
+
+    <item android:id="@+id/tabProfile"
+        android:title="Cá nhân"
+        android:icon="@drawable/ic_user"/>
 </menu>

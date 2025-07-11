@@ -1,0 +1,28 @@
+<!-- dialog_statistics.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tvCurrentDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Khoảng cách đã chạy: 0km"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tvContestDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tổng quãng đường: 0km"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tvCompletionRate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tỷ lệ hoàn thành: 0%"
+        android:textSize="16sp" />
+</LinearLayout>
